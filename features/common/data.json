@@ -1,0 +1,10 @@
+{
+  "userName": "Arnaud Zheng",
+  "descriptions": [
+    "Software Engineer",
+    "Front-end Developer",
+    "React Native Developer"
+  ],
+  "technologiesUsed": ["Typescript", "React", "React Native", "Node.js"],
+  "currentLocation": "Paris"
+}

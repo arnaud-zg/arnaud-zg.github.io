@@ -1,0 +1,29 @@
+{
+  "name": "arnaud-zg.github.io",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:arnaud-zg/arnaud-zg.github.io.git",
+  "author": "Arnaud Zheng <arnaud-zg@users.noreply.github.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "export": "next export",
+    "deploy": "yarn build && yarn export && touch out/.nojekyll && touch out/CNAME && echo \"https://arnaud-zg.github.io/\" >> out/CNAME && gh-pages -t -d out -b master"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "next": "^9.2.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.7.0",
+    "@types/react": "^16.9.19",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.18.3",
+    "gh-pages": "^2.2.0",
+    "typescript": "^3.7.5"
+  }
+}
