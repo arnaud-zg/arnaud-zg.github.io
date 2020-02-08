@@ -6,6 +6,7 @@ import Document, {
   DocumentContext,
 } from 'next/document';
 import classNames from 'classnames';
+import { appLanguage } from '../features/common/data.json';
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -15,7 +16,7 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html dir="rtl" lang={appLanguage}>
         <Head>
           <link rel="stylesheet" href="assets/css/main.css" />
           <noscript>

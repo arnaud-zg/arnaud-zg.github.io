@@ -1,5 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 const SOCIAL_NETWORKS = [
   {
@@ -27,6 +27,7 @@ export const SocialNetworks = () => (
           <a
             className={`icon brands fa-${brandIcon}`}
             href={href}
+            rel="noopener noreferrer"
             target="_blank">
             <span className={classNames('hidden')}>{label}</span>
           </a>

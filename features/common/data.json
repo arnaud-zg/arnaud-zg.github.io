@@ -8,5 +8,6 @@
   ],
   "technologiesUsed": ["Typescript", "React", "React Native", "Node.js"],
   "currentLocation": "Paris",
-  "url": "https://arnaud-zg.github.io/"
+  "url": "https://arnaud-zg.github.io/",
+  "appLanguage": "en"
 }

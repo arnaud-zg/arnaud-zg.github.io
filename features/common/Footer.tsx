@@ -23,7 +23,7 @@ const footerList: FooterItemProps[] = [
 const FooterItemLink = ({ prefix, href, target, label }: FooterItemProps) => (
   <>
     {prefix}
-    <a href={href} target={target}>
+    <a href={href} rel="noopener noreferrer" target={target}>
       {label}
     </a>
   </>
