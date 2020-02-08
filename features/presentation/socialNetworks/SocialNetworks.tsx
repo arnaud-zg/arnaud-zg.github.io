@@ -21,7 +21,7 @@ const SOCIAL_NETWORKS = [
 
 export const SocialNetworks = () => (
   <nav className={classNames('mt-6')}>
-    <ul className={classNames('flex', 'justify-center')}>
+    <ul className={classNames('flex', 'flex-wrap', 'justify-center')}>
       {SOCIAL_NETWORKS.map(({ href, brandIcon, label }) => (
         <li key={label} className={classNames('h-20', 'opacity-0', 'w-20')}>
           <a
