@@ -4,7 +4,7 @@ import { firstName, lastName, descriptions } from '../common/data.json';
 import classNames from 'classnames';
 
 export const Presentation = () => (
-  <header id="header">
+  <header id="header" className="self-center">
     <div>
       <h1 className={classNames('font-black', 'tracking-tight')}>
         {firstName} {lastName}

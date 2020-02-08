@@ -44,12 +44,12 @@ function HomePage() {
       <Background />
       <Overlay />
       <div
-        id="main"
         className={classNames(
           'fixed',
+          'flex',
           'h-full',
           'inset-0',
-          'text-center',
+          'justify-center',
           'w-full'
         )}>
         <Presentation />

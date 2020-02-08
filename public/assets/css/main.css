@@ -263,17 +263,6 @@ a:hover {
   width: 100%;
 }
 
-/* Main */
-
-#main:before {
-  content: '';
-  display: inline-block;
-  height: 100%;
-  margin-right: 0;
-  vertical-align: middle;
-  width: 1px;
-}
-
 /* Header */
 
 @-moz-keyframes header {
