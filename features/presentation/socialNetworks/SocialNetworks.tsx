@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 
 const SOCIAL_NETWORKS = [
   {
@@ -19,15 +20,15 @@ const SOCIAL_NETWORKS = [
 ];
 
 export const SocialNetworks = () => (
-  <nav>
-    <ul>
+  <nav className={classNames('mt-6')}>
+    <ul className={classNames('flex', 'justify-center')}>
       {SOCIAL_NETWORKS.map(({ href, brandIcon, label }) => (
-        <li key={label}>
+        <li key={label} className={classNames('h-20', 'opacity-0', 'w-20')}>
           <a
             className={`icon brands fa-${brandIcon}`}
             href={href}
             target="_blank">
-            <span className="label">{label}</span>
+            <span className={classNames('hidden')}>{label}</span>
           </a>
         </li>
       ))}

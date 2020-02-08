@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background, Overlay } from '../features/common';
@@ -42,7 +43,15 @@ function HomePage() {
       />
       <Background />
       <Overlay />
-      <div id="main">
+      <div
+        id="main"
+        className={classNames(
+          'fixed',
+          'h-full',
+          'inset-0',
+          'text-center',
+          'w-full'
+        )}>
         <Presentation />
         <Footer />
       </div>

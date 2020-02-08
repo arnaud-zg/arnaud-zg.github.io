@@ -9,7 +9,9 @@ export const Presentation = () => (
       <h1 className={classNames('font-black', 'tracking-tight')}>
         {firstName} {lastName}
       </h1>
-      <p>{descriptions.join(' • ')}</p>
+      <p className={classNames('mt-4', 'opacity-75', 'text-xl')}>
+        {descriptions.join(' • ')}
+      </p>
     </div>
     <SocialNetworks />
   </header>

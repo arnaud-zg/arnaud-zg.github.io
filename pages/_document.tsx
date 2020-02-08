@@ -1,7 +1,14 @@
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+import Document, {
+  Html,
+  Head,
+  Main,
+  NextScript,
+  DocumentContext,
+} from 'next/document';
+import classNames from 'classnames';
 
 class MyDocument extends Document {
-  static async getInitialProps(ctx) {
+  static async getInitialProps(ctx: DocumentContext) {
     const initialProps = await Document.getInitialProps(ctx);
     return { ...initialProps };
   }
@@ -15,7 +22,16 @@ class MyDocument extends Document {
             <link rel="stylesheet" href="assets/css/noscript.css" />
           </noscript>
         </Head>
-        <body className="is-preload">
+        <body
+          className={classNames(
+            'bg-white',
+            'font-light',
+            'font-sans',
+            'is-preload',
+            'overflow-hidden',
+            'text-base',
+            'text-white'
+          )}>
           <Main />
           <NextScript />
         </body>
