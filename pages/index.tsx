@@ -1,8 +1,15 @@
+import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background, Overlay } from '../features/common';
-import { Presentation } from '../features/presentation';
-import { Layout } from '../features/common/Layout';
+import {
+  descriptions,
+  firstName,
+  lastName,
+  url,
+} from '../features/common/data.json';
 import { Footer } from '../features/common/Footer';
+import { Layout } from '../features/common/Layout';
+import { Presentation } from '../features/presentation';
 
 function HomePage() {
   useEffect(() => {
@@ -17,6 +24,22 @@ function HomePage() {
 
   return (
     <Layout>
+      <NextSeo
+        title={`${firstName} ${lastName} | ${descriptions[0]}`}
+        description={`${descriptions[0]}`}
+        openGraph={{
+          title: `${firstName} ${lastName} | ${descriptions[0]}`,
+          description: `${descriptions[0]}`,
+          url,
+          type: 'profile',
+          profile: {
+            firstName,
+            lastName,
+            // username: 'arnaud-zg',
+            gender: 'male',
+          },
+        }}
+      />
       <Background />
       <Overlay />
       <div id="main">

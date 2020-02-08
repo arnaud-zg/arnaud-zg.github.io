@@ -1,10 +1,12 @@
 {
-  "userName": "Arnaud Zheng",
+  "firstName": "Arnaud",
+  "lastName": "Zheng",
   "descriptions": [
     "Software Engineer",
     "Front-end Developer",
     "React Native Developer"
   ],
   "technologiesUsed": ["Typescript", "React", "React Native", "Node.js"],
-  "currentLocation": "Paris"
+  "currentLocation": "Paris",
+  "url": "https://arnaud-zg.github.io/"
 }
