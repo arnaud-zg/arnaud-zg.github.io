@@ -13,11 +13,14 @@
     "deploy": "yarn build && yarn export && touch out/.nojekyll && touch out/CNAME && echo \"https://arnaud-zg.github.io/\" >> out/CNAME && gh-pages -t -d out -b master"
   },
   "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.0.6",
     "classnames": "^2.2.6",
     "next": "^9.2.1",
     "next-seo": "^4.1.0",
+    "postcss-preset-env": "^6.7.0",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "tailwindcss": "^1.2.0"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",
