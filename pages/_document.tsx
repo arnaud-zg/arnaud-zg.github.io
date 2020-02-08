@@ -16,7 +16,7 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html dir="rtl" lang={appLanguage}>
+      <Html dir="ltr" lang={appLanguage}>
         <Head>
           <link rel="stylesheet" href="assets/css/main.css" />
           <noscript>

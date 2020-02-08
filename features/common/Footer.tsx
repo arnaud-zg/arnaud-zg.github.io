@@ -10,7 +10,8 @@ interface FooterItemProps {
 
 const footerList: FooterItemProps[] = [
   {
-    label: `© ${firstName} ${lastName}`,
+    prefix: '© ',
+    label: `${firstName} ${lastName}`,
   },
   {
     prefix: 'Design: ',
