@@ -23,13 +23,13 @@
     "tailwindcss": "^1.2.0"
   },
   "devDependencies": {
-    "@types/classnames": "^2.2.9",
-    "@types/node": "^13.7.0",
-    "@types/react": "^16.9.19",
-    "eslint": "^6.8.0",
-    "eslint-plugin-react": "^7.18.3",
-    "gh-pages": "^2.2.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^3.7.5"
+    "@types/classnames": "2.2.9",
+    "@types/node": "13.7.0",
+    "@types/react": "16.9.19",
+    "eslint": "6.8.0",
+    "eslint-plugin-react": "7.18.3",
+    "gh-pages": "2.2.0",
+    "rimraf": "3.0.2",
+    "typescript": "3.7.5"
   }
 }
