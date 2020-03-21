@@ -2,13 +2,18 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background } from '../features/common';
+import { Block } from '../features/common/Block';
 import {
   descriptions,
   firstName,
   lastName,
   url,
 } from '../features/common/data.json';
+import { Heading } from '../features/common/Heading';
 import { Layout } from '../features/common/Layout';
+import { Link } from '../features/common/Link';
+import { Text, TextEnum } from '../features/common/Text';
+import { Title, TitleProps } from '../features/common/Title';
 
 function HomePage() {
   useEffect(() => {
@@ -61,69 +66,58 @@ function HomePage() {
             'p-4',
             'w-4/5'
           )}>
-          <div>
-            <h2 className="major">Elements</h2>
-            <p>
+          <Title level={4}>Elements</Title>
+
+          <Block>
+            <Title level={5}>Basic text</Title>
+            <Text>
               Sed vel nibh libero. Mauris et lorem pharetra massa lorem turpis
               congue pulvinar. Vivamus sed feugiat finibus. Duis amet bibendum
               amet sed. Duis mauris ex, dapibus sed ligula tempus volutpat magna
               etiam.
-            </p>
-          </div>
-          <div>
-            <h3 className="major">Text</h3>
-            <p>
-              This is <b>bold</b> and this is <strong>strong</strong>. This is{' '}
-              <i>italic</i> and this is <em>emphasized</em>. This is{' '}
-              <sup>superscript</sup> text and this is <sub>subscript</sub> text.
-              This is <u>underlined</u> and this is code:{' '}
-              <code>{`for (;;) { ... }`}</code>. Finally,{' '}
-              <a href="#">this is a link</a>.
-            </p>
+            </Text>
+          </Block>
 
-            <h1>Heading Level 1</h1>
-            <h2>Heading Level 2</h2>
-            <h3>Heading Level 3</h3>
-            <h4>Heading Level 4</h4>
-            <h5>Heading Level 5</h5>
-            <h6>Heading Level 6</h6>
-          </div>
-          <div>
-            <header>
-              <h2>Heading with a Subtitle</h2>
-              <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-            </header>
-            <p>
-              Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida
-              odio porttitor sem non mi integer non faucibus ornare mi ut ante
-              amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem
-              accumsan varius montes viverra nibh in adipiscing blandit tempus
-              accumsan.
-            </p>
+          <Block>
+            <Title level={5}>Advanced text</Title>
+            <Text>
+              This is <Text mode={TextEnum.BOLD}>bold</Text> and this is{' '}
+              <Text mode={TextEnum.STRONG}>strong</Text>. This is{' '}
+              <Text mode={TextEnum.ITALIC}>italic</Text> and this is{' '}
+              <Text mode={TextEnum.EMPHASIS}>emphasized</Text>. This is{' '}
+              <Text mode={TextEnum.SUPERSCRIPT}>superscript</Text> text and this
+              is <Text mode={TextEnum.SUBSCRIPT}>subscript</Text> text. This is{' '}
+              <Text mode={TextEnum.UNDERLINE}>underlined</Text> and this is
+              code: <Text mode={TextEnum.CODE}>{`for (;;) { ... }`}</Text>.
+              Finally, <Link href="#">this is a link</Link>.
+            </Text>
+          </Block>
 
-            <header>
-              <h3>Heading with a Subtitle</h3>
-              <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-            </header>
-            <p>
-              Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida
-              odio porttitor sem non mi integer non faucibus ornare mi ut ante
-              amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem
-              accumsan varius montes viverra nibh in adipiscing blandit tempus
-              accumsan.
-            </p>
-            <header>
-              <h4>Heading with a Subtitle</h4>
-              <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-            </header>
-            <p>
-              Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida
-              odio porttitor sem non mi integer non faucibus ornare mi ut ante
-              amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem
-              accumsan varius montes viverra nibh in adipiscing blandit tempus
-              accumsan.
-            </p>
-          </div>
+          <Block>
+            <Title level={5}>Heading</Title>
+
+            <Title level={1}>Heading Level 1</Title>
+            <Title level={2}>Heading Level 2</Title>
+            <Title level={3}>Heading Level 3</Title>
+            <Title level={4}>Heading Level 4</Title>
+            <Title level={5}>Heading Level 5</Title>
+            <Title level={6}>Heading Level 6</Title>
+          </Block>
+
+          <Block>
+            {[1, 2, 3, 4, 5, 6].map((titleLevel: TitleProps['level']) => (
+              <Block key={titleLevel}>
+                <Heading titleLevel={titleLevel} />
+                <Text>
+                  Nunc lacinia ante nunc ac lobortis. Interdum adipiscing
+                  gravida odio porttitor sem non mi integer non faucibus ornare
+                  mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia
+                  sapien lorem accumsan varius montes viverra nibh in adipiscing
+                  blandit tempus accumsan.
+                </Text>
+              </Block>
+            ))}
+          </Block>
           <div>
             <h2>Lists</h2>
             <div className="row">
