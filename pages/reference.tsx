@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background } from '../features/common';
-import { Block } from '../features/common/Block';
+import { Block, DirectionEnum } from '../features/common/Block';
 import {
   descriptions,
   firstName,
@@ -14,6 +14,11 @@ import { Layout } from '../features/common/Layout';
 import { Link } from '../features/common/Link';
 import { Text, TextEnum } from '../features/common/Text';
 import { Title, TitleProps } from '../features/common/Title';
+import { List } from '../features/common/List';
+import { Definition } from '../features/common/Definition';
+import { Blockquote } from '../features/common/Blockquote';
+import { Code } from '../features/common/Code';
+import { Table } from '../features/common/Table';
 
 function HomePage() {
   useEffect(() => {
@@ -67,7 +72,6 @@ function HomePage() {
             'w-4/5'
           )}>
           <Title level={4}>Elements</Title>
-
           <Block>
             <Title level={5}>Basic text</Title>
             <Text>
@@ -77,7 +81,6 @@ function HomePage() {
               etiam.
             </Text>
           </Block>
-
           <Block>
             <Title level={5}>Advanced text</Title>
             <Text>
@@ -92,10 +95,8 @@ function HomePage() {
               Finally, <Link href="#">this is a link</Link>.
             </Text>
           </Block>
-
           <Block>
             <Title level={5}>Heading</Title>
-
             <Title level={1}>Heading Level 1</Title>
             <Title level={2}>Heading Level 2</Title>
             <Title level={3}>Heading Level 3</Title>
@@ -103,11 +104,14 @@ function HomePage() {
             <Title level={5}>Heading Level 5</Title>
             <Title level={6}>Heading Level 6</Title>
           </Block>
-
           <Block>
             {[1, 2, 3, 4, 5, 6].map((titleLevel: TitleProps['level']) => (
               <Block key={titleLevel}>
-                <Heading titleLevel={titleLevel} />
+                <Heading
+                  titleLevel={titleLevel}
+                  title="Heading with a subtitle"
+                  subTitle="Lorem ipsum dolor sit amet nullam id egestas urna aliquam"
+                />
                 <Text>
                   Nunc lacinia ante nunc ac lobortis. Interdum adipiscing
                   gravida odio porttitor sem non mi integer non faucibus ornare
@@ -118,167 +122,416 @@ function HomePage() {
               </Block>
             ))}
           </Block>
-          <div>
-            <h2>Lists</h2>
-            <div className="row">
-              <div className="col-6 col-12-small">
-                <h3>Unordered</h3>
-                <ul>
-                  <li>Dolor pulvinar etiam.</li>
-                  <li>Sagittis lorem eleifend.</li>
-                  <li>Felis feugiat dolore viverra.</li>
-                  <li>Dolor pulvinar etiam.</li>
-                </ul>
-
-                <h3>Alternate</h3>
-                <ul className="alt">
-                  <li>Dolor pulvinar etiam etiam.</li>
-                  <li>Sagittis adipiscing eleifend.</li>
-                  <li>Felis enim dolore viverra.</li>
-                  <li>Dolor pulvinar etiam etiam.</li>
-                </ul>
-              </div>
-              <div className="col-6 col-12-small">
-                <h3>Ordered</h3>
-                <ol>
-                  <li>Dolor pulvinar etiam.</li>
-                  <li>Etiam vel felis at viverra.</li>
-                  <li>Felis enim feugiat magna.</li>
-                  <li>Etiam vel felis nullam.</li>
-                  <li>Felis enim et tempus.</li>
-                </ol>
-              </div>
-            </div>
-
-            <h3>Definition</h3>
-            <dl>
-              <dt>Item 1</dt>
-              <dd>
-                <p>
-                  Lorem ipsum dolor vestibulum ante ipsum primis in faucibus
-                  vestibulum. Blandit adipiscing eu felis iaculis volutpat ac
-                  adipiscing accumsan eu faucibus. Integer ac pellentesque
-                  praesent.
-                </p>
-              </dd>
-              <dt>Item 2</dt>
-              <dd>
-                <p>
-                  Lorem ipsum dolor vestibulum ante ipsum primis in faucibus
-                  vestibulum. Blandit adipiscing eu felis iaculis volutpat ac
-                  adipiscing accumsan eu faucibus. Integer ac pellentesque
-                  praesent.
-                </p>
-              </dd>
-              <dt>Item 3</dt>
-              <dd>
-                <p>
-                  Lorem ipsum dolor vestibulum ante ipsum primis in faucibus
-                  vestibulum. Blandit adipiscing eu felis iaculis volutpat ac
-                  adipiscing accumsan eu faucibus. Integer ac pellentesque
-                  praesent.
-                </p>
-              </dd>
-            </dl>
-          </div>
-          <div>
-            <h3>Actions</h3>
-            <ul className="actions">
-              <li>
-                <a href="#" className="button primary">
-                  Primary
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button">
-                  Default
-                </a>
-              </li>
-            </ul>
-            <ul className="actions small">
-              <li>
-                <a href="#" className="button primary small">
-                  Small
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button small">
-                  Small
-                </a>
-              </li>
-            </ul>
-            <div className="row">
-              <div className="col-6 col-12-small">
-                <ul className="actions stacked">
-                  <li>
-                    <a href="#" className="button primary">
-                      Default
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="button">
-                      Default
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="col-6 col-12-small">
-                <ul className="actions stacked">
-                  <li>
-                    <a href="#" className="button primary small">
-                      Small
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="button small">
-                      Small
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-6 col-12-small">
-                <ul className="actions stacked">
-                  <li>
-                    <a href="#" className="button primary fit">
-                      Default
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="button fit">
-                      Default
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="col-6 col-12-small">
-                <ul className="actions stacked">
-                  <li>
-                    <a href="#" className="button primary small fit">
-                      Small
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#" className="button small fit">
-                      Small
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h4>Blockquote</h4>
-            <blockquote>
-              Lorem ipsum dolor sit amet. Felis sagittis eget tempus euismod.
-              Vestibulum ante ipsum primis in vestibulum. Blandit adipiscing eu
-              iaculis volutpat ac adipiscing volutpat ac adipiscing faucibus.
-            </blockquote>
-
-            <h4>Preformatted</h4>
-            <pre>
-              <code>
+          <Block>
+            <Title level={5}>Lists</Title>
+            <Block>
+              <Title level={6}>Unordered</Title>
+              <List
+                items={[
+                  { id: '1', content: 'Dolor pulvinar etiam.' },
+                  { id: '2', content: 'Sagittis lorem eleifend.' },
+                  { id: '3', content: 'Felis feugiat dolore viverra.' },
+                  { id: '4', content: 'Felis enim feugiat.' },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Alternate</Title>
+              <List
+                items={[
+                  { id: '1', content: 'Dolor pulvinar etiam.' },
+                  { id: '2', content: 'Sagittis lorem eleifend.' },
+                  { id: '3', content: 'Felis feugiat dolore viverra.' },
+                  { id: '4', content: 'Felis enim feugiat.' },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Ordered</Title>
+              <List
+                items={[
+                  { id: '1', content: 'Dolor pulvinar etiam.' },
+                  { id: '2', content: 'Sagittis lorem eleifend.' },
+                  { id: '3', content: 'Felis feugiat dolore viverra.' },
+                  { id: '4', content: 'Felis enim feugiat.' },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Definition</Title>
+              <Definition
+                items={[
+                  {
+                    name: 'Item 1',
+                    description:
+                      'Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.',
+                  },
+                  {
+                    name: 'Item 2',
+                    description:
+                      'Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.',
+                  },
+                  {
+                    name: 'Item 3',
+                    description:
+                      'Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.',
+                  },
+                ]}
+              />
+            </Block>
+          </Block>
+          <Block>
+            <Title level={5}>Actions</Title>
+            <Block>
+              <Title level={6}>Small</Title>
+              <List
+                items={[
+                  {
+                    id: '1',
+                    content: (
+                      <a href="#" className="button primary small">
+                        Primary
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '2',
+                    content: (
+                      <a href="#" className="button small">
+                        Small
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '3',
+                    content: (
+                      <a href="#" className="button small">
+                        Icon only
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '4',
+                    content: (
+                      <a href="#" className="button small">
+                        Text with icon
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '5',
+                    content: (
+                      <a href="#" className="button small">
+                        Disabled
+                      </a>
+                    ),
+                  },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Default</Title>
+              <List
+                items={[
+                  {
+                    id: '1',
+                    content: (
+                      <a href="#" className="button primary">
+                        Primary
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '2',
+                    content: (
+                      <a href="#" className="button">
+                        Default
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '3',
+                    content: (
+                      <a href="#" className="button">
+                        Icon only
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '4',
+                    content: (
+                      <a href="#" className="button">
+                        Text with icon
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '5',
+                    content: (
+                      <a href="#" className="button">
+                        Disabled
+                      </a>
+                    ),
+                  },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Large</Title>
+              <List
+                items={[
+                  {
+                    id: '1',
+                    content: (
+                      <a href="#" className="button primary large">
+                        Primary
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '2',
+                    content: (
+                      <a href="#" className="button large">
+                        Large
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '3',
+                    content: (
+                      <a href="#" className="button large">
+                        Icon only
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '4',
+                    content: (
+                      <a href="#" className="button large">
+                        Text with icon
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '5',
+                    content: (
+                      <a href="#" className="button large">
+                        Disabled
+                      </a>
+                    ),
+                  },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Stacked</Title>
+              <Block direction={DirectionEnum.ROW}>
+                <Block>
+                  <Title level={6}>Small</Title>
+                  <List
+                    items={[
+                      {
+                        id: '1',
+                        content: (
+                          <a href="#" className="button primary small">
+                            Primary
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '2',
+                        content: (
+                          <a href="#" className="button small">
+                            Small
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '3',
+                        content: (
+                          <a href="#" className="button small">
+                            Icon only
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '4',
+                        content: (
+                          <a href="#" className="button small">
+                            Text with icon
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '5',
+                        content: (
+                          <a href="#" className="button small">
+                            Disabled
+                          </a>
+                        ),
+                      },
+                    ]}
+                  />
+                </Block>
+                <Block>
+                  <Title level={6}>Default</Title>
+                  <List
+                    items={[
+                      {
+                        id: '1',
+                        content: (
+                          <a href="#" className="button primary">
+                            Primary
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '2',
+                        content: (
+                          <a href="#" className="button">
+                            Default
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '3',
+                        content: (
+                          <a href="#" className="button">
+                            Icon only
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '4',
+                        content: (
+                          <a href="#" className="button">
+                            Text with icon
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '5',
+                        content: (
+                          <a href="#" className="button">
+                            Disabled
+                          </a>
+                        ),
+                      },
+                    ]}
+                  />
+                </Block>
+              </Block>
+              <Block direction={DirectionEnum.ROW}>
+                <Block>
+                  <Title level={6}>Default</Title>
+                  <List
+                    items={[
+                      {
+                        id: '1',
+                        content: (
+                          <a href="#" className="button primary">
+                            Primary
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '2',
+                        content: (
+                          <a href="#" className="button">
+                            Default
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '3',
+                        content: (
+                          <a href="#" className="button">
+                            Icon only
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '4',
+                        content: (
+                          <a href="#" className="button">
+                            Text with icon
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '5',
+                        content: (
+                          <a href="#" className="button">
+                            Disabled
+                          </a>
+                        ),
+                      },
+                    ]}
+                  />
+                </Block>
+                <Block>
+                  <Title level={6}>Large</Title>
+                  <List
+                    items={[
+                      {
+                        id: '1',
+                        content: (
+                          <a href="#" className="button primary large">
+                            Primary
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '2',
+                        content: (
+                          <a href="#" className="button large">
+                            Large
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '3',
+                        content: (
+                          <a href="#" className="button large">
+                            Icon only
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '4',
+                        content: (
+                          <a href="#" className="button large">
+                            Text with icon
+                          </a>
+                        ),
+                      },
+                      {
+                        id: '5',
+                        content: (
+                          <a href="#" className="button large">
+                            Disabled
+                          </a>
+                        ),
+                      },
+                    ]}
+                  />
+                </Block>
+              </Block>
+            </Block>
+          </Block>
+          <Block>
+            <Block>
+              <Title level={5}>Blockquote</Title>
+              <Blockquote>
+                Lorem ipsum dolor sit amet. Felis sagittis eget tempus euismod.
+                Vestibulum ante ipsum primis in vestibulum. Blandit adipiscing
+                eu iaculis volutpat ac adipiscing volutpat ac adipiscing
+                faucibus.
+              </Blockquote>
+            </Block>
+            <Block>
+              <Title level={5}>Preformatted</Title>
+              <Code>
                 {`
 i = 0;
 
@@ -289,271 +542,150 @@ while (!deck.isInOrder()) {
 
 print 'It took ' + i + ' iterations to sort the deck.';
 `}
-              </code>
-            </pre>
-          </div>
-          <div>
-            <h3 className="major">Lists</h3>
-
-            <h4>Unordered</h4>
-            <ul>
-              <li>Lorem ipsum dolor sit.</li>
-              <li>Dolor pulvinar etiam.</li>
-              <li>Etiam vel felis viverra.</li>
-            </ul>
-
-            <h4>Alternate</h4>
-            <ul className="alt">
-              <li>Lorem ipsum dolor sit.</li>
-              <li>Dolor pulvinar etiam.</li>
-              <li>Etiam vel felis viverra.</li>
-              <li>Felis enim feugiat.</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4>Ordered</h4>
-            <ol>
-              <li>Lorem ipsum dolor sit.</li>
-              <li>Dolor pulvinar etiam.</li>
-              <li>Etiam vel felis viverra.</li>
-              <li>Felis enim feugiat.</li>
-              <li>Etiam vel felis lorem.</li>
-            </ol>
-
-            <h4>Actions</h4>
-            <ul className="actions">
-              <li>
-                <a href="#" className="button special color2">
-                  Default
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button">
-                  Default
-                </a>
-              </li>
-            </ul>
-            <ul className="actions vertical">
-              <li>
-                <a href="#" className="button special color2">
-                  Default
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button">
-                  Default
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4>Icons</h4>
-            <ul className="icons">
-              <li>
-                <a href="#" className="icon fa-twitter">
-                  <span className="label">Twitter</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="icon fa-facebook">
-                  <span className="label">Facebook</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="icon fa-instagram">
-                  <span className="label">Instagram</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="icon fa-github">
-                  <span className="label">GitHub</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" className="icon fa-medium">
-                  <span className="label">Medium</span>
-                </a>
-              </li>
-            </ul>
-
-            <h4>Contact Icons</h4>
-            <ul className="contact-icons color2">
-              <li className="icon fa-twitter">
-                <a href="#">Twitter</a>
-              </li>
-              <li className="icon fa-facebook">
-                <a href="#">Facebook</a>
-              </li>
-              <li className="icon fa-instagram">
-                <a href="#">Instagram</a>
-              </li>
-              <li className="icon fa-github">
-                <a href="#">GitHub</a>
-              </li>
-              <li className="icon fa-medium">
-                <a href="#">Medium</a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="major">Table</h3>
-            <h4>Default</h4>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Item One</td>
-                    <td>Ante turpis integer aliquet porttitor.</td>
-                    <td>29.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Two</td>
-                    <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                    <td>19.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Three</td>
-                    <td> Morbi faucibus arcu accumsan lorem.</td>
-                    <td>29.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Four</td>
-                    <td>Vitae integer tempus condimentum.</td>
-                    <td>19.99</td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan={2}></td>
-                    <td>100.00</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h4>Alternate</h4>
-            <div className="table-wrapper">
-              <table className="alt">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Item One</td>
-                    <td>Ante turpis integer aliquet porttitor.</td>
-                    <td>29.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Two</td>
-                    <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                    <td>19.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Three</td>
-                    <td> Morbi faucibus arcu accumsan lorem.</td>
-                    <td>29.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Four</td>
-                    <td>Vitae integer tempus condimentum.</td>
-                    <td>19.99</td>
-                  </tr>
-                  <tr>
-                    <td>Item Five</td>
-                    <td>Ante turpis integer aliquet porttitor.</td>
-                    <td>29.99</td>
-                  </tr>
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colSpan={2}></td>
-                    <td>100.00</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-          <div>
-            <h3 className="major">Buttons</h3>
-            <ul className="actions">
-              <li>
-                <a href="#" className="button special color2">
-                  Special
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button">
-                  Default
-                </a>
-              </li>
-            </ul>
-            <ul className="actions">
-              <li>
-                <a href="#" className="button">
-                  Default
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button large">
-                  Large
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button small">
-                  Small
-                </a>
-              </li>
-            </ul>
-            <ul className="actions">
-              <li>
-                <a href="#" className="button special color2 icon fa-cog">
-                  Icon
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button icon fa-diamond">
-                  Icon
-                </a>
-              </li>
-            </ul>
-            <ul className="actions">
-              <li>
-                <span className="button special color2 disabled">Disabled</span>
-              </li>
-              <li>
-                <span className="button disabled">Disabled</span>
-              </li>
-            </ul>
-            <ul className="actions">
-              <li>
-                <a
-                  href="#"
-                  className="button special color2 circle icon fa-cog">
-                  Icon
-                </a>
-              </li>
-              <li>
-                <a href="#" className="button circle icon fa-diamond">
-                  Icon
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="major">Form</h3>
+              </Code>
+            </Block>
+          </Block>
+          <Block>
+            <Block>
+              <Title level={5}>Icons</Title>
+              <List
+                items={[
+                  {
+                    id: '1',
+                    content: (
+                      <a href="#" className="icon fa-twitter">
+                        <span className="label">Twitter</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '2',
+                    content: (
+                      <a href="#" className="icon fa-facebook">
+                        <span className="label">Facebook</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '3',
+                    content: (
+                      <a href="#" className="icon fa-instagram">
+                        <span className="label">Instagram</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '4',
+                    content: (
+                      <a href="#" className="icon fa-github">
+                        <span className="label">GitHub</span>
+                      </a>
+                    ),
+                  },
+                ]}
+              />
+            </Block>
+            <Block>
+              <Title level={5}>Social Icons</Title>
+              <List
+                items={[
+                  {
+                    id: '1',
+                    content: (
+                      <a href="#" className="icon fa-twitter">
+                        <span className="label">Twitter</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '2',
+                    content: (
+                      <a href="#" className="icon fa-facebook">
+                        <span className="label">Facebook</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '3',
+                    content: (
+                      <a href="#" className="icon fa-instagram">
+                        <span className="label">Instagram</span>
+                      </a>
+                    ),
+                  },
+                  {
+                    id: '4',
+                    content: (
+                      <a href="#" className="icon fa-github">
+                        <span className="label">GitHub</span>
+                      </a>
+                    ),
+                  },
+                ]}
+              />
+            </Block>
+          </Block>
+          <Block>
+            <Title level={5}>Table</Title>
+            <Block>
+              <Title level={6}>Default</Title>
+              <Table
+                items={[
+                  {
+                    Name: 'Item One',
+                    Description: 'Ante turpis integer aliquet porttitor.',
+                    Price: 29.99,
+                  },
+                  {
+                    Name: 'Item Two',
+                    Description: 'Vis ac commodo adipiscing arcu aliquet.',
+                    Price: 19.99,
+                  },
+                  {
+                    Name: 'Item Three',
+                    Description: 'Morbi faucibus arcu accumsan lorem.',
+                    Price: 29.99,
+                  },
+                  {
+                    Name: 'Item Four',
+                    Description: 'Vitae integer tempus condimentum.',
+                    Price: 19.99,
+                  },
+                ]}
+                footerItems={[{ Price: 100 }]}
+              />
+            </Block>
+            <Block>
+              <Title level={6}>Alternate</Title>
+              <Table
+                items={[
+                  {
+                    Name: 'Item One',
+                    Description: 'Ante turpis integer aliquet porttitor.',
+                    Price: 29.99,
+                  },
+                  {
+                    Name: 'Item Two',
+                    Description: 'Vis ac commodo adipiscing arcu aliquet.',
+                    Price: 19.99,
+                  },
+                  {
+                    Name: 'Item Three',
+                    Description: 'Morbi faucibus arcu accumsan lorem.',
+                    Price: 29.99,
+                  },
+                  {
+                    Name: 'Item Four',
+                    Description: 'Vitae integer tempus condimentum.',
+                    Price: 19.99,
+                  },
+                ]}
+                footerItems={[{ Price: 100 }]}
+              />
+            </Block>
+          </Block>
+          <Block>
+            <Title level={5}>Form</Title>
             <form method="post" action="#">
               <div className="field third">
                 <label htmlFor="demo-name">Name</label>
@@ -646,104 +778,108 @@ print 'It took ' + i + ' iterations to sort the deck.';
                 </li>
               </ul>
             </form>
-          </div>
-          <div>
-            <h2>Image</h2>
-            <h3>Fit</h3>
-            <span className="image fit">
-              <img src="images/pic01.jpg" alt="" />
-            </span>
-            <div className="box alt">
-              <div className="row gtr-50 gtr-uniform">
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic02.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic03.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic04.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic04.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic02.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic03.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic03.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic04.jpg" alt="" />
-                  </span>
-                </div>
-                <div className="col-4">
-                  <span className="image fit">
-                    <img src="images/pic02.jpg" alt="" />
-                  </span>
+          </Block>
+          <Block>
+            <Title level={5}>Image</Title>
+            <Block>
+              <Title level={6}>Fit</Title>
+              <span className="image fit">
+                <img src="images/pic01.jpg" alt="" />
+              </span>
+              <div className="box alt">
+                <div className="row gtr-50 gtr-uniform">
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic02.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic03.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic04.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic04.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic02.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic03.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic03.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic04.jpg" alt="" />
+                    </span>
+                  </div>
+                  <div className="col-4">
+                    <span className="image fit">
+                      <img src="images/pic02.jpg" alt="" />
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <h3>Left &amp; Right</h3>
-            <p>
-              <span className="image left">
-                <img src="images/pic08.jpg" alt="" />
-              </span>
-              Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt felis
-              sagittis eget. tempus euismod. Vestibulum ante ipsum primis in
-              faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat
-              ac adipiscing accumsan eu faucibus. Integer ac pellentesque
-              praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum
-              ante ipsum primis sagittis eget. tempus euismod. Vestibulum ante
-              ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis
-              iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
-              pellentesque praesent tincidunt felis sagittis eget. tempus
-              euismod. Vestibulum ante ipsum primis in faucibus vestibulum.
-              Blandit adipiscing eu felis iaculis volutpat ac adipiscing
-              accumsan eu faucibus. Integer ac pellentesque praesent. Vestibulum
-              ante ipsum primis in faucibus magna blandit adipiscing eu felis
-              iaculis.
-            </p>
-            <p>
-              <span className="image right">
-                <img src="images/pic09.jpg" alt="" />
-              </span>
-              Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt felis
-              sagittis eget. tempus euismod. Vestibulum ante ipsum primis in
-              faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat
-              ac adipiscing accumsan eu faucibus. Integer ac pellentesque
-              praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum
-              ante ipsum primis sagittis eget. tempus euismod. Vestibulum ante
-              ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis
-              iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
-              pellentesque praesent tincidunt felis sagittis eget. tempus
-              euismod. Vestibulum ante ipsum primis in faucibus vestibulum.
-              Blandit adipiscing eu felis iaculis volutpat ac adipiscing
-              accumsan eu faucibus. Integer ac pellentesque praesent. Vestibulum
-              ante ipsum primis in faucibus magna blandit adipiscing eu felis
-              iaculis.
-            </p>
-          </div>
-          <div>
-            <h2>Box</h2>
+            </Block>
+            <Block>
+              <Title level={6}>Left &amp; Right</Title>
+              <p>
+                <span className="image left">
+                  <img src="images/pic08.jpg" alt="" />
+                </span>
+                Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt
+                felis sagittis eget. tempus euismod. Vestibulum ante ipsum
+                primis in faucibus vestibulum. Blandit adipiscing eu felis
+                iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
+                pellentesque praesent tincidunt felis sagittis eget. tempus
+                euismod. Vestibulum ante ipsum primis sagittis eget. tempus
+                euismod. Vestibulum ante ipsum primis in faucibus vestibulum.
+                Blandit adipiscing eu felis iaculis volutpat ac adipiscing
+                accumsan eu faucibus. Integer ac pellentesque praesent tincidunt
+                felis sagittis eget. tempus euismod. Vestibulum ante ipsum
+                primis in faucibus vestibulum. Blandit adipiscing eu felis
+                iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
+                pellentesque praesent. Vestibulum ante ipsum primis in faucibus
+                magna blandit adipiscing eu felis iaculis.
+              </p>
+              <p>
+                <span className="image right">
+                  <img src="images/pic09.jpg" alt="" />
+                </span>
+                Lorem ipsum dolor sit accumsan interdum nisi, quis tincidunt
+                felis sagittis eget. tempus euismod. Vestibulum ante ipsum
+                primis in faucibus vestibulum. Blandit adipiscing eu felis
+                iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
+                pellentesque praesent tincidunt felis sagittis eget. tempus
+                euismod. Vestibulum ante ipsum primis sagittis eget. tempus
+                euismod. Vestibulum ante ipsum primis in faucibus vestibulum.
+                Blandit adipiscing eu felis iaculis volutpat ac adipiscing
+                accumsan eu faucibus. Integer ac pellentesque praesent tincidunt
+                felis sagittis eget. tempus euismod. Vestibulum ante ipsum
+                primis in faucibus vestibulum. Blandit adipiscing eu felis
+                iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac
+                pellentesque praesent. Vestibulum ante ipsum primis in faucibus
+                magna blandit adipiscing eu felis iaculis.
+              </p>
+            </Block>
+          </Block>
+          <Block>
+            <Title level={5}>Box</Title>
             <div className="box">
               <p>
                 Felis sagittis eget tempus primis in faucibus vestibulum.
@@ -766,7 +902,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                 adipiscing eu felis iaculis volutpat lorem ipsum dolor.
               </p>
             </div>
-          </div>
+          </Block>
         </div>
       </div>
     </Layout>
