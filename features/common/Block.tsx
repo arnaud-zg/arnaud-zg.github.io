@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import React, { FC, HTMLAttributes } from 'react';
+import { Variation, Color } from './color';
 
 export enum DirectionEnum {
   NONE,
@@ -13,14 +14,21 @@ const DIRECTION_CLASSES_MAPPING = {
   [DirectionEnum.COL]: ['flex flex-col'],
 };
 
+const VARIATION_CLASS_MAP = {
+  [Variation.DARK]: [`bg-${Color.DARK}-500`],
+  [Variation.LIGHT]: [`bg-${Color.LIGHT}-300`],
+};
+
 interface BlockProps extends HTMLAttributes<HTMLDivElement> {
   direction?: DirectionEnum;
+  variation?: Variation;
 }
 
 const initialClassnames = [];
 
 export const Block: FC<BlockProps> = ({
   direction = DirectionEnum.NONE,
+  variation = Variation.LIGHT,
   ...props
 }) => (
   <div
@@ -28,6 +36,7 @@ export const Block: FC<BlockProps> = ({
     className={classNames(
       ...initialClassnames,
       ...DIRECTION_CLASSES_MAPPING[direction],
+      ...VARIATION_CLASS_MAP[variation],
       'flex-grow',
       'mt-2',
       'mx-2',
