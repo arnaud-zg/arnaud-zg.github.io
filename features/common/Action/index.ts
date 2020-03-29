@@ -1,1 +1,1 @@
-export { Action, ActionMode, ActionSize } from './Action';
+export { Action, ActionMode } from './Action';

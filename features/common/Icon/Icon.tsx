@@ -12,6 +12,7 @@ import { Spotify } from './Spotify';
 import { StackOverflow } from './StackOverflow';
 import { Twitter } from './Twitter';
 import { Variation, Color } from '../color';
+import { Size } from '../size';
 
 export enum IconType {
   CODEPEN = 'CODEPEN',
@@ -25,14 +26,6 @@ export enum IconType {
   SPOTIFY = 'SPOTIFY',
   STACKOVERFLOW = 'STACKOVERFLOW',
   TWITTER = 'TWITTER',
-}
-
-export enum IconSize {
-  XS = 'XS',
-  S = 'S',
-  M = 'M',
-  L = 'L',
-  XL = 'XL',
 }
 
 const initialClassnames = ['fill-current', 'inline-flex'];
@@ -52,11 +45,11 @@ const ICON_COMPONENT_MAP = {
 };
 
 const SIZE_CLASS_MAP = {
-  [IconSize.XS]: ['h-10', 'w-10'],
-  [IconSize.S]: ['h-12', 'w-12'],
-  [IconSize.M]: ['h-16', 'w-16'],
-  [IconSize.L]: ['h-20', 'w-20'],
-  [IconSize.XL]: ['h-24', 'w-24'],
+  [Size.XS]: ['h-10', 'w-10'],
+  [Size.S]: ['h-12', 'w-12'],
+  [Size.M]: ['h-16', 'w-16'],
+  [Size.L]: ['h-20', 'w-20'],
+  [Size.XL]: ['h-24', 'w-24'],
 };
 
 const VARIATION_CLASS_MAP = {
@@ -66,7 +59,7 @@ const VARIATION_CLASS_MAP = {
 
 export interface IconProps {
   type: IconType;
-  size: IconSize;
+  size: Size;
   variation?: Variation.DARK | Variation.LIGHT;
 }
 

@@ -21,10 +21,11 @@ import { Code } from '../features/common/Code';
 import { Table } from '../features/common/Table';
 import { ListMode } from '../features/common/List/List';
 import { Action } from '../features/common/Action';
-import { ActionSize, ActionMode } from '../features/common/Action';
-import { Icon, IconType, IconSize } from '../features/common/Icon';
+import { ActionMode } from '../features/common/Action';
+import { Icon, IconType } from '../features/common/Icon';
 import { Variation } from '../features/common/color';
 import { IconProps } from '../features/common/Icon/Icon';
+import { Size } from '../features/common/size';
 
 function HomePage() {
   useEffect(() => {
@@ -177,29 +178,25 @@ function HomePage() {
                   {actionMode.toLowerCase()}
                 </Title>
                 <List
-                  items={Object.keys(ActionSize).map(
-                    (actionSize: ActionSize) => ({
-                      id: `${actionMode}-${actionSize}`,
-                      content: (
-                        <>
-                          {Object.keys(Variation).map(
-                            (variation: Variation) => (
-                              <Action
-                                key={`${actionMode}-${actionSize}-${variation}`}
-                                href="#"
-                                mode={actionMode}
-                                size={actionSize}
-                                variation={variation}>
-                                <span className="capitalize">
-                                  {variation.toLowerCase()}
-                                </span>
-                              </Action>
-                            )
-                          )}
-                        </>
-                      ),
-                    })
-                  )}
+                  items={Object.keys(Size).map((size: Size) => ({
+                    id: `${actionMode}-${size}`,
+                    content: (
+                      <>
+                        {Object.keys(Variation).map((variation: Variation) => (
+                          <Action
+                            key={`${actionMode}-${size}-${variation}`}
+                            href="#"
+                            mode={actionMode}
+                            size={size}
+                            variation={variation}>
+                            <span className="capitalize">
+                              {variation.toLowerCase()}
+                            </span>
+                          </Action>
+                        ))}
+                      </>
+                    ),
+                  }))}
                 />
               </Block>
             ))}
@@ -236,18 +233,18 @@ print 'It took ' + i + ' iterations to sort the deck.';
               items={Object.keys(IconType).reduce(
                 (acc, iconType: IconType) =>
                   acc.concat(
-                    Object.keys(IconSize).map((iconSize: IconSize) => ({
-                      id: `${iconType}-${iconSize}`,
+                    Object.keys(Size).map((size: Size) => ({
+                      id: `${iconType}-${size}`,
                       content: (
                         <>
                           {[undefined, Variation.DARK, Variation.LIGHT].map(
                             (variation: IconProps['variation']) => (
                               <Icon
-                                key={`${iconType}-${iconSize}-${JSON.stringify(
+                                key={`${iconType}-${size}-${JSON.stringify(
                                   variation
                                 )}`}
                                 type={iconType}
-                                size={iconSize}
+                                size={size}
                                 variation={variation}
                               />
                             )

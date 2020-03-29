@@ -1,12 +1,7 @@
 import React, { FC, AnchorHTMLAttributes } from 'react';
 import classNames from 'classnames';
 import { Color, Variation } from '../color';
-
-export enum ActionSize {
-  S = 'S',
-  M = 'M',
-  L = 'L',
-}
+import { Size } from '../size';
 
 export enum ActionMode {
   DEFAULT = 'DEFAULT',
@@ -16,15 +11,17 @@ export enum ActionMode {
 }
 
 interface ActionProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  size?: ActionSize;
+  size?: Size;
   variation?: Variation;
   mode?: ActionMode;
 }
 
 const SIZE_CLASS_MAP = {
-  [ActionSize.S]: ['text-sm'],
-  [ActionSize.M]: ['text-base'],
-  [ActionSize.L]: ['text-lg'],
+  [Size.XS]: ['text-xs'],
+  [Size.S]: ['text-sm'],
+  [Size.M]: ['text-base'],
+  [Size.L]: ['text-lg'],
+  [Size.XL]: ['text-xl'],
 };
 
 const VARIATION_CLASS_MAP = {
@@ -81,7 +78,7 @@ const initialClassnames = [
 ];
 
 export const Action: FC<ActionProps> = ({
-  size = ActionSize.M,
+  size = Size.M,
   variation = Variation.PRIMARY,
   mode = ActionMode.DEFAULT,
   ...restProps
