@@ -19,6 +19,13 @@ import { Definition } from '../features/common/Definition';
 import { Blockquote } from '../features/common/Blockquote';
 import { Code } from '../features/common/Code';
 import { Table } from '../features/common/Table';
+import { ListMode } from '../features/common/List/List';
+import { Action } from '../features/common/Action';
+import {
+  ActionSize,
+  ActionMode,
+  ActionVariation,
+} from '../features/common/Action/Action';
 
 function HomePage() {
   useEffect(() => {
@@ -124,39 +131,22 @@ function HomePage() {
           </Block>
           <Block>
             <Title level={5}>Lists</Title>
-            <Block>
-              <Title level={6}>Unordered</Title>
-              <List
-                items={[
-                  { id: '1', content: 'Dolor pulvinar etiam.' },
-                  { id: '2', content: 'Sagittis lorem eleifend.' },
-                  { id: '3', content: 'Felis feugiat dolore viverra.' },
-                  { id: '4', content: 'Felis enim feugiat.' },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={6}>Alternate</Title>
-              <List
-                items={[
-                  { id: '1', content: 'Dolor pulvinar etiam.' },
-                  { id: '2', content: 'Sagittis lorem eleifend.' },
-                  { id: '3', content: 'Felis feugiat dolore viverra.' },
-                  { id: '4', content: 'Felis enim feugiat.' },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={6}>Ordered</Title>
-              <List
-                items={[
-                  { id: '1', content: 'Dolor pulvinar etiam.' },
-                  { id: '2', content: 'Sagittis lorem eleifend.' },
-                  { id: '3', content: 'Felis feugiat dolore viverra.' },
-                  { id: '4', content: 'Felis enim feugiat.' },
-                ]}
-              />
-            </Block>
+            {Object.keys(ListMode).map((listMode: ListMode) => (
+              <Block key={listMode}>
+                <Title level={6} classnames={['capitalize']}>
+                  {listMode.toLowerCase()}
+                </Title>
+                <List
+                  mode={listMode}
+                  items={[
+                    { id: '1', content: 'Dolor pulvinar etiam.' },
+                    { id: '2', content: 'Sagittis lorem eleifend.' },
+                    { id: '3', content: 'Felis feugiat dolore viverra.' },
+                    { id: '4', content: 'Felis enim feugiat.' },
+                  ]}
+                />
+              </Block>
+            ))}
             <Block>
               <Title level={6}>Definition</Title>
               <Definition
@@ -182,342 +172,38 @@ function HomePage() {
           </Block>
           <Block>
             <Title level={5}>Actions</Title>
-            <Block>
-              <Title level={6}>Small</Title>
-              <List
-                items={[
-                  {
-                    id: '1',
-                    content: (
-                      <a href="#" className="button primary small">
-                        Primary
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '2',
-                    content: (
-                      <a href="#" className="button small">
-                        Small
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '3',
-                    content: (
-                      <a href="#" className="button small">
-                        Icon only
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '4',
-                    content: (
-                      <a href="#" className="button small">
-                        Text with icon
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '5',
-                    content: (
-                      <a href="#" className="button small">
-                        Disabled
-                      </a>
-                    ),
-                  },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={6}>Default</Title>
-              <List
-                items={[
-                  {
-                    id: '1',
-                    content: (
-                      <a href="#" className="button primary">
-                        Primary
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '2',
-                    content: (
-                      <a href="#" className="button">
-                        Default
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '3',
-                    content: (
-                      <a href="#" className="button">
-                        Icon only
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '4',
-                    content: (
-                      <a href="#" className="button">
-                        Text with icon
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '5',
-                    content: (
-                      <a href="#" className="button">
-                        Disabled
-                      </a>
-                    ),
-                  },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={6}>Large</Title>
-              <List
-                items={[
-                  {
-                    id: '1',
-                    content: (
-                      <a href="#" className="button primary large">
-                        Primary
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '2',
-                    content: (
-                      <a href="#" className="button large">
-                        Large
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '3',
-                    content: (
-                      <a href="#" className="button large">
-                        Icon only
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '4',
-                    content: (
-                      <a href="#" className="button large">
-                        Text with icon
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '5',
-                    content: (
-                      <a href="#" className="button large">
-                        Disabled
-                      </a>
-                    ),
-                  },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={6}>Stacked</Title>
-              <Block direction={DirectionEnum.ROW}>
-                <Block>
-                  <Title level={6}>Small</Title>
-                  <List
-                    items={[
-                      {
-                        id: '1',
-                        content: (
-                          <a href="#" className="button primary small">
-                            Primary
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '2',
-                        content: (
-                          <a href="#" className="button small">
-                            Small
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '3',
-                        content: (
-                          <a href="#" className="button small">
-                            Icon only
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '4',
-                        content: (
-                          <a href="#" className="button small">
-                            Text with icon
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '5',
-                        content: (
-                          <a href="#" className="button small">
-                            Disabled
-                          </a>
-                        ),
-                      },
-                    ]}
-                  />
-                </Block>
-                <Block>
-                  <Title level={6}>Default</Title>
-                  <List
-                    items={[
-                      {
-                        id: '1',
-                        content: (
-                          <a href="#" className="button primary">
-                            Primary
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '2',
-                        content: (
-                          <a href="#" className="button">
-                            Default
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '3',
-                        content: (
-                          <a href="#" className="button">
-                            Icon only
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '4',
-                        content: (
-                          <a href="#" className="button">
-                            Text with icon
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '5',
-                        content: (
-                          <a href="#" className="button">
-                            Disabled
-                          </a>
-                        ),
-                      },
-                    ]}
-                  />
-                </Block>
+            {Object.keys(ActionMode).map((actionMode: ActionMode) => (
+              <Block key={actionMode}>
+                <Title level={6} classnames={['capitalize']}>
+                  {actionMode.toLowerCase()}
+                </Title>
+                <List
+                  items={Object.keys(ActionSize).map(
+                    (actionSize: ActionSize) => ({
+                      id: `${actionMode}-${actionSize}`,
+                      content: (
+                        <>
+                          {Object.keys(ActionVariation).map(
+                            (actionVariation: ActionVariation) => (
+                              <Action
+                                key={`${actionMode}-${actionSize}-${actionVariation}`}
+                                href="#"
+                                mode={actionMode}
+                                size={actionSize}
+                                variation={actionVariation}>
+                                <span className="capitalize">
+                                  {actionVariation.toLowerCase()}
+                                </span>
+                              </Action>
+                            )
+                          )}
+                        </>
+                      ),
+                    })
+                  )}
+                />
               </Block>
-              <Block direction={DirectionEnum.ROW}>
-                <Block>
-                  <Title level={6}>Default</Title>
-                  <List
-                    items={[
-                      {
-                        id: '1',
-                        content: (
-                          <a href="#" className="button primary">
-                            Primary
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '2',
-                        content: (
-                          <a href="#" className="button">
-                            Default
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '3',
-                        content: (
-                          <a href="#" className="button">
-                            Icon only
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '4',
-                        content: (
-                          <a href="#" className="button">
-                            Text with icon
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '5',
-                        content: (
-                          <a href="#" className="button">
-                            Disabled
-                          </a>
-                        ),
-                      },
-                    ]}
-                  />
-                </Block>
-                <Block>
-                  <Title level={6}>Large</Title>
-                  <List
-                    items={[
-                      {
-                        id: '1',
-                        content: (
-                          <a href="#" className="button primary large">
-                            Primary
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '2',
-                        content: (
-                          <a href="#" className="button large">
-                            Large
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '3',
-                        content: (
-                          <a href="#" className="button large">
-                            Icon only
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '4',
-                        content: (
-                          <a href="#" className="button large">
-                            Text with icon
-                          </a>
-                        ),
-                      },
-                      {
-                        id: '5',
-                        content: (
-                          <a href="#" className="button large">
-                            Disabled
-                          </a>
-                        ),
-                      },
-                    ]}
-                  />
-                </Block>
-              </Block>
-            </Block>
+            ))}
           </Block>
           <Block>
             <Block>
