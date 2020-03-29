@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background } from '../features/common';
-import { Block, DirectionEnum } from '../features/common/Block';
+import { Block } from '../features/common/Block';
 import {
   descriptions,
   firstName,
@@ -21,11 +21,10 @@ import { Code } from '../features/common/Code';
 import { Table } from '../features/common/Table';
 import { ListMode } from '../features/common/List/List';
 import { Action } from '../features/common/Action';
-import {
-  ActionSize,
-  ActionMode,
-  ActionVariation,
-} from '../features/common/Action/Action';
+import { ActionSize, ActionMode } from '../features/common/Action';
+import { Icon, IconType, IconSize } from '../features/common/Icon';
+import { Variation } from '../features/common/color';
+import { IconProps } from '../features/common/Icon/Icon';
 
 function HomePage() {
   useEffect(() => {
@@ -183,16 +182,16 @@ function HomePage() {
                       id: `${actionMode}-${actionSize}`,
                       content: (
                         <>
-                          {Object.keys(ActionVariation).map(
-                            (actionVariation: ActionVariation) => (
+                          {Object.keys(Variation).map(
+                            (variation: Variation) => (
                               <Action
-                                key={`${actionMode}-${actionSize}-${actionVariation}`}
+                                key={`${actionMode}-${actionSize}-${variation}`}
                                 href="#"
                                 mode={actionMode}
                                 size={actionSize}
-                                variation={actionVariation}>
+                                variation={variation}>
                                 <span className="capitalize">
-                                  {actionVariation.toLowerCase()}
+                                  {variation.toLowerCase()}
                                 </span>
                               </Action>
                             )
@@ -232,84 +231,34 @@ print 'It took ' + i + ' iterations to sort the deck.';
             </Block>
           </Block>
           <Block>
-            <Block>
-              <Title level={5}>Icons</Title>
-              <List
-                items={[
-                  {
-                    id: '1',
-                    content: (
-                      <a href="#" className="icon fa-twitter">
-                        <span className="label">Twitter</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '2',
-                    content: (
-                      <a href="#" className="icon fa-facebook">
-                        <span className="label">Facebook</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '3',
-                    content: (
-                      <a href="#" className="icon fa-instagram">
-                        <span className="label">Instagram</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '4',
-                    content: (
-                      <a href="#" className="icon fa-github">
-                        <span className="label">GitHub</span>
-                      </a>
-                    ),
-                  },
-                ]}
-              />
-            </Block>
-            <Block>
-              <Title level={5}>Social Icons</Title>
-              <List
-                items={[
-                  {
-                    id: '1',
-                    content: (
-                      <a href="#" className="icon fa-twitter">
-                        <span className="label">Twitter</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '2',
-                    content: (
-                      <a href="#" className="icon fa-facebook">
-                        <span className="label">Facebook</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '3',
-                    content: (
-                      <a href="#" className="icon fa-instagram">
-                        <span className="label">Instagram</span>
-                      </a>
-                    ),
-                  },
-                  {
-                    id: '4',
-                    content: (
-                      <a href="#" className="icon fa-github">
-                        <span className="label">GitHub</span>
-                      </a>
-                    ),
-                  },
-                ]}
-              />
-            </Block>
+            <Title level={5}>Icons</Title>
+            <List
+              items={Object.keys(IconType).reduce(
+                (acc, iconType: IconType) =>
+                  acc.concat(
+                    Object.keys(IconSize).map((iconSize: IconSize) => ({
+                      id: `${iconType}-${iconSize}`,
+                      content: (
+                        <>
+                          {[undefined, Variation.DARK, Variation.LIGHT].map(
+                            (variation: IconProps['variation']) => (
+                              <Icon
+                                key={`${iconType}-${iconSize}-${JSON.stringify(
+                                  variation
+                                )}`}
+                                type={iconType}
+                                size={iconSize}
+                                variation={variation}
+                              />
+                            )
+                          )}
+                        </>
+                      ),
+                    }))
+                  ),
+                []
+              )}
+            />
           </Block>
           <Block>
             <Title level={5}>Table</Title>

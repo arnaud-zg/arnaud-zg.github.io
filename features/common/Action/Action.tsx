@@ -1,18 +1,11 @@
 import React, { FC, AnchorHTMLAttributes } from 'react';
 import classNames from 'classnames';
+import { Color, Variation } from '../color';
 
 export enum ActionSize {
-  SMALL = 'SMALL',
-  DEFAULT = 'DEFAULT',
-  LARGE = 'LARGE',
-}
-
-export enum ActionVariation {
-  PRIMARY = 'PRIMARY',
-  SECONDARY = 'SECONDARY',
-  SUCCESS = 'SUCCESS',
-  DANGER = 'DANGER',
-  WARNING = 'WARNING',
+  S = 'S',
+  M = 'M',
+  L = 'L',
 }
 
 export enum ActionMode {
@@ -24,22 +17,52 @@ export enum ActionMode {
 
 interface ActionProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   size?: ActionSize;
-  variation?: ActionVariation;
+  variation?: Variation;
   mode?: ActionMode;
 }
 
 const SIZE_CLASS_MAP = {
-  [ActionSize.SMALL]: ['text-sm'],
-  [ActionSize.DEFAULT]: ['text-base'],
-  [ActionSize.LARGE]: ['text-lg'],
+  [ActionSize.S]: ['text-sm'],
+  [ActionSize.M]: ['text-base'],
+  [ActionSize.L]: ['text-lg'],
 };
 
 const VARIATION_CLASS_MAP = {
-  [ActionVariation.PRIMARY]: ['bg-blue-500', 'hover:bg-blue-700'],
-  [ActionVariation.SECONDARY]: ['bg-indigo-500', 'hover:bg-indigo-700'],
-  [ActionVariation.SUCCESS]: ['bg-green-500', 'hover:bg-green-700'],
-  [ActionVariation.DANGER]: ['bg-red-500', 'hover:bg-red-700'],
-  [ActionVariation.WARNING]: ['bg-yellow-500', 'hover:bg-yellow-700'],
+  [Variation.DANGER]: [
+    `bg-${Color.DANGER}-500`,
+    `hover:bg-${Color.DANGER}-700`,
+    'text-white',
+  ],
+  [Variation.DARK]: [
+    `bg-${Color.DARK}-900`,
+    `hover:bg-${Color.DARK}-700`,
+    `text-${Color.DARK}-300`,
+  ],
+  [Variation.LIGHT]: [
+    `bg-${Color.LIGHT}-100`,
+    `hover:bg-${Color.LIGHT}-500`,
+    `text-${Color.LIGHT}-700`,
+  ],
+  [Variation.PRIMARY]: [
+    `bg-${Color.PRIMARY}-500`,
+    `hover:bg-${Color.PRIMARY}-700`,
+    'text-white',
+  ],
+  [Variation.SECONDARY]: [
+    `bg-${Color.SECONDARY}-500`,
+    `hover:bg-${Color.SECONDARY}-700`,
+    'text-white',
+  ],
+  [Variation.SUCCESS]: [
+    `bg-${Color.SUCCESS}-500`,
+    `hover:bg-${Color.SUCCESS}-700`,
+    'text-white',
+  ],
+  [Variation.WARNING]: [
+    `bg-${Color.WARNING}-500`,
+    `hover:bg-${Color.WARNING}-700`,
+    'text-white',
+  ],
 };
 
 const MODE_CLASS_MAP = {
@@ -51,7 +74,6 @@ const MODE_CLASS_MAP = {
 
 const initialClassnames = [
   'border-none',
-  'text-white',
   'font-bold',
   'py-2',
   'px-4',
@@ -59,8 +81,8 @@ const initialClassnames = [
 ];
 
 export const Action: FC<ActionProps> = ({
-  size = ActionSize.DEFAULT,
-  variation = ActionVariation.PRIMARY,
+  size = ActionSize.M,
+  variation = Variation.PRIMARY,
   mode = ActionMode.DEFAULT,
   ...restProps
 }) => {
