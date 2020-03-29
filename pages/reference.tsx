@@ -240,9 +240,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                           {[undefined, Variation.DARK, Variation.LIGHT].map(
                             (variation: IconProps['variation']) => (
                               <Icon
-                                key={`${iconType}-${size}-${JSON.stringify(
-                                  variation
-                                )}`}
+                                key={`${iconType}-${size}-${variation}`}
                                 type={iconType}
                                 size={size}
                                 variation={variation}
