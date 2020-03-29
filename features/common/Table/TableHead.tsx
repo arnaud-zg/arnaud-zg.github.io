@@ -8,7 +8,7 @@ export const TableHead: FC<TableHeadProps> = ({ keys }) => (
   <thead>
     <tr>
       {keys.map(headerName => (
-        <th>{headerName}</th>
+        <th key={headerName}>{headerName}</th>
       ))}
     </tr>
   </thead>

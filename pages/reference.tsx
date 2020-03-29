@@ -695,6 +695,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   id="demo-name"
                   value=""
                   placeholder="Jane Doe"
+                  onChange={() => {}}
                 />
               </div>
               <div className="field third">
@@ -705,6 +706,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   id="demo-email"
                   value=""
                   placeholder="jane@untitled.tld"
+                  onChange={() => {}}
                 />
               </div>
               <div className="field third">
@@ -726,6 +728,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   name="demo-priority"
                   className="color2"
                   checked
+                  onChange={() => {}}
                 />
                 <label htmlFor="demo-priority-low">Low Priority</label>
               </div>
@@ -735,6 +738,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   id="demo-priority-high"
                   name="demo-priority"
                   className="color2"
+                  onChange={() => {}}
                 />
                 <label htmlFor="demo-priority-high">High Priority</label>
               </div>
@@ -744,6 +748,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   id="demo-copy"
                   name="demo-copy"
                   className="color2"
+                  onChange={() => {}}
                 />
                 <label htmlFor="demo-copy">Email a copy</label>
               </div>
@@ -754,6 +759,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
                   name="demo-human"
                   className="color2"
                   checked
+                  onChange={() => {}}
                 />
                 <label htmlFor="demo-human">Not a robot</label>
               </div>
@@ -771,10 +777,11 @@ print 'It took ' + i + ' iterations to sort the deck.';
                     type="submit"
                     value="Send Message"
                     className="special color2"
+                    onChange={() => {}}
                   />
                 </li>
                 <li>
-                  <input type="reset" value="Reset" />
+                  <input type="reset" value="Reset" onChange={() => {}} />
                 </li>
               </ul>
             </form>
