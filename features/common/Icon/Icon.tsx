@@ -54,7 +54,7 @@ const SIZE_CLASS_MAP = {
 
 const VARIATION_CLASS_MAP = {
   [Variation.DARK]: [`text-${Color.DARK}-900`],
-  [Variation.LIGHT]: [`text-${Color.LIGHT}-700`],
+  [Variation.LIGHT]: [`text-${Color.LIGHT}-100`],
 };
 
 export interface IconProps {
