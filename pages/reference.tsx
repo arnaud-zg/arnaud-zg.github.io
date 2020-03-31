@@ -2,30 +2,30 @@ import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React, { useEffect } from 'react';
 import { Background } from '../features/common';
+import { Action, ActionMode } from '../features/common/Action';
 import { Block } from '../features/common/Block';
+import { Blockquote } from '../features/common/Blockquote';
+import { Code } from '../features/common/Code';
+import { Variation } from '../features/common/color';
 import {
   descriptions,
   firstName,
   lastName,
   url,
 } from '../features/common/data.json';
+import { Definition } from '../features/common/Definition';
 import { Heading } from '../features/common/Heading';
+import { Icon, IconType } from '../features/common/Icon';
+import { IconProps } from '../features/common/Icon/Icon';
 import { Layout } from '../features/common/Layout';
 import { Link } from '../features/common/Link';
+import { List } from '../features/common/List';
+import { ListMode } from '../features/common/List/List';
+import { Size } from '../features/common/size';
+import { Table } from '../features/common/Table';
+import { TableMode } from '../features/common/Table/Table';
 import { Text, TextEnum } from '../features/common/Text';
 import { Title, TitleProps } from '../features/common/Title';
-import { List } from '../features/common/List';
-import { Definition } from '../features/common/Definition';
-import { Blockquote } from '../features/common/Blockquote';
-import { Code } from '../features/common/Code';
-import { Table } from '../features/common/Table';
-import { ListMode } from '../features/common/List/List';
-import { Action } from '../features/common/Action';
-import { ActionMode } from '../features/common/Action';
-import { Icon, IconType } from '../features/common/Icon';
-import { Variation } from '../features/common/color';
-import { IconProps } from '../features/common/Icon/Icon';
-import { Size } from '../features/common/size';
 
 function HomePage() {
   useEffect(() => {
@@ -288,6 +288,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
             <Block>
               <Title level={6}>Alternate</Title>
               <Table
+                mode={TableMode.ALTERNATE}
                 items={[
                   {
                     Name: 'Item One',

@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { FC, HTMLAttributes } from 'react';
 
 interface TableHeadProps extends HTMLAttributes<HTMLTableSectionElement> {
@@ -8,7 +9,9 @@ export const TableHead: FC<TableHeadProps> = ({ keys }) => (
   <thead>
     <tr>
       {keys.map(headerName => (
-        <th key={headerName}>{headerName}</th>
+        <th className={classNames('px-4', 'py-2')} key={headerName}>
+          {headerName}
+        </th>
       ))}
     </tr>
   </thead>
