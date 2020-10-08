@@ -25,6 +25,7 @@ import { Size } from '../features/common/size';
 import { Table } from '../features/common/Table';
 import { TableMode } from '../features/common/Table/Table';
 import { Text, TextEnum } from '../features/common/Text';
+import { TextInput } from '../features/common/TextInput';
 import { Title, TitleProps } from '../features/common/Title';
 
 function HomePage() {
@@ -318,103 +319,90 @@ print 'It took ' + i + ' iterations to sort the deck.';
           <Block>
             <Title level={5}>Form</Title>
             <form method="post" action="#">
-              <div className="field third">
-                <label htmlFor="demo-name">Name</label>
-                <input
-                  type="text"
-                  name="demo-name"
-                  id="demo-name"
-                  value=""
-                  placeholder="Jane Doe"
-                  onChange={() => {}}
-                />
-              </div>
-              <div className="field third">
-                <label htmlFor="demo-email">Email</label>
-                <input
-                  type="email"
-                  name="demo-email"
-                  id="demo-email"
-                  value=""
-                  placeholder="jane@untitled.tld"
-                  onChange={() => {}}
-                />
-              </div>
-              <div className="field third">
-                <label htmlFor="demo-category">Category</label>
-                <div className="select-wrapper">
-                  <select name="demo-category" id="demo-category">
-                    <option value="">-</option>
-                    <option value="1">Manufacturing</option>
-                    <option value="1">Shipping</option>
-                    <option value="1">Administration</option>
-                    <option value="1">Human Resources</option>
-                  </select>
-                </div>
-              </div>
-              <div className="field quarter">
-                <input
-                  type="radio"
-                  id="demo-priority-low"
-                  name="demo-priority"
-                  className="color2"
-                  checked
-                  onChange={() => {}}
-                />
-                <label htmlFor="demo-priority-low">Low Priority</label>
-              </div>
-              <div className="field quarter">
-                <input
-                  type="radio"
-                  id="demo-priority-high"
-                  name="demo-priority"
-                  className="color2"
-                  onChange={() => {}}
-                />
-                <label htmlFor="demo-priority-high">High Priority</label>
-              </div>
-              <div className="field quarter">
-                <input
-                  type="checkbox"
-                  id="demo-copy"
-                  name="demo-copy"
-                  className="color2"
-                  onChange={() => {}}
-                />
-                <label htmlFor="demo-copy">Email a copy</label>
-              </div>
-              <div className="field quarter">
-                <input
-                  type="checkbox"
-                  id="demo-human"
-                  name="demo-human"
-                  className="color2"
-                  checked
-                  onChange={() => {}}
-                />
-                <label htmlFor="demo-human">Not a robot</label>
-              </div>
-              <div className="field">
-                <label htmlFor="demo-message">Message</label>
-                <textarea
-                  name="demo-message"
-                  id="demo-message"
-                  placeholder="Enter your message"
-                  rows={2}></textarea>
-              </div>
-              <ul className="actions">
-                <li>
+              <Block>
+                <Title level={6}>Text Input</Title>
+                <TextInput label="Name" placeholder="Jane Doe" />
+                <TextInput label="Email" placeholder="jane@untitled.tld" />
+              </Block>
+              <Block>
+                <Title level={6}>Select Input</Title>
+                <select name="demo-category" id="demo-category">
+                  <option value="">-</option>
+                  <option value="1">Manufacturing</option>
+                  <option value="1">Shipping</option>
+                  <option value="1">Administration</option>
+                  <option value="1">Human Resources</option>
+                </select>
+              </Block>
+              <Block>
+                <Title level={6}>Radio Input</Title>
+                <div className="field quarter">
                   <input
-                    type="submit"
-                    value="Send Message"
-                    className="special color2"
+                    type="radio"
+                    id="demo-priority-low"
+                    name="demo-priority"
+                    className="color2"
+                    checked
                     onChange={() => {}}
                   />
-                </li>
-                <li>
-                  <input type="reset" value="Reset" onChange={() => {}} />
-                </li>
-              </ul>
+                  <label htmlFor="demo-priority-low">Low Priority</label>
+                </div>
+                <div className="field quarter">
+                  <input
+                    type="radio"
+                    id="demo-priority-high"
+                    name="demo-priority"
+                    className="color2"
+                    onChange={() => {}}
+                  />
+                  <label htmlFor="demo-priority-high">High Priority</label>
+                </div>
+              </Block>
+              <Block>
+                <Title level={6}>Checkbox Input</Title>
+                <div className="field quarter">
+                  <input
+                    type="checkbox"
+                    id="demo-copy"
+                    name="demo-copy"
+                    className="color2"
+                    onChange={() => {}}
+                  />
+                  <label htmlFor="demo-copy">Email a copy</label>
+                </div>
+                <div className="field quarter">
+                  <input
+                    type="checkbox"
+                    id="demo-human"
+                    name="demo-human"
+                    className="color2"
+                    checked
+                    onChange={() => {}}
+                  />
+                  <label htmlFor="demo-human">Not a robot</label>
+                </div>
+                {/* <div className="field">
+                  <label htmlFor="demo-message">Message</label>
+                  <textarea
+                    name="demo-message"
+                    id="demo-message"
+                    placeholder="Enter your message"
+                    rows={2}></textarea>
+                </div>
+                <ul className="actions">
+                  <li>
+                    <input
+                      type="submit"
+                      value="Send Message"
+                      className="special color2"
+                      onChange={() => {}}
+                    />
+                  </li>
+                  <li>
+                    <input type="reset" value="Reset" onChange={() => {}} />
+                  </li>
+                </ul> */}
+              </Block>
             </form>
           </Block>
           <Block>
