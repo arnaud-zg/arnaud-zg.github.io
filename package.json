@@ -24,7 +24,7 @@
     "tailwindcss": "^1.2.0"
   },
   "devDependencies": {
-    "@babel/runtime-corejs2": "7.12.1",
+    "@babel/runtime-corejs2": "7.12.5",
     "@types/classnames": "2.2.11",
     "@types/node": "13.13.30",
     "@types/react": "16.9.55",
