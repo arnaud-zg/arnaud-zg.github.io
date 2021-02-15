@@ -27,7 +27,7 @@
     "@babel/runtime-corejs2": "7.12.13",
     "@types/classnames": "2.2.11",
     "@types/node": "13.13.42",
-    "@types/react": "16.14.3",
+    "@types/react": "16.14.4",
     "eslint": "7.20.0",
     "eslint-plugin-react": "7.22.0",
     "gh-pages": "3.1.0",
