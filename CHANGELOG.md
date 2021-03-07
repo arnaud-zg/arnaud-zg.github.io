@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.2.1...v1.4.0) (2021-03-07)
+
+
+### Features
+
+* add TextInput component ([6fdf07e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/6fdf07ecab3cd33a761daf30f7950533449dd231))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fullhuman/postcss-purgecss to v3 ([#106](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/106)) ([ee3d462](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/ee3d462b2620d2507a89ad7ffdf86a0194d7e88c))
+* **deps:** update dependency @fullhuman/postcss-purgecss to v4 ([#160](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/160)) ([495eafd](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/495eafd862a1c3a72d7fefaf1c0ca409e4e3690a))
+* **deps:** update dependency next to v10 ([#128](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/128)) ([b489b09](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/b489b09e0a04c82b43003b6af395bf60cb8a7c87))
+* **deps:** update react monorepo to v17 ([#123](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/123)) ([cce75fe](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/cce75fe91d062e4f62ec756f4e080017369ef18a))
+
 ## 1.3.0 (2020-10-08)
 
 
