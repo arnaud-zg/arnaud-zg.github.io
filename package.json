@@ -14,7 +14,7 @@
     "release": "standard-version && git push origin develop && yarn deploy"
   },
   "dependencies": {
-    "@fullhuman/postcss-purgecss": "4.0.0",
+    "@fullhuman/postcss-purgecss": "4.0.2",
     "classnames": "2.2.6",
     "next": "10.0.0",
     "next-seo": "4.1.0",
