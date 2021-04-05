@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.2](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.1...v1.4.2) (2021-04-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fullhuman/postcss-purgecss to v4.0.2 ([#187](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/187)) ([1d2d86b](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/1d2d86bb5193a7571c8c3748afe10f5ffff214f0))
+* **deps:** update dependency @fullhuman/postcss-purgecss to v4.0.3 ([#197](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/197)) ([31cf786](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/31cf786a72985805e0275fb9c7c32f45f9e9bc24))
+* **deps:** update dependency classnames to v2.3.0 ([#206](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/206)) ([aac9164](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/aac9164ebc848e2b1d4143c20078018bef920154))
+* **deps:** update dependency classnames to v2.3.1 ([#208](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/208)) ([220a248](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/220a24844b8a45fe87804fd253fecba48f8b922d))
+* **deps:** update dependency next to v10.0.8 ([#188](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/188)) ([6d31489](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/6d314891317a778cd26bbf6d502c91789bfacb1f))
+* **deps:** update dependency next to v10.0.9 ([#195](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/195)) ([108477e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/108477ec09cc9f810954c513c800192a0604a018))
+* **deps:** update dependency next to v10.1.1 ([#204](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/204)) ([1dcefe9](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/1dcefe9d65415dfc432cf788fc1212e2e34d787e))
+* **deps:** update dependency next to v10.1.2 ([#205](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/205)) ([5bce080](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5bce080d9a2b299d991e9e5ad0e97d7aaf4ef79b))
+* **deps:** update dependency next to v10.1.3 ([#207](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/207)) ([349337c](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/349337c6fac6412ea53630ea4b513dc6a4965432))
+* **deps:** update dependency next-seo to v4.20.0 ([#189](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/189)) ([724fc4f](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/724fc4f7ec1465e9035d4c3406af41ed23d95bf6))
+* **deps:** update dependency next-seo to v4.22.0 ([#196](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/196)) ([732a827](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/732a827302f7f00ea7c0c41e6c2efa0dac8ddbcb))
+* **deps:** update dependency next-seo to v4.23.0 ([#200](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/200)) ([dbd0f22](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/dbd0f228b3df7024fce8fecae826feec80ec5883))
+* **deps:** update dependency tailwindcss to v1.9.6 ([#190](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/190)) ([077698f](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/077698f84f7275c9246e2521a4ea28f61f6d5f55))
+* **deps:** update react monorepo to v17.0.1 ([#191](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/191)) ([ea288e4](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/ea288e4455c3976dec7c43ba251e49fd296e6c9c))
+* **deps:** update react monorepo to v17.0.2 ([#198](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/198)) ([2e46d2e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/2e46d2efb3c6fedcae42aae7594992d10c3cde40))
+
 ### [1.4.1](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.0...v1.4.1) (2021-03-08)
 
 ## [1.4.0](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.2.1...v1.4.0) (2021-03-07)
