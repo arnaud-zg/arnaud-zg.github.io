@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.3](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.2...v1.4.3) (2021-04-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency tailwindcss to v2 ([#137](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/137)) ([f90e25c](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/f90e25cb5dc467175c108fc825fca25eea9ded73))
+
 ### [1.4.2](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.1...v1.4.2) (2021-04-05)
 
 
