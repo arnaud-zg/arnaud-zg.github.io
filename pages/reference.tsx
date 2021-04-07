@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Background } from '../features/common';
 import { Action, ActionMode } from '../features/common/Action';
 import { Block } from '../features/common/Block';
@@ -29,16 +29,6 @@ import { TextInput } from '../features/common/TextInput';
 import { Title, TitleProps } from '../features/common/Title';
 
 function HomePage() {
-  useEffect(() => {
-    window.onload = () => {
-      document.body.classList.remove('is-preload');
-    };
-    window.ontouchmove = () => false;
-    window.onorientationchange = () => {
-      document.body.scrollTop = 0;
-    };
-  });
-
   return (
     <Layout>
       <NextSeo

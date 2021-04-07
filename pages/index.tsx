@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Background, Overlay } from '../features/common';
 import {
   descriptions,
@@ -13,16 +13,6 @@ import { Layout } from '../features/common/Layout';
 import { Presentation } from '../features/presentation';
 
 function HomePage() {
-  useEffect(() => {
-    window.onload = () => {
-      document.body.classList.remove('is-preload');
-    };
-    window.ontouchmove = () => false;
-    window.onorientationchange = () => {
-      document.body.scrollTop = 0;
-    };
-  });
-
   return (
     <Layout>
       <NextSeo

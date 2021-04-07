@@ -28,7 +28,6 @@ class MyDocument extends Document {
             'bg-white',
             'font-light',
             'font-sans',
-            'is-preload',
             'overflow-hidden',
             'text-base',
             'text-white'
