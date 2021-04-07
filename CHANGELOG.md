@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.6](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.3...v1.4.6) (2021-04-07)
+
+
+### Bug Fixes
+
+* remove deprecated webfonts folder ([98f77b2](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/98f77b2cae8650ee5684f9d9b44d08042c9188b8))
+* remove font awesome's icons ([2da9d1d](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/2da9d1d9467ec0ad15ee3526195a8ea27afeed82))
+* use autoprefixer and postcss ([76ab473](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/76ab4731b0b6c543b5c4e6b47b2da796a686e907))
+
 ### [1.4.5](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.3...v1.4.5) (2021-04-07)
 
 
