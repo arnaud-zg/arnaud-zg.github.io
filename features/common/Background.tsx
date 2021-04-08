@@ -11,7 +11,7 @@ export const Background = () => (
       'fixed',
       'h-full',
       'left-0',
-      'opacity-100',
+      // 'opacity-100',
       'top-0',
       'translate-x-0',
       'translate-y-0'

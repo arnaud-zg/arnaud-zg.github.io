@@ -62,9 +62,7 @@ function HomePage() {
             'bg-gray-200',
             'h-auto',
             'inline-block',
-            'mb-24',
-            'md:mb-48',
-            'mt-6',
+            'my-6',
             'overflow-y-scroll',
             'p-4',
             'w-4/5'
