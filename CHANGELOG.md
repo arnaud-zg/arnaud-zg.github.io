@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.9...v1.5.0) (2021-04-08)
+
+
+### Features
+
+* use framer-motion for background translate animation ([aac1085](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/aac1085b26e692a16d6a760fc7a8111d96d6241a))
+
+
+### Bug Fixes
+
+* add body component ([e0f1dc4](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/e0f1dc4ce33f3c658fe5214d1c8b3c168547ebd8))
+* disable background animation on reference page ([ce9859a](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/ce9859a6c0e5a2721c44cc00938aa8921d631b33))
+
 ### [1.4.9](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.8...v1.4.9) (2021-04-08)
 
 
