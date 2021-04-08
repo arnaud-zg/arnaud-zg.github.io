@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { FC } from 'react';
 import classNames from 'classnames';
 
-export const Background = () => (
+interface BackgroundProps {
+  withAnimation?: boolean;
+}
+
+export const Background: FC<BackgroundProps> = ({ withAnimation = true }) => (
   <div
     id="bg"
     className={classNames(
@@ -18,7 +22,7 @@ export const Background = () => (
     )}
     style={{
       backgroundColor: '#348cb2',
-      animation: 'bg 120s linear infinite',
+      ...(withAnimation ? { animation: 'bg 120s linear infinite' } : {}),
     }}
   />
 );

@@ -46,7 +46,7 @@ function HomePage() {
           },
         }}
       />
-      <Background />
+      <Background withAnimation={false} />
       <div
         className={classNames(
           'fixed',
