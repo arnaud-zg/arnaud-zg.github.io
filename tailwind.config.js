@@ -5,8 +5,7 @@ module.exports = {
     extend: {
       backgroundImage: () => ({
         hero: "url('../../public/assets/css/images/bg.jpg')",
-        'overlay-pattern':
-          "url('../../public/assets/css/images/overlay-pattern.png'), url('../../public/assets/css/images/overlay.svg')",
+        'overlay-pattern': "url('../../public/assets/css/images/overlay.svg')",
       }),
       keyframes: {
         fadeIn: {

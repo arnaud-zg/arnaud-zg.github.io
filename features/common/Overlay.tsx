@@ -8,7 +8,7 @@ export const Overlay = () => (
       'bg-fixed',
       'bg-center',
       'bg-repeat',
-      'bg-auto',
+      'bg-cover',
       'h-full',
       'w-full'
     )}
