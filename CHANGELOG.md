@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.5.0...v1.5.1) (2021-04-08)
+
+
+### Bug Fixes
+
+* minify large assets and improve accessibility ([253bd35](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/253bd35c1f53f116a4875795de3c160932c2ddd9))
+
 ## [1.5.0](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.9...v1.5.0) (2021-04-08)
 
 
