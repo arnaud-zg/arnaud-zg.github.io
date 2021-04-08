@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import { firstName, lastName } from './data.json';
 
 interface FooterItemProps {
@@ -46,23 +47,29 @@ const decorateFooterList = ({
   );
 
 export const Footer = () => (
-  <footer id="footer">
-    <span className="copyright">
-      {decorateFooterList({
-        footerList: footerList.map(({ prefix = '', label, href, target }) =>
-          href ? (
-            <FooterItemLink
-              key={label}
-              prefix={prefix}
-              href={href}
-              target={target}
-              label={label}
-            />
-          ) : (
-            <FooterItemText key={label} prefix={prefix} label={label} />
-          )
-        ),
-      })}
-    </span>
+  <footer
+    className={classNames(
+      'absolute',
+      'text-center',
+      'bottom-0',
+      'cursor-default',
+      'w-full',
+      'py-4'
+    )}>
+    {decorateFooterList({
+      footerList: footerList.map(({ prefix = '', label, href, target }) =>
+        href ? (
+          <FooterItemLink
+            key={label}
+            prefix={prefix}
+            href={href}
+            target={target}
+            label={label}
+          />
+        ) : (
+          <FooterItemText key={label} prefix={prefix} label={label} />
+        )
+      ),
+    })}
   </footer>
 );
