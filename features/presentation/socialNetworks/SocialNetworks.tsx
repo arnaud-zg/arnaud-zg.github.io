@@ -33,27 +33,31 @@ export const SocialNetworks = () => (
         'space-x-2'
       )}>
       {SOCIAL_NETWORKS.map(({ href, type, label }) => (
-        <Link key={label} href={href} rel="noopener noreferrer" target="_blank">
-          <li
+        <li className={classNames('cursor-pointer')}>
+          <Link
+            key={label}
+            href={href}
+            rel="noopener noreferrer"
+            target="_blank"
             className={classNames(
-              'cursor-pointer',
-              'h-16',
-              'w-16',
-              'border',
-              'border-white',
-              'rounded-full',
               'flex',
               'items-center',
               'justify-center',
+              'border',
+              'border-white',
+              'rounded-full',
+              'h-16',
+              'w-16',
               'transition',
               'ease-in-out',
               'transform',
               'hover:scale-110',
               'duration-500'
-            )}>
+            )}
+            {...{ 'aria-label': type }}>
             <Icon type={type} size={Size.S} variation={Variation.LIGHT} />
-          </li>
-        </Link>
+          </Link>
+        </li>
       ))}
     </ul>
   </nav>
