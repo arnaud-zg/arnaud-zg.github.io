@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.8](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.7...v1.4.8) (2021-04-08)
+
+
+### Bug Fixes
+
+* remove useless files ([86fe2f1](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/86fe2f1bf8d092bf3d46695481cd09d29389310a))
+* use hi-fi version of overlay ([1de0133](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/1de01334b95a674feb2497fa23bb2ed5947ae264))
+
 ### [1.4.7](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.6...v1.4.7) (2021-04-08)
 
 
