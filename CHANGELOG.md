@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.9](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.8...v1.4.9) (2021-04-08)
+
+
+### Bug Fixes
+
+* update reference wrapper block spacing ([5c74325](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5c74325c7d9df0fa71c2222cf961e69ffedc52e7))
+
 ### [1.4.8](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.7...v1.4.8) (2021-04-08)
 
 
