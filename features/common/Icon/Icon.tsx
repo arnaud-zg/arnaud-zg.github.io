@@ -45,11 +45,11 @@ const ICON_COMPONENT_MAP = {
 };
 
 const SIZE_CLASS_MAP = {
-  [Size.XS]: ['h-10', 'w-10'],
-  [Size.S]: ['h-12', 'w-12'],
-  [Size.M]: ['h-16', 'w-16'],
-  [Size.L]: ['h-20', 'w-20'],
-  [Size.XL]: ['h-24', 'w-24'],
+  [Size.XS]: ['h-6', 'w-6'],
+  [Size.S]: ['h-8', 'w-8'],
+  [Size.M]: ['h-10', 'w-10'],
+  [Size.L]: ['h-12', 'w-12'],
+  [Size.XL]: ['h-14', 'w-14'],
 };
 
 const VARIATION_CLASS_MAP = {

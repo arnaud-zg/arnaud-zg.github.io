@@ -3,6 +3,7 @@ import React from 'react';
 import { Variation } from '../../common/color';
 import { Icon, IconType } from '../../common/Icon';
 import { Size } from '../../common/size';
+import { Link } from '../../common/Link';
 
 const SOCIAL_NETWORKS = [
   {
@@ -23,7 +24,7 @@ const SOCIAL_NETWORKS = [
 ];
 
 export const SocialNetworks = () => (
-  <nav className={classNames('mt-6')}>
+  <nav className={classNames('mt-4')}>
     <ul
       className={classNames(
         'flex',
@@ -32,23 +33,28 @@ export const SocialNetworks = () => (
         'space-x-2'
       )}>
       {SOCIAL_NETWORKS.map(({ href, type, label }) => (
-        <li
-          key={label}
-          className={classNames(
-            'cursor-pointer',
-            'h-20',
-            'w-20',
-            'border',
-            'border-white',
-            'rounded-full',
-            'flex',
-            'items-center',
-            'justify-center'
-          )}>
-          <a href={href} rel="noopener noreferrer" target="_blank">
-            <Icon type={type} size={Size.XS} variation={Variation.LIGHT} />
-          </a>
-        </li>
+        <Link href={href} rel="noopener noreferrer" target="_blank">
+          <li
+            key={label}
+            className={classNames(
+              'cursor-pointer',
+              'h-16',
+              'w-16',
+              'border',
+              'border-white',
+              'rounded-full',
+              'flex',
+              'items-center',
+              'justify-center',
+              'transition',
+              'ease-in-out',
+              'transform',
+              'hover:scale-110',
+              'duration-500'
+            )}>
+            <Icon type={type} size={Size.S} variation={Variation.LIGHT} />
+          </li>
+        </Link>
       ))}
     </ul>
   </nav>

@@ -54,50 +54,6 @@
   width: 100%;
 }
 
-/* Header */
-
-@keyframes header {
-  0% {
-    transform: translate3d(0, 1em, 0);
-    opacity: 0;
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-}
-
-@keyframes nav-icons {
-  0% {
-    transform: translate3d(0, 1em, 0);
-    opacity: 0;
-  }
-
-  100% {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-  }
-}
-
-#header {
-  animation: header 1s 2.25s forwards;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  cursor: default;
-  display: inline-block;
-  opacity: 0;
-  position: relative;
-  text-align: center;
-  top: -1em;
-  vertical-align: middle;
-  width: 90%;
-}
-
-#header h1 {
-  font-size: 4.35em;
-}
-
 /* Footer */
 
 #footer {
