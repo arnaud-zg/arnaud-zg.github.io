@@ -12,7 +12,7 @@ export const Layout: FC = ({ children }) => {
         'top-0',
         'w-full'
       )}
-      style={{ animation: 'wrapper 3s forwards' }}>
+      style={{ animation: 'fadeIn 3s forwards' }}>
       {children}
     </div>
   );

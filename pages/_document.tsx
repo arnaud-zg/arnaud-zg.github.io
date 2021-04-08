@@ -19,9 +19,6 @@ class MyDocument extends Document {
       <Html dir="ltr" lang={appLanguage}>
         <Head>
           <link rel="stylesheet" href="assets/css/main.css" />
-          <noscript>
-            <link rel="stylesheet" href="assets/css/noscript.css" />
-          </noscript>
         </Head>
         <body
           className={classNames(

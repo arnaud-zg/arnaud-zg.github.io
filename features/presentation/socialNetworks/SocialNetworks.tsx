@@ -33,9 +33,8 @@ export const SocialNetworks = () => (
         'space-x-2'
       )}>
       {SOCIAL_NETWORKS.map(({ href, type, label }) => (
-        <Link href={href} rel="noopener noreferrer" target="_blank">
+        <Link key={label} href={href} rel="noopener noreferrer" target="_blank">
           <li
-            key={label}
             className={classNames(
               'cursor-pointer',
               'h-16',

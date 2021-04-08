@@ -1,15 +1,3 @@
-/* Wrapper */
-
-@keyframes wrapper {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
 /* BG */
 
 @keyframes bg {
@@ -25,33 +13,6 @@
 #bg {
   background-size: 2250px auto;
   width: 6750px;
-}
-
-/* Overlay */
-
-@keyframes overlay {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-#overlay {
-  animation: overlay 1.5s 1.5s forwards;
-  background-attachment: fixed, fixed;
-  background-image: url('images/overlay-pattern.png'), url('images/overlay.svg');
-  background-position: top left, center center;
-  background-repeat: repeat, no-repeat;
-  background-size: auto, cover;
-  height: 100%;
-  left: 0;
-  opacity: 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
 }
 
 /* Wide */

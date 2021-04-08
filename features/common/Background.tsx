@@ -5,6 +5,7 @@ export const Background = () => (
   <div
     id="bg"
     className={classNames(
+      'bg-hero',
       'bg-left-bottom',
       'bg-repeat-x',
       'fixed',
@@ -17,7 +18,6 @@ export const Background = () => (
     )}
     style={{
       backgroundColor: '#348cb2',
-      backgroundImage: 'url("assets/css/images/bg.jpg")',
       animation: 'bg 120s linear infinite',
     }}
   />
