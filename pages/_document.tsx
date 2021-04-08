@@ -17,9 +17,7 @@ class MyDocument extends Document {
   render() {
     return (
       <Html dir="ltr" lang={appLanguage}>
-        <Head>
-          <link rel="stylesheet" href="assets/css/main.css" />
-        </Head>
+        <Head />
         <body
           className={classNames(
             'bg-white',

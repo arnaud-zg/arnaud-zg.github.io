@@ -1,28 +1,36 @@
-import React, { FC } from 'react';
 import classNames from 'classnames';
+import { motion } from 'framer-motion';
+import React, { FC } from 'react';
 
 interface BackgroundProps {
   withAnimation?: boolean;
 }
 
 export const Background: FC<BackgroundProps> = ({ withAnimation = true }) => (
-  <div
-    id="bg"
-    className={classNames(
-      'bg-hero',
-      'bg-left-bottom',
-      'bg-repeat-x',
-      'fixed',
-      'h-full',
-      'left-0',
-      // 'opacity-100',
-      'top-0',
-      'translate-x-0',
-      'translate-y-0'
-    )}
-    style={{
-      backgroundColor: '#348cb2',
-      ...(withAnimation ? { animation: 'bg 120s linear infinite' } : {}),
-    }}
-  />
+  <>
+    <motion.div
+      className={classNames(
+        'fixed',
+        'bg-hero',
+        'bg-left-bottom',
+        'bg-repeat-x',
+        'bg-auto',
+        'h-full'
+      )}
+      style={{ backgroundColor: '#348cb2', width: '3840px' }}
+      {...(withAnimation
+        ? {
+            animate: {
+              x: [0, -1920, 0],
+            },
+            transition: {
+              duration: 240,
+              ease: 'linear',
+              loop: Infinity,
+              repeatDelay: 1,
+            },
+          }
+        : {})}
+    />
+  </>
 );

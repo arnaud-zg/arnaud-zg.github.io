@@ -13,7 +13,7 @@ export const Overlay = () => (
       'w-full'
     )}
     style={{
-      animation: 'fadeIn 1.5s 1.5s forwards',
+      animation: 'fadeIn 1.5s forwards',
     }}
   />
 );
