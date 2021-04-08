@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.7](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.6...v1.4.7) (2021-04-08)
+
+
+### Bug Fixes
+
+* move animation and background into tailwind theme ([839dbbf](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/839dbbf7d6cb8eea17ef2b8277c2555c3b082c09))
+* remove footer css ([d2c0d47](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/d2c0d47737caadf340c80165522ae8fa6f5bdc15))
+* remove header css and use common components ([bbbd0bf](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/bbbd0bf76b9734fe46e6b5a2f60f4d9c4ec1a3ac))
+
 ### [1.4.6](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.4.3...v1.4.6) (2021-04-07)
 
 
