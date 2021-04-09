@@ -7,10 +7,8 @@ export const Body: FC<BodyProps> = ({ children }) => {
   return (
     <div
       className={classNames(
-        'fixed',
         'flex',
-        'h-full',
-        'inset-0',
+        'h-5/6',
         'justify-center',
         'text-black',
         'w-full'
@@ -18,9 +16,6 @@ export const Body: FC<BodyProps> = ({ children }) => {
       <div
         className={classNames(
           'bg-gray-200',
-          'h-auto',
-          'inline-block',
-          'my-12',
           'overflow-y-scroll',
           'p-4',
           'w-4/5',

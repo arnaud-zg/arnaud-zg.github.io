@@ -48,14 +48,7 @@ const decorateFooterList = ({
 
 export const Footer = () => (
   <footer
-    className={classNames(
-      'absolute',
-      'text-center',
-      'bottom-0',
-      'cursor-default',
-      'w-full',
-      'py-4'
-    )}>
+    className={classNames('cursor-default', 'py-4', 'text-center', 'w-full')}>
     {decorateFooterList({
       footerList: footerList.map(({ prefix = '', label, href, target }) =>
         href ? (

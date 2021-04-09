@@ -1,10 +1,11 @@
-import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React from 'react';
+import { Banner } from '../features/banner';
 import { Background } from '../features/common';
 import { Action, ActionMode } from '../features/common/Action';
 import { Block } from '../features/common/Block';
 import { Blockquote } from '../features/common/Blockquote';
+import { Body } from '../features/common/Body';
 import { Code } from '../features/common/Code';
 import { Variation } from '../features/common/color';
 import {
@@ -27,8 +28,6 @@ import { TableMode } from '../features/common/Table/Table';
 import { Text, TextEnum } from '../features/common/Text';
 import { TextInput } from '../features/common/TextInput';
 import { Title, TitleProps } from '../features/common/Title';
-import { Body } from '../features/common/Body';
-import { BackgroundMusic } from '../features/backgroundMusic';
 
 function HomePage() {
   return (
@@ -49,6 +48,7 @@ function HomePage() {
         }}
       />
       <Background withAnimation={false} />
+      <Banner />
       <Body>
         <Title level={4}>Elements</Title>
         <Block>
@@ -500,7 +500,6 @@ print 'It took ' + i + ' iterations to sort the deck.';
           </div>
         </Block>
       </Body>
-      <BackgroundMusic />
     </Layout>
   );
 }

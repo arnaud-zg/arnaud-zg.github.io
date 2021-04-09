@@ -6,15 +6,14 @@ export const Overlay = () => (
     className={classNames(
       'fixed',
       'bg-overlay-pattern',
-      'bg-fixed',
       'bg-center',
-      'bg-repeat',
       'bg-cover',
       'h-full',
       'w-full'
     )}
     style={{
       animation: 'fadeIn 1.5s forwards',
+      zIndex: -10,
     }}
   />
 );

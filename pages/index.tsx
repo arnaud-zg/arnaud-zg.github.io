@@ -45,13 +45,13 @@ function HomePage() {
       <Overlay />
       <div
         className={classNames(
-          'fixed',
           'flex',
+          'flex-col',
           'h-full',
-          'inset-0',
-          'justify-center',
+          'justify-between',
           'w-full'
         )}>
+        <div />
         <Presentation />
         <Footer />
       </div>
