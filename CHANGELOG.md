@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.5](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.4...v1.7.5) (2021-04-09)
+
+
+### Bug Fixes
+
+* update background width to 5760px ([28ae689](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/28ae689fc7aa0ad73b653c988ec1ed9ee77c52e5))
+
 ### [1.7.4](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.3...v1.7.4) (2021-04-09)
 
 
