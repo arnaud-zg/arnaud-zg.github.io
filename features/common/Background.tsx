@@ -18,7 +18,7 @@ export const Background: FC<BackgroundProps> = ({ withAnimation = true }) => (
     )}
     style={{
       backgroundColor: '#348cb2',
-      width: '3840px',
+      width: '5760px',
       zIndex: -10,
     }}
     {...(withAnimation
