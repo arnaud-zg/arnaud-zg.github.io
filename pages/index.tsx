@@ -14,14 +14,18 @@ import { Layout } from '../features/common/Layout';
 import { Presentation } from '../features/presentation';
 
 function HomePage() {
+  const title = `${firstName} ${lastName} | ${descriptions[0]}`;
+  const description = `Currently working with ${technologiesUsed.join(
+    ', '
+  )}. Software technology enthusiast.`;
   return (
     <Layout>
       <NextSeo
-        title={`${firstName} ${lastName} | ${descriptions[0]}`}
-        description={`${descriptions[0]}`}
+        title={title}
+        description={description}
         openGraph={{
-          title: `${firstName} ${lastName} | ${descriptions[0]}`,
-          description: `${descriptions[0]} | ${technologiesUsed.join(', ')}`,
+          title,
+          description,
           url,
           type: 'profile',
           profile: {
