@@ -1,11 +1,13 @@
 import classNames from 'classnames';
-import { NextSeo } from 'next-seo';
+import { NextSeo, SocialProfileJsonLd } from 'next-seo';
 import React from 'react';
 import { Background, Footer, Overlay } from '../features/common';
 import {
   descriptions,
   firstName,
   lastName,
+  socialProfiles,
+  technologiesUsed,
   url,
 } from '../features/common/data.json';
 import { Layout } from '../features/common/Layout';
@@ -19,16 +21,21 @@ function HomePage() {
         description={`${descriptions[0]}`}
         openGraph={{
           title: `${firstName} ${lastName} | ${descriptions[0]}`,
-          description: `${descriptions[0]}`,
+          description: `${descriptions[0]} | ${technologiesUsed.join(', ')}`,
           url,
           type: 'profile',
           profile: {
             firstName,
             lastName,
-            // username: 'arnaud-zg',
             gender: 'male',
           },
         }}
+      />
+      <SocialProfileJsonLd
+        type="Person"
+        name={`${firstName} ${lastName}`}
+        url={url}
+        sameAs={Object.values(socialProfiles)}
       />
       <Background />
       <Overlay />

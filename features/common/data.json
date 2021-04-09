@@ -6,8 +6,19 @@
     "Front-end Developer",
     "React Native Developer"
   ],
-  "technologiesUsed": ["Typescript", "React", "React Native", "Node.js"],
+  "technologiesUsed": [
+    "Typescript",
+    "React",
+    "React Native",
+    "GraphQL",
+    "Node.js"
+  ],
   "currentLocation": "Paris",
   "url": "https://arnaud-zg.github.io/",
-  "appLanguage": "en"
+  "appLanguage": "en",
+  "socialProfiles": {
+    "TWITTER": "https://twitter.com/arnaudzg",
+    "LINKEDIN": "https://www.linkedin.com/in/arnaudzheng",
+    "GITHUB": "https://github.com/arnaud-zg"
+  }
 }
