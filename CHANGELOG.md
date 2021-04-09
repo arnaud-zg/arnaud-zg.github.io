@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.2](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.5.1...v1.5.2) (2021-04-09)
+
+
+### Bug Fixes
+
+* better responsive on presentation block ([bac7707](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/bac77070b78fbe3c3dfbc8672800625a39a37891))
+* reduce bundle size of first load page ([396a95d](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/396a95df481ff07d7ba2a836d18f707d78ee4b7c))
+
 ### [1.5.1](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.5.0...v1.5.1) (2021-04-08)
 
 
