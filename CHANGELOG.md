@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.3](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.2...v1.7.3) (2021-04-09)
+
+
+### Bug Fixes
+
+* avoid absolute position on banner or footer ([4ee1ee9](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/4ee1ee9a03a3c98b441d2e392a0abd90704286f0))
+* unique key on social network item ([f585dab](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/f585dabae796ebf7844fed0891fddade6985f5ae))
+
 ### [1.7.2](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.1...v1.7.2) (2021-04-09)
 
 ### [1.7.1](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.0...v1.7.1) (2021-04-09)
