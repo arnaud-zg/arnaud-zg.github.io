@@ -29,7 +29,8 @@ export const SocialNetworks = () => (
       className={classNames(
         'flex',
         'flex-wrap',
-        'justify-center',
+        'justify-around',
+        'sm:justify-center',
         'space-x-2'
       )}>
       {SOCIAL_NETWORKS.map(({ href, type, label }) => (

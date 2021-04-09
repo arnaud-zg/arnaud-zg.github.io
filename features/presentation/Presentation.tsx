@@ -10,9 +10,22 @@ export const Presentation = () => (
     <Title classnames={['font-black', 'tracking-tight']} level={1}>
       {`${firstName} ${lastName}`}
     </Title>
-    <Text classnames={['mt-4', 'opacity-75', 'text-xl']}>
-      {descriptions.join(' • ')}
-    </Text>
+    <div
+      className={classNames(
+        'mt-4',
+        'grid',
+        'grid-flow-row',
+        'sm:grid-flow-col',
+        'sm:divide-x-2',
+        'sm:divide-dashed',
+        'sm:divide-gray-200'
+      )}>
+      {descriptions.map((description) => (
+        <Text classnames={['px-4', 'text-xl']} key={description}>
+          {description}
+        </Text>
+      ))}
+    </div>
     <SocialNetworks />
   </header>
 );
