@@ -1,14 +1,13 @@
 import classNames from 'classnames';
 import { NextSeo } from 'next-seo';
 import React from 'react';
-import { Background, Overlay } from '../features/common';
+import { Background, Footer, Overlay } from '../features/common';
 import {
   descriptions,
   firstName,
   lastName,
   url,
 } from '../features/common/data.json';
-import { Footer } from '../features/common/Footer';
 import { Layout } from '../features/common/Layout';
 import { Presentation } from '../features/presentation';
 
