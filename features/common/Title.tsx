@@ -10,7 +10,7 @@ export interface TitleProps {
   level: TitleLevel;
 }
 
-const initialClassnames = ['font-sans', 'font-thin', 'mt-2'];
+const initialClassnames = ['font-sans', 'font-thin', 'mt-4'];
 
 export const FONT_SIZE_CLASS_MAPPING = {
   1: ['text-6xl'],

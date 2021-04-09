@@ -38,7 +38,7 @@ export const Block: FC<BlockProps> = ({
       ...DIRECTION_CLASSES_MAPPING[direction],
       ...VARIATION_CLASS_MAP[variation],
       'flex-grow',
-      'mt-2',
+      'mt-4',
       'mx-2',
       'p-2',
       'rounded',

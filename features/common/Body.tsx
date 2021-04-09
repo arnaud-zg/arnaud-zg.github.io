@@ -17,6 +17,7 @@ export const Body: FC<BodyProps> = ({ children }) => {
         className={classNames(
           'bg-gray-200',
           'overflow-y-scroll',
+          'mt-4',
           'p-4',
           'w-4/5',
           'rounded-lg'
