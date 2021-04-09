@@ -17,9 +17,8 @@ export const SocialNetworks = () => (
         'space-x-2'
       )}>
       {Object.entries(socialProfiles).map(([type, href]) => (
-        <li className={classNames('cursor-pointer')}>
+        <li key={type} className={classNames('cursor-pointer')}>
           <Link
-            key={type}
             href={href}
             rel="noopener noreferrer"
             target="_blank"
