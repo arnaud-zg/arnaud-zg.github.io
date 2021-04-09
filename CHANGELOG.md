@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.4](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.3...v1.7.4) (2021-04-09)
+
+
+### Bug Fixes
+
+* adjust block spacing ([46f0065](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/46f0065f0812b75635b166153f18b454092543e9))
+
 ### [1.7.3](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.2...v1.7.3) (2021-04-09)
 
 
