@@ -1,0 +1,1 @@
+(window.webpackJsonp_N_E=window.webpackJsonp_N_E||[]).push([[15],{a9qN:function(n,e,r){"use strict";r.r(e),r.d(e,"Overlay",(function(){return s}));var t=r("nKUr"),a=(r("q1tI"),r("TSYQ")),o=r.n(a),s=function(){return Object(t.jsx)("div",{className:o()("fixed","bg-overlay-pattern","bg-center","bg-cover","h-full","w-full"),style:{animation:"fadeIn 1.5s forwards",zIndex:-10}})}}}]);
