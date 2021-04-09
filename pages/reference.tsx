@@ -28,6 +28,7 @@ import { Text, TextEnum } from '../features/common/Text';
 import { TextInput } from '../features/common/TextInput';
 import { Title, TitleProps } from '../features/common/Title';
 import { Body } from '../features/common/Body';
+import { BackgroundMusic } from '../features/backgroundMusic';
 
 function HomePage() {
   return (
@@ -499,6 +500,7 @@ print 'It took ' + i + ' iterations to sort the deck.';
           </div>
         </Block>
       </Body>
+      <BackgroundMusic />
     </Layout>
   );
 }

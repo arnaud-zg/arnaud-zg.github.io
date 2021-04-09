@@ -20,7 +20,7 @@ export const Body: FC<BodyProps> = ({ children }) => {
           'bg-gray-200',
           'h-auto',
           'inline-block',
-          'my-6',
+          'my-12',
           'overflow-y-scroll',
           'p-4',
           'w-4/5',

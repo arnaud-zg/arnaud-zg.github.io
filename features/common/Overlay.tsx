@@ -4,6 +4,7 @@ import classNames from 'classnames';
 export const Overlay = () => (
   <div
     className={classNames(
+      'fixed',
       'bg-overlay-pattern',
       'bg-fixed',
       'bg-center',
