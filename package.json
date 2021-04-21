@@ -27,7 +27,7 @@
     "use-sound": "2.0.2"
   },
   "devDependencies": {
-    "@babel/runtime-corejs2": "7.13.10",
+    "@babel/runtime-corejs2": "7.13.17",
     "@types/classnames": "2.2.11",
     "@types/node": "13.13.50",
     "@types/react": "17.0.3",
