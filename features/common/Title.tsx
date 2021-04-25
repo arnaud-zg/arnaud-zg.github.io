@@ -1,12 +1,11 @@
-import classNames from 'classnames';
-import { ClassDictionary } from 'classnames/types';
+import classNames, { Mapping } from 'classnames';
 import { createElement, FC } from 'react';
 
 type TitleLevel = keyof typeof FONT_SIZE_CLASS_MAPPING;
 
 export interface TitleProps {
   children: string;
-  classnames?: ClassDictionary;
+  classnames?: Mapping;
   level: TitleLevel;
 }
 

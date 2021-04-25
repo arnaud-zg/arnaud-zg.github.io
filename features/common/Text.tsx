@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { ClassValue } from 'classnames/types';
 import { createElement, FC } from 'react';
 
 export enum TextEnum {
@@ -16,7 +15,7 @@ export enum TextEnum {
 
 interface TextProps {
   mode?: TextEnum;
-  classnames?: ClassValue;
+  classnames?: Parameters<typeof classNames>;
 }
 
 const MODE_TAG_MAPPING = {
