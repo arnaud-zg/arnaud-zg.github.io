@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.6](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.5...v1.7.6) (2021-04-25)
+
+
+### Bug Fixes
+
+* remove deprecated package ([819086b](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/819086bf27b04d4ce96e48570c6f978f27acd24b))
+* **deps:** update dependency framer-motion to v4.1.4 ([#215](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/215)) ([9409c63](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/9409c631f2269a3d527b178adafdf0d00d7b91e1))
+* **deps:** update dependency framer-motion to v4.1.5 ([#219](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/219)) ([62ca0f7](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/62ca0f7ba0142214fd21d35650672b378b7d51bf))
+* **deps:** update dependency framer-motion to v4.1.6 ([#222](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/222)) ([9bd60fd](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/9bd60fd0504ce45d8461944dd023cd928ae6a57f))
+* **deps:** update dependency framer-motion to v4.1.7 ([#223](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/223)) ([2adaff0](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/2adaff0297533770df09d78c40eee3705e27a201))
+* **deps:** update dependency framer-motion to v4.1.8 ([#224](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/224)) ([8f0cb0b](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/8f0cb0bea927c46cb55426095ec4fef56efcbb78))
+* **deps:** update dependency framer-motion to v4.1.9 ([#226](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/226)) ([1cafd80](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/1cafd80435db9110ddd8911a87df79703eaeac40))
+* **deps:** update dependency next-seo to v4.24.0 ([#217](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/217)) ([d27e049](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/d27e049a725ca97f7e843020906b2c885d3d96b9))
+* **deps:** update dependency postcss to v8.2.10 ([#213](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/213)) ([31f8c9e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/31f8c9e54de3d94cf872742d971dce8f70197aed))
+* **deps:** update dependency postcss to v8.2.12 ([#225](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/225)) ([aa2ccd2](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/aa2ccd230ce1873b8f2bf31b150df71ac6ba79b0))
+* **deps:** update dependency tailwindcss to v2.1.2 ([#227](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/227)) ([5270bb7](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5270bb7a7cc3f2b8e3a465a85f11e1dccb49b33a))
+* **deps:** update dependency use-sound to v2.0.2 ([#218](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/218)) ([44e7d5c](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/44e7d5c009ce2be200a30fb57bf495a55ba9d56e))
+
 ### [1.7.5](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.4...v1.7.5) (2021-04-09)
 
 
