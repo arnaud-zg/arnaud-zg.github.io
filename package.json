@@ -27,7 +27,7 @@
     "use-sound": "2.1.0"
   },
   "devDependencies": {
-    "@babel/runtime-corejs2": "7.13.17",
+    "@babel/runtime-corejs2": "7.14.0",
     "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "eslint": "7.25.0",
