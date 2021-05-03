@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[821],{5821:function(e,n,r){"use strict";r.r(n),r.d(n,{Overlay:function(){return u}});var a=r(5893),t=(r(7294),r(4184)),s=r.n(t),u=function(){return(0,a.jsx)("div",{className:s()("fixed","bg-overlay-pattern","bg-center","bg-cover","h-full","w-full"),style:{animation:"fadeIn 1.5s forwards",zIndex:-10}})}}}]);
