@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.8](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.7...v1.7.8) (2021-05-03)
+
+
+### Bug Fixes
+
+* use default export module on json file ([0c92b2f](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/0c92b2f2ec15a34ac130330aec14875676afec26))
+
 ### [1.7.7](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.6...v1.7.7) (2021-05-03)
 
 
