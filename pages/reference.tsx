@@ -8,12 +8,7 @@ import { Blockquote } from '../features/common/Blockquote';
 import { Body } from '../features/common/Body';
 import { Code } from '../features/common/Code';
 import { Variation } from '../features/common/color';
-import {
-  descriptions,
-  firstName,
-  lastName,
-  url,
-} from '../features/common/data.json';
+import data from '../features/common/data.json';
 import { Definition } from '../features/common/Definition';
 import { Heading } from '../features/common/Heading';
 import { Icon, IconType } from '../features/common/Icon';
@@ -28,6 +23,8 @@ import { TableMode } from '../features/common/Table/Table';
 import { Text, TextEnum } from '../features/common/Text';
 import { TextInput } from '../features/common/TextInput';
 import { Title, TitleProps } from '../features/common/Title';
+
+const { descriptions, firstName, lastName, url } = data;
 
 function HomePage() {
   return (

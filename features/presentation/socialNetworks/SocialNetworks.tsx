@@ -4,7 +4,9 @@ import { Variation } from '../../common/color';
 import { Icon, IconType } from '../../common/Icon';
 import { Size } from '../../common/size';
 import { Link } from '../../common/Link';
-import { socialProfiles } from '../../common/data.json';
+import data from '../../common/data.json';
+
+const { socialProfiles } = data;
 
 export const SocialNetworks = () => (
   <nav className={classNames('mt-4')}>

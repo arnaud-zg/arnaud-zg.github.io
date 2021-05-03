@@ -6,7 +6,9 @@ import Document, {
   DocumentContext,
 } from 'next/document';
 import classNames from 'classnames';
-import { appLanguage } from '../features/common/data.json';
+import data from '../features/common/data.json';
+
+const { appLanguage } = data;
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {

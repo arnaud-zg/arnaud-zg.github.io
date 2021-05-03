@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { firstName, lastName } from './data.json';
+import data from './data.json';
 
 interface FooterItemProps {
   prefix?: string;
@@ -8,6 +8,8 @@ interface FooterItemProps {
   href?: string;
   target?: string;
 }
+
+const { firstName, lastName } = data;
 
 const footerList: FooterItemProps[] = [
   {

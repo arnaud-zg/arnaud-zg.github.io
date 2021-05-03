@@ -1,8 +1,10 @@
 import React from 'react';
 import { SocialNetworks } from './socialNetworks';
-import { firstName, lastName, descriptions } from '../common/data.json';
+import data from '../common/data.json';
 import classNames from 'classnames';
 import { Title, Text } from '../common';
+
+const { firstName, lastName, descriptions } = data;
 
 export const Presentation = () => (
   <header className={classNames('self-center', 'text-center')}>

@@ -1,17 +1,20 @@
 import classNames from 'classnames';
 import { NextSeo, SocialProfileJsonLd } from 'next-seo';
+import { cpuUsage } from 'process';
 import React from 'react';
 import { Background, Footer, Overlay } from '../features/common';
-import {
+import data from '../features/common/data.json';
+import { Layout } from '../features/common/Layout';
+import { Presentation } from '../features/presentation';
+
+const {
   descriptions,
   firstName,
   lastName,
   socialProfiles,
   technologiesUsed,
   url,
-} from '../features/common/data.json';
-import { Layout } from '../features/common/Layout';
-import { Presentation } from '../features/presentation';
+} = data;
 
 function HomePage() {
   const title = `${firstName} ${lastName} | ${descriptions[0]}`;
