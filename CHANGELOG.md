@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.7](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.6...v1.7.7) (2021-05-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency framer-motion to v4.1.10 ([#230](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/230)) ([529d685](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/529d685fe55e79fdef200cead9e9d84dfb292532))
+* **deps:** update dependency framer-motion to v4.1.11 ([#234](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/234)) ([2b48d70](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/2b48d7017fe96897d3f9ce90794719876a83ccb5))
+* **deps:** update dependency next to v10.2.0 ([#235](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/235)) ([d3c8380](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/d3c83800b89392289b72097b5bd2b30e28a013bf))
+* **deps:** update dependency postcss to v8.2.13 ([#231](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/231)) ([5f79922](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5f79922c0b0ade58a086ff51179c6ed63eb5a470))
+* **deps:** update dependency use-sound to v2.1.0 ([#232](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/232)) ([ffd8e4e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/ffd8e4e475c66a1c818c94f8cd1aeee32e60e425))
+* **deps:** update dependency use-sound to v2.1.1 ([#237](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/237)) ([41221ad](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/41221adaefd44c302d372cd1d0579435557b7df5))
+* **deps:** update dependency use-sound to v3 ([#239](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/239)) ([3607e3a](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/3607e3aed18ebf88c9acf6a2ae89d2fc2c3ac540))
+* **deps:** update dependency use-sound to v3.0.1 ([#240](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/240)) ([9c7033b](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/9c7033b232ce71abf4324a2c9a79c4b58c386c60))
+
 ### [1.7.6](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.5...v1.7.6) (2021-04-25)
 
 
