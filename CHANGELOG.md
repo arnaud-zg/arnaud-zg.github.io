@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.9](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.8...v1.7.9) (2021-05-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency framer to v1.2.30 ([#248](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/248)) ([97b406e](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/97b406ed9a87d868165a291d3e3971254d0e90fe))
+* **deps:** update dependency framer-motion to v4.1.13 ([#244](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/244)) ([a33f864](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/a33f8640139b44502bad0dfa311954ac04307fae))
+* **deps:** update dependency framer-motion to v4.1.14 ([#247](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/247)) ([88b3145](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/88b3145b7631f417b804a13a3659e1fa1dfab7c3))
+* **deps:** update dependency framer-motion to v4.1.15 ([#249](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/249)) ([ae7e10d](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/ae7e10d827de503477b1d4981b44e2de30499fc2))
+* **deps:** update dependency framer-motion to v4.1.16 ([#250](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/250)) ([79e07e9](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/79e07e976bcef72b4b7377e2647aaaab3dca895f))
+* **deps:** update dependency postcss to v8.2.14 ([#243](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/243)) ([45021ec](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/45021ec1336df23e1129170635c709b83d73d91c))
+* **deps:** update dependency postcss to v8.2.15 ([#246](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/246)) ([7345be9](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/7345be96df5dfa475bb8ecfeb00b51dfacea600e))
+
 ### [1.7.8](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.7...v1.7.8) (2021-05-03)
 
 
