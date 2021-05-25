@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.10](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.9...v1.7.10) (2021-05-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency framer-motion to v4.1.17 ([#252](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/252)) ([0b6ca4a](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/0b6ca4a06a83fd424423a755547b5a38b0922877))
+* **deps:** update dependency next to v10.2.1 ([#254](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/254)) ([5720700](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5720700fe766516d7e8d33bad5c54f5a7adea259))
+* **deps:** update dependency next to v10.2.2 ([#255](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/255)) ([5368746](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5368746dd1d2ca7df9aab354866aa2abddb026ec))
+* **deps:** update dependency next to v10.2.3 ([#259](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/259)) ([5584d6f](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/5584d6feb6a49e1882fd7dc552325c9bde9a1d0a))
+* **deps:** update dependency postcss to v8.3.0 ([#256](https://github.com/arnaud-zg/arnaud-zg.github.io/issues/256)) ([d300b84](https://github.com/arnaud-zg/arnaud-zg.github.io/commit/d300b84cf16cba2bf944628828898c97222deee5))
+
 ### [1.7.9](https://github.com/arnaud-zg/arnaud-zg.github.io/compare/v1.7.8...v1.7.9) (2021-05-12)
 
 
