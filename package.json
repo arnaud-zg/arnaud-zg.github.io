@@ -24,7 +24,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "tailwindcss": "2.2.4",
-    "use-sound": "3.0.1"
+    "use-sound": "4.0.1"
   },
   "devDependencies": {
     "@types/node": "14.17.4",
