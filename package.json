@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "autoprefixer": "10.4.12",
-    "classnames": "2.3.2",
+    "classnames": "2.5.1",
     "framer": "2.2.1",
     "framer-motion": "4.1.17",
     "next": "12.0.10",
