@@ -20,8 +20,8 @@ export default {
 
   // The last words on the page, above the profile links.
   ending: {
-    title: "Say hello",
-    line: "Want to catch up? Ping me, wherever suits you.",
+    title: "Let's catch up 👋",
+    line: "A question, an idea, or just to say hi: I'd love to hear from you.",
   },
 
   // Numbers are computed from the career below and from npm; only the words live here.
