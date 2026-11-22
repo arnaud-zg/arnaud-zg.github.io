@@ -177,9 +177,7 @@ html { scroll-padding-top: 72px; }
 .tm-tile { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); padding: 3px; container-type: size; }
 .tm-link { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: clamp(10px, 1.4vw, 18px); border-radius: 12px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; transition: border-color 300ms var(--ease-out), background-color 300ms var(--ease-out); }
 .tm-tile--recent .tm-link { background: radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 70%), var(--surface-hi); }
-a.tm-link:hover { border-color: var(--accent); }
 .tm-name { font-size: clamp(0.74rem, min(7.5cqi, 20cqb), var(--fs-h3)); letter-spacing: 0.02em; line-height: 1.25; transition: color 300ms var(--ease-out); }
-a.tm-link:hover .tm-name { color: var(--accent); }
 /* Names are never cut: they shrink with the tile and wrap at hyphens. Descriptions show
    only where they fit whole; pointing at a tile grows it until they do. */
 .tm-line { color: var(--ink-lo); font-size: var(--fs-small); line-height: 1.5; }
@@ -195,36 +193,59 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 @container (max-width: 130px) { .tm-link { padding: 10px; } .tm-rel { letter-spacing: 0; font-size: 0.66rem; } }
 .tm-more .tm-line { display: block; }
 .tm-tile.is-focus .tm-link { border-color: var(--accent); }
-/* Focused tile: name, then the description when there is room, then a strip of stat cells
-   pinned to the bottom, always in the same order and the same shape. */
-.tm-stats { display: none; margin-top: auto; padding-top: 10px; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 6px; }
+/* Focused tile: a raised card over its neighbours. Name, description, then a row of
+   figures split by hairlines. Same shape for every tool. */
+.tm-stats { display: none; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
 .stat[hidden] { display: none; }
-.stat { display: grid; align-content: center; gap: 2px; height: 50px; padding: 0 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
-.stat b { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: 1rem; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.stat i { font-style: normal; font-size: 0.9rem; }
-.stat small { font: 400 0.6rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-lo); white-space: nowrap; }
-.tm-tile.is-focus .tm-stats { display: grid; animation: fade-in 300ms 200ms var(--ease-out) both; }
+.stat { display: grid; gap: 3px; align-content: start; padding: 0 18px; border-left: 1px solid var(--line); }
+.stat:first-child { padding-left: 0; border-left: 0; }
+.stat b { display: flex; align-items: baseline; gap: 6px; font-weight: 300; font-size: 1.45rem; line-height: 1; letter-spacing: -0.01em; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat i { font-style: normal; font-size: 0.8rem; translate: 0 -0.15em; }
+.stat small { font: 400 0.62rem/1.3 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); white-space: nowrap; }
+/* The whole tile is the button that opens its card. Open, the button shrinks to a ✕ in the
+   top-right corner; nothing shows there at rest. */
+.tm-open { position: absolute; inset: 0; z-index: 2; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--bg); cursor: pointer; }
+.tm-open:focus-visible { outline-offset: -2px; }
+.tm-link:has(.tm-open:not([aria-expanded="true"]):hover) { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.tm-link:has(.tm-open:not([aria-expanded="true"]):hover) .tm-name { color: var(--accent); }
+.tm-open[aria-expanded="true"] { inset: 12px 12px auto auto; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); }
+.tm-open[aria-expanded="true"] span::before { content: "✕"; font-size: 0.7rem; line-height: 1; }
+.tm-open[aria-expanded="true"]:hover { filter: brightness(1.15); }
+.tm-link { position: relative; }
+.tm-go { display: none; align-self: flex-start; margin-top: 14px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.tm-go:hover { text-decoration: underline; text-underline-offset: 0.25em; }
+.tm-tile.is-focus .tm-go { display: inline-block; }
+.tm-tile.is-focus .tm-stats { display: flex; }
 .tm-tile.is-focus .tm-rel { display: none; }
-.tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 4px; padding: 14px 16px; }
-.tm-tile.is-focus .tm-name { flex: none; font-size: 1.05rem; }
+.tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 6px; padding: 18px 20px; border-radius: 16px; border-color: color-mix(in srgb, var(--accent) 45%, transparent); animation: card-in 240ms var(--ease-out) both; }
+.tm-tile.is-focus .tm-name { flex: none; padding-right: 34px; font-size: 1.1rem; color: var(--accent); }
+@keyframes card-in { from { opacity: 0; scale: 0.96; } }
 .tm-emoji { font-size: 0.95rem; letter-spacing: 0; }
 @keyframes fade-in { from { opacity: 0; } }
 /* On a focused tile the numbers come first: the description gives way when room is short. */
 /* A focused tile always shows name, description and stats. When the tile is too small, its
    card grows past it as a raised card, kept inside the treemap by the script. */
 .tm-tile.is-focus { z-index: 5; }
-.tm-tile.is-focus .tm-link { position: absolute; top: 3px; left: 3px; width: max(calc(100% - 6px), 300px); height: auto; min-height: calc(100% - 6px); background: var(--surface-hi); box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.55); translate: var(--dx, 0) var(--dy, 0); transition: translate 260ms var(--ease-out); }
+.tm-tile.is-focus .tm-link { position: absolute; top: 3px; left: 3px; width: max(calc(100% - 6px), 320px); height: auto; min-height: calc(100% - 6px); background: var(--surface-hi); box-shadow: 0 28px 70px -20px rgba(4, 6, 15, 0.7), 0 2px 10px rgba(4, 6, 15, 0.25); translate: var(--dx, 0) var(--dy, 0); transform-origin: top left; }
 [data-theme="night"] .tm-tile.is-focus .tm-link { background: color-mix(in srgb, var(--bg) 82%, var(--accent) 18%); }
-.tm-tile.is-focus .tm-line { display: block !important; font-size: 0.86rem; line-height: 1.45; }
+.tm-tile.is-focus .tm-line { display: block !important; max-width: 40ch; font-size: 0.88rem; line-height: 1.5; }
 @media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
-  .tm-group, .tm-tile { transition: left 520ms var(--ease-out), top 520ms var(--ease-out), width 520ms var(--ease-out), height 520ms var(--ease-out); }
+  .tm-group, .tm-tile { transition: left 420ms var(--ease-out), top 420ms var(--ease-out), width 420ms var(--ease-out), height 420ms var(--ease-out); }
 }
-.earlier { margin-top: 20px; color: var(--ink-lo); font-size: var(--fs-small); }
-.earlier summary { cursor: pointer; width: fit-content; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
-.earlier summary:hover { color: var(--accent); }
-.earlier ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px 32px; margin-top: 14px; }
-.earlier a { color: var(--ink); }
-.earlier a:hover { color: var(--accent); }
+/* Earlier libraries: quiet cards in the same style, no treemap. */
+.earlier { margin-top: 36px; }
+.earlier summary { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; list-style: none; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); transition: color 200ms var(--ease-out), border-color 200ms var(--ease-out); }
+.earlier summary::-webkit-details-marker { display: none; }
+.earlier summary:hover { color: var(--accent); border-color: var(--accent); }
+.earlier[open] summary { margin-bottom: 14px; }
+@media (prefers-reduced-motion: no-preference) { .earlier[open] .earlier-grid { animation: fade-in 300ms var(--ease-out); } }
+.earlier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.earlier-card { display: grid; grid-template-rows: auto 1fr auto; gap: 4px; height: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); opacity: 0.85; transition: border-color 260ms var(--ease-out), opacity 260ms var(--ease-out); }
+.earlier-card:hover { border-color: var(--accent); opacity: 1; }
+.ec-name { font-size: var(--fs-small); color: var(--ink); }
+.earlier-card:hover .ec-name { color: var(--accent); }
+.ec-line { font-size: 0.82rem; line-height: 1.45; color: var(--ink-lo); }
+.ec-year { font: 400 0.62rem/1.4 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); }
 
 /* Writing */
 .inline { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-soft); text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
@@ -241,11 +262,13 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 /* Open source: a diffstat. One row per merged PR, bar length is lines changed. */
 .diffstat { display: grid; gap: 22px; }
 .theme-head { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
-.ds-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr) 7rem minmax(160px, 1.6fr); gap: 0 clamp(12px, 1.8vw, 24px); align-items: center; }
+.ds-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 7rem minmax(160px, 1.3fr); gap: 0 clamp(12px, 1.8vw, 24px); align-items: center; }
 .ds-repo-row { padding: 14px 0; border-bottom: 1px solid var(--line); }
-.ds-repo { font-size: var(--fs-h3); letter-spacing: 0.02em; overflow-wrap: anywhere; transition: color 300ms var(--ease-out); }
+.ds-repo { font-size: 1.12rem; letter-spacing: 0.01em; overflow-wrap: break-word; transition: color 300ms var(--ease-out); }
 .ds-repo:hover { color: var(--accent); }
-.ds-count { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); }
+.ds-count { display: grid; gap: 2px; }
+.ds-about { font-size: var(--fs-small); line-height: 1.45; color: var(--ink-lo); }
+.ds-kinds { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); }
 .ds-repo .owner { display: block; line-height: 1.2; }
 .owner { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.06em; color: var(--ink-lo); }
 .ds-title { transition: color 300ms var(--ease-out); }
@@ -291,6 +314,9 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 /* Lantern and stars */
 .lantern { position: fixed; left: 0; top: 0; z-index: -1; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%; background: radial-gradient(circle, rgba(201, 155, 255, 0.07), transparent 65%); opacity: 0; pointer-events: none; transition: opacity 600ms var(--ease-out), translate 900ms var(--ease-out); }
 [data-theme="night"] .lantern.is-on { opacity: 1; }
+/* By day the light is a soft violet glow, so the page still answers the pointer. */
+[data-theme="day"] .lantern { background: radial-gradient(circle, rgba(107, 63, 196, 0.09), rgba(107, 63, 196, 0.03) 40%, transparent 65%); }
+[data-theme="day"] .lantern.is-on { opacity: 1; }
 .twinkle { animation: twinkle 3.6s ease-in-out infinite alternate; }
 .twinkle-1 { animation-delay: -1.8s; }
 @keyframes twinkle { to { opacity: 0.25; } }

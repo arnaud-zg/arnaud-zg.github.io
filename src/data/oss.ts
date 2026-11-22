@@ -5,8 +5,9 @@
 
 export type Change = { title: string; kind: string; year: number; url: string; added?: number; removed?: number };
 export type Project = { repo: string; about: string; stars: number; changes: Change[]; score: number };
-export type Row = Change & { repo: string; lines: number };
-export type RepoChanges = { repo: string; prs: Row[]; added: number; removed: number; lines: number; years: string };
+export type Row = Change & { repo: string; about: string; lines: number };
+// `kinds` summarises what was contributed, e.g. "2 fixes" or "1 feature · 1 test".
+export type RepoChanges = { repo: string; about: string; prs: Row[]; added: number; removed: number; lines: number; kinds: string };
 export type Contributions = { repos: RepoChanges[] };
 
 import config from "../../portfolio.config";
@@ -172,7 +173,7 @@ export async function getContributions(): Promise<Contributions> {
 
 // Every substantive change, one row per PR.
 const flatten = (ranked: Project[]): Row[] =>
-  ranked.flatMap((p) => p.changes.filter((c) => SHOWN.has(c.kind)).map((c) => ({ ...c, repo: p.repo, lines: 0 })));
+  ranked.flatMap((p) => p.changes.filter((c) => SHOWN.has(c.kind)).map((c) => ({ ...c, repo: p.repo, about: p.about, lines: 0 })));
 
 async function withLines(rows: Row[], lookup: (c: Change) => Promise<[number, number] | undefined>) {
   await Promise.all(rows.map(async (r) => {
@@ -187,14 +188,16 @@ function byRepo(rows: Row[]): RepoChanges[] {
   for (const r of rows) (map.get(r.repo) ?? map.set(r.repo, []).get(r.repo)!).push(r);
   return [...map].map(([repo, prs]) => {
     prs.sort((a, b) => b.lines - a.lines || b.year - a.year);
-    const years = prs.map((p) => p.year);
-    const [lo, hi] = [Math.min(...years), Math.max(...years)];
+    const plural: Record<string, string> = { Fix: "fixes", Feature: "features", Performance: "performance changes", Types: "type updates", Refactor: "refactors", Test: "tests" };
+    const counts = new Map<string, number>();
+    for (const p of prs) counts.set(p.kind, (counts.get(p.kind) ?? 0) + 1);
+    const kinds = [...counts].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${n === 1 ? k.toLowerCase() : plural[k] ?? k.toLowerCase()}`).join(" · ");
     return {
-      repo, prs,
+      repo, prs, kinds,
+      about: prs[0].about,
       added: prs.reduce((n, p) => n + (p.added ?? 0), 0),
       removed: prs.reduce((n, p) => n + (p.removed ?? 0), 0),
       lines: prs.reduce((n, p) => n + p.lines, 0),
-      years: lo === hi ? String(hi) : `${lo}–${hi}`,
     };
-  }).sort((a, b) => b.lines - a.lines || Number(b.years.slice(-4)) - Number(a.years.slice(-4)));
+  }).sort((a, b) => b.lines - a.lines || Math.max(...b.prs.map((p) => p.year)) - Math.max(...a.prs.map((p) => p.year)));
 }
