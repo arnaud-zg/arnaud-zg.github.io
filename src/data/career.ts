@@ -4,7 +4,7 @@
 
 import config, { type Station, type StackRange } from "../../portfolio.config";
 
-const { stations, stack, school, types } = config.career;
+const { stations, stack, school, types, levels } = config.career;
 
 const toMonth = (ym: string) => { const [y, m] = ym.split("-").map(Number); return y * 12 + (m - 1); };
 const now = new Date();
@@ -18,7 +18,9 @@ const pos = (s: { start: string; end?: string }) => ({
   width: (months(s) / SPAN) * 100,
 });
 
-export type Segment = Station & { left: number; width: number; months: number; now: boolean; marks: { at: number; label: string }[] };
+// A building is one or more parts: a milestone that raises the level starts a taller part.
+export type Part = { left: number; width: number; height: number; label?: string };
+export type Segment = Station & { left: number; width: number; months: number; now: boolean; parts: Part[]; top: number };
 export type Lane = StackRange & { left: number; width: number };
 
 const segments: Segment[] = stations.map((s) => ({
@@ -26,9 +28,20 @@ const segments: Segment[] = stations.map((s) => ({
   ...pos(s),
   months: months(s),
   now: !s.end,
-  // Milestones as a percentage across the segment.
-  marks: (s.milestones ?? []).map((m) => ({ label: m.label, at: ((toMonth(m.at) - toMonth(s.start)) / months(s)) * 100 })),
+  ...building(s),
 }));
+
+function building(s: Station) {
+  const height = (level: number) => ((level + 1) / levels.length) * 100;
+  const cuts = [{ at: s.start, level: s.level, label: undefined as string | undefined }, ...(s.milestones ?? []).map((m) => ({ at: m.at, level: m.level ?? s.level, label: m.label }))];
+  const total = months(s);
+  const parts = cuts.map((c, i) => {
+    const from = toMonth(c.at) - toMonth(s.start);
+    const to = i + 1 < cuts.length ? toMonth(cuts[i + 1].at) - toMonth(s.start) : total;
+    return { left: (from / total) * 100, width: ((to - from) / total) * 100, height: height(c.level), label: c.label };
+  });
+  return { parts, top: Math.max(...parts.map((p) => p.height)) };
+}
 
 const lanes: Lane[] = stack.map((l) => ({ ...l, ...pos(l) }));
 
@@ -50,6 +63,7 @@ const longest = Math.max(...stations.filter((s) => s.fullTime).map(months));
 
 export const career = {
   segments,
+  levels: levels.map((name, i) => ({ name, height: ((i + 1) / levels.length) * 100 })),
   lanes,
   ticks,
   schoolBand,

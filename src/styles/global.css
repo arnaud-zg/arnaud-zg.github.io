@@ -144,18 +144,32 @@ ul, ol { list-style: none; margin: 0; padding: 0; }
 [data-theme="night"] :is(.swatch--large, .segment--large, .cl--large) { --c: #7d9df5; }
 
 .career { position: relative; display: grid; gap: 14px; }
+/* Skyline: each company is a building. Width is time there, height is the scope of the role. */
+.skyline { position: relative; height: clamp(240px, 26vw, 320px); margin-bottom: 52px; border-bottom: 1px solid var(--ink-lo); }
+.levels li { position: absolute; left: 0; right: 0; bottom: var(--h); border-top: 1px dashed var(--line); }
+.levels span { position: absolute; left: 0; bottom: 4px; font: 400 var(--fs-label)/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); }
+.segments { position: absolute; inset: 0; }
+.segment { position: absolute; left: var(--l); width: var(--w); top: 0; bottom: 0; padding-right: 2px; }
+.seg { position: absolute; inset: 0 2px 0 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.part { position: absolute; bottom: 0; left: var(--pl); width: var(--pw); height: var(--ph); border-radius: 3px 3px 0 0; border-top: 4px solid var(--c);
+  background:
+    radial-gradient(circle, var(--win) 0 1.3px, transparent 1.8px) 4px 8px / 9px 12px,
+    linear-gradient(color-mix(in srgb, var(--c) 30%, var(--bg)), color-mix(in srgb, var(--c) 12%, var(--bg)));
+  transition: filter 260ms var(--ease-out); }
+.skyline { --win: color-mix(in srgb, var(--ink) 22%, transparent); }
+[data-theme="night"] .skyline { --win: rgba(255, 214, 140, 0.55); }
+.seg:hover .part, .seg[aria-pressed="true"] .part { filter: brightness(1.35) saturate(1.2); }
+.seg[aria-pressed="true"] .part { box-shadow: 0 0 30px -6px var(--c); }
+.part + .part { border-left: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+.part-mark { position: absolute; left: 8px; top: 8px; font: 500 0.64rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); background: var(--bg); padding: 3px 5px; border-radius: 3px; }
+/* The current building has an antenna with a blinking light. */
+.segment--now .seg::after { content: ""; position: absolute; left: 50%; bottom: var(--top); width: 2px; height: 26px; background: var(--c); }
+.segment--now .seg::before { content: ""; position: absolute; left: calc(50% - 3px); bottom: calc(var(--top) + 26px); width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 14px 4px var(--c); }
+.seg-name { position: absolute; left: 12px; bottom: 12px; font-size: var(--fs-small); font-weight: 500; white-space: nowrap; letter-spacing: 0.02em; color: var(--ink); pointer-events: none; text-shadow: 0 1px 8px var(--bg); }
+.segment--narrow .seg-name { left: 0; bottom: auto; top: calc(100% + 10px); font-weight: 400; text-shadow: none; font: 400 var(--fs-label)/1.4 var(--mono); letter-spacing: 0.04em; color: var(--ink-lo); }
+.segment--stagger .seg-name { top: calc(100% + 28px); }
 .ticks { position: relative; height: 1.6em; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); }
 .ticks li { position: absolute; left: var(--l); padding-left: 6px; border-left: 1px solid var(--line); }
-.segments { position: relative; height: 92px; }
-.segment { position: absolute; left: var(--l); width: var(--w); top: 0; height: 52px; padding-right: 2px; }
-.seg { position: relative; display: block; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 6px; background: var(--c); opacity: 0.7; cursor: pointer; transition: opacity 260ms var(--ease-out), translate 260ms var(--ease-out); }
-.seg:hover, .seg[aria-pressed="true"] { opacity: 1; translate: 0 -3px; }
-.segment--now .seg { background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 30%, transparent)); box-shadow: 0 0 24px 2px var(--accent-soft); }
-.seg-name { position: absolute; left: 12px; top: 13px; font-size: var(--fs-small); font-weight: 500; white-space: nowrap; letter-spacing: 0.02em; color: #fff; pointer-events: none; }
-.segment--narrow .seg-name { left: 0; top: 60px; font: 400 var(--fs-label)/1.4 var(--mono); letter-spacing: 0.04em; color: var(--ink-lo); }
-.segment--stagger .seg-name { top: 76px; }
-.mark { position: absolute; left: var(--at); top: -6px; bottom: -6px; width: 2px; background: var(--bg); }
-.mark span { position: absolute; left: 8px; top: 20px; font: 500 0.64rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--bg); }
 .school { position: relative; height: 26px; }
 .school span { position: absolute; left: var(--l); width: var(--w); top: 0; padding-top: 6px; border-top: 1px dashed var(--ink-lo); font: 400 var(--fs-label)/1.4 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); white-space: nowrap; }
 .lanes { display: grid; gap: 6px; margin-top: 8px; }
@@ -208,8 +222,33 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 .article:hover .cover img { scale: 1.04; filter: none; }
 .article:hover .a-title { color: var(--accent); }
 
-/* Open source: a changelog grouped by theme */
-.changelog { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: clamp(24px, 4vw, 56px); }
+/* Open source: one constellation per theme. Star size is lines changed. */
+.sky { display: grid; gap: 8px; }
+.sky-map { width: 100%; height: auto; overflow: visible; color: var(--accent); }
+.cluster-name { font: 400 13px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; fill: var(--ink-lo); }
+.link { stroke: var(--accent); stroke-opacity: 0.55; stroke-width: 1.2; }
+.star { cursor: pointer; outline: none; }
+.star .core { fill: var(--accent); transition: r 300ms var(--ease-out); }
+.star .halo { opacity: 0.7; transition: opacity 300ms var(--ease-out); }
+.star-name { font: 400 17px/1 var(--font); fill: var(--ink); letter-spacing: 0.02em; transition: fill 300ms var(--ease-out); }
+.star-lines { font: 400 11px/1 var(--mono); letter-spacing: 0.08em; fill: var(--ink-lo); text-transform: uppercase; }
+.star:hover .halo, .star:focus-visible .halo, .star.is-active .halo { opacity: 1; }
+.star:hover .star-name, .star:focus-visible .star-name, .star.is-active .star-name { fill: var(--accent); }
+.star:focus-visible .core { stroke: var(--ink); stroke-width: 2; }
+@media (prefers-reduced-motion: no-preference) {
+  .star .halo { animation: twinkle 3.6s ease-in-out infinite alternate; animation-delay: calc(var(--d) * -0.9s); }
+}
+.sky-detail { min-height: 9.5em; padding-top: 18px; border-top: 1px solid var(--line); }
+.star-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 2px; font-size: var(--fs-h3); margin-bottom: 12px; }
+.star-card-head .owner { display: inline; }
+.star-card-about { flex-basis: 100%; font-size: var(--fs-small); color: var(--ink-lo); }
+.diff { font: 400 var(--fs-label)/1.6 var(--mono); white-space: nowrap; }
+.diff b { font-weight: 400; color: #3fae6a; }
+.diff i { font-style: normal; color: #e0645a; }
+.changelog { display: none; }
+
+/* Open source on small screens: a changelog grouped by theme */
+.changelog { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: clamp(24px, 4vw, 56px); }
 .theme { display: grid; gap: 18px; align-content: start; }
 .theme-head { display: flex; justify-content: space-between; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
 .theme-projects { display: grid; gap: 22px; }
@@ -217,7 +256,7 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 .cl-repo:hover { color: var(--accent); }
 .owner { display: block; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); }
 .cl-changes { display: grid; gap: 8px; }
-.cl-change { display: grid; grid-template-columns: auto minmax(0, 1fr) 14px; gap: 10px; align-items: baseline; font-size: var(--fs-small); line-height: 1.5; }
+.cl-change { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; font-size: var(--fs-small); line-height: 1.5; }
 .cl-change .arrow { align-self: center; opacity: 0; transition: opacity 260ms var(--ease-out), translate 260ms var(--ease-out); }
 .cl-change:hover .cl-title { color: var(--accent); }
 .cl-change:hover .arrow { opacity: 1; translate: 3px 0; }
@@ -273,8 +312,9 @@ a.tm-link:hover .tm-name { color: var(--accent); }
     .section-head h2 { animation: heading-in linear both; animation-timeline: view(); animation-range: entry 30% cover 30%; }
     @keyframes heading-in { from { opacity: 0; letter-spacing: 0.16em; } }
     .career { view-timeline: --career block; }
-    .segment { animation: grow linear both; animation-timeline: --career; animation-range: entry calc(20% + var(--i) * 4%) entry calc(50% + var(--i) * 4%); transform-origin: left; }
-    @keyframes grow { from { opacity: 0; scale: 0.4 1; } }
+    .part { animation: rise-up linear both; animation-timeline: --career; animation-range: entry calc(15% + var(--i) * 4%) entry calc(45% + var(--i) * 4%); transform-origin: bottom; }
+    @keyframes rise-up { from { scale: 1 0; } }
+    .star { animation: rise linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--d) * 6%) cover 30%; }
     @keyframes rise { from { opacity: 0; translate: 0 12px; } }
     .cover { animation: shutter linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--a, 0) * 7%) cover calc(30% + var(--a, 0) * 7%); }
     @keyframes shutter { from { clip-path: inset(0 0 100% 0 round var(--radius)); } to { clip-path: inset(0 0 0 0 round var(--radius)); } }
@@ -294,6 +334,8 @@ a.tm-link:hover .tm-name { color: var(--accent); }
   .cl-span { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); white-space: nowrap; }
   .cl-bar { display: block; width: max(var(--len), 8px); height: 8px; margin: 6px 0 8px; border-radius: 4px; background: var(--c); }
   .cl-note { color: var(--ink-lo); font-size: var(--fs-small); }
+  .sky { display: none; }
+  .changelog { display: grid; }
   /* Treemap groups stack; each keeps its own small treemap. */
   .treemap { aspect-ratio: auto; min-height: 0; display: grid; gap: 16px; }
   .tm-group { position: relative; left: auto; top: auto; width: auto; height: calc(48px + var(--n) * 120px); container-type: inline-size; }

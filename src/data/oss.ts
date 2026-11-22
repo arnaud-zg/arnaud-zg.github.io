@@ -3,8 +3,8 @@
 // (features and fixes over chores), weighted by the project's reach and how recent it is,
 // then sorted into the themes set in portfolio.config.ts.
 
-export type Change = { title: string; kind: string; year: number; url: string };
-export type Project = { repo: string; about: string; stars: number; changes: Change[]; score: number };
+export type Change = { title: string; kind: string; year: number; url: string; added?: number; removed?: number };
+export type Project = { repo: string; about: string; stars: number; changes: Change[]; score: number; lines: number };
 export type Theme = { name: string; years: string; projects: Project[] };
 export type Contributions = { themes: Theme[]; searchUrl: string };
 
@@ -75,6 +75,20 @@ const snapshotPrs: RawPr[] = [
   { repo: "XD2Sketch/react-oauth-popup", date: "2020-06-18", title: "test: calls onClose when popup closed", url: "https://github.com/XD2Sketch/react-oauth-popup/pull/17" },
 ];
 
+// Lines added and removed per PR, taken 2026-11-22. Used with the snapshot above.
+const snapshotLines: Record<string, [number, number]> = {
+  "https://github.com/web-infra-dev/rspack/pull/16402": [87, 18],
+  "https://github.com/web-infra-dev/rspack/pull/16663": [52, 9],
+  "https://github.com/module-federation/vite/pull/1579": [45, 2],
+  "https://github.com/ohmyzsh/ohmyzsh/pull/9459": [14, 2],
+  "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356": [12, 3],
+  "https://github.com/supasate/connected-react-router/pull/364": [0, 1],
+  "https://github.com/maticzav/graphql-middleware/pull/321": [2, 2],
+  "https://github.com/XD2Sketch/react-oauth-popup/pull/10": [99, 53],
+  "https://github.com/XD2Sketch/react-oauth-popup/pull/17": [3, 8],
+  "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103": [10, 6],
+};
+
 // "fix(mf): keep the whole range" -> { kind: "Fix", title: "Keep the whole range" }
 function describe(raw: string): { kind: string; title: string } {
   const types = raw.match(/^\[@types\/[^\]]+\]\s*(.*)$/);
@@ -103,7 +117,7 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
       const substance = changes.slice(0, 2).reduce((n, c) => n + (WEIGHT[c.kind] ?? 1), 0);
       const latest = Math.max(...changes.map((c) => c.year));
       const score = substance * Math.log10(repos[repo].stars + 10) + Math.max(0, 4 - (now - latest));
-      return { repo, about: repos[repo].about, stars: repos[repo].stars, changes, score };
+      return { repo, about: repos[repo].about, stars: repos[repo].stars, changes, score, lines: 0 };
     })
     .sort((a, b) => b.score - a.score);
 }
@@ -139,11 +153,29 @@ export async function getContributions(): Promise<Contributions> {
       repos[n] = { stars: r.stargazers_count, about: brief(r.description ?? "") };
     }));
     const ownedRepo = (repo: string) => owners.some((o) => repo.toLowerCase().startsWith(`${o.toLowerCase()}/`));
-    return { themes: themed(rank(prs.filter((p) => !ownedRepo(p.repo)), repos)), searchUrl };
+    const themes = themed(rank(prs.filter((p) => !ownedRepo(p.repo)), repos));
+    // Lines changed, only for the PRs on the page. A failed lookup falls back to the snapshot.
+    await withLines(themes, async (c) => {
+      const [, repo, n] = c.url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
+      try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [pr.additions, pr.deletions]; }
+      catch { return snapshotLines[c.url]; }
+    });
+    return { themes, searchUrl };
   } catch (error) {
     console.warn(`[oss] using snapshot: ${(error as Error).message}`);
-    return { themes: themed(rank(snapshotPrs, snapshotRepos)), searchUrl };
+    const themes = themed(rank(snapshotPrs, snapshotRepos));
+    await withLines(themes, async (c) => snapshotLines[c.url]);
+    return { themes, searchUrl };
   }
+}
+
+async function withLines(themes: Theme[], lookup: (c: Change) => Promise<[number, number] | undefined>) {
+  const projects = themes.flatMap((t) => t.projects);
+  await Promise.all(projects.flatMap((p) => p.changes.map(async (c) => {
+    const lines = await lookup(c);
+    if (lines) [c.added, c.removed] = lines;
+  })));
+  for (const p of projects) p.lines = p.changes.reduce((n, c) => n + (c.added ?? 0) + (c.removed ?? 0), 0);
 }
 
 const searchUrl = `https://github.com/pulls?q=${encodeURIComponent(`is:pr is:merged is:public author:${USER} -user:${USER}`)}`;

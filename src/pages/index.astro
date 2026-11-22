@@ -7,6 +7,7 @@ import { career, formatSpan } from "../data/career";
 import { getSideQuests } from "../data/npm";
 import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
+import { constellations, SKY } from "../lib/constellation";
 
 const { name, role, links, about, numbers: words } = config;
 const quests = await getSideQuests();
@@ -26,6 +27,10 @@ const longest = Math.max(...career.segments.map((s) => s.months));
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
+const sky = constellations(themes);
+const projectOf = new Map(themes.flatMap((t) => t.projects.map((p) => [p.repo, p])));
+const lineCount = (n: number) => `${n} ${n === 1 ? "line" : "lines"}`;
+const firstStar = sky[0]?.stars[0]?.id;
 ---
 <Base
   title={`${name} · Software engineer`}
@@ -93,18 +98,25 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
       </header>
 
       <div class="career" data-career>
+        <div class="skyline">
+          <ol class="levels" aria-hidden="true">
+            {career.levels.map((l) => <li style={`--h:${l.height}%`}><span>{l.name}</span></li>)}
+          </ol>
+          <ol class="segments">
+            {career.segments.map((s, i) => (
+              <li class:list={["segment", `segment--${s.type}`, s.now && "segment--now", s.width < 7 && "segment--narrow", stagger.has(i) && "segment--stagger"]} style={`--l:${s.left}%;--w:${s.width}%;--top:${s.top}%;--i:${i}`}>
+                <button type="button" class="seg" data-note={noteOf(s)} aria-label={noteOf(s)} aria-pressed={s.now ? "true" : "false"}>
+                  {s.parts.map((p) => (
+                    <span class="part" style={`--pl:${p.left}%;--pw:${p.width}%;--ph:${p.height}%`}>{p.label && <span class="part-mark">{p.label}</span>}</span>
+                  ))}
+                </button>
+                <span class="seg-name" aria-hidden="true">{s.name}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
         <ol class="ticks" aria-hidden="true">
           {career.ticks.map((t) => <li style={`--l:${t.left}%`}>{t.year}</li>)}
-        </ol>
-        <ol class="segments">
-          {career.segments.map((s, i) => (
-            <li class:list={["segment", `segment--${s.type}`, s.now && "segment--now", s.width < 7 && "segment--narrow", stagger.has(i) && "segment--stagger"]} style={`--l:${s.left}%;--w:${s.width}%;--i:${i}`}>
-              <button type="button" class="seg" data-note={noteOf(s)} aria-label={noteOf(s)} aria-pressed={s.now ? "true" : "false"}>
-                {s.marks.map((m) => <span class="mark" style={`--at:${m.at}%`}><span>{m.label}</span></span>)}
-              </button>
-              <span class="seg-name" aria-hidden="true">{s.name}</span>
-            </li>
-          ))}
         </ol>
         {career.schoolBand && (
           <p class="school" style={`--l:${career.schoolBand.left}%;--w:${career.schoolBand.width}%`}><span>{career.schoolBand.label}</span></p>
@@ -189,7 +201,45 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
         <h2 id="oss-title">Open source</h2>
         <p class="lede">Fixes merged upstream, in tools other teams rely on.</p>
       </header>
-      <div class="changelog">
+      <div class="sky" data-sky>
+        <svg class="sky-map" viewBox={`0 0 ${SKY.w} ${SKY.h}`} role="group" aria-label="Projects I contributed to, one constellation per theme">
+          <defs>
+            <radialGradient id="star-glow"><stop offset="0" stop-color="currentColor" stop-opacity="0.55" /><stop offset="1" stop-color="currentColor" stop-opacity="0" /></radialGradient>
+          </defs>
+          {sky.map((c) => (
+            <g class="cluster">
+              <text class="cluster-name" x={c.x} y="48" text-anchor="middle">{c.name}</text>
+              {c.stars.slice(1).map((st, j) => <line class="link" x1={c.stars[j].x} y1={c.stars[j].y} x2={st.x} y2={st.y} />)}
+              {c.stars.map((st, j) => {
+                const p = projectOf.get(st.id)!;
+                const lx = st.side === "left" ? st.x - st.r - 12 : st.x + st.r + 12;
+                return (
+                  <a class="star" href={`https://github.com/${p.repo}`} data-star={st.id} aria-label={`${p.repo}: ${p.changes.length} merged ${p.changes.length === 1 ? "change" : "changes"}, ${lineCount(p.lines)}`} style={`--d:${j}`} {...ext}>
+                    <circle class="halo" cx={st.x} cy={st.y} r={st.r * 3.2} fill="url(#star-glow)" />
+                    <circle class="core" cx={st.x} cy={st.y} r={st.r} />
+                    <text class="star-name" x={lx} y={st.y - 2} text-anchor={st.side === "left" ? "end" : "start"}>{p.repo.split("/")[1]}</text>
+                    <text class="star-lines" x={lx} y={st.y + 16} text-anchor={st.side === "left" ? "end" : "start"}>{p.changes.map((ch) => ch.kind).join(" · ")} · {lineCount(p.lines)}</text>
+                  </a>
+                );
+              })}
+            </g>
+          ))}
+        </svg>
+        <div class="sky-detail" aria-live="polite">
+          {themes.flatMap((t) => t.projects).map((p) => (
+            <div class="star-card" data-card={p.repo} hidden={p.repo !== firstStar}>
+              <p class="star-card-head"><span class="owner">{p.repo.split("/")[0]}/</span>{p.repo.split("/")[1]}<span class="star-card-about">{p.about}</span></p>
+              <ul class="cl-changes">
+                {p.changes.map((c) => (
+                  <li><a class="cl-change" href={c.url} {...ext}><span class="kind">{c.kind}</span><span class="cl-title">{c.title}</span><span class="diff">{c.added !== undefined && <><b>+{c.added}</b> <i>−{c.removed}</i></>}</span></a></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="changelog" data-mobile-only>
         {themes.map((t) => (
           <section class="theme" aria-label={t.name}>
             <h3 class="theme-head">{t.name}<span>{t.years}</span></h3>
@@ -229,6 +279,18 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
     note.textContent = btn.dataset.note ?? "";
     segs.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
   };
+  // Open source: pointing at a star shows its pull requests under the sky.
+  const cards = document.querySelectorAll<HTMLElement>("[data-card]");
+  document.querySelectorAll<SVGAElement>("[data-star]").forEach((star) => {
+    const pick = () => {
+      cards.forEach((c) => { c.hidden = c.dataset.card !== star.dataset.star; });
+      document.querySelectorAll("[data-star]").forEach((s) => s.classList.toggle("is-active", s === star));
+    };
+    star.addEventListener("pointerenter", pick);
+    star.addEventListener("focus", pick);
+  });
+  document.querySelector(`[data-star]`)?.classList.add("is-active");
+
   segs.forEach((btn) => {
     btn.addEventListener("pointerenter", () => show(btn));
     btn.addEventListener("focus", () => show(btn));

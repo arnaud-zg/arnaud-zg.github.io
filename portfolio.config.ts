@@ -2,7 +2,8 @@
 // what to keep, how to group it and what to call it. Edit it, rebuild, done.
 
 export type CompanyType = "agency" | "startup" | "sme" | "large";
-export type Station = { name: string; type: CompanyType; role: string; start: string; end?: string; fullTime: boolean; note: string; milestones?: { at: string; label: string }[] };
+// `level` indexes career.levels and sets the building height; a milestone can raise it mid-stay.
+export type Station = { name: string; type: CompanyType; role: string; start: string; end?: string; fullTime: boolean; level: number; note: string; milestones?: { at: string; label: string; level?: number }[] };
 export type StackRange = { label: string; start: string; end?: string };
 
 export default {
@@ -30,17 +31,19 @@ export default {
   // `fullTime: false` stints sit on the school band and are not counted in tenure.
   career: {
     school: { label: "Epitech, 6-month stints" },
+    // Scope of the role, lowest first. Each station's building is as tall as its level.
+    levels: ["Internship", "Engineer", "Senior", "Platform"],
     types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
     stations: [
-      { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce" },
-      { name: "Testapic", type: "startup", role: "Full-stack developer", start: "2014-09", end: "2015-02", fullTime: false, note: "Back office for remote user testing" },
-      { name: "Valeo", type: "large", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, note: "Project tracking tool for the lighting R&D teams, in Go" },
-      { name: "ASC", type: "sme", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, note: "E-commerce automation: abandoned cart and post-purchase emails" },
-      { name: "Solive", type: "startup", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, note: "Real-time sports visuals for clubs like PSG and Manchester City" },
-      { name: "Veepee", type: "large", role: "Front-end developer", start: "2017-03", end: "2019-05", fullTime: true, note: "Ticketing: SEO, time to first byte, a design system shared with the app" },
-      { name: "Onepark", type: "startup", role: "Mobile engineer", start: "2019-06", end: "2020-01", fullTime: true, note: "Parking app on iOS and Android: maps, Stripe payments" },
-      { name: "PayFit", type: "startup", role: "Software engineer, then senior", start: "2020-01", end: "2025-12", fullTime: true, note: "Monolith to microservices, then an event-sourced company lifecycle", milestones: [{ at: "2023-01", label: "Senior" }] },
-      { name: "Doctolib", type: "startup", role: "Software engineer, Platform", start: "2026-01", fullTime: true, note: "Platform products that help engineers ship faster" },
+      { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, level: 0, note: "Eight client sites: storefronts, portals, e-commerce" },
+      { name: "Testapic", type: "startup", role: "Full-stack developer", start: "2014-09", end: "2015-02", fullTime: false, level: 0, note: "Back office for remote user testing" },
+      { name: "Valeo", type: "large", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, level: 0, note: "Project tracking tool for the lighting R&D teams, in Go" },
+      { name: "ASC", type: "sme", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, level: 0, note: "E-commerce automation: abandoned cart and post-purchase emails" },
+      { name: "Solive", type: "startup", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, level: 0, note: "Real-time sports visuals for clubs like PSG and Manchester City" },
+      { name: "Veepee", type: "large", role: "Front-end developer", start: "2017-03", end: "2019-05", fullTime: true, level: 1, note: "Ticketing: SEO, time to first byte, a design system shared with the app" },
+      { name: "Onepark", type: "startup", role: "Mobile engineer", start: "2019-06", end: "2020-01", fullTime: true, level: 1, note: "Parking app on iOS and Android: maps, Stripe payments" },
+      { name: "PayFit", type: "startup", role: "Software engineer, then senior", start: "2020-01", end: "2025-12", fullTime: true, level: 1, note: "Monolith to microservices, then an event-sourced company lifecycle", milestones: [{ at: "2023-01", label: "Senior", level: 2 }] },
+      { name: "Doctolib", type: "startup", role: "Software engineer, Platform", start: "2026-01", fullTime: true, level: 3, note: "Platform products that help engineers ship faster" },
     ] as Station[],
     // What I worked with over time, drawn under the bar.
     stack: [
