@@ -97,8 +97,9 @@ export default {
   skills: {
     repo: "arnaud-zg/skills",
     pitch: "Reusable workflows for AI coding agents, published and maintained: linted, tested and versioned, so they install cleanly instead of being copy-pasted.",
-    agents: ["Claude Code", "Codex", "Cursor", "Copilot CLI"],
-    install: "/plugin install arnaud-zg --marketplace arnaud-zg/skills",
+    // Named on the page as examples; the install command works with any agent that reads SKILL.md.
+    agents: ["Claude Code", "Codex", "Cursor", "Copilot CLI", "Gemini CLI", "OpenCode"],
+    install: "npx skills add arnaud-zg/skills",
   },
 
   substack: {

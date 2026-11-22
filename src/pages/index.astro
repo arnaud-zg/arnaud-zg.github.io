@@ -202,7 +202,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         <p class="lede">{config.skills.pitch}</p>
         <ul class="quest-kpis">
           <li><b>{skills.length}</b> skills</li>
-          <li><b>{config.skills.agents.length}</b> agents: {config.skills.agents.join(", ")}</li>
+          <li>Compatible with {config.skills.agents.join(", ")} and more</li>
         </ul>
       </header>
       <ul class="skill-grid">
@@ -217,10 +217,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         ))}
       </ul>
       <div class="skill-install">
-        <span class="label">Install in Claude Code</span>
+        <span class="label">Install, any agent</span>
         <code data-copy-text>{config.skills.install}</code>
         <button class="copy" type="button" data-copy aria-label="Copy the install command">Copy</button>
-        <a class="inline" href={`https://github.com/${config.skills.repo}`} {...ext}>Other agents ↗</a>
       </div>
     </section>
 
