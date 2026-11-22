@@ -67,8 +67,10 @@ async function detailsOf(name: string) {
   if (!res.ok) throw new Error(`${res.status} ${name}`);
   const doc = await res.json();
   const month = lastMonth();
-  const downloads = await fetch(`https://api.npmjs.org/downloads/point/${month.range}/${name}`, { signal: AbortSignal.timeout(8000) })
+  // The downloads API rate-limits bursts: one retry after a short pause, then leave it out.
+  const point = () => fetch(`https://api.npmjs.org/downloads/point/${month.range}/${name}`, { signal: AbortSignal.timeout(8000) })
     .then((r) => (r.ok ? r.json() : null)).then((d) => d?.downloads as number | undefined).catch(() => undefined);
+  const downloads = (await point()) ?? (await new Promise((r) => setTimeout(r, 600)).then(point));
   return {
     releases: Object.keys(doc.versions ?? {}).length,
     version: doc["dist-tags"]?.latest as string | undefined,

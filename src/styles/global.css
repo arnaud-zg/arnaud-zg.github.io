@@ -220,6 +220,8 @@ html { scroll-padding-top: 72px; }
 .tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 6px; padding: 18px 20px; border-radius: 16px; border-color: color-mix(in srgb, var(--accent) 45%, transparent); animation: card-in 240ms var(--ease-out) both; }
 .tm-tile.is-focus .tm-name { flex: none; padding-right: 34px; font-size: 1.1rem; color: var(--accent); }
 @keyframes card-in { from { opacity: 0; scale: 0.96; } }
+.quest-kpis { display: flex; flex-wrap: wrap; gap: 8px 28px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); }
+.quest-kpis b { margin-right: 6px; font: 300 1.6rem/1 var(--font); letter-spacing: 0; color: var(--ink); vertical-align: -0.2em; }
 .tm-emoji { font-size: 0.95rem; letter-spacing: 0; }
 @keyframes fade-in { from { opacity: 0; } }
 /* On a focused tile the numbers come first: the description gives way when room is short. */
@@ -238,6 +240,7 @@ html { scroll-padding-top: 72px; }
 .sq-head { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
 .sq-card { display: grid; gap: 4px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
 .sq-card:active { border-color: var(--accent); }
+.sq-card.is-target { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .sq-name { font-size: 1.08rem; color: var(--ink); }
 .sq-line { font-size: var(--fs-small); line-height: 1.5; color: var(--ink-lo); }
 .sq-stats { display: flex; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--line); }

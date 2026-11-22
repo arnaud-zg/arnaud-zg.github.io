@@ -134,7 +134,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span></h3>
             <ul class="tm-tiles">
               {g.tiles.map((t) => (
-                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} data-tool={t.quest?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
                   {t.quest ? (
                     <div class="tm-link">
                       <span class="tm-name">{t.quest.name}</span>
@@ -167,7 +167,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             <ul>
               {g.tiles.flatMap((t) => (t.quest ? [t.quest] : t.more!)).map((q) => (
                 <li>
-                  <a class="sq-card" href={q.href} {...ext}>
+                  <a class="sq-card" href={q.href} data-tool={q.name} {...ext}>
                     <span class="sq-name">{q.name}</span>
                     <span class="sq-line">{q.line}</span>
                     <span class="sq-stats">
@@ -350,9 +350,17 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     };
     // Tapping a tile opens its card; the ✕, a click anywhere else or Escape closes it. Opening grows the tile and reflows the treemap around it.
     let focused: HTMLElement | undefined;
+    // The open card lives in the URL (?tool=shiplane#quests), so it can be shared as is.
+    const remember = (tile?: HTMLElement) => {
+      const url = new URL(location.href);
+      if (tile?.dataset.tool) { url.searchParams.set("tool", tile.dataset.tool); url.hash = "quests"; }
+      else url.searchParams.delete("tool");
+      history.replaceState(null, "", url);
+    };
     const open = (tile?: HTMLElement) => {
       if (tile === focused) tile = undefined;
       focused = tile;
+      remember(tile);
       map.querySelectorAll<HTMLButtonElement>(".tm-open").forEach((b) => b.setAttribute("aria-expanded", String(b.closest(".tm-tile") === tile)));
       layout(tile);
     };
@@ -361,5 +369,25 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     }
     document.addEventListener("click", (e) => { if (focused && !focused.contains(e.target as Node)) open(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && focused) { const b = focused.querySelector<HTMLButtonElement>(".tm-open"); open(); b?.focus(); } });
+
+    // Arriving with ?tool=…: bring the section into view, then open that card. On phones,
+    // where there are no cards to open, the matching card is scrolled to and highlighted.
+    const shared = new URLSearchParams(location.search).get("tool");
+    if (shared) {
+      const tile = groups.flatMap((g) => g.tiles).find((t) => t.el.dataset.tool === shared)?.el;
+      const card = document.querySelector<HTMLElement>(`.sq-card[data-tool="${CSS.escape(shared)}"]`);
+      // Wait for the page to finish loading: the browser's own jump to #quests and late
+      // images would otherwise move the page after our scroll.
+      const go = () => setTimeout(() => {
+        if (wide.matches && tile) {
+          map.scrollIntoView({ block: "center" });
+          setTimeout(() => open(tile), 350);
+        } else if (card) {
+          card.classList.add("is-target");
+          card.scrollIntoView({ block: "center" });
+        }
+      }, 120);
+      if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
+    }
   }
 </script>
