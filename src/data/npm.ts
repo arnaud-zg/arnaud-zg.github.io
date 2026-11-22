@@ -7,17 +7,16 @@
 // Grouping, the "Earlier" cut-off and the treemap threshold live in portfolio.config.ts.
 
 import config from "../../portfolio.config";
-import { squarify, type Rect } from "../lib/treemap";
+import { squarify, TREEMAP_BOX as BOX, type Rect } from "../lib/treemap";
 
 export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number };
-export type Tile = { quest?: Quest; more?: Quest[]; releases: number; recent: boolean; rect: Rect; mrect: Rect };
+export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: number; recent: boolean; rect: Rect; mrect: Rect };
 export type Group = { name: string; releases: number; rect: Rect; tiles: Tile[] };
 export type SideQuests = { tools: number; releases: number; groups: Group[]; earlier: Quest[] };
 
-const { maintainer, activeMonths, groups: groupRules, otherGroup, minShare } = config.npm;
+const { maintainer, activeMonths, groups: groupRules, otherGroup, minShare, minTileShare } = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
-// Layout boxes, in arbitrary units: the whole treemap on wide screens, one group on phones.
-const BOX = { w: 16, h: 7 };
+// One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
 
 // Snapshot taken 2026-11-22, used when the registry is unreachable.
@@ -103,19 +102,26 @@ function layout(active: Quest[]): Group[] {
     (byGroup.get(g) ?? byGroup.set(g, []).get(g)!).push(q);
   }
   const entries = [...byGroup].sort(([, a], [, b]) => sum(b) - sum(a));
-  const outer = squarify(entries.map(([, qs]) => sum(qs)), BOX.w, BOX.h);
+  // Drawn size: releases, floored so the smallest tile still holds its name.
+  const weigh = (releases: number) => Math.max(releases, total * minTileShare);
+  const weights = entries.map(([, qs]) => {
+    const tooSmall = qs.filter((q) => q.releases / total < minShare);
+    const merged = tooSmall.length > 1 ? [weigh(sum(tooSmall))] : [];
+    return [...qs.filter((q) => !(tooSmall.length > 1 && tooSmall.includes(q))).map((q) => weigh(q.releases)), ...merged];
+  });
+  const outer = squarify(weights.map((ws) => ws.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
 
   return entries.map(([name, quests], gi) => {
     // A lone small tool keeps its own tile; two or more share one "+n more" tile.
     const tooSmall = quests.filter((q) => q.releases / total < minShare);
     const small = tooSmall.length > 1 ? tooSmall : [];
     const shown = quests.filter((q) => !small.includes(q));
-    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ quest: q, releases: q.releases, recent: isRecent(q) }));
-    if (small.length) tiles.push({ more: small, releases: sum(small), recent: small.some(isRecent) });
+    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ quest: q, releases: q.releases, weight: weigh(q.releases), recent: isRecent(q) }));
+    if (small.length) tiles.push({ more: small, releases: sum(small), weight: weigh(sum(small)), recent: small.some(isRecent) });
     const r = outer[gi];
-    const values = tiles.map((t) => t.releases);
-    const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h);
-    const phone = squarify(values, PHONE.w, PHONE.h);
+    const values = tiles.map((t) => t.weight);
+    const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h, true);
+    const phone = squarify(values, PHONE.w, PHONE.h, true);
     return { name, releases: sum(quests), rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
   });
 }

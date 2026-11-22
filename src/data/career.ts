@@ -1,10 +1,10 @@
-// Career timeline and tenure numbers, computed from portfolio.config.ts at build time.
-// Positions are percentages of the span from the first start to the current month, so
-// each segment's width is the time spent there.
+// Career table and tenure numbers, computed from portfolio.config.ts at build time.
+// Each row carries range bars positioned on one shared axis, from the first start to the
+// current month, so a bar's position and length are its real dates.
 
-import config, { type Station, type StackRange } from "../../portfolio.config";
+import config, { type CompanyType, type Station } from "../../portfolio.config";
 
-const { stations, stack, school, types, levels } = config.career;
+const { stations, school, types } = config.career;
 
 const toMonth = (ym: string) => { const [y, m] = ym.split("-").map(Number); return y * 12 + (m - 1); };
 const now = new Date();
@@ -13,67 +13,59 @@ const START = Math.min(...stations.map((s) => toMonth(s.start)));
 const SPAN = NOW + 1 - START;
 // Months spent, counting both the first and the last month, as LinkedIn does.
 const months = (s: { start: string; end?: string }) => (s.end ? toMonth(s.end) : NOW) - toMonth(s.start) + 1;
-const pos = (s: { start: string; end?: string }) => ({
-  left: ((toMonth(s.start) - START) / SPAN) * 100,
-  width: (months(s) / SPAN) * 100,
-});
+const at = (ym: string) => ((toMonth(ym) - START) / SPAN) * 100;
 
-// A building is one or more parts: a milestone that raises the level starts a taller part.
-export type Part = { left: number; width: number; height: number; label?: string };
-export type Segment = Station & { left: number; width: number; months: number; now: boolean; parts: Part[]; top: number };
-export type Lane = StackRange & { left: number; width: number };
-
-const segments: Segment[] = stations.map((s) => ({
-  ...s,
-  ...pos(s),
-  months: months(s),
-  now: !s.end,
-  ...building(s),
-}));
-
-function building(s: Station) {
-  const height = (level: number) => ((level + 1) / levels.length) * 100;
-  const cuts = [{ at: s.start, level: s.level, label: undefined as string | undefined }, ...(s.milestones ?? []).map((m) => ({ at: m.at, level: m.level ?? s.level, label: m.label }))];
-  const total = months(s);
-  const parts = cuts.map((c, i) => {
-    const from = toMonth(c.at) - toMonth(s.start);
-    const to = i + 1 < cuts.length ? toMonth(cuts[i + 1].at) - toMonth(s.start) : total;
-    return { left: (from / total) * 100, width: ((to - from) / total) * 100, height: height(c.level), label: c.label };
-  });
-  return { parts, top: Math.max(...parts.map((p) => p.height)) };
-}
-
-const lanes: Lane[] = stack.map((l) => ({ ...l, ...pos(l) }));
-
-// Year ticks across the bar.
-const firstYear = Math.floor(START / 12), lastYear = Math.floor(NOW / 12);
-const ticks = Array.from({ length: lastYear - firstYear + 1 }, (_, i) => firstYear + i)
-  .map((y) => ({ year: y, left: ((y * 12 - START) / SPAN) * 100 }))
-  .filter((t) => t.left >= 0);
-
-// School band: from the first stint to the end of the last part-time one.
-const partTime = stations.filter((s) => !s.fullTime);
-const schoolBand = partTime.length
-  ? { label: school.label, ...pos({ start: partTime[0].start, end: partTime[partTime.length - 1].end }) }
-  : null;
-
-// Tenure, over completed full-time roles only: the current one is still running.
-const done = stations.filter((s) => s.fullTime && s.end).map(months);
-const longest = Math.max(...stations.filter((s) => s.fullTime).map(months));
-
-export const career = {
-  segments,
-  levels: levels.map((name, i) => ({ name, height: ((i + 1) / levels.length) * 100 })),
-  lanes,
-  ticks,
-  schoolBand,
-  types: Object.entries(types).filter(([t]) => stations.some((s) => s.type === t)),
-  years: lastYear - firstYear,
-  longestYears: Math.round(longest / 12),
-  averageYears: done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length / 12) : 0,
-};
+export type Bar = { name: string; type: CompanyType; left: number; width: number; now: boolean };
+export type Row = { name: string; role: string; span: string; note: string; stack: string; type?: CompanyType; bars: Bar[]; marks: { left: number; label: string }[] };
 
 export const formatSpan = (m: number) => {
   const y = Math.floor(m / 12), r = m % 12;
   return [y && `${y} yr${y > 1 ? "s" : ""}`, r && `${r} mo${r > 1 ? "s" : ""}`].filter(Boolean).join(" ");
+};
+const bar = (s: Station): Bar => ({ name: s.name, type: s.type, left: at(s.start), width: (months(s) / SPAN) * 100, now: !s.end });
+
+// Full-time roles get a row each, newest first; part-time stints fold into one school row.
+const fullTime = stations.filter((s) => s.fullTime);
+const partTime = stations.filter((s) => !s.fullTime);
+const rows: Row[] = [
+  ...[...fullTime].reverse().map((s) => ({
+    name: s.name,
+    role: s.role,
+    span: `${s.start.slice(0, 4)} · ${s.end ? formatSpan(months(s)) : `${formatSpan(months(s))}, now`}`,
+    note: s.note,
+    stack: s.stack,
+    type: s.type,
+    bars: [bar(s)],
+    marks: (s.milestones ?? []).map((m) => ({ left: at(m.at), label: m.label })),
+  })),
+  ...(partTime.length
+    ? [{
+        name: school.name,
+        role: school.role,
+        span: `${partTime[0].start.slice(0, 4)}–${(partTime[partTime.length - 1].end ?? "").slice(0, 4)} · ${partTime.map((s) => s.name).join(", ")}`,
+        note: school.note,
+        stack: [...new Set(partTime.flatMap((s) => s.stack.split(", ")))].join(", "),
+        bars: partTime.map(bar),
+        marks: [],
+      }]
+    : []),
+];
+
+// Year ticks on the shared axis: every third year, so labels never crowd the narrow column.
+const firstYear = Math.floor(START / 12), lastYear = Math.floor(NOW / 12);
+const ticks = Array.from({ length: lastYear - firstYear + 1 }, (_, i) => firstYear + i)
+  .filter((y) => y > firstYear && (y - firstYear) % 3 === 0)
+  .map((y) => ({ year: y, left: ((y * 12 - START) / SPAN) * 100 }));
+
+// Tenure, over completed full-time roles only: the current one is still running.
+const done = fullTime.filter((s) => s.end).map(months);
+const longest = Math.max(...fullTime.map(months));
+
+export const career = {
+  rows,
+  ticks,
+  types: Object.entries(types).filter(([t]) => stations.some((s) => s.type === t)),
+  years: lastYear - firstYear,
+  longestYears: Math.round(longest / 12),
+  averageYears: done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length / 12) : 0,
 };

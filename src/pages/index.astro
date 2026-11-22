@@ -3,11 +3,10 @@ import Base from "../layouts/Base.astro";
 import Stars from "../components/Stars.astro";
 import Icon from "../components/Icon.astro";
 import config from "../../portfolio.config";
-import { career, formatSpan } from "../data/career";
+import { career } from "../data/career";
 import { getSideQuests } from "../data/npm";
 import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
-import { constellations, SKY } from "../lib/constellation";
 
 const { name, role, links, about, numbers: words } = config;
 const quests = await getSideQuests();
@@ -19,18 +18,12 @@ const numbers = [
   { value: career.longestYears, unit: "years", label: `${words.stay}, ~${career.averageYears} yrs avg` },
   { value: quests.tools, unit: "tools", label: `${quests.releases} releases, ${words.tools}` },
 ];
-const current = career.segments.find((s) => s.now) ?? career.segments[career.segments.length - 1];
-const noteOf = (s: (typeof career.segments)[number]) => `${s.name} · ${s.role} · ${formatSpan(s.months)}. ${s.note}.`;
-// Narrow segments label below the bar; every other one drops a line so neighbours don't collide.
-const stagger = new Set(career.segments.map((s, i) => (s.width < 7 ? i : -1)).filter((i) => i >= 0).filter((_, k) => k % 2 === 1));
-const longest = Math.max(...career.segments.map((s) => s.months));
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
-const sky = constellations(themes);
-const projectOf = new Map(themes.flatMap((t) => t.projects.map((p) => [p.repo, p])));
-const lineCount = (n: number) => `${n} ${n === 1 ? "line" : "lines"}`;
-const firstStar = sky[0]?.stars[0]?.id;
+// Diffstat: every shown PR, bar length scaled to the largest change on the page.
+const prs = themes.map((t) => ({ ...t, rows: t.projects.flatMap((p) => p.changes.map((c) => ({ repo: p.repo, ...c }))) }));
+const maxLines = Math.max(1, ...prs.flatMap((t) => t.rows.map((r) => (r.added ?? 0) + (r.removed ?? 0))));
 ---
 <Base
   title={`${name} · Software engineer`}
@@ -97,61 +90,42 @@ const firstStar = sky[0]?.stars[0]?.id;
         </ul>
       </header>
 
-      <div class="career" data-career>
-        <div class="skyline">
-          <ol class="levels" aria-hidden="true">
-            {career.levels.map((l) => <li style={`--h:${l.height}%`}><span>{l.name}</span></li>)}
-          </ol>
-          <ol class="segments">
-            {career.segments.map((s, i) => (
-              <li class:list={["segment", `segment--${s.type}`, s.now && "segment--now", s.width < 7 && "segment--narrow", stagger.has(i) && "segment--stagger"]} style={`--l:${s.left}%;--w:${s.width}%;--top:${s.top}%;--i:${i}`}>
-                <button type="button" class="seg" data-note={noteOf(s)} aria-label={noteOf(s)} aria-pressed={s.now ? "true" : "false"}>
-                  {s.parts.map((p) => (
-                    <span class="part" style={`--pl:${p.left}%;--pw:${p.width}%;--ph:${p.height}%`}>{p.label && <span class="part-mark">{p.label}</span>}</span>
-                  ))}
-                </button>
-                <span class="seg-name" aria-hidden="true">{s.name}</span>
-              </li>
-            ))}
-          </ol>
+      <div class="career" role="table" aria-label="Career, newest first">
+        <div class="career-head" role="row">
+          <span role="columnheader">Company</span>
+          <span role="columnheader">Role</span>
+          <span role="columnheader">What I did</span>
+          <span role="columnheader" class="axis">
+            {career.ticks.map((t) => <span class="tick" style={`--l:${t.left}%`}>{t.year}</span>)}
+          </span>
         </div>
-        <ol class="ticks" aria-hidden="true">
-          {career.ticks.map((t) => <li style={`--l:${t.left}%`}>{t.year}</li>)}
-        </ol>
-        {career.schoolBand && (
-          <p class="school" style={`--l:${career.schoolBand.left}%;--w:${career.schoolBand.width}%`}><span>{career.schoolBand.label}</span></p>
-        )}
-        <ol class="lanes" aria-label="Stack over time">
-          {career.lanes.map((l) => (
-            <li style={`--l:${l.left}%;--w:${l.width}%`}><span class="lane-label">{l.label}</span></li>
-          ))}
-        </ol>
-        <p class="career-note" aria-live="polite" data-career-note>{noteOf(current)}</p>
-      </div>
-
-      <ol class="career-list">
-        {[...career.segments].reverse().map((s) => (
-          <li class={`cl cl--${s.type}`} style={`--len:${(s.months / longest) * 100}%`}>
-            <p class="cl-head"><span class="cl-name">{s.name}</span><span class="cl-span">{s.start.slice(0, 4)} · {formatSpan(s.months)}</span></p>
-            <span class="cl-bar" aria-hidden="true"></span>
-            <p class="cl-note">{s.role}. {s.note}.</p>
-          </li>
+        {career.rows.map((r) => (
+          <div class:list={["career-row", r.type && `row--${r.type}`]} role="row">
+            <span class="cr-name" role="cell">{r.name}</span>
+            <span class="cr-role" role="cell">{r.role}<span class="cr-span">{r.span}</span></span>
+            <span class="cr-note" role="cell">{r.note}.<span class="cr-stack">{r.stack}</span></span>
+            <span class="cr-time" role="cell" aria-hidden="true">
+              {career.ticks.map((t) => <span class="grid" style={`--l:${t.left}%`}></span>)}
+              {r.bars.map((b) => <span class:list={["range", `row--${b.type}`, b.now && "range--now"]} style={`--l:${b.left}%;--w:${b.width}%`} title={b.name}></span>)}
+              {r.marks.map((m) => <span class="mark" style={`--l:${m.left}%`}><span>{m.label}</span></span>)}
+            </span>
+          </div>
         ))}
-      </ol>
+      </div>
     </section>
 
     <section id="quests" class="section quests" aria-labelledby="quests-title">
       <header class="section-head">
         <h2 id="quests-title">Side quests</h2>
-        <p class="lede">{quests.tools} tools and {quests.releases} releases on npm, built off hours. Area is releases; bright ones shipped this year.</p>
+        <p class="lede">{quests.tools} tools and {quests.releases} releases on npm, built off hours. Bigger tiles shipped more releases, bright ones shipped this year. Point at a tile to enlarge it.</p>
       </header>
-      <div class="treemap">
+      <div class="treemap" data-treemap>
         {quests.groups.map((g) => (
-          <section class="tm-group" style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={`${g.name}, ${g.releases} releases`}>
+          <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={`${g.name}, ${g.releases} releases`}>
             <h3 class="tm-head"><span>{g.name}</span><span class="tm-n">{g.releases}</span></h3>
             <ul class="tm-tiles">
               {g.tiles.map((t) => (
-                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
                   {t.quest ? (
                     <a class="tm-link" href={t.quest.href} {...ext}>
                       <span class="tm-name">{t.quest.name}</span>
@@ -201,62 +175,29 @@ const firstStar = sky[0]?.stars[0]?.id;
         <h2 id="oss-title">Open source</h2>
         <p class="lede">Fixes merged upstream, in tools other teams rely on.</p>
       </header>
-      <div class="sky" data-sky>
-        <svg class="sky-map" viewBox={`0 0 ${SKY.w} ${SKY.h}`} role="group" aria-label="Projects I contributed to, one constellation per theme">
-          <defs>
-            <radialGradient id="star-glow"><stop offset="0" stop-color="currentColor" stop-opacity="0.55" /><stop offset="1" stop-color="currentColor" stop-opacity="0" /></radialGradient>
-          </defs>
-          {sky.map((c) => (
-            <g class="cluster">
-              <text class="cluster-name" x={c.x} y="48" text-anchor="middle">{c.name}</text>
-              {c.stars.slice(1).map((st, j) => <line class="link" x1={c.stars[j].x} y1={c.stars[j].y} x2={st.x} y2={st.y} />)}
-              {c.stars.map((st, j) => {
-                const p = projectOf.get(st.id)!;
-                const lx = st.side === "left" ? st.x - st.r - 12 : st.x + st.r + 12;
+      <div class="diffstat">
+        {prs.map((t) => (
+          <section class="ds-theme" aria-label={t.name}>
+            <h3 class="theme-head">{t.name}<span>{t.years}</span></h3>
+            <ul>
+              {t.rows.map((r) => {
+                const add = ((r.added ?? 0) / maxLines) * 100, del = ((r.removed ?? 0) / maxLines) * 100;
                 return (
-                  <a class="star" href={`https://github.com/${p.repo}`} data-star={st.id} aria-label={`${p.repo}: ${p.changes.length} merged ${p.changes.length === 1 ? "change" : "changes"}, ${lineCount(p.lines)}`} style={`--d:${j}`} {...ext}>
-                    <circle class="halo" cx={st.x} cy={st.y} r={st.r * 3.2} fill="url(#star-glow)" />
-                    <circle class="core" cx={st.x} cy={st.y} r={st.r} />
-                    <text class="star-name" x={lx} y={st.y - 2} text-anchor={st.side === "left" ? "end" : "start"}>{p.repo.split("/")[1]}</text>
-                    <text class="star-lines" x={lx} y={st.y + 16} text-anchor={st.side === "left" ? "end" : "start"}>{p.changes.map((ch) => ch.kind).join(" · ")} · {lineCount(p.lines)}</text>
-                  </a>
+                  <li>
+                    <a class="ds-row" href={r.url} {...ext}>
+                      <span class="ds-repo"><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</span>
+                      <span class="kind">{r.kind}</span>
+                      <span class="ds-title">{r.title}</span>
+                      <span class="diff">{r.added !== undefined && <><b>+{r.added}</b> <i>−{r.removed}</i></>}</span>
+                      <span class="ds-bar" aria-hidden="true"><b style={`--w:${add}%`}></b><i style={`--w:${del}%`}></i></span>
+                    </a>
+                  </li>
                 );
               })}
-            </g>
-          ))}
-        </svg>
-        <div class="sky-detail" aria-live="polite">
-          {themes.flatMap((t) => t.projects).map((p) => (
-            <div class="star-card" data-card={p.repo} hidden={p.repo !== firstStar}>
-              <p class="star-card-head"><span class="owner">{p.repo.split("/")[0]}/</span>{p.repo.split("/")[1]}<span class="star-card-about">{p.about}</span></p>
-              <ul class="cl-changes">
-                {p.changes.map((c) => (
-                  <li><a class="cl-change" href={c.url} {...ext}><span class="kind">{c.kind}</span><span class="cl-title">{c.title}</span><span class="diff">{c.added !== undefined && <><b>+{c.added}</b> <i>−{c.removed}</i></>}</span></a></li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div class="changelog" data-mobile-only>
-        {themes.map((t) => (
-          <section class="theme" aria-label={t.name}>
-            <h3 class="theme-head">{t.name}<span>{t.years}</span></h3>
-            <ul class="theme-projects">
-              {t.projects.map((p) => (
-                <li>
-                  <a class="cl-repo" href={`https://github.com/${p.repo}`} {...ext}><span class="owner">{p.repo.split("/")[0]}/</span>{p.repo.split("/")[1]}</a>
-                  <ul class="cl-changes">
-                    {p.changes.map((c) => (
-                      <li><a class="cl-change" href={c.url} {...ext}><span class="kind">{c.kind}</span><span class="cl-title">{c.title}</span><Icon name="arrow" size={14} /></a></li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
             </ul>
           </section>
         ))}
+        <p class="ds-key"><b></b> lines added <i></i> lines removed · bar length is the size of the change</p>
       </div>
       <a class="all-prs" href={searchUrl} {...ext}>Every merged pull request on GitHub <Icon name="arrow" size={18} /></a>
     </section>
@@ -271,29 +212,48 @@ const firstStar = sky[0]?.stars[0]?.id;
 </Base>
 
 <script>
-  // Journey: hovering, focusing or tapping a segment shows its line under the chart.
-  const note = document.querySelector<HTMLElement>("[data-career-note]");
-  const segs = document.querySelectorAll<HTMLButtonElement>("[data-career] .seg");
-  const show = (btn: HTMLButtonElement) => {
-    if (!note) return;
-    note.textContent = btn.dataset.note ?? "";
-    segs.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
-  };
-  // Open source: pointing at a star shows its pull requests under the sky.
-  const cards = document.querySelectorAll<HTMLElement>("[data-card]");
-  document.querySelectorAll<SVGAElement>("[data-star]").forEach((star) => {
-    const pick = () => {
-      cards.forEach((c) => { c.hidden = c.dataset.card !== star.dataset.star; });
-      document.querySelectorAll("[data-star]").forEach((s) => s.classList.toggle("is-active", s === star));
-    };
-    star.addEventListener("pointerenter", pick);
-    star.addEventListener("focus", pick);
-  });
-  document.querySelector(`[data-star]`)?.classList.add("is-active");
+  // Side quests: pointing at a tile grows it to a readable size and the rest of the
+  // treemap shrinks around it, animated by CSS transitions on the box variables.
+  import { squarify, TREEMAP_BOX as BOX } from "../lib/treemap";
 
-  segs.forEach((btn) => {
-    btn.addEventListener("pointerenter", () => show(btn));
-    btn.addEventListener("focus", () => show(btn));
-    btn.addEventListener("click", () => show(btn));
-  });
+  const map = document.querySelector<HTMLElement>("[data-treemap]");
+  const wide = matchMedia("(min-width: 961px) and (hover: hover)");
+  if (map) {
+    const groups = [...map.querySelectorAll<HTMLElement>("[data-group]")].map((el) => ({
+      el,
+      tiles: [...el.querySelectorAll<HTMLElement>("[data-v]")].map((t) => ({ el: t, v: Number(t.dataset.v) })),
+    }));
+    const total = groups.reduce((n, g) => n + g.tiles.reduce((m, t) => m + t.v, 0), 0);
+    const set = (el: HTMLElement, r: { x: number; y: number; w: number; h: number }) => {
+      for (const [k, v] of Object.entries(r)) el.style.setProperty(`--${k}`, `${v}%`);
+    };
+
+    // Lay out again with one tile weighted up: twice its size, and at least 13% of the map.
+    const layout = (focus?: HTMLElement) => {
+      const values = groups.map((g) => g.tiles.map((t) => (t.el === focus ? Math.max(t.v * 2, total * 0.13) : t.v)));
+      const outer = squarify(values.map((vs) => vs.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
+      groups.forEach((g, gi) => {
+        set(g.el, outer[gi]);
+        const inner = squarify(values[gi], (outer[gi].w / 100) * BOX.w, (outer[gi].h / 100) * BOX.h, true);
+        g.tiles.forEach((t, ti) => set(t.el, inner[ti]));
+        g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
+      });
+      groups.forEach((g) => g.tiles.forEach((t) => t.el.classList.toggle("is-focus", t.el === focus)));
+    };
+    // Hover intent: act only when the pointer rests on a tile. Sweeping across the map
+    // on the way somewhere else changes nothing; leaving restores after a short grace.
+    const REST_MS = 380, LEAVE_MS = 260;
+    let timer = 0, focused: HTMLElement | undefined;
+    const schedule = (target: HTMLElement | undefined, delay: number) => {
+      clearTimeout(timer);
+      if (target === focused) return;
+      timer = window.setTimeout(() => { focused = target; layout(target); }, delay);
+    };
+    for (const g of groups) for (const t of g.tiles) {
+      t.el.addEventListener("pointerenter", () => wide.matches && schedule(t.el, REST_MS));
+      t.el.addEventListener("focusin", () => { if (wide.matches) { clearTimeout(timer); focused = t.el; layout(t.el); } });
+    }
+    map.addEventListener("pointerleave", () => wide.matches && schedule(undefined, LEAVE_MS));
+    map.addEventListener("focusout", (e) => { if (wide.matches && !map.contains(e.relatedTarget as Node)) schedule(undefined, 0); });
+  }
 </script>

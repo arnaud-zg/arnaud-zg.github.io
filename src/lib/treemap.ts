@@ -3,13 +3,17 @@
 // Returns rectangles in percent of the box, in the input order.
 
 export type Rect = { x: number; y: number; w: number; h: number };
+// The treemap's box on wide screens, in arbitrary units (16:7). Shared by the build and the hover script.
+export const TREEMAP_BOX = { w: 16, h: 7 };
 
-export function squarify(values: number[], width: number, height: number): Rect[] {
+// `keepOrder` lays items out in the given order: a resized item then stays where it was.
+export function squarify(values: number[], width: number, height: number, keepOrder = false): Rect[] {
   const total = values.reduce((a, b) => a + b, 0);
   const out: Rect[] = new Array(values.length);
   if (!total) return values.map(() => ({ x: 0, y: 0, w: 0, h: 0 }));
   // Work on items sorted large to small, in absolute units, then map back.
-  const items = values.map((v, i) => ({ i, a: (v / total) * width * height })).sort((p, q) => q.a - p.a);
+  const items = values.map((v, i) => ({ i, a: (v / total) * width * height }));
+  if (!keepOrder) items.sort((p, q) => q.a - p.a);
   let x = 0, y = 0, w = width, h = height;
 
   const worst = (row: number[], side: number) => {
