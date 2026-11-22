@@ -323,21 +323,39 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     // settled, the card is placed where it will stay and fades in. Closing hides the card
     // first, then reflows back. A newer click cancels any beat still waiting.
     const still = matchMedia("(prefers-reduced-motion: reduce)");
-    const SETTLE_MS = 440;
-    let beat = 0;
-    const layout = (focus?: HTMLElement) => {
+    // Motion runs in beats so only one thing moves at a time:
+    //   1. an open card fades out (LEAVE_MS);
+    //   2. tile text fades, tiles glide to their new places (MOVE_MS), text fades back;
+    //   3. the new card fades in where it will stay.
+    // A newer click cancels whatever is still waiting.
+    const LEAVE_MS = 170, MOVE_MS = 460;
+    let beat = 0, run = 0;
+    const wait = (ms: number) => new Promise<void>((r) => { beat = window.setTimeout(r, still.matches ? 0 : ms); });
+    const layout = async (focus?: HTMLElement) => {
+      const id = ++run;
+      clearTimeout(beat);
       let l = compute(undefined, 1);
       if (focus) search: for (const whole of [false, true]) for (const boost of [3, 2.4, 1.9, 1.5, 1.25]) {
         const next = compute(focus, boost, whole);
         if (fits(focus, next)) { l = next; break search; }
       }
-      clearTimeout(beat);
+      const shown = map.querySelector<HTMLElement>(".tm-tile.is-focus");
+      if (shown) {
+        shown.classList.add("is-leaving");
+        await wait(LEAVE_MS);
+        if (id !== run) return;
+        shown.classList.remove("is-focus", "is-leaving");
+      }
+      map.classList.add("is-moving");
       groups.forEach((g, gi) => {
         set(g.el, l.outer[gi]);
         g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
-        g.tiles.forEach((t, ti) => { set(t.el, l.inner[gi][ti]); t.el.classList.remove("is-focus"); });
+        g.tiles.forEach((t, ti) => set(t.el, l.inner[gi][ti]));
       });
-      if (focus) beat = window.setTimeout(() => place(focus), still.matches ? 0 : SETTLE_MS);
+      await wait(MOVE_MS);
+      if (id !== run) return;
+      map.classList.remove("is-moving");
+      if (focus) place(focus);
     };
     // Show the card at its final spot: measured once, nudged left or up to stay in the treemap.
     const place = (tile: HTMLElement) => {

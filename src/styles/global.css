@@ -41,6 +41,7 @@
   --head: clamp(32px, 4vw, 52px);
   --radius: 16px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -217,9 +218,9 @@ html { scroll-padding-top: 72px; }
 .tm-tile.is-focus .tm-go { display: inline-block; }
 .tm-tile.is-focus .tm-stats { display: flex; }
 .tm-tile.is-focus .tm-rel { display: none; }
-.tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 6px; padding: 18px 20px; border-radius: 16px; border-color: color-mix(in srgb, var(--accent) 45%, transparent); animation: card-in 240ms var(--ease-out) both; }
+.tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 6px; padding: 18px 20px; border-radius: 16px; border-color: color-mix(in srgb, var(--accent) 45%, transparent); animation: card-in 300ms var(--ease-out) both; }
 .tm-tile.is-focus .tm-name { flex: none; padding-right: 34px; font-size: 1.1rem; color: var(--accent); }
-@keyframes card-in { from { opacity: 0; scale: 0.96; } }
+@keyframes card-in { from { opacity: 0; scale: 0.96; translate: var(--dx, 0) calc(var(--dy, 0px) + 6px); } }
 .quest-kpis { display: flex; flex-wrap: wrap; gap: 8px 28px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); }
 .quest-kpis b { margin-right: 6px; font: 300 1.6rem/1 var(--font); letter-spacing: 0; color: var(--ink); vertical-align: -0.2em; }
 .tm-emoji { font-size: 0.95rem; letter-spacing: 0; }
@@ -232,7 +233,13 @@ html { scroll-padding-top: 72px; }
 [data-theme="night"] .tm-tile.is-focus .tm-link { background: color-mix(in srgb, var(--bg) 82%, var(--accent) 18%); }
 .tm-tile.is-focus .tm-line { display: block !important; max-width: 40ch; font-size: 0.88rem; line-height: 1.5; }
 @media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
-  .tm-group, .tm-tile { transition: left 420ms var(--ease-out), top 420ms var(--ease-out), width 420ms var(--ease-out), height 420ms var(--ease-out); }
+  /* Tiles glide on an ease-in-out curve; their text steps aside while they move so it never
+     re-wraps mid-flight, then fades back once they have settled. */
+  .tm-group, .tm-tile { transition: left 460ms var(--ease-move), top 460ms var(--ease-move), width 460ms var(--ease-move), height 460ms var(--ease-move); will-change: left, top, width, height; }
+  .tm-link > *, .tm-head { transition: opacity 220ms var(--ease-out) 60ms; }
+  .treemap.is-moving .tm-link > *, .treemap.is-moving .tm-head { opacity: 0; transition: opacity 120ms ease-out; }
+  .tm-tile.is-leaving .tm-link { animation: card-out 170ms ease-in forwards; }
+  @keyframes card-out { to { opacity: 0; scale: 0.97; } }
 }
 .sq-list { display: none; }
 .sq-group { display: grid; gap: 10px; }
