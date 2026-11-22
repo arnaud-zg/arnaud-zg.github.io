@@ -41,15 +41,17 @@ export default {
     education: [
       { school: "Epitech", degree: "Master-level, Computer Software Engineering", start: "2012", end: "2017", short: "Master-level, Epitech",
         highlights: [
-          "Project-based learning, in teams: C, C++, C#",
+          "Project-based learning, in teams",
           "3-year product built from scratch: team of 6, 3 time zones",
-        ] },
+        ],
+        skills: ["C", "C++", "C#", ".NET", "SQL", "Angular", "Project management"] },
       { school: "Tongji University", degree: "Master's programme, Software Engineering", start: "2015", end: "2017",
         highlights: [
           "International exchange",
           "Software engineering and project leadership",
-        ] },
-    ] as { school: string; degree: string; start: string; end: string; short?: string; highlights: string[] }[],
+        ],
+        skills: ["C++", "SQL", "Software engineering", "Leadership"] },
+    ] as { school: string; degree: string; start: string; end: string; short?: string; highlights: string[]; skills?: string[] }[],
     types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
     stations: [
       { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce", stack: "PHP, WordPress, PrestaShop" },

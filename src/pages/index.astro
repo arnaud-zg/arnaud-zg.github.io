@@ -140,6 +140,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             </div>
             <p class="cv-title">{e.degree}</p>
             <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
+            {e.skills && <ul class="cv-stack" aria-label="Skills">{e.skills.map((t) => <li>{t}</li>)}</ul>}
           </li>
         ))}
       </ol>
