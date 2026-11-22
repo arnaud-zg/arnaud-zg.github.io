@@ -18,6 +18,12 @@ export default {
     lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
   },
 
+  // The last words on the page, above the profile links.
+  ending: {
+    title: "Say hello",
+    line: "Want to catch up? Ping me, wherever suits you.",
+  },
+
   // Numbers are computed from the career below and from npm; only the words live here.
   numbers: {
     years: "shipping software",

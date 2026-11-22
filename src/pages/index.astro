@@ -262,7 +262,8 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     </section>
 
     <footer id="contact" class="ending">
-      <h2 class="tbc">To be continued</h2>
+      <h2 class="tbc">{config.ending.title}</h2>
+      <p class="ending-line">{config.ending.line}</p>
       <ul class="end-links">
         {links.map((l) => <li><a href={l.href} {...ext}><Icon name={l.icon} size={17} /> {l.label}</a></li>)}
       </ul>
