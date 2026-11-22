@@ -350,10 +350,11 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     };
     // Tapping a tile opens its card; the ✕, a click anywhere else or Escape closes it. Opening grows the tile and reflows the treemap around it.
     let focused: HTMLElement | undefined;
-    // The open card lives in the URL (?tool=shiplane#quests), so it can be shared as is.
+    // The open card lives in the URL (?tool=shiplane), so it can be shared as is; opening a
+    // shared link scrolls to the section by itself.
     const remember = (tile?: HTMLElement) => {
       const url = new URL(location.href);
-      if (tile?.dataset.tool) { url.searchParams.set("tool", tile.dataset.tool); url.hash = "quests"; }
+      if (tile?.dataset.tool) url.searchParams.set("tool", tile.dataset.tool);
       else url.searchParams.delete("tool");
       history.replaceState(null, "", url);
     };
@@ -376,8 +377,8 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     if (shared) {
       const tile = groups.flatMap((g) => g.tiles).find((t) => t.el.dataset.tool === shared)?.el;
       const card = document.querySelector<HTMLElement>(`.sq-card[data-tool="${CSS.escape(shared)}"]`);
-      // Wait for the page to finish loading: the browser's own jump to #quests and late
-      // images would otherwise move the page after our scroll.
+      // Wait for the page to finish loading: late images would otherwise move the page
+      // after our scroll.
       const go = () => setTimeout(() => {
         if (wide.matches && tile) {
           map.scrollIntoView({ block: "center" });
