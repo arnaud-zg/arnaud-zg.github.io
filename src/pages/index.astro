@@ -27,11 +27,6 @@ const topRepos = prRepos.slice(0, config.github.top);
 const moreRepos = prRepos.slice(config.github.top);
 // 1234 -> 1.2k, so a stat fits its badge.
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
-// How long ago, short: "today", "5d", "3w", "4mo", "2y". The site rebuilds daily.
-const ago = (iso: string) => {
-  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-  return d < 1 ? "today" : d < 14 ? `${d}d` : d < 60 ? `${Math.floor(d / 7)}w` : d < 730 ? `${Math.floor(d / 30)}mo` : `${Math.floor(d / 365)}y`;
-};
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
 <Base
@@ -135,8 +130,8 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       </header>
       <div class="treemap" data-treemap>
         {quests.groups.map((g) => (
-          <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={`${g.name}, ${g.releases} releases`}>
-            <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span><span class="tm-n">🚀 {g.releases}</span></h3>
+          <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={g.name}>
+            <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span></h3>
             <ul class="tm-tiles">
               {g.tiles.map((t) => (
                 <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
@@ -145,12 +140,11 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
                       <span class="tm-name">{t.quest.name}</span>
                       <span class="tm-line">{t.quest.line}</span>
                       <span class="tm-stats" aria-label="Details">
-                        {t.quest.downloads !== undefined && <span class="stat"><i aria-hidden="true">⬇️</i><b>{compact(t.quest.downloads)}</b><small>{t.quest.downloadsMonth?.slice(0, 3)} downloads</small></span>}
-                        <span class="stat"><i aria-hidden="true">🚀</i><b>{t.releases}</b><small>releases</small></span>
-                        <span class="stat"><i aria-hidden="true">🔄</i><b>{ago(t.quest.updated)}</b><small>last ship</small></span>
-                        {t.quest.members > 1 && <span class="stat"><i aria-hidden="true">🧩</i><b>{t.quest.members - 1}</b><small>plugins</small></span>}
+                        {t.quest.downloads !== undefined && <span class="stat" title={`npm downloads, ${t.quest.downloadsMonth}`}><b><i aria-hidden="true">⬇️</i>{compact(t.quest.downloads)}</b><small>monthly downloads</small></span>}
+                        <span class="stat"><b><i aria-hidden="true">🚀</i>{t.releases}</b><small>releases</small></span>
+                        {t.quest.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{t.quest.members - 1}</b><small>plugins</small></span>}
                       </span>
-                      <span class="tm-rel" aria-label={`${t.releases} releases`}>🚀 {t.releases}</span>
+                      
                     </a>
                   ) : (
                     <div class="tm-link tm-more">
@@ -287,9 +281,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     };
     // Every other tile keeps room for its text: at least the minimum, or its normal size if
     // that is already smaller.
+    // Each group header needs its natural width, so it never runs into the next group.
+    const headW = groups.map((g) => (g.el.querySelector<HTMLElement>(".tm-head span")?.scrollWidth ?? 0) + 32);
     const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
       const base = sizes(compute(undefined, 1)), next = sizes(l);
-      return groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
+      const W = map.getBoundingClientRect().width;
+      const headsFit = groups.every((_, gi) => (l.outer[gi].w / 100) * W >= headW[gi]);
+      return headsFit && groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
         (next[gi][ti].w >= Math.min(MIN_W, base[gi][ti].w) - 0.5 && next[gi][ti].h >= Math.min(MIN_H, base[gi][ti].h) - 0.5)));
     };
     const layout = (focus?: HTMLElement) => {
@@ -300,22 +298,24 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       }
       groups.forEach((g, gi) => {
         set(g.el, l.outer[gi]);
-        g.tiles.forEach((t, ti) => { set(t.el, l.inner[gi][ti]); t.el.classList.toggle("is-focus", t.el === focus); });
+        g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
+        g.tiles.forEach((t, ti) => {
+          set(t.el, l.inner[gi][ti]);
+          t.el.classList.toggle("is-focus", t.el === focus);
+          if (t.el !== focus) { const lk = t.el.querySelector<HTMLElement>(".tm-link"); lk?.style.removeProperty("--dx"); lk?.style.removeProperty("--dy"); }
+        });
       });
       if (focus) setTimeout(() => trim(focus), 560);
     };
-    // Badges are ordered by importance; once the tile has settled, drop whole badges from the
-    // end until the rest sit inside the tile. Nothing is ever cut in half.
+    // Once the tile has settled, keep its card inside the treemap: a card wider or taller
+    // than its tile is nudged left or up instead of spilling past the edge.
     const trim = (tile: HTMLElement) => {
-      const link = tile.querySelector<HTMLElement>(".tm-link")!, stats = [...tile.querySelectorAll<HTMLElement>(".stat")];
-      stats.forEach((st) => (st.hidden = false));
-      const limit = () => link.getBoundingClientRect();
-      for (let i = stats.length - 1; i > 0; i--) {
-        const box = limit();
-        const out = stats.some((st) => !st.hidden && (st.getBoundingClientRect().bottom > box.bottom - 8 || st.getBoundingClientRect().right > box.right - 8));
-        if (!out) break;
-        stats[i].hidden = true;
-      }
+      const link = tile.querySelector<HTMLElement>(".tm-link")!;
+      // Measure from the tile and the card's own size, so an earlier nudge does not skew it.
+      const m = map.getBoundingClientRect(), t = tile.getBoundingClientRect();
+      const right = t.left + 3 + link.offsetWidth, bottom = t.top + 3 + link.offsetHeight;
+      link.style.setProperty("--dx", `${Math.min(0, m.right - right)}px`);
+      link.style.setProperty("--dy", `${Math.min(0, m.bottom - bottom)}px`);
     };
     // Hover intent: act only when the pointer rests on a tile. Sweeping across the map
     // on the way somewhere else changes nothing; leaving restores after a short grace.

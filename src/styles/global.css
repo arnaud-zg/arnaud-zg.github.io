@@ -171,6 +171,8 @@ html { scroll-padding-top: 72px; }
 .treemap { position: relative; aspect-ratio: 16 / 7; min-height: 460px; }
 .tm-group { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); padding: 4px; container-type: size; }
 .tm-head { position: absolute; inset: 4px 4px auto 4px; display: flex; justify-content: space-between; gap: 8px; padding: 10px 12px 0; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); z-index: 1; pointer-events: none; }
+.tm-head > span { min-width: 0; white-space: nowrap; overflow: hidden; }
+.tm-group.is-focus { z-index: 6; }
 .tm-tiles { position: absolute; inset: 40px 4px 4px 4px; }
 .tm-tile { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); padding: 3px; container-type: size; }
 .tm-link { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: clamp(10px, 1.4vw, 18px); border-radius: 12px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; transition: border-color 300ms var(--ease-out), background-color 300ms var(--ease-out); }
@@ -193,26 +195,27 @@ a.tm-link:hover .tm-name { color: var(--accent); }
 @container (max-width: 130px) { .tm-link { padding: 10px; } .tm-rel { letter-spacing: 0; font-size: 0.66rem; } }
 .tm-more .tm-line { display: block; }
 .tm-tile.is-focus .tm-link { border-color: var(--accent); }
-/* Stats appear on the focused tile as small square badges. */
-.tm-stats { display: none; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+/* Focused tile: name, then the description when there is room, then a strip of stat cells
+   pinned to the bottom, always in the same order and the same shape. */
+.tm-stats { display: none; margin-top: auto; padding-top: 10px; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 6px; }
 .stat[hidden] { display: none; }
-.stat { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 6px; align-items: center; min-width: 64px; padding: 7px 9px; border-radius: 10px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
-.stat i { grid-row: 1 / span 2; font-style: normal; font-size: 1rem; line-height: 1; }
-.stat b { font-weight: 500; font-size: 0.95rem; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.stat small { font: 400 0.6rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); }
-.tm-tile.is-focus .tm-stats { display: flex; animation: fade-in 300ms 200ms var(--ease-out) both; }
+.stat { display: grid; align-content: center; gap: 2px; height: 50px; padding: 0 10px; border-radius: 10px; background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+.stat b { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: 1rem; line-height: 1.1; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat i { font-style: normal; font-size: 0.9rem; }
+.stat small { font: 400 0.6rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-lo); white-space: nowrap; }
+.tm-tile.is-focus .tm-stats { display: grid; animation: fade-in 300ms 200ms var(--ease-out) both; }
 .tm-tile.is-focus .tm-rel { display: none; }
+.tm-tile.is-focus .tm-link { flex-direction: column; align-items: stretch; gap: 4px; padding: 14px 16px; }
+.tm-tile.is-focus .tm-name { flex: none; font-size: 1.05rem; }
 .tm-emoji { font-size: 0.95rem; letter-spacing: 0; }
-.tm-head > span:first-child { white-space: nowrap; overflow: hidden; }
-.tm-n { white-space: nowrap; }
-@container (max-width: 190px) { .tm-n { display: none; } }
-.quest-kpis { display: flex; flex-wrap: wrap; gap: 8px 28px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); }
-.quest-kpis b { margin-right: 6px; font: 300 1.6rem/1 var(--font); letter-spacing: 0; color: var(--ink); vertical-align: -0.2em; }
 @keyframes fade-in { from { opacity: 0; } }
-@container (min-height: 300px) { .tm-tile.is-focus .tm-line { display: block; } }
 /* On a focused tile the numbers come first: the description gives way when room is short. */
-@container (max-height: 299px) { .tm-tile.is-focus .tm-line { display: none; } }
-@container (max-height: 96px) { .tm-tile.is-focus .tm-stats { display: none; } .tm-tile.is-focus .tm-rel { display: inline; } }
+/* A focused tile always shows name, description and stats. When the tile is too small, its
+   card grows past it as a raised card, kept inside the treemap by the script. */
+.tm-tile.is-focus { z-index: 5; }
+.tm-tile.is-focus .tm-link { position: absolute; top: 3px; left: 3px; width: max(calc(100% - 6px), 300px); height: auto; min-height: calc(100% - 6px); background: var(--surface-hi); box-shadow: 0 18px 50px -12px rgba(0, 0, 0, 0.55); translate: var(--dx, 0) var(--dy, 0); transition: translate 260ms var(--ease-out); }
+[data-theme="night"] .tm-tile.is-focus .tm-link { background: color-mix(in srgb, var(--bg) 82%, var(--accent) 18%); }
+.tm-tile.is-focus .tm-line { display: block !important; font-size: 0.86rem; line-height: 1.45; }
 @media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
   .tm-group, .tm-tile { transition: left 520ms var(--ease-out), top 520ms var(--ease-out), width 520ms var(--ease-out), height 520ms var(--ease-out); }
 }
