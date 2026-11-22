@@ -150,23 +150,48 @@ html { scroll-padding-top: 72px; }
 [data-theme="night"] :is(.swatch--sme, .row--sme) { --c: #4fc9bd; }
 [data-theme="night"] :is(.swatch--large, .row--large) { --c: #7d9df5; }
 
-.career { display: grid; }
-.career-head, .career-row { display: grid; grid-template-columns: 7.5rem minmax(0, 0.9fr) minmax(0, 1.4fr) minmax(0, 1.5fr); gap: 0 clamp(16px, 2.4vw, 32px); align-items: start; }
-.career-head { padding-bottom: 10px; border-bottom: 1px solid var(--line); font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
-.axis { position: relative; height: 1.6em; }
-.tick { position: absolute; left: var(--l); translate: -50% 0; }
-.career-row { padding: 16px 0; border-bottom: 1px solid var(--line); }
-.cr-name { font-size: var(--fs-h3); letter-spacing: 0.02em; line-height: 1.3; }
-.cr-role { display: grid; gap: 2px; font-size: var(--fs-small); line-height: 1.5; }
-.cr-span, .cr-stack { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.06em; color: var(--ink-lo); }
-.cr-note { display: grid; gap: 4px; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-lo); }
-.cr-stack { color: var(--ink); opacity: 0.75; }
-.cr-time { position: relative; align-self: stretch; min-height: 28px; }
-.grid { position: absolute; left: var(--l); top: -16px; bottom: -17px; border-left: 1px dashed var(--line); }
-.range { position: absolute; left: var(--l); width: max(var(--w), 5px); top: 50%; height: 18px; translate: 0 -50%; border-radius: 4px; background: var(--c); }
-.range--now { background: linear-gradient(90deg, var(--c) 60%, color-mix(in srgb, var(--c) 20%, transparent)); box-shadow: 0 0 16px -2px var(--c); }
-.career-row .mark { position: absolute; left: var(--l); top: 50%; height: 26px; translate: 0 -50%; border-left: 2px solid var(--bg); }
-.career-row .mark span { position: absolute; left: 6px; bottom: calc(100% - 4px); font: 500 0.64rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); white-space: nowrap; }
+/* Summary: the facts a recruiter looks for first. */
+.cv-summary { display: grid; grid-template-columns: repeat(4, auto) minmax(0, 1fr); gap: 0; margin: 0 0 clamp(28px, 4vw, 44px); border-block: 1px solid var(--line); }
+.cv-summary > div { display: grid; gap: 6px; align-content: start; padding: 18px 22px; }
+.cv-summary > div + div { border-left: 1px solid var(--line); }
+.cv-summary > div:first-child { padding-left: 0; }
+.cv-summary dt { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
+.cv-summary dd { display: grid; gap: 2px; font-size: 1.12rem; line-height: 1.35; color: var(--ink); }
+.cv-summary dd span { font-size: var(--fs-small); color: var(--ink-lo); }
+
+/* One card per full-time role, newest first. */
+.cv-roles { display: grid; gap: 12px; }
+.cv-role { display: grid; gap: 10px; padding: 22px 24px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+.cv-role--now { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%), var(--surface); }
+.cv-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; }
+.cv-company { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: var(--fs-h3); font-weight: 400; letter-spacing: 0.02em; }
+.cv-dot { display: inline-block; width: 10px; height: 10px; margin-right: 2px; border-radius: 50%; background: var(--c); translate: 0 -1px; }
+.cv-industry { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); }
+.cv-dates { display: flex; gap: 10px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; color: var(--ink); white-space: nowrap; }
+.cv-dates span { color: var(--ink-lo); }
+.cv-titles { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: var(--fs-small); }
+.cv-title { color: var(--ink); }
+.cv-since { margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); font: 500 0.62rem/1.6 var(--mono); letter-spacing: 0.08em; color: var(--accent); }
+.cv-arrow { color: var(--accent); }
+.cv-highlights { display: grid; gap: 4px; }
+.cv-highlights li { position: relative; padding-left: 18px; font-size: var(--fs-small); line-height: 1.55; color: var(--ink-lo); }
+.cv-highlights li::before { content: "›"; position: absolute; left: 2px; color: var(--accent); }
+.cv-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+.cv-stack li { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); font: 400 0.66rem/1.6 var(--mono); letter-spacing: 0.04em; color: var(--ink-lo); }
+
+/* Early career: one line, opens to the five stints. */
+.cv-early { margin-top: 12px; }
+.cv-early summary { width: fit-content; padding: 10px 18px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; list-style: none; font-size: var(--fs-small); color: var(--ink-lo); transition: border-color 200ms var(--ease-out), color 200ms var(--ease-out); }
+.cv-early summary::-webkit-details-marker { display: none; }
+.cv-early summary::before { content: "▸ "; color: var(--accent); }
+.cv-early[open] summary::before { content: "▾ "; }
+.cv-early summary:hover { border-color: var(--accent); color: var(--ink); }
+.cv-early-title { color: var(--ink); }
+.cv-early ul { display: grid; gap: 8px; margin-top: 14px; padding-left: 6px; }
+.cv-early li { display: grid; grid-template-columns: 14px 7rem 3.5rem minmax(0, 1fr); align-items: baseline; gap: 10px; font-size: var(--fs-small); }
+.cv-early b { font-weight: 400; color: var(--ink); }
+.cv-early-year { font: 400 var(--fs-label)/1.6 var(--mono); color: var(--ink-lo); }
+.cv-early-note { color: var(--ink-lo); }
 
 /* Side quests: a treemap. Area is releases, grouped by the problem each tool solves. */
 .treemap { position: relative; width: 100%; aspect-ratio: 16 / 7; min-height: 460px; }
@@ -386,13 +411,12 @@ html { scroll-padding-top: 72px; }
 
     .section-head h2 { animation: heading-in linear both; animation-timeline: view(); animation-range: entry 30% cover 30%; }
     @keyframes heading-in { from { opacity: 0; letter-spacing: 0.16em; } }
-    .range { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
     @keyframes draw { from { scale: 0 1; } }
     .ds-bar { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
     @keyframes rise { from { opacity: 0; translate: 0 12px; } }
     .cover { animation: shutter linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--a, 0) * 7%) cover calc(30% + var(--a, 0) * 7%); }
     @keyframes shutter { from { clip-path: inset(0 0 100% 0 round var(--radius)); } to { clip-path: inset(0 0 0 0 round var(--radius)); } }
-    .tm-group, .ds-repo-row, .skill-card, .numbers li { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+    .tm-group, .ds-repo-row, .skill-card, .cv-role, .numbers li { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
   }
 }
 
@@ -400,12 +424,13 @@ html { scroll-padding-top: 72px; }
 @media (max-width: 960px) {
   .masthead nav { display: none; }
   .about { grid-template-columns: minmax(0, 1fr); }
-  /* Narrow screens: each career row stacks, its range bar runs full width underneath. */
-  .career-head { grid-template-columns: minmax(0, 1fr); }
-  .career-head > :not(.axis) { display: none; }
-  .career-row { grid-template-columns: 7rem minmax(0, 1fr); gap: 6px 16px; }
-  .cr-note, .cr-time { grid-column: 1 / -1; }
-  .cr-time { min-height: 22px; }
+  .cv-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cv-summary > div { padding: 14px 16px 14px 0; border-left: 0 !important; border-top: 1px solid var(--line); }
+  .cv-summary > div:nth-child(-n + 2) { border-top: 0; }
+  .cv-industries { grid-column: 1 / -1; }
+  .cv-role { padding: 18px; }
+  .cv-early li { grid-template-columns: 14px minmax(0, 1fr) auto; }
+  .cv-early-note { grid-column: 2 / -1; }
   /* Each repo stacks: name and +/- on one line, what it is under it, the bar full width. */
   .ds-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "repo diff" "about about" "bar bar"; gap: 6px 16px; align-items: end; }
   .ds-repo { grid-area: repo; }

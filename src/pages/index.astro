@@ -96,28 +96,38 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         </ul>
       </header>
 
-      <div class="career" role="table" aria-label="Career, newest first">
-        <div class="career-head" role="row">
-          <span role="columnheader">Company</span>
-          <span role="columnheader">Role</span>
-          <span role="columnheader">What I did</span>
-          <span role="columnheader" class="axis">
-            {career.ticks.map((t) => <span class="tick" style={`--l:${t.left}%`}>{t.year}</span>)}
-          </span>
-        </div>
-        {career.rows.map((r) => (
-          <div class:list={["career-row", r.type && `row--${r.type}`]} role="row">
-            <span class="cr-name" role="cell">{r.name}</span>
-            <span class="cr-role" role="cell">{r.role}<span class="cr-span">{r.span}</span></span>
-            <span class="cr-note" role="cell">{r.note}.<span class="cr-stack">{r.stack}</span></span>
-            <span class="cr-time" role="cell" aria-hidden="true">
-              {career.ticks.map((t) => <span class="grid" style={`--l:${t.left}%`}></span>)}
-              {r.bars.map((b) => <span class:list={["range", `row--${b.type}`, b.now && "range--now"]} style={`--l:${b.left}%;--w:${b.width}%`} title={b.name}></span>)}
-              {r.marks.map((m) => <span class="mark" style={`--l:${m.left}%`}><span>{m.label}</span></span>)}
-            </span>
-          </div>
+      <dl class="cv-summary">
+        <div><dt>Now</dt><dd>{career.summary.role}<span>at {career.summary.company}</span></dd></div>
+        <div><dt>Experience</dt><dd>{career.years} years</dd></div>
+        {career.summary.seniorSince && <div><dt>Senior since</dt><dd>{career.summary.seniorSince}</dd></div>}
+        <div><dt>Average stay</dt><dd>~{career.averageYears} years<span>longest {career.longestYears} years</span></dd></div>
+        <div class="cv-industries"><dt>Industries</dt><dd>{career.summary.industries.join(" · ")}</dd></div>
+      </dl>
+
+      <ol class="cv-roles">
+        {career.roles.map((r) => (
+          <li class:list={["cv-role", `row--${r.type}`, r.now && "cv-role--now"]}>
+            <div class="cv-head">
+              <h3 class="cv-company"><span class="cv-dot" aria-hidden="true"></span>{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+              <p class="cv-dates">{r.dates}<span>{r.span}</span></p>
+            </div>
+            <p class="cv-titles">
+              {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label="then">→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
+            </p>
+            <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
+            <ul class="cv-stack" aria-label="Stack">{r.stack.map((t) => <li>{t}</li>)}</ul>
+          </li>
         ))}
-      </div>
+      </ol>
+
+      <details class="cv-early">
+        <summary><span class="cv-early-title">{career.early.title}</span> · {career.early.years} · {career.early.role}</summary>
+        <ul>
+          {career.early.stints.map((st) => (
+            <li class={`row--${st.type}`}><span class="cv-dot" aria-hidden="true"></span><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+          ))}
+        </ul>
+      </details>
     </section>
 
     <section id="quests" class="section quests" aria-labelledby="quests-title">

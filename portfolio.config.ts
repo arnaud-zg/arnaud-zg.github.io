@@ -2,7 +2,9 @@
 // what to keep, how to group it and what to call it. Edit it, rebuild, done.
 
 export type CompanyType = "agency" | "startup" | "sme" | "large";
-export type Station = { name: string; type: CompanyType; role: string; start: string; end?: string; fullTime: boolean; note: string; stack: string; milestones?: { at: string; label: string }[] };
+// `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
+// A milestone can carry a new title (a promotion), shown as the title progression.
+export type Station = { name: string; type: CompanyType; industry?: string; role: string; start: string; end?: string; fullTime: boolean; note: string; highlights?: string[]; stack: string; milestones?: { at: string; label: string; title?: string }[] };
 
 export default {
   name: "Arnaud Zheng",
@@ -34,7 +36,7 @@ export default {
   // Career, oldest first. Months are "YYYY-MM"; leave `end` out for the current role.
   // `fullTime: false` stints fold into one school row and are not counted in tenure.
   career: {
-    school: { name: "Epitech", role: "Six-month stints alongside school", note: "Agency sites, a user-testing back office, an R&D tool in Go, e-commerce automation, real-time sports visuals" },
+    school: { name: "Early career", role: "Five six-month stints alongside Epitech", note: "Agency sites, a user-testing back office, an R&D tool in Go, e-commerce automation, real-time sports visuals" },
     types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
     stations: [
       { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce", stack: "PHP, WordPress, PrestaShop" },
@@ -42,10 +44,10 @@ export default {
       { name: "Valeo", type: "large", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, note: "Project tracking tool for the lighting R&D teams", stack: "Go" },
       { name: "ASC", type: "sme", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, note: "E-commerce automation: abandoned cart and post-purchase emails", stack: "Shopify, Liquid" },
       { name: "Solive", type: "startup", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, note: "Real-time sports visuals for clubs like PSG and Manchester City", stack: "Node.js, MongoDB" },
-      { name: "Veepee", type: "large", role: "Front-end developer", start: "2017-03", end: "2019-05", fullTime: true, note: "Ticketing: SEO, time to first byte, a design system shared with the app", stack: "React, SSR, design systems" },
-      { name: "Onepark", type: "startup", role: "Mobile engineer", start: "2019-06", end: "2020-01", fullTime: true, note: "Parking app on iOS and Android: maps, Stripe payments", stack: "React Native, TypeScript" },
-      { name: "PayFit", type: "startup", role: "Software engineer, then senior", start: "2020-01", end: "2025-12", fullTime: true, note: "Monolith to microservices, then an event-sourced company lifecycle", stack: "Microservices, event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior" }] },
-      { name: "Doctolib", type: "startup", role: "Software engineer, Platform", start: "2026-01", fullTime: true, note: "Platform products that help engineers ship faster", stack: "Monorepos, Module Federation" },
+      { name: "Veepee", type: "large", industry: "E-commerce, ticketing", role: "Front-end Developer", start: "2017-03", end: "2019-05", fullTime: true, note: "Ticketing: SEO, time to first byte, a design system shared with the app", highlights: ["SEO with structured data and a faster time to first byte", "Components shared with the mobile app through the design system"], stack: "React, SSR, Design systems" },
+      { name: "Onepark", type: "startup", industry: "Mobility", role: "Mobile Software Engineer", start: "2019-06", end: "2020-01", fullTime: true, note: "Parking app on iOS and Android: maps, Stripe payments", highlights: ["Parking booking app on iOS and Android, from one React Native codebase", "Maps across Google Maps, Mapbox and OpenStreetMap, with Stripe payments"], stack: "React Native, TypeScript" },
+      { name: "PayFit", type: "startup", industry: "HR & payroll SaaS", role: "Software Engineer", start: "2020-01", end: "2025-12", fullTime: true, note: "Monolith to microservices, then an event-sourced company lifecycle", highlights: ["Moved a monolith to microservices, split by business domain with shared SDKs", "Designed the event-sourced company lifecycle with CQRS and DDD", "Owned latency and error SLOs for the services"], stack: "TypeScript, Microservices, Event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior", title: "Senior Software Engineer" }] },
+      { name: "Doctolib", type: "startup", industry: "Health tech", role: "Software Engineer, Platform", start: "2026-01", fullTime: true, note: "Platform products that help engineers ship faster", highlights: ["Platform products that help engineers ship faster"], stack: "Monorepos, Module Federation, TypeScript" },
     ] as Station[],
   },
 
