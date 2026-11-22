@@ -232,6 +232,17 @@ html { scroll-padding-top: 72px; }
 @media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
   .tm-group, .tm-tile { transition: left 420ms var(--ease-out), top 420ms var(--ease-out), width 420ms var(--ease-out), height 420ms var(--ease-out); }
 }
+.sq-list { display: none; }
+.sq-group { display: grid; gap: 10px; }
+.sq-group ul { display: grid; gap: 10px; }
+.sq-head { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); }
+.sq-card { display: grid; gap: 4px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); }
+.sq-card:active { border-color: var(--accent); }
+.sq-name { font-size: 1.08rem; color: var(--ink); }
+.sq-line { font-size: var(--fs-small); line-height: 1.5; color: var(--ink-lo); }
+.sq-stats { display: flex; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.sq-stats .stat b { font-size: 1.25rem; }
+
 /* Earlier libraries: quiet cards in the same style, no treemap. */
 .earlier { margin-top: 36px; }
 .earlier summary { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; list-style: none; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-lo); transition: color 200ms var(--ease-out), border-color 200ms var(--ease-out); }
@@ -372,6 +383,9 @@ html { scroll-padding-top: 72px; }
   .cr-time { min-height: 22px; }
   .ds-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
   .ds-bar { grid-column: 1 / -1; }
+  /* Side quests: the treemap gives way to a plain list of cards with their numbers. */
+  .treemap { display: none !important; }
+  .sq-list { display: grid; gap: 26px; }
   /* Treemap groups stack; each keeps its own small treemap. */
   .treemap { aspect-ratio: auto; min-height: 0; display: grid; gap: 16px; }
   .tm-group { position: relative; left: auto; top: auto; width: auto; height: calc(48px + var(--n) * 120px); container-type: inline-size; }

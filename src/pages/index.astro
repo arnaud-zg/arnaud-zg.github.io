@@ -159,6 +159,29 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           </section>
         ))}
       </div>
+      {/* Small screens: no treemap, no tapping. A plain list of cards with their numbers. */}
+      <div class="sq-list">
+        {quests.groups.map((g) => (
+          <section class="sq-group" aria-label={g.name}>
+            <h3 class="sq-head"><span aria-hidden="true">{g.emoji}</span> {g.name}</h3>
+            <ul>
+              {g.tiles.flatMap((t) => (t.quest ? [t.quest] : t.more!)).map((q) => (
+                <li>
+                  <a class="sq-card" href={q.href} {...ext}>
+                    <span class="sq-name">{q.name}</span>
+                    <span class="sq-line">{q.line}</span>
+                    <span class="sq-stats">
+                      {q.downloads !== undefined && <span class="stat"><b><i aria-hidden="true">⬇️</i>{compact(q.downloads)}</b><small>monthly downloads</small></span>}
+                      <span class="stat"><b><i aria-hidden="true">🚀</i>{q.releases}</b><small>releases</small></span>
+                      {q.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{q.members - 1}</b><small>plugins</small></span>}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
       {quests.earlier.length > 0 && (
         <details class="earlier">
           <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> See {quests.earlier.length} earlier libraries · {quests.earlier[quests.earlier.length - 1].updated.slice(0, 4)}–{quests.earlier[0].updated.slice(0, 4)}</summary>
