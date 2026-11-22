@@ -25,6 +25,8 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
 const maxLines = Math.max(1, ...prRepos.map((r) => r.lines));
 const topRepos = prRepos.slice(0, config.github.top);
 const moreRepos = prRepos.slice(config.github.top);
+// 1234 -> 1.2k, so a stat fits its badge.
+const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
 <Base
@@ -119,26 +121,32 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     <section id="quests" class="section quests" aria-labelledby="quests-title">
       <header class="section-head">
         <h2 id="quests-title">Side quests</h2>
-        <p class="lede">{quests.tools} tools and {quests.releases} releases on npm, built off hours. Bigger tiles shipped more releases, bright ones shipped this year. Point at a tile to enlarge it.</p>
+        <p class="lede">{config.npm.pitch}</p>
+        <ul class="quest-kpis">
+          <li><b>{quests.tools}</b> tools</li>
+          <li><b>{quests.releases}</b> releases</li>
+          {quests.downloads !== undefined && <li><b>{compact(quests.downloads)}</b> npm downloads in {quests.downloadsMonth}</li>}
+        </ul>
       </header>
       <div class="treemap" data-treemap>
         {quests.groups.map((g) => (
           <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={`${g.name}, ${g.releases} releases`}>
-            <h3 class="tm-head"><span>{g.name}</span><span class="tm-n">{g.releases}</span></h3>
+            <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span><span class="tm-n">🚀 {g.releases}</span></h3>
             <ul class="tm-tiles">
               {g.tiles.map((t) => (
                 <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
                   {t.quest ? (
                     <a class="tm-link" href={t.quest.href} {...ext}>
                       <span class="tm-name">{t.quest.name}</span>
-                      <span class="tm-line">{t.quest.line}{t.quest.members > 1 && ` · +${t.quest.members - 1} plugins`}</span>
-                      <span class="tm-details">
-                        {t.quest.version && <span><b>v{t.quest.version}</b> latest</span>}
-                        {t.quest.downloads !== undefined && <span><b>{t.quest.downloads.toLocaleString("en-US")}</b> npm downloads in {t.quest.downloadsMonth}</span>}
-                        {t.quest.created && <span>First published <b>{formatMonth(t.quest.created)}</b>, last release <b>{formatMonth(t.quest.updated)}</b></span>}
-                        {t.quest.members > 1 && <span><b>{t.quest.members - 1}</b> plugins published alongside</span>}
+                      <span class="tm-line">{t.quest.line}</span>
+                      <span class="tm-stats" aria-label="Details">
+                        <span class="stat"><i aria-hidden="true">🚀</i><b>{t.releases}</b><small>releases</small></span>
+                        {t.quest.downloads !== undefined && <span class="stat"><i aria-hidden="true">⬇️</i><b>{compact(t.quest.downloads)}</b><small>{t.quest.downloadsMonth?.slice(0, 3)}</small></span>}
+                        {t.quest.version && <span class="stat"><i aria-hidden="true">🏷️</i><b>{t.quest.version}</b><small>latest</small></span>}
+                        {t.quest.created && <span class="stat"><i aria-hidden="true">🌱</i><b>{formatMonth(t.quest.created)}</b><small>since</small></span>}
+                        {t.quest.members > 1 && <span class="stat"><i aria-hidden="true">🧩</i><b>{t.quest.members - 1}</b><small>plugins</small></span>}
                       </span>
-                      <span class="tm-rel">{t.releases} {t.releases === 1 ? "release" : "releases"}</span>
+                      <span class="tm-rel" aria-label={`${t.releases} releases`}>🚀 {t.releases}</span>
                     </a>
                   ) : (
                     <div class="tm-link tm-more">
@@ -181,23 +189,18 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <header class="section-head">
         <h2 id="oss-title">Open source</h2>
-        <p class="lede">Fixes and features merged upstream, in tools other teams rely on. Largest changes first.</p>
+        <p class="lede">Fixes and features merged upstream, in tools other teams rely on. Largest first.</p>
       </header>
       <div class="diffstat">
         <ul class="ds-list">
           {topRepos.map((r) => (
             <li class="ds-repo-row">
                 <div class="ds-row">
-                  <a class="ds-repo" href={`https://github.com/${r.repo}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <a class="ds-repo" href={`https://github.com/${r.repo}/pulls?q=${encodeURIComponent(`is:pr is:merged author:${config.github.user}`)}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
                   <span class="ds-count">{r.prs.length} {r.prs.length === 1 ? "PR" : "PRs"} · {r.years}</span>
                   <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
                   <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
                 </div>
-                <ul class="ds-prs">
-                  {r.prs.map((pr) => (
-                    <li><a class="ds-pr" href={pr.url} {...ext}><span class="kind">{pr.kind}</span><span class="ds-title">{pr.title}</span><span class="diff">{pr.added !== undefined && <><b>+{pr.added}</b> <i>−{pr.removed}</i></>}</span></a></li>
-                  ))}
-                </ul>
               </li>
           ))}
         </ul>
@@ -220,16 +223,11 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             {moreRepos.map((r) => (
               <li class="ds-repo-row">
                 <div class="ds-row">
-                  <a class="ds-repo" href={`https://github.com/${r.repo}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <a class="ds-repo" href={`https://github.com/${r.repo}/pulls?q=${encodeURIComponent(`is:pr is:merged author:${config.github.user}`)}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
                   <span class="ds-count">{r.prs.length} {r.prs.length === 1 ? "PR" : "PRs"} · {r.years}</span>
                   <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
                   <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
                 </div>
-                <ul class="ds-prs">
-                  {r.prs.map((pr) => (
-                    <li><a class="ds-pr" href={pr.url} {...ext}><span class="kind">{pr.kind}</span><span class="ds-title">{pr.title}</span><span class="diff">{pr.added !== undefined && <><b>+{pr.added}</b> <i>−{pr.removed}</i></>}</span></a></li>
-                  ))}
-                </ul>
               </li>
             ))}
           </ul>
@@ -300,18 +298,43 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         set(g.el, l.outer[gi]);
         g.tiles.forEach((t, ti) => { set(t.el, l.inner[gi][ti]); t.el.classList.toggle("is-focus", t.el === focus); });
       });
+      if (focus) setTimeout(() => trim(focus), 560);
+    };
+    // Badges are ordered by importance; once the tile has settled, drop whole badges from the
+    // end until the rest sit inside the tile. Nothing is ever cut in half.
+    const trim = (tile: HTMLElement) => {
+      const link = tile.querySelector<HTMLElement>(".tm-link")!, stats = [...tile.querySelectorAll<HTMLElement>(".stat")];
+      stats.forEach((st) => (st.hidden = false));
+      const limit = () => link.getBoundingClientRect();
+      for (let i = stats.length - 1; i > 0; i--) {
+        const box = limit();
+        const out = stats.some((st) => !st.hidden && (st.getBoundingClientRect().bottom > box.bottom - 8 || st.getBoundingClientRect().right > box.right - 8));
+        if (!out) break;
+        stats[i].hidden = true;
+      }
     };
     // Hover intent: act only when the pointer rests on a tile. Sweeping across the map
     // on the way somewhere else changes nothing; leaving restores after a short grace.
     const REST_MS = 380, LEAVE_MS = 260;
-    let timer = 0, focused: HTMLElement | undefined;
+    let timer = 0, focused: HTMLElement | undefined, pending: HTMLElement | undefined | null = null;
+    // Moving within the tile already waited on keeps its timer; a new target restarts it.
     const schedule = (target: HTMLElement | undefined, delay: number) => {
+      if (target === pending) return;
       clearTimeout(timer);
+      pending = target === focused ? null : target;
       if (target === focused) return;
-      timer = window.setTimeout(() => { focused = target; layout(target); }, delay);
+      timer = window.setTimeout(() => { pending = null; focused = target; settling = performance.now() + 560; layout(target); }, delay);
     };
+    // Only real pointer movement counts: when the layout reflows, tiles slide under a still
+    // cursor and must not steal focus. Events during the resize animation are ignored too.
+    let settling = 0;
+    const tileAt = (e: PointerEvent) => groups.flatMap((g) => g.tiles).find((t) => t.el.contains(e.target as Node))?.el;
+    map.addEventListener("pointermove", (e) => {
+      if (!wide.matches || performance.now() < settling) return;
+      const tile = tileAt(e);
+      if (tile) schedule(tile, REST_MS);
+    });
     for (const g of groups) for (const t of g.tiles) {
-      t.el.addEventListener("pointerenter", () => wide.matches && schedule(t.el, REST_MS));
       t.el.addEventListener("focusin", () => { if (wide.matches) { clearTimeout(timer); focused = t.el; layout(t.el); } });
     }
     map.addEventListener("pointerleave", () => wide.matches && schedule(undefined, LEAVE_MS));

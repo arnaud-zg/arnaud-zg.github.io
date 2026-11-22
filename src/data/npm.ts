@@ -12,10 +12,10 @@ import { squarify, TREEMAP_BOX as BOX, type Rect } from "../lib/treemap";
 // `downloads` covers the last full calendar month, named in `downloadsMonth`.
 export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number; version?: string; created?: string; downloads?: number; downloadsMonth?: string };
 export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: number; recent: boolean; rect: Rect; mrect: Rect };
-export type Group = { name: string; releases: number; rect: Rect; tiles: Tile[] };
-export type SideQuests = { tools: number; releases: number; groups: Group[]; earlier: Quest[] };
+export type Group = { name: string; emoji: string; releases: number; rect: Rect; tiles: Tile[] };
+export type SideQuests = { tools: number; releases: number; downloads?: number; downloadsMonth?: string; groups: Group[]; earlier: Quest[] };
 
-const { maintainer, activeMonths, groups: groupRules, otherGroup, minShare, minTileShare } = config.npm;
+const { maintainer, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
 // One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
@@ -143,7 +143,8 @@ function layout(active: Quest[]): Group[] {
     const values = tiles.map((t) => t.weight);
     const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h, true);
     const phone = squarify(values, PHONE.w, PHONE.h, true);
-    return { name, releases: sum(quests), rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
+    const emoji = groupRules.find((g) => g.name === name)?.emoji ?? otherEmoji;
+    return { name, emoji, releases: sum(quests), rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
   });
 }
 
@@ -157,7 +158,15 @@ export async function getSideQuests(): Promise<SideQuests> {
   }
   const active = quests.filter((q) => monthsAgo(q.updated) < activeMonths);
   const earlier = quests.filter((q) => monthsAgo(q.updated) >= activeMonths).sort((a, b) => b.updated.localeCompare(a.updated));
-  return { tools: active.length, releases: sum(active), groups: layout(active), earlier };
+  const counted = active.filter((q) => q.downloads !== undefined);
+  return {
+    tools: active.length,
+    releases: sum(active),
+    downloads: counted.length ? counted.reduce((n, q) => n + q.downloads!, 0) : undefined,
+    downloadsMonth: counted[0]?.downloadsMonth,
+    groups: layout(active),
+    earlier,
+  };
 }
 
 export const formatMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });

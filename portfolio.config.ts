@@ -58,17 +58,20 @@ export default {
 
   npm: {
     maintainer: "arnaud-zg",
+    // The value in one line, shown under the Side quests title before the live numbers.
+    pitch: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
     // A tool with no release in this many months folds into "Earlier".
     activeMonths: 24,
     // Treemap groups, in order. A tool joins the first group with a matching keyword or name part.
     groups: [
-      { name: "Shipping", match: ["release", "deploy", "migration", "database"] },
-      { name: "Code health", match: ["technical-debt", "code-quality", "eslint", "feature-flags"] },
-      { name: "Mobile", match: ["expo", "react-native"] },
-      { name: "AI agents", match: ["llm", "ai-agents", "claude-code"] },
-      { name: "Web build", match: ["vite", "react", "frontend"] },
+      { name: "Shipping", emoji: "🚢", match: ["release", "deploy", "migration", "database"] },
+      { name: "Code health", emoji: "🩺", match: ["technical-debt", "code-quality", "eslint", "feature-flags"] },
+      { name: "Mobile", emoji: "📱", match: ["expo", "react-native"] },
+      { name: "AI agents", emoji: "🤖", match: ["llm", "ai-agents", "claude-code"] },
+      { name: "Web build", emoji: "⚡", match: ["vite", "react", "frontend"] },
     ],
     otherGroup: "Other",
+    otherEmoji: "🧪",
     // Tools smaller than this share of the treemap merge into "+n more" in their group.
     minShare: 0.03,
     // Every tile is drawn at least this share of the treemap so its name always fits.
