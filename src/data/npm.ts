@@ -9,7 +9,8 @@
 import config from "../../portfolio.config";
 import { squarify, TREEMAP_BOX as BOX, type Rect } from "../lib/treemap";
 
-export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number };
+// `downloads` covers the last full calendar month, named in `downloadsMonth`.
+export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number; version?: string; created?: string; downloads?: number; downloadsMonth?: string };
 export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: number; recent: boolean; rect: Rect; mrect: Rect };
 export type Group = { name: string; releases: number; rect: Rect; tiles: Tile[] };
 export type SideQuests = { tools: number; releases: number; groups: Group[]; earlier: Quest[] };
@@ -50,11 +51,31 @@ const monthsAgo = (iso: string) => {
   return (now.getUTCFullYear() - d.getUTCFullYear()) * 12 + now.getUTCMonth() - d.getUTCMonth();
 };
 
-async function releasesOf(name: string): Promise<number> {
-  // The abbreviated document lists every version without the heavy metadata.
-  const res = await fetch(`https://registry.npmjs.org/${name}`, { headers: { Accept: "application/vnd.npm.install-v1+json" }, signal: AbortSignal.timeout(8000) });
+// The last full calendar month, e.g. { range: "2026-10-01:2026-10-31", label: "October 2026" }.
+function lastMonth() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0));
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  return { range: `${iso(start)}:${iso(end)}`, label: start.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }) };
+}
+
+// Release count, latest version and first publish date from the package document, plus
+// last month's downloads. A failed download lookup just leaves the figure out.
+async function detailsOf(name: string) {
+  const res = await fetch(`https://registry.npmjs.org/${name}`, { signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`${res.status} ${name}`);
-  return Object.keys((await res.json()).versions ?? {}).length;
+  const doc = await res.json();
+  const month = lastMonth();
+  const downloads = await fetch(`https://api.npmjs.org/downloads/point/${month.range}/${name}`, { signal: AbortSignal.timeout(8000) })
+    .then((r) => (r.ok ? r.json() : null)).then((d) => d?.downloads as number | undefined).catch(() => undefined);
+  return {
+    releases: Object.keys(doc.versions ?? {}).length,
+    version: doc["dist-tags"]?.latest as string | undefined,
+    created: (doc.time?.created as string | undefined)?.slice(0, 10),
+    downloads,
+    downloadsMonth: downloads === undefined ? undefined : month.label,
+  };
 }
 
 async function fetchQuests(): Promise<Quest[]> {
@@ -79,9 +100,9 @@ async function fetchQuests(): Promise<Quest[]> {
     line: brief(f.lead!.package.description!),
     href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
     keywords: f.lead!.package.keywords ?? [],
-    releases: await releasesOf(name),
     updated: f.updated,
     members: f.members,
+    ...(await detailsOf(name)),
   })));
 }
 
@@ -138,3 +159,5 @@ export async function getSideQuests(): Promise<SideQuests> {
   const earlier = quests.filter((q) => monthsAgo(q.updated) >= activeMonths).sort((a, b) => b.updated.localeCompare(a.updated));
   return { tools: active.length, releases: sum(active), groups: layout(active), earlier };
 }
+
+export const formatMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });

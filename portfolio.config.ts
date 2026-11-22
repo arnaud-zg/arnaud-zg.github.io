@@ -52,15 +52,8 @@ export default {
     keepOrgs: ["doctolib"],
     // Repos that are not contributions: school group projects, data-file edits, sandboxes.
     excludeRepos: ["Orlands/snake-tj", "pqvst/cafeandcowork", "muan/hello-world"],
-    // Changelog columns, in order. A repo joins the first theme whose pattern matches
-    // ("owner/*" matches a whole organisation). Anything else lands in `otherTheme`.
-    themes: [
-      { name: "Module Federation", repos: ["web-infra-dev/rspack", "module-federation/*"] },
-      { name: "Dev tooling", repos: ["ohmyzsh/ohmyzsh", "DefinitelyTyped/DefinitelyTyped", "gitlabhq/gitlabhq"] },
-    ],
-    otherTheme: "Libraries",
-    changesPerProject: 2,
-    projectsPerTheme: 4,
+    // How many repos (largest total change first) show on the page; the rest open in a dialog.
+    top: 5,
   },
 
   npm: {

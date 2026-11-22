@@ -4,13 +4,13 @@ import Stars from "../components/Stars.astro";
 import Icon from "../components/Icon.astro";
 import config from "../../portfolio.config";
 import { career } from "../data/career";
-import { getSideQuests } from "../data/npm";
+import { getSideQuests, formatMonth } from "../data/npm";
 import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
 
 const { name, role, links, about, numbers: words } = config;
 const quests = await getSideQuests();
-const { themes, searchUrl } = await getContributions();
+const { repos: prRepos } = await getContributions();
 const articles = await getArticles();
 
 const numbers = [
@@ -21,9 +21,11 @@ const numbers = [
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
-// Diffstat: every shown PR, bar length scaled to the largest change on the page.
-const prs = themes.map((t) => ({ ...t, rows: t.projects.flatMap((p) => p.changes.map((c) => ({ repo: p.repo, ...c }))) }));
-const maxLines = Math.max(1, ...prs.flatMap((t) => t.rows.map((r) => (r.added ?? 0) + (r.removed ?? 0))));
+// Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
+const maxLines = Math.max(1, ...prRepos.map((r) => r.lines));
+const topRepos = prRepos.slice(0, config.github.top);
+const moreRepos = prRepos.slice(config.github.top);
+const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
 <Base
   title={`${name} · Software engineer`}
@@ -130,6 +132,12 @@ const maxLines = Math.max(1, ...prs.flatMap((t) => t.rows.map((r) => (r.added ??
                     <a class="tm-link" href={t.quest.href} {...ext}>
                       <span class="tm-name">{t.quest.name}</span>
                       <span class="tm-line">{t.quest.line}{t.quest.members > 1 && ` · +${t.quest.members - 1} plugins`}</span>
+                      <span class="tm-details">
+                        {t.quest.version && <span><b>v{t.quest.version}</b> latest</span>}
+                        {t.quest.downloads !== undefined && <span><b>{t.quest.downloads.toLocaleString("en-US")}</b> npm downloads in {t.quest.downloadsMonth}</span>}
+                        {t.quest.created && <span>First published <b>{formatMonth(t.quest.created)}</b>, last release <b>{formatMonth(t.quest.updated)}</b></span>}
+                        {t.quest.members > 1 && <span><b>{t.quest.members - 1}</b> plugins published alongside</span>}
+                      </span>
                       <span class="tm-rel">{t.releases} {t.releases === 1 ? "release" : "releases"}</span>
                     </a>
                   ) : (
@@ -173,33 +181,60 @@ const maxLines = Math.max(1, ...prs.flatMap((t) => t.rows.map((r) => (r.added ??
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <header class="section-head">
         <h2 id="oss-title">Open source</h2>
-        <p class="lede">Fixes merged upstream, in tools other teams rely on.</p>
+        <p class="lede">Fixes and features merged upstream, in tools other teams rely on. Largest changes first.</p>
       </header>
       <div class="diffstat">
-        {prs.map((t) => (
-          <section class="ds-theme" aria-label={t.name}>
-            <h3 class="theme-head">{t.name}<span>{t.years}</span></h3>
-            <ul>
-              {t.rows.map((r) => {
-                const add = ((r.added ?? 0) / maxLines) * 100, del = ((r.removed ?? 0) / maxLines) * 100;
-                return (
-                  <li>
-                    <a class="ds-row" href={r.url} {...ext}>
-                      <span class="ds-repo"><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</span>
-                      <span class="kind">{r.kind}</span>
-                      <span class="ds-title">{r.title}</span>
-                      <span class="diff">{r.added !== undefined && <><b>+{r.added}</b> <i>−{r.removed}</i></>}</span>
-                      <span class="ds-bar" aria-hidden="true"><b style={`--w:${add}%`}></b><i style={`--w:${del}%`}></i></span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
-        <p class="ds-key"><b></b> lines added <i></i> lines removed · bar length is the size of the change</p>
+        <ul class="ds-list">
+          {topRepos.map((r) => (
+            <li class="ds-repo-row">
+                <div class="ds-row">
+                  <a class="ds-repo" href={`https://github.com/${r.repo}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <span class="ds-count">{r.prs.length} {r.prs.length === 1 ? "PR" : "PRs"} · {r.years}</span>
+                  <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
+                  <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+                </div>
+                <ul class="ds-prs">
+                  {r.prs.map((pr) => (
+                    <li><a class="ds-pr" href={pr.url} {...ext}><span class="kind">{pr.kind}</span><span class="ds-title">{pr.title}</span><span class="diff">{pr.added !== undefined && <><b>+{pr.added}</b> <i>−{pr.removed}</i></>}</span></a></li>
+                  ))}
+                </ul>
+              </li>
+          ))}
+        </ul>
+        <div class="ds-foot">
+          <p class="ds-key"><b></b> added <i></i> removed</p>
+          {moreRepos.length > 0 && (
+            <button class="ds-more" type="button" data-open-dialog="more-prs" aria-haspopup="dialog">{moreRepos.length} more {moreRepos.length === 1 ? "project" : "projects"} <Icon name="arrow" size={16} /></button>
+          )}
+        </div>
       </div>
-      <a class="all-prs" href={searchUrl} {...ext}>Every merged pull request on GitHub <Icon name="arrow" size={18} /></a>
+      {moreRepos.length > 0 && (
+        <dialog id="more-prs" class="prs-dialog" aria-labelledby="more-prs-title">
+          <header class="dialog-head">
+            <h2 id="more-prs-title">More projects</h2>
+            <button class="dialog-close" type="button" data-close-dialog aria-label="Close">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            </button>
+          </header>
+          <ul class="ds-list dialog-body">
+            {moreRepos.map((r) => (
+              <li class="ds-repo-row">
+                <div class="ds-row">
+                  <a class="ds-repo" href={`https://github.com/${r.repo}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <span class="ds-count">{r.prs.length} {r.prs.length === 1 ? "PR" : "PRs"} · {r.years}</span>
+                  <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
+                  <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+                </div>
+                <ul class="ds-prs">
+                  {r.prs.map((pr) => (
+                    <li><a class="ds-pr" href={pr.url} {...ext}><span class="kind">{pr.kind}</span><span class="ds-title">{pr.title}</span><span class="diff">{pr.added !== undefined && <><b>+{pr.added}</b> <i>−{pr.removed}</i></>}</span></a></li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </dialog>
+      )}
     </section>
 
     <footer id="contact" class="ending">
@@ -223,22 +258,48 @@ const maxLines = Math.max(1, ...prs.flatMap((t) => t.rows.map((r) => (r.added ??
       el,
       tiles: [...el.querySelectorAll<HTMLElement>("[data-v]")].map((t) => ({ el: t, v: Number(t.dataset.v) })),
     }));
-    const total = groups.reduce((n, g) => n + g.tiles.reduce((m, t) => m + t.v, 0), 0);
     const set = (el: HTMLElement, r: { x: number; y: number; w: number; h: number }) => {
       for (const [k, v] of Object.entries(r)) el.style.setProperty(`--${k}`, `${v}%`);
     };
 
-    // Lay out again with one tile weighted up: twice its size, and at least 13% of the map.
-    const layout = (focus?: HTMLElement) => {
-      const values = groups.map((g) => g.tiles.map((t) => (t.el === focus ? Math.max(t.v * 2, total * 0.13) : t.v)));
-      const outer = squarify(values.map((vs) => vs.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
-      groups.forEach((g, gi) => {
-        set(g.el, outer[gi]);
-        const inner = squarify(values[gi], (outer[gi].w / 100) * BOX.w, (outer[gi].h / 100) * BOX.h, true);
-        g.tiles.forEach((t, ti) => set(t.el, inner[ti]));
-        g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
+    // Lay out with one tile weighted up. Try the biggest boost first and keep the first one
+    // where every other tile still has room for its text; if none fits, only highlight it.
+    const MIN_W = 80, MIN_H = 40, HEAD = 44, PAD = 8;
+    // `whole`: grow the focused tile's whole group, for tiles that sit in a tight row.
+    const compute = (focus: HTMLElement | undefined, boost: number, whole = false) => {
+      const values = groups.map((g) => {
+        const mine = g.tiles.some((t) => t.el === focus);
+        return g.tiles.map((t) => (t.el === focus || (whole && mine) ? t.v * boost : t.v));
       });
-      groups.forEach((g) => g.tiles.forEach((t) => t.el.classList.toggle("is-focus", t.el === focus)));
+      const outer = squarify(values.map((vs) => vs.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
+      const inner = groups.map((_, gi) => squarify(values[gi], (outer[gi].w / 100) * BOX.w, (outer[gi].h / 100) * BOX.h, true));
+      return { outer, inner };
+    };
+    // Tile sizes in pixels for a layout.
+    const sizes = (l: ReturnType<typeof compute>) => {
+      const { width: W, height: H } = map.getBoundingClientRect();
+      return groups.map((_, gi) => {
+        const gw = (l.outer[gi].w / 100) * W - PAD, gh = (l.outer[gi].h / 100) * H - HEAD;
+        return l.inner[gi].map((r) => ({ w: (r.w / 100) * gw, h: (r.h / 100) * gh }));
+      });
+    };
+    // Every other tile keeps room for its text: at least the minimum, or its normal size if
+    // that is already smaller.
+    const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
+      const base = sizes(compute(undefined, 1)), next = sizes(l);
+      return groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
+        (next[gi][ti].w >= Math.min(MIN_W, base[gi][ti].w) - 0.5 && next[gi][ti].h >= Math.min(MIN_H, base[gi][ti].h) - 0.5)));
+    };
+    const layout = (focus?: HTMLElement) => {
+      let l = compute(undefined, 1);
+      if (focus) search: for (const whole of [false, true]) for (const boost of [3, 2.4, 1.9, 1.5, 1.25]) {
+        const next = compute(focus, boost, whole);
+        if (fits(focus, next)) { l = next; break search; }
+      }
+      groups.forEach((g, gi) => {
+        set(g.el, l.outer[gi]);
+        g.tiles.forEach((t, ti) => { set(t.el, l.inner[gi][ti]); t.el.classList.toggle("is-focus", t.el === focus); });
+      });
     };
     // Hover intent: act only when the pointer rests on a tile. Sweeping across the map
     // on the way somewhere else changes nothing; leaving restores after a short grace.

@@ -75,6 +75,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         if (!localStorage.getItem("theme")) apply(e.matches ? "night" : "day");
       });
 
+      // Header: once the hero is behind us, switch it to the frosted bar.
+      const head = document.querySelector<HTMLElement>(".masthead");
+      const hero = document.querySelector<HTMLElement>(".hero");
+      if (head && hero) {
+        new IntersectionObserver(([e]) => head.classList.toggle("is-scrolled", !e.isIntersecting), { rootMargin: "-72px 0px 0px 0px" }).observe(hero);
+      }
+
       // Dialogs: open from their button, close on the close button or a click outside.
       document.querySelectorAll<HTMLButtonElement>("[data-open-dialog]").forEach((btn) => {
         const dialog = document.getElementById(btn.dataset.openDialog!) as HTMLDialogElement | null;

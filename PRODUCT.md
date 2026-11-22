@@ -43,8 +43,9 @@ engineers ship faster with confidence, and publishes them as open source.
 
 ## Capabilities and Constraints
 
-- Every number must be real and fetched live, never inflated. npm download counts are excluded:
-  they are dominated by mirror, scanner and CI traffic.
+- Every number must be real and fetched live, never inflated. npm download counts stay out of the
+  headline numbers (mirror, scanner and CI traffic inflates them); they appear only as a labelled
+  detail ("npm downloads in <month>") when a side-quest tile is focused.
 - Under one minute of reading; key numbers first, pictures before words.
 - External links open in a new tab.
 - Role wording: "Software engineer, Platform at Doctolib" (not "frontend platform").
