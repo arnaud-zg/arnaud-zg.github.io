@@ -5,7 +5,7 @@
 
 import config, { type CompanyType, type Station } from "../../portfolio.config";
 
-const { stations, school, types } = config.career;
+const { stations, school, types, education } = config.career;
 
 const toMonth = (ym: string) => { const [y, m] = ym.split("-").map(Number); return y * 12 + (m - 1); };
 const now = new Date();
@@ -61,9 +61,10 @@ const industries = [...new Set(fullTime.slice().reverse().map((s) => s.industry)
 
 export const career = {
   roles,
+  education,
   early,
   types: Object.entries(types).filter(([t]) => stations.some((s) => s.type === t)),
-  summary: { role: current.role, company: current.name, seniorSince, industries },
+  summary: { role: current.role, company: current.name, seniorSince, industries, education: education.find((e) => e.short)?.short },
   years: lastYear - firstYear,
   longestYears: Math.round(longest / 12),
   averageYears: done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length / 12) : 0,

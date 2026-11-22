@@ -101,6 +101,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         <div><dt>Experience</dt><dd>{career.years} years</dd></div>
         {career.summary.seniorSince && <div><dt>Senior since</dt><dd>{career.summary.seniorSince}</dd></div>}
         <div><dt>Average stay</dt><dd>~{career.averageYears} years<span>longest {career.longestYears} years</span></dd></div>
+        {career.summary.education && <div><dt>Education</dt><dd>{career.summary.education.split(", ")[0]}<span>{career.summary.education.split(", ").slice(1).join(", ")}</span></dd></div>}
         <div class="cv-industries"><dt>Industries</dt><dd>{career.summary.industries.join(" · ")}</dd></div>
       </dl>
 
@@ -128,6 +129,20 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           ))}
         </ul>
       </details>
+
+      <h3 class="cv-subhead">Education</h3>
+      <ol class="cv-edu">
+        {career.education.map((e) => (
+          <li class="cv-edu-card">
+            <div class="cv-head">
+              <p class="cv-school">{e.school}</p>
+              <p class="cv-dates">{e.start} → {e.end}</p>
+            </div>
+            <p class="cv-title">{e.degree}</p>
+            <p class="cv-edu-note">{e.note}</p>
+          </li>
+        ))}
+      </ol>
     </section>
 
     <section id="quests" class="section quests" aria-labelledby="quests-title">
