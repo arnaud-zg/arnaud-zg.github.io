@@ -41,16 +41,13 @@ export default {
     education: [
       { school: "Epitech", degree: "Master-level, Computer Software Engineering", start: "2012", end: "2017", short: "Master-level, Epitech",
         highlights: [
-          "Five-year, project-based programme: learning by building, in teams, in C, C++ and C#",
-          "Built a product from scratch over three years (Epitech Innovative Project), in an international team of six across three time zones",
-          "Ran it like a real product: specifications, market study, architecture reviews, test strategy, planning and steering committees",
-          "Shipped with C#, .NET, SQL, Angular and Apache Cordova",
+          "Project-based learning, in teams: C, C++, C#",
+          "3-year product built from scratch: team of 6, 3 time zones",
         ] },
       { school: "Tongji University", degree: "Master's programme, Software Engineering", start: "2015", end: "2017",
         highlights: [
-          "International university exchange, during the Epitech programme",
-          "Trained for leadership roles in software development and project management",
-          "Coursework in C++ and SQL",
+          "International exchange",
+          "Software engineering and project leadership",
         ] },
     ] as { school: string; degree: string; start: string; end: string; short?: string; highlights: string[] }[],
     types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
