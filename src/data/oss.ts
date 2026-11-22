@@ -1,11 +1,12 @@
 // Open-source contributions: merged pull requests in other people's public repositories,
 // fetched at build time from GitHub. Projects are ranked by what was contributed
-// (features and fixes over chores), weighted by the project's reach and how recent it is.
+// (features and fixes over chores), weighted by the project's reach and how recent it is,
+// then sorted into the themes set in portfolio.config.ts.
 
 export type Change = { title: string; kind: string; year: number; url: string };
 export type Project = { repo: string; about: string; stars: number; changes: Change[]; score: number };
-export type PrGroup = { repo: string; prs: Change[] };
-export type Contributions = { totalPrs: number; projects: number; highlights: Project[]; all: PrGroup[] };
+export type Theme = { name: string; years: string; projects: Project[] };
+export type Contributions = { themes: Theme[]; searchUrl: string };
 
 import config from "../../portfolio.config";
 
@@ -13,6 +14,9 @@ const USER = config.github.user;
 // Never count work on my own account or on organisations I run (see portfolio.config.ts).
 const PRIVATE_ORGS: readonly string[] = config.github.ownOrgs;
 const KEEP = new Set(config.github.keepOrgs.map((o) => o.toLowerCase()));
+const EXCLUDE = new Set(config.github.excludeRepos.map((r) => r.toLowerCase()));
+// Only changes that say something about the work: no chores, docs or bare "Update X".
+const SHOWN = new Set(["Feature", "Fix", "Performance", "Types", "Refactor", "Test"]);
 const TRIVIAL = /typo|console log|optimi[sz]e images|readme|faq|^docs\b|hello-world|update \S+\.json|add ".*" on/i;
 const WEIGHT: Record<string, number> = { Feature: 3, Fix: 3, Performance: 3, Types: 2.5, Refactor: 2, Change: 1.5, Test: 1.5, Docs: 0.5 };
 
@@ -88,7 +92,7 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
   const now = new Date().getFullYear();
   const byRepo = new Map<string, Change[]>();
   for (const pr of prs) {
-    if (TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < 50) continue;
+    if (EXCLUDE.has(pr.repo.toLowerCase()) || TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < 50) continue;
     const d = describe(pr.title);
     if (d.kind === "Docs") continue;
     (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
@@ -102,19 +106,6 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
       return { repo, about: repos[repo].about, stars: repos[repo].stars, changes, score };
     })
     .sort((a, b) => b.score - a.score);
-}
-
-// Every merged PR, grouped by project: ranked projects first, then the rest by most recent.
-function group(prs: RawPr[], ranked: Project[]): PrGroup[] {
-  const byRepo = new Map<string, Change[]>();
-  for (const pr of prs) {
-    const d = describe(pr.title);
-    (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
-  }
-  const order = new Map(ranked.map((p, i) => [p.repo, i]));
-  return [...byRepo]
-    .map(([repo, list]) => ({ repo, prs: list.sort((a, b) => b.year - a.year) }))
-    .sort((a, b) => (order.get(a.repo) ?? 999) - (order.get(b.repo) ?? 999) || b.prs[0].year - a.prs[0].year);
 }
 
 const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
@@ -142,19 +133,44 @@ export async function getContributions(): Promise<Contributions> {
     const names = [...new Set(prs.map((p) => p.repo))];
     const repos: Record<string, RawRepo> = {};
     // Only look up projects that have a substantive change: fewer API calls, same ranking.
-    const substantive = names.filter((n) => prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
+    const substantive = names.filter((n) => !EXCLUDE.has(n.toLowerCase()) && prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
     await Promise.all(substantive.map(async (n) => {
       const r = await json(`https://api.github.com/repos/${n}`);
       repos[n] = { stars: r.stargazers_count, about: brief(r.description ?? "") };
     }));
     const ownedRepo = (repo: string) => owners.some((o) => repo.toLowerCase().startsWith(`${o.toLowerCase()}/`));
-    const external = prs.filter((p) => !ownedRepo(p.repo));
-    return { totalPrs: external.length, projects: new Set(external.map((p) => p.repo)).size, highlights: rank(external, repos), all: group(external, rank(external, repos)) };
+    return { themes: themed(rank(prs.filter((p) => !ownedRepo(p.repo)), repos)), searchUrl };
   } catch (error) {
     console.warn(`[oss] using snapshot: ${(error as Error).message}`);
-    const highlights = rank(snapshotPrs, snapshotRepos);
-    return { totalPrs: snapshotPrs.length, projects: new Set(snapshotPrs.map((p) => p.repo)).size, highlights, all: group(snapshotPrs, highlights) };
+    return { themes: themed(rank(snapshotPrs, snapshotRepos)), searchUrl };
   }
+}
+
+const searchUrl = `https://github.com/pulls?q=${encodeURIComponent(`is:pr is:merged is:public author:${USER} -user:${USER}`)}`;
+const matches = (repo: string, pattern: string) => {
+  const [r, p] = [repo.toLowerCase(), pattern.toLowerCase()];
+  return p.endsWith("/*") ? r.startsWith(p.slice(0, -1)) : r === p;
+};
+
+// Ranked projects into the configured themes, in config order; the rest go to the last column.
+function themed(ranked: Project[]): Theme[] {
+  const { themes, otherTheme, changesPerProject, projectsPerTheme } = config.github;
+  const names = [...themes.map((t) => t.name), otherTheme];
+  const buckets = new Map<string, Project[]>(names.map((n) => [n, []]));
+  for (const p of ranked) {
+    const changes = p.changes.filter((c) => SHOWN.has(c.kind)).slice(0, changesPerProject);
+    if (!changes.length) continue;
+    const theme = themes.find((t) => t.repos.some((pattern) => matches(p.repo, pattern)))?.name ?? otherTheme;
+    buckets.get(theme)!.push({ ...p, changes });
+  }
+  return names
+    .map((name) => {
+      const projects = buckets.get(name)!.slice(0, projectsPerTheme);
+      const all = projects.flatMap((p) => p.changes.map((c) => c.year));
+      const [lo, hi] = [Math.min(...all), Math.max(...all)];
+      return { name, projects, years: lo === hi ? String(hi) : `${lo}–${hi}` };
+    })
+    .filter((t) => t.projects.length);
 }
 
 export const formatStars = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));

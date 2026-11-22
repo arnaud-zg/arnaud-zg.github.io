@@ -1,71 +1,134 @@
 // Side quests: the tools published on npm, read from the registry at build time.
 // Scoped packages (@shiplane/fly, @migration-preflight/sqlite...) join their family so a
-// tool and its plugins show as one row. Download counts are deliberately not shown: npm
-// counts mirror and scanner traffic (a placeholder package with no code gets ~250 a month)
-// and every plugin installed alongside, so they overstate real use. Recency is honest.
-
-export type Quest = { name: string; line: string; href: string; tag: string; version: string; updated: string; members: number };
-export type NpmStats = { tools: number; quests: Quest[] };
+// tool and its plugins count as one. Download counts are deliberately not shown: npm
+// counts mirror and scanner traffic and every plugin installed alongside, so they
+// overstate real use. Releases are honest: each one is a deliberate publish.
+//
+// Grouping, the "Earlier" cut-off and the treemap threshold live in portfolio.config.ts.
 
 import config from "../../portfolio.config";
+import { squarify, type Rect } from "../lib/treemap";
 
-const MAINTAINER = config.npm.maintainer;
+export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number };
+export type Tile = { quest?: Quest; more?: Quest[]; releases: number; recent: boolean; rect: Rect; mrect: Rect };
+export type Group = { name: string; releases: number; rect: Rect; tiles: Tile[] };
+export type SideQuests = { tools: number; releases: number; groups: Group[]; earlier: Quest[] };
+
+const { maintainer, activeMonths, groups: groupRules, otherGroup, minShare } = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
+// Layout boxes, in arbitrary units: the whole treemap on wide screens, one group on phones.
+const BOX = { w: 16, h: 7 };
+const PHONE = { w: 16, h: 10 };
 
-// Snapshot taken 2026-11-21, used when the registry is unreachable.
-const snapshot: NpmStats = {
-  tools: 18,
-  quests: [
-    { name: "shiplane", line: "Release and deploy a monorepo in one command", href: "https://www.npmjs.com/package/shiplane", tag: "release", version: "0.6.0", updated: "2026-11-15", members: 8 },
-    { name: "agent-context-budget", line: "Scores the markdown files an AI agent loads", href: "https://www.npmjs.com/package/agent-context-budget", tag: "ai agents", version: "", updated: "2026-11-14", members: 1 },
-    { name: "vite-workspace-resolver", line: "Vite and Vitest plugin that resolves workspace packages' subpath imports", href: "https://www.npmjs.com/package/vite-workspace-resolver", tag: "vite", version: "", updated: "2026-11-14", members: 1 },
-    { name: "expo-native-guard", line: "Load native-only modules safely in Expo Go", href: "https://www.npmjs.com/package/expo-native-guard", tag: "expo", version: "", updated: "2026-11-14", members: 1 },
-    { name: "expo-pnpm-catalog", line: "Checks and syncs Expo SDK versions in pnpm catalogs", href: "https://www.npmjs.com/package/expo-pnpm-catalog", tag: "expo", version: "", updated: "2026-11-14", members: 1 },
-    { name: "migration-preflight", line: "Test database migrations before you ship them", href: "https://www.npmjs.com/package/migration-preflight", tag: "database", version: "", updated: "2026-11-01", members: 3 },
-  ],
-};
+// Snapshot taken 2026-11-22, used when the registry is unreachable.
+const snapshot: Quest[] = [
+  { name: "shiplane", line: "Release and deploy a monorepo in one command", href: "https://www.npmjs.com/package/shiplane", keywords: ["release", "deploy", "monorepo"], releases: 28, updated: "2026-11-15", members: 8 },
+  { name: "blast-shield", line: "Technical debt protection tool for any codebase", href: "https://www.npmjs.com/package/blast-shield", keywords: ["technical-debt", "code-quality"], releases: 23, updated: "2026-04-21", members: 8 },
+  { name: "eslint-plugin-feature-flags", line: "Lint rules to enforce feature flag hygiene", href: "https://www.npmjs.com/package/eslint-plugin-feature-flags", keywords: ["eslint", "feature-flags"], releases: 7, updated: "2025-06-15", members: 4 },
+  { name: "expo-pnpm-catalog", line: "Checks and syncs Expo SDK versions in pnpm catalogs", href: "https://www.npmjs.com/package/expo-pnpm-catalog", keywords: ["expo", "react-native", "pnpm"], releases: 7, updated: "2026-11-14", members: 1 },
+  { name: "expo-native-guard", line: "Load native-only modules safely in Expo Go", href: "https://www.npmjs.com/package/expo-native-guard", keywords: ["expo", "react-native"], releases: 7, updated: "2026-11-14", members: 1 },
+  { name: "agent-context-budget", line: "Scores the markdown files an AI agent loads", href: "https://www.npmjs.com/package/agent-context-budget", keywords: ["claude-code", "llm", "ai-agents"], releases: 7, updated: "2026-11-14", members: 1 },
+  { name: "vite-workspace-resolver", line: "Vite and Vitest plugin that resolves workspace packages' exports-map subpaths", href: "https://www.npmjs.com/package/vite-workspace-resolver", keywords: ["vite", "vite-plugin", "monorepo"], releases: 6, updated: "2026-11-14", members: 1 },
+  { name: "migration-preflight", line: "Test database migrations before you ship them", href: "https://www.npmjs.com/package/migration-preflight", keywords: ["migration", "database"], releases: 4, updated: "2026-11-01", members: 3 },
+  { name: "immutable-instance", line: "Makes immutable class instances reactive for front-end application", href: "https://www.npmjs.com/package/immutable-instance", keywords: ["react", "immutable"], releases: 2, updated: "2025-11-04", members: 1 },
+  { name: "expo-catalog", line: "Deterministic Expo SDK checks and sync for workspace catalogs", href: "https://www.npmjs.com/package/expo-catalog", keywords: [], releases: 1, updated: "2026-06-19", members: 1 },
+  { name: "http-response-status", line: "HTTP Status Map", href: "https://www.npmjs.com/package/http-response-status", keywords: [], releases: 1, updated: "2022-12-18", members: 1 },
+  { name: "selector", line: "Generic selector library", href: "https://www.npmjs.com/package/selector", keywords: [], releases: 1, updated: "2022-06-24", members: 1 },
+  { name: "popup-sensor", line: "Popup window sensor written in typescript", href: "https://www.npmjs.com/package/popup-sensor", keywords: [], releases: 1, updated: "2022-06-24", members: 1 },
+  { name: "lazy-upload", line: "Simplify the file upload flow", href: "https://www.npmjs.com/package/lazy-upload", keywords: [], releases: 1, updated: "2020-08-26", members: 1 },
+  { name: "ts-foursquare", line: "A simple library for Foursquare API", href: "https://www.npmjs.com/package/ts-foursquare", keywords: [], releases: 1, updated: "2020-08-01", members: 1 },
+  { name: "react-lightsaber", line: "Just a simple lightsaber hosted on npmjs", href: "https://www.npmjs.com/package/react-lightsaber", keywords: [], releases: 1, updated: "2020-07-06", members: 1 },
+  { name: "standalone-store", line: "Middleware for redux store in standalone mode for nodejs environment", href: "https://www.npmjs.com/package/standalone-store", keywords: [], releases: 1, updated: "2020-05-26", members: 1 },
+  { name: "request-init", line: "Configuration toolset for fetch API", href: "https://www.npmjs.com/package/request-init", keywords: [], releases: 1, updated: "2020-02-28", members: 1 },
+];
 
-type Hit = { package: { name: string; version?: string; date?: string; description?: string; keywords?: string[]; links?: { npm?: string; homepage?: string } } };
+type Hit = { package: { name: string; date?: string; description?: string; keywords?: string[]; links?: { npm?: string } } };
 
 // The first clause of a description: what the tool does, not how.
 const brief = (d: string) => d.split(/:\s|\.\s|\s\(|,\s(?:like|without)\s/)[0].replace(/\.$/, "").trim();
-const TAGS: Record<string, string> = { "claude-code": "ai agents", "llm": "ai agents", "react-native": "expo", "vite-plugin": "vite", "eslint-plugin": "eslint" };
-const tagOf = (k: string[] = []) => TAGS[k.find((x) => TAGS[x]) ?? ""] ?? k[0] ?? "tool";
+const monthsAgo = (iso: string) => {
+  const d = new Date(iso), now = new Date();
+  return (now.getUTCFullYear() - d.getUTCFullYear()) * 12 + now.getUTCMonth() - d.getUTCMonth();
+};
 
-export async function getNpmStats(): Promise<NpmStats> {
-  try {
-    const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=maintainer:${MAINTAINER}&size=250`, { signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(String(res.status));
-    const hits = ((await res.json()).objects as Hit[]).filter((h) => !SKIP.test(h.package.description ?? ""));
-    if (!hits.length) throw new Error("no packages");
-
-    const families = new Map<string, { lead?: Hit; updated: string; members: number }>();
-    for (const h of hits) {
-      const family = h.package.name.startsWith("@") ? h.package.name.slice(1).split("/")[0] : h.package.name;
-      const f = families.get(family) ?? { updated: "", members: 0 };
-      const date = h.package.date?.slice(0, 10) ?? "";
-      if (date > f.updated) f.updated = date;
-      f.members += 1;
-      if (h.package.name === family) f.lead = h;
-      families.set(family, f);
-    }
-    const quests = [...families]
-      .filter(([, f]) => f.lead?.package.description)
-      .map(([name, f]) => ({
-        name,
-        line: brief(f.lead!.package.description!),
-        href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
-        tag: tagOf(f.lead!.package.keywords),
-        version: f.lead!.package.version ?? "",
-        updated: f.updated,
-        members: f.members,
-      }))
-      .sort((a, b) => b.updated.localeCompare(a.updated));
-    return { tools: quests.length, quests };
-  } catch (error) {
-    console.warn(`[npm] using snapshot: ${(error as Error).message}`);
-    return snapshot;
-  }
+async function releasesOf(name: string): Promise<number> {
+  // The abbreviated document lists every version without the heavy metadata.
+  const res = await fetch(`https://registry.npmjs.org/${name}`, { headers: { Accept: "application/vnd.npm.install-v1+json" }, signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(`${res.status} ${name}`);
+  return Object.keys((await res.json()).versions ?? {}).length;
 }
 
-export const formatMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+async function fetchQuests(): Promise<Quest[]> {
+  const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(String(res.status));
+  const hits = ((await res.json()).objects as Hit[]).filter((h) => !SKIP.test(h.package.description ?? ""));
+  if (!hits.length) throw new Error("no packages");
+
+  const families = new Map<string, { lead?: Hit; updated: string; members: number }>();
+  for (const h of hits) {
+    const family = h.package.name.startsWith("@") ? h.package.name.slice(1).split("/")[0] : h.package.name;
+    const f = families.get(family) ?? { updated: "", members: 0 };
+    const date = h.package.date?.slice(0, 10) ?? "";
+    if (date > f.updated) f.updated = date;
+    f.members += 1;
+    if (h.package.name === family) f.lead = h;
+    families.set(family, f);
+  }
+  const leads = [...families].filter(([, f]) => f.lead?.package.description);
+  return Promise.all(leads.map(async ([name, f]) => ({
+    name,
+    line: brief(f.lead!.package.description!),
+    href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
+    keywords: f.lead!.package.keywords ?? [],
+    releases: await releasesOf(name),
+    updated: f.updated,
+    members: f.members,
+  })));
+}
+
+// A tool joins the first configured group with a matching keyword or name part.
+const groupOf = (q: Quest) => {
+  const words = new Set([...q.keywords.map((k) => k.toLowerCase()), ...q.name.toLowerCase().split("-")]);
+  return groupRules.find((g) => g.match.some((m) => words.has(m)))?.name ?? otherGroup;
+};
+const sum = (qs: Quest[]) => qs.reduce((n, q) => n + q.releases, 0);
+const isRecent = (q: Quest) => monthsAgo(q.updated) < 12;
+
+// Two-level treemap: groups share the whole box, tools share their group.
+function layout(active: Quest[]): Group[] {
+  const total = sum(active);
+  const byGroup = new Map<string, Quest[]>();
+  for (const q of [...active].sort((a, b) => b.releases - a.releases)) {
+    const g = groupOf(q);
+    (byGroup.get(g) ?? byGroup.set(g, []).get(g)!).push(q);
+  }
+  const entries = [...byGroup].sort(([, a], [, b]) => sum(b) - sum(a));
+  const outer = squarify(entries.map(([, qs]) => sum(qs)), BOX.w, BOX.h);
+
+  return entries.map(([name, quests], gi) => {
+    // A lone small tool keeps its own tile; two or more share one "+n more" tile.
+    const tooSmall = quests.filter((q) => q.releases / total < minShare);
+    const small = tooSmall.length > 1 ? tooSmall : [];
+    const shown = quests.filter((q) => !small.includes(q));
+    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ quest: q, releases: q.releases, recent: isRecent(q) }));
+    if (small.length) tiles.push({ more: small, releases: sum(small), recent: small.some(isRecent) });
+    const r = outer[gi];
+    const values = tiles.map((t) => t.releases);
+    const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h);
+    const phone = squarify(values, PHONE.w, PHONE.h);
+    return { name, releases: sum(quests), rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
+  });
+}
+
+export async function getSideQuests(): Promise<SideQuests> {
+  let quests: Quest[];
+  try {
+    quests = await fetchQuests();
+  } catch (error) {
+    console.warn(`[npm] using snapshot: ${(error as Error).message}`);
+    quests = snapshot;
+  }
+  const active = quests.filter((q) => monthsAgo(q.updated) < activeMonths);
+  const earlier = quests.filter((q) => monthsAgo(q.updated) >= activeMonths).sort((a, b) => b.updated.localeCompare(a.updated));
+  return { tools: active.length, releases: sum(active), groups: layout(active), earlier };
+}

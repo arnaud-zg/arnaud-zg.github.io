@@ -2,30 +2,34 @@
 import Base from "../layouts/Base.astro";
 import Stars from "../components/Stars.astro";
 import Icon from "../components/Icon.astro";
-import { skills, stations, links } from "../data/profile";
-import { getNpmStats, formatMonth } from "../data/npm";
-import { getContributions, formatStars } from "../data/oss";
+import config from "../../portfolio.config";
+import { career, formatSpan } from "../data/career";
+import { getSideQuests } from "../data/npm";
+import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
 
-const { totalPrs, projects, highlights, all } = await getContributions();
-const shown = highlights.slice(0, 5);
-const npm = await getNpmStats();
-const quests = npm.quests.slice(0, 6);
+const { name, role, links, about, numbers: words } = config;
+const quests = await getSideQuests();
+const { themes, searchUrl } = await getContributions();
 const articles = await getArticles();
-const years = new Date().getFullYear() - 2013;
+
 const numbers = [
-  { value: years, label: "years shipping software" },
-  { value: npm.tools, label: "open-source tools published" },
-  { value: totalPrs, label: "merged open-source PRs" },
-  { value: articles.length, label: "articles written" },
+  { value: career.years, unit: "years", label: words.years },
+  { value: career.longestYears, unit: "years", label: `${words.stay}, ~${career.averageYears} yrs avg` },
+  { value: quests.tools, unit: "tools", label: `${quests.releases} releases, ${words.tools}` },
 ];
-const name = "Arnaud Zheng";
+const current = career.segments.find((s) => s.now) ?? career.segments[career.segments.length - 1];
+const noteOf = (s: (typeof career.segments)[number]) => `${s.name} · ${s.role} · ${formatSpan(s.months)}. ${s.note}.`;
+// Narrow segments label below the bar; every other one drops a line so neighbours don't collide.
+const stagger = new Set(career.segments.map((s, i) => (s.width < 7 ? i : -1)).filter((i) => i >= 0).filter((_, k) => k % 2 === 1));
+const longest = Math.max(...career.segments.map((s) => s.months));
+const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
 ---
 <Base
-  title="Arnaud Zheng · Software engineer"
-  description="Arnaud Zheng, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, and contributions to rspack and Module Federation."
+  title={`${name} · Software engineer`}
+  description={`${name}, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, and contributions to rspack and Module Federation.`}
 >
   <section class="hero" aria-labelledby="name">
     <div class="scene" aria-hidden="true">
@@ -49,7 +53,7 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
           </span>
         ))}
       </h1>
-      <p class="role">Software engineer, Platform at <strong>Doctolib</strong></p>
+      <p class="role">{role.text} <strong>{role.company}</strong></p>
       <ul class="socials" aria-label="Profiles">
         {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
       </ul>
@@ -67,68 +71,105 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
     <section id="glance" class="glance" aria-label="At a glance">
       <ul class="numbers">
         {numbers.map((n) => (
-          <li><span class="count" data-count={n.value}>{n.value}</span><span class="n-label">{n.label}</span></li>
+          <li>
+            <span class="count-line"><span class="count" data-count={n.value}>{n.value}</span><span class="unit">{n.unit}</span></span>
+            <span class="n-label">{n.label}</span>
+          </li>
         ))}
       </ul>
     </section>
 
     <section id="about" class="section about" aria-labelledby="about-title">
-      <header class="section-head">
-        <h2 id="about-title">Hi, I'm Arnaud.</h2>
-        <p class="lede">I build the platforms and tools that help engineers <em>ship faster, with confidence</em>. Over a decade across startups, scale-ups and product teams.</p>
-      </header>
-      <dl class="skills">
-        {skills.map((g) => (
-          <div class="skill-group">
-            <dt>{g.group}</dt>
-            <dd><ul>{g.items.map((i) => <li>{i}</li>)}</ul></dd>
-          </div>
-        ))}
-      </dl>
+      <h2 id="about-title">{about.title}</h2>
+      <p class="about-lede">{about.lede}</p>
     </section>
 
     <section id="journey" class="section journey" aria-labelledby="journey-title">
-      <header class="section-head">
+      <header class="section-head section-head--row">
         <h2 id="journey-title">Journey</h2>
-        <p class="lede">From agencies in Paris and Shanghai to platform work at Doctolib.</p>
+        <ul class="legend" aria-label="Company types">
+          {career.types.map(([t, label]) => <li><span class={`swatch swatch--${t}`}></span>{label}</li>)}
+        </ul>
       </header>
-      <ol class="line">
-        {stations.map((st, i) => (
-          <li class:list={["station", st.now && "station--now"]} style={`--s:${i}`}>
-            <span class="stop" aria-hidden="true"></span>
-            <p class="year">{st.year}{st.now && <span class="now">now</span>}</p>
-            <h3>{st.name}</h3>
-            <p class="st-role">{st.role}</p>
-            <p class="st-note">{st.note}</p>
+
+      <div class="career" data-career>
+        <ol class="ticks" aria-hidden="true">
+          {career.ticks.map((t) => <li style={`--l:${t.left}%`}>{t.year}</li>)}
+        </ol>
+        <ol class="segments">
+          {career.segments.map((s, i) => (
+            <li class:list={["segment", `segment--${s.type}`, s.now && "segment--now", s.width < 7 && "segment--narrow", stagger.has(i) && "segment--stagger"]} style={`--l:${s.left}%;--w:${s.width}%;--i:${i}`}>
+              <button type="button" class="seg" data-note={noteOf(s)} aria-label={noteOf(s)} aria-pressed={s.now ? "true" : "false"}>
+                {s.marks.map((m) => <span class="mark" style={`--at:${m.at}%`}><span>{m.label}</span></span>)}
+              </button>
+              <span class="seg-name" aria-hidden="true">{s.name}</span>
+            </li>
+          ))}
+        </ol>
+        {career.schoolBand && (
+          <p class="school" style={`--l:${career.schoolBand.left}%;--w:${career.schoolBand.width}%`}><span>{career.schoolBand.label}</span></p>
+        )}
+        <ol class="lanes" aria-label="Stack over time">
+          {career.lanes.map((l) => (
+            <li style={`--l:${l.left}%;--w:${l.width}%`}><span class="lane-label">{l.label}</span></li>
+          ))}
+        </ol>
+        <p class="career-note" aria-live="polite" data-career-note>{noteOf(current)}</p>
+      </div>
+
+      <ol class="career-list">
+        {[...career.segments].reverse().map((s) => (
+          <li class={`cl cl--${s.type}`} style={`--len:${(s.months / longest) * 100}%`}>
+            <p class="cl-head"><span class="cl-name">{s.name}</span><span class="cl-span">{s.start.slice(0, 4)} · {formatSpan(s.months)}</span></p>
+            <span class="cl-bar" aria-hidden="true"></span>
+            <p class="cl-note">{s.role}. {s.note}.</p>
           </li>
         ))}
       </ol>
-      <p class="footnote">Graduated from Epitech and Tongji University.</p>
     </section>
 
     <section id="quests" class="section quests" aria-labelledby="quests-title">
       <header class="section-head">
         <h2 id="quests-title">Side quests</h2>
-        <p class="lede">{npm.tools} open-source tools on npm, most recently released first.</p>
+        <p class="lede">{quests.tools} tools and {quests.releases} releases on npm, built off hours. Area is releases; bright ones shipped this year.</p>
       </header>
-      <ul class="rows">
-        {quests.map((q) => (
-          <li>
-            <a class="row row--quest" href={q.href} {...ext}>
-              <span class="row-name">{q.name}{q.members > 1 && <span class="family">+{q.members - 1} {q.members === 2 ? "plugin" : "plugins"}</span>}</span>
-              <span class="row-line">{q.line}</span>
-              <span class="row-meta">{q.version ? `v${q.version}` : formatMonth(q.updated)}</span>
-              <Icon name="arrow" />
-            </a>
-          </li>
+      <div class="treemap">
+        {quests.groups.map((g) => (
+          <section class="tm-group" style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={`${g.name}, ${g.releases} releases`}>
+            <h3 class="tm-head"><span>{g.name}</span><span class="tm-n">{g.releases}</span></h3>
+            <ul class="tm-tiles">
+              {g.tiles.map((t) => (
+                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+                  {t.quest ? (
+                    <a class="tm-link" href={t.quest.href} {...ext}>
+                      <span class="tm-name">{t.quest.name}</span>
+                      <span class="tm-line">{t.quest.line}{t.quest.members > 1 && ` · +${t.quest.members - 1} plugins`}</span>
+                      <span class="tm-rel">{t.releases} {t.releases === 1 ? "release" : "releases"}</span>
+                    </a>
+                  ) : (
+                    <div class="tm-link tm-more">
+                      <span class="tm-name">+{t.more!.length} more</span>
+                      <span class="tm-line">{t.more!.map((q, i) => <>{i > 0 && ", "}<a class="inline" href={q.href} {...ext}>{q.name}</a></>)}</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
         ))}
-      </ul>
+      </div>
+      {quests.earlier.length > 0 && (
+        <details class="earlier">
+          <summary>Earlier: {quests.earlier.length} small libraries, {quests.earlier[quests.earlier.length - 1].updated.slice(0, 4)}–{quests.earlier[0].updated.slice(0, 4)}</summary>
+          <ul>{quests.earlier.map((q) => <li><a href={q.href} {...ext}>{q.name}</a> <span>{q.line}</span></li>)}</ul>
+        </details>
+      )}
     </section>
 
     <section id="writing" class="section writing" aria-labelledby="writing-title">
       <header class="section-head">
         <h2 id="writing-title">Writing</h2>
-        <p class="lede">Notes on code design, on <a class="inline" href="https://arnaudzg.substack.com" {...ext}>Substack</a>.</p>
+        <p class="lede">Notes on code design, on <a class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Substack</a>.</p>
       </header>
       <ul class="articles">
         {articles.map((a, i) => (
@@ -146,55 +187,28 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <header class="section-head">
         <h2 id="oss-title">Open source</h2>
-        <p class="lede">What I changed in tools other teams rely on, most substantial first.</p>
+        <p class="lede">Fixes merged upstream, in tools other teams rely on.</p>
       </header>
-      <ol class="mosaic">
-        {shown.map((p, i) => (
-          <li class:list={["tile", `tile--${i + 1}`]} style={`--t:${i}`}>
-            <a class="tile-repo" href={`https://github.com/${p.repo}`} {...ext}>
-              <span class="owner">{p.repo.split("/")[0]}/</span>
-              <span class="tile-name">{p.repo.split("/")[1]}</span>
-            </a>
-            <p class="tile-about">{p.about}</p>
-            <ul class="changes">
-              {p.changes.slice(0, 2).map((c) => (
+      <div class="changelog">
+        {themes.map((t) => (
+          <section class="theme" aria-label={t.name}>
+            <h3 class="theme-head">{t.name}<span>{t.years}</span></h3>
+            <ul class="theme-projects">
+              {t.projects.map((p) => (
                 <li>
-                  <a class="change" href={c.url} {...ext}>
-                    <span class="kind">{c.kind}</span>
-                    <span class="change-title">{c.title}</span>
-                  </a>
+                  <a class="cl-repo" href={`https://github.com/${p.repo}`} {...ext}><span class="owner">{p.repo.split("/")[0]}/</span>{p.repo.split("/")[1]}</a>
+                  <ul class="cl-changes">
+                    {p.changes.map((c) => (
+                      <li><a class="cl-change" href={c.url} {...ext}><span class="kind">{c.kind}</span><span class="cl-title">{c.title}</span><Icon name="arrow" size={14} /></a></li>
+                    ))}
+                  </ul>
                 </li>
               ))}
             </ul>
-            <p class="tile-meta"><span><Icon name="star" size={12} /> {formatStars(p.stars)} stars</span><span>{Math.max(...p.changes.map((c) => c.year))}</span></p>
-          </li>
+          </section>
         ))}
-      </ol>
-      <button class="all-prs" type="button" data-open-dialog="all-prs" aria-haspopup="dialog">See all {totalPrs} pull requests across {projects} projects <Icon name="arrow" size={18} /></button>
-
-      <dialog id="all-prs" class="prs-dialog" aria-labelledby="prs-title">
-        <header class="dialog-head">
-          <div>
-            <h2 id="prs-title">All merged pull requests</h2>
-            <p class="lede">{totalPrs} across {projects} projects, none of them mine.</p>
-          </div>
-          <button class="dialog-close" type="button" data-close-dialog aria-label="Close">
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-          </button>
-        </header>
-        <ol class="pr-groups">
-          {all.map((g) => (
-            <li class="pr-group">
-              <a class="pr-repo" href={`https://github.com/${g.repo}`} {...ext}><span class="owner">{g.repo.split("/")[0]}/</span>{g.repo.split("/")[1]}<span class="pr-count">{g.prs.length} {g.prs.length === 1 ? "PR" : "PRs"}</span></a>
-              <ul>
-                {g.prs.map((pr) => (
-                  <li><a class="pr-item" href={pr.url} {...ext}><span class="kind">{pr.kind}</span><span class="pr-title">{pr.title}</span><span class="pr-year">{pr.year}</span></a></li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ol>
-      </dialog>
+      </div>
+      <a class="all-prs" href={searchUrl} {...ext}>Every merged pull request on GitHub <Icon name="arrow" size={18} /></a>
     </section>
 
     <footer id="contact" class="ending">
@@ -205,3 +219,19 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
     </footer>
   </div>
 </Base>
+
+<script>
+  // Journey: hovering, focusing or tapping a segment shows its line under the chart.
+  const note = document.querySelector<HTMLElement>("[data-career-note]");
+  const segs = document.querySelectorAll<HTMLButtonElement>("[data-career] .seg");
+  const show = (btn: HTMLButtonElement) => {
+    if (!note) return;
+    note.textContent = btn.dataset.note ?? "";
+    segs.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  };
+  segs.forEach((btn) => {
+    btn.addEventListener("pointerenter", () => show(btn));
+    btn.addEventListener("focus", () => show(btn));
+    btn.addEventListener("click", () => show(btn));
+  });
+</script>
