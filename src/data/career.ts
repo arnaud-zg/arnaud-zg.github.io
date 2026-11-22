@@ -46,7 +46,8 @@ const early = {
   title: school.name,
   role: school.role,
   years: partTime.length ? `${partTime[0].start.slice(0, 4)}–${(partTime[partTime.length - 1].end ?? "").slice(0, 4)}` : "",
-  stints: partTime.map((s) => ({ company: s.name, type: s.type, role: s.role, year: s.start.slice(0, 4), note: s.note })) as Stint[],
+  // Newest first, like the role cards above.
+  stints: [...partTime].reverse().map((s) => ({ company: s.name, type: s.type, role: s.role, year: s.start.slice(0, 4), note: s.note })) as Stint[],
 };
 
 // Summary facts.
