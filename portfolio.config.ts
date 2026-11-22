@@ -71,7 +71,8 @@ export default {
     pitch: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
     // A tool with no release in this many months folds into "Earlier".
     activeMonths: 24,
-    // Treemap groups, in order. A tool joins the first group with a matching keyword or name part.
+    // Treemap groups, drawn in this order. A tool joins the first group with a matching keyword
+    // or name part.
     groups: [
       { name: "Shipping", emoji: "🚢", match: ["release", "deploy", "migration", "database"] },
       { name: "Code health", emoji: "🩺", match: ["technical-debt", "code-quality", "eslint", "feature-flags"] },
@@ -85,7 +86,11 @@ export default {
     minShare: 0.03,
     // Every tile is drawn at least this share of the treemap so its name always fits.
     // The release count printed on it stays exact.
-    minTileShare: 0.045,
+    minTileShare: 0.075,
+    // Optional shorter descriptions, by package name, when the npm one is too long for a tile.
+    lines: {
+      "vite-workspace-resolver": "Resolves workspace package imports in Vite and Vitest",
+    } as Record<string, string>,
   },
 
   substack: {

@@ -187,7 +187,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> See {quests.earlier.length} earlier libraries · {quests.earlier[quests.earlier.length - 1].updated.slice(0, 4)}–{quests.earlier[0].updated.slice(0, 4)}</summary>
           <ul class="earlier-grid">
             {quests.earlier.map((q) => (
-              <li><a class="earlier-card" href={q.href} {...ext}><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
+              <li><a class="earlier-card" href={q.href} aria-label={`${q.name} on npm`} {...ext}><span class="ec-go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
             ))}
           </ul>
         </details>
@@ -289,7 +289,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
     // Lay out with one tile weighted up. Try the biggest boost first and keep the first one
     // where every other tile still has room for its text; if none fits, only highlight it.
-    const MIN_W = 80, MIN_H = 40, HEAD = 44, PAD = 8;
+    const MIN_W = 150, MIN_H = 40, HEAD = 44, PAD = 8;
     // `whole`: grow the focused tile's whole group, for tiles that sit in a tight row.
     const compute = (focus: HTMLElement | undefined, boost: number, whole = false) => {
       const values = groups.map((g) => {
@@ -311,13 +311,20 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     // Every other tile keeps room for its text: at least the minimum, or its normal size if
     // that is already smaller.
     // Each group header needs its natural width, so it never runs into the next group.
-    const headW = groups.map((g) => (g.el.querySelector<HTMLElement>(".tm-head span")?.scrollWidth ?? 0) + 32);
+    const headW = groups.map((g) => (g.el.querySelector<HTMLElement>(".tm-head span")?.scrollWidth ?? 0) + 24);
+    // Each tile needs room for its name and description: measured at rest, from the top of
+    // the tile to the bottom of its description, plus the bottom padding.
+    const needH = groups.map((g) => g.tiles.map((t) => {
+      const link = t.el.querySelector<HTMLElement>(".tm-link")!, line = t.el.querySelector<HTMLElement>(".tm-line");
+      if (!line) return MIN_H;
+      return line.getBoundingClientRect().bottom - link.getBoundingClientRect().top + 14;
+    }));
     const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
       const base = sizes(compute(undefined, 1)), next = sizes(l);
       const W = map.getBoundingClientRect().width;
       const headsFit = groups.every((_, gi) => (l.outer[gi].w / 100) * W >= headW[gi]);
       return headsFit && groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
-        (next[gi][ti].w >= Math.min(MIN_W, base[gi][ti].w) - 0.5 && next[gi][ti].h >= Math.min(MIN_H, base[gi][ti].h) - 0.5)));
+        (next[gi][ti].w >= Math.min(base[gi][ti].w, Math.max(MIN_W, base[gi][ti].w * 0.85)) - 0.5 && next[gi][ti].h >= Math.min(Math.max(MIN_H, needH[gi][ti]), base[gi][ti].h) - 0.5)));
     };
     // Opening runs in two beats so nothing jumps: the treemap reflows first, then, once it has
     // settled, the card is placed where it will stay and fades in. Closing hides the card
@@ -325,7 +332,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     const still = matchMedia("(prefers-reduced-motion: reduce)");
     // Motion runs in beats so only one thing moves at a time:
     //   1. an open card fades out (LEAVE_MS);
-    //   2. tile text fades, tiles glide to their new places (MOVE_MS), text fades back;
+    //   2. tiles glide to their new places (MOVE_MS), text visible throughout;
     //   3. the new card fades in where it will stay.
     // A newer click cancels whatever is still waiting.
     const LEAVE_MS = 170, MOVE_MS = 460;

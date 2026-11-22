@@ -15,7 +15,7 @@ export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: nu
 export type Group = { name: string; emoji: string; releases: number; rect: Rect; tiles: Tile[] };
 export type SideQuests = { tools: number; releases: number; downloads?: number; downloadsMonth?: string; groups: Group[]; earlier: Quest[] };
 
-const { maintainer, parkedVersion, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
+const { maintainer, parkedVersion, lines: lineOverrides, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
 // One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
@@ -28,7 +28,7 @@ const snapshot: Quest[] = [
   { name: "expo-pnpm-catalog", line: "Checks and syncs Expo SDK versions in pnpm catalogs", href: "https://www.npmjs.com/package/expo-pnpm-catalog", keywords: ["expo", "react-native", "pnpm"], releases: 6, updated: "2026-11-14", members: 1 },
   { name: "expo-native-guard", line: "Load native-only modules safely in Expo Go", href: "https://www.npmjs.com/package/expo-native-guard", keywords: ["expo", "react-native"], releases: 6, updated: "2026-11-14", members: 1 },
   { name: "agent-context-budget", line: "Scores the markdown files an AI agent loads", href: "https://www.npmjs.com/package/agent-context-budget", keywords: ["claude-code", "llm", "ai-agents"], releases: 6, updated: "2026-11-14", members: 1 },
-  { name: "vite-workspace-resolver", line: "Vite and Vitest plugin that resolves workspace packages' exports-map subpaths", href: "https://www.npmjs.com/package/vite-workspace-resolver", keywords: ["vite", "vite-plugin", "monorepo"], releases: 5, updated: "2026-11-14", members: 1 },
+  { name: "vite-workspace-resolver", line: "Resolves workspace package imports in Vite and Vitest", href: "https://www.npmjs.com/package/vite-workspace-resolver", keywords: ["vite", "vite-plugin", "monorepo"], releases: 5, updated: "2026-11-14", members: 1 },
   { name: "migration-preflight", line: "Test database migrations before you ship them", href: "https://www.npmjs.com/package/migration-preflight", keywords: ["migration", "database"], releases: 3, updated: "2026-11-01", members: 3 },
   { name: "immutable-instance", line: "Makes immutable class instances reactive for front-end application", href: "https://www.npmjs.com/package/immutable-instance", keywords: ["react", "immutable"], releases: 2, updated: "2025-11-04", members: 1 },
   { name: "http-response-status", line: "HTTP Status Map", href: "https://www.npmjs.com/package/http-response-status", keywords: [], releases: 1, updated: "2022-12-18", members: 1 },
@@ -99,7 +99,7 @@ async function fetchQuests(): Promise<Quest[]> {
   const leads = [...families].filter(([, f]) => f.lead?.package.description);
   return Promise.all(leads.map(async ([name, f]) => ({
     name,
-    line: brief(f.lead!.package.description!),
+    line: lineOverrides[name] ?? brief(f.lead!.package.description!),
     href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
     keywords: f.lead!.package.keywords ?? [],
     updated: f.updated,
@@ -124,7 +124,10 @@ function layout(active: Quest[]): Group[] {
     const g = groupOf(q);
     (byGroup.get(g) ?? byGroup.set(g, []).get(g)!).push(q);
   }
-  const entries = [...byGroup].sort(([, a], [, b]) => sum(b) - sum(a));
+  // Groups keep the order they are listed in portfolio.config.ts; anything unmatched goes last.
+  const order = groupRules.map((g) => g.name as string);
+  const rank = (name: string) => (order.includes(name) ? order.indexOf(name) : order.length);
+  const entries = [...byGroup].sort(([a], [b]) => rank(a) - rank(b));
   // Drawn size: releases, floored so the smallest tile still holds its name.
   const weigh = (releases: number) => Math.max(releases, total * minTileShare);
   const weights = entries.map(([, qs]) => {

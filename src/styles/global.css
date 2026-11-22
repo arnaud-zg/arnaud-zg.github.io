@@ -169,29 +169,28 @@ html { scroll-padding-top: 72px; }
 .career-row .mark span { position: absolute; left: 6px; bottom: calc(100% - 4px); font: 500 0.64rem/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); white-space: nowrap; }
 
 /* Side quests: a treemap. Area is releases, grouped by the problem each tool solves. */
-.treemap { position: relative; aspect-ratio: 16 / 7; min-height: 460px; }
+.treemap { position: relative; width: 100%; aspect-ratio: 16 / 7; min-height: 460px; }
 .tm-group { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); padding: 4px; container-type: size; }
 .tm-head { position: absolute; inset: 4px 4px auto 4px; display: flex; justify-content: space-between; gap: 8px; padding: 10px 12px 0; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-lo); z-index: 1; pointer-events: none; }
 .tm-head > span { min-width: 0; white-space: nowrap; overflow: hidden; }
+/* Narrow groups: the header tightens so its label always fits whole. */
+@container (max-width: 150px) { .tm-head { padding: 10px 6px 0; font-size: 0.62rem; letter-spacing: 0.05em; } .tm-head .tm-emoji { font-size: 0.8rem; } }
 .tm-group.is-focus { z-index: 6; }
 .tm-tiles { position: absolute; inset: 40px 4px 4px 4px; }
 .tm-tile { position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); padding: 3px; container-type: size; }
 .tm-link { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: clamp(10px, 1.4vw, 18px); border-radius: 12px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; transition: border-color 300ms var(--ease-out), background-color 300ms var(--ease-out); }
 .tm-tile--recent .tm-link { background: radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 70%), var(--surface-hi); }
-.tm-name { font-size: clamp(0.74rem, min(7.5cqi, 20cqb), var(--fs-h3)); letter-spacing: 0.02em; line-height: 1.25; transition: color 300ms var(--ease-out); }
+.tm-name { font-size: clamp(0.8rem, min(7cqi, 17cqb), var(--fs-h3)); letter-spacing: 0.02em; line-height: 1.25; transition: color 300ms var(--ease-out); }
 /* Names are never cut: they shrink with the tile and wrap at hyphens. Descriptions show
    only where they fit whole; pointing at a tile grows it until they do. */
 .tm-line { color: var(--ink-lo); font-size: var(--fs-small); line-height: 1.5; }
 .tm-rel { margin-top: auto; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.04em; color: var(--ink-lo); white-space: nowrap; }
 .tm-more { background: none; border-style: dashed; }
-@container (max-height: 170px) { .tm-line { display: none; } }
-@container (max-width: 190px) { .tm-line { display: none; } }
-@container (max-height: 120px) {
-  .tm-link { flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 10px; padding: 6px 12px; }
-  .tm-name { flex: 1; min-width: 0; }
-  .tm-rel { margin: 0 0 0 auto; }
-}
-@container (max-width: 130px) { .tm-link { padding: 10px; } .tm-rel { letter-spacing: 0; font-size: 0.66rem; } }
+/* Every tile shows its name and description at rest; both scale down with the tile, and
+   short tiles tighten their padding instead of dropping text. */
+.tm-line { font-size: clamp(0.74rem, min(5.2cqi, 13cqb), var(--fs-small)); line-height: 1.4; }
+@container (max-height: 120px) { .tm-link { gap: 2px; padding: 9px 14px; } }
+@container (max-width: 150px) { .tm-link { padding: 12px; } }
 .tm-more .tm-line { display: block; }
 .tm-tile.is-focus .tm-link { border-color: var(--accent); }
 /* Focused tile: a raised card over its neighbours. Name, description, then a row of
@@ -233,11 +232,8 @@ html { scroll-padding-top: 72px; }
 [data-theme="night"] .tm-tile.is-focus .tm-link { background: color-mix(in srgb, var(--bg) 82%, var(--accent) 18%); }
 .tm-tile.is-focus .tm-line { display: block !important; max-width: 40ch; font-size: 0.88rem; line-height: 1.5; }
 @media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
-  /* Tiles glide on an ease-in-out curve; their text steps aside while they move so it never
-     re-wraps mid-flight, then fades back once they have settled. */
+  /* Tiles glide on an ease-in-out curve; their text stays visible and scales with them. */
   .tm-group, .tm-tile { transition: left 460ms var(--ease-move), top 460ms var(--ease-move), width 460ms var(--ease-move), height 460ms var(--ease-move); will-change: left, top, width, height; }
-  .tm-link > *, .tm-head { transition: opacity 220ms var(--ease-out) 60ms; }
-  .treemap.is-moving .tm-link > *, .treemap.is-moving .tm-head { opacity: 0; transition: opacity 120ms ease-out; }
   .tm-tile.is-leaving .tm-link { animation: card-out 170ms ease-in forwards; }
   @keyframes card-out { to { opacity: 0; scale: 0.97; } }
 }
@@ -261,8 +257,14 @@ html { scroll-padding-top: 72px; }
 .earlier[open] summary { margin-bottom: 14px; }
 @media (prefers-reduced-motion: no-preference) { .earlier[open] .earlier-grid { animation: fade-in 300ms var(--ease-out); } }
 .earlier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
-.earlier-card { display: grid; grid-template-rows: auto 1fr auto; gap: 4px; height: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); opacity: 0.85; transition: border-color 260ms var(--ease-out), opacity 260ms var(--ease-out); }
-.earlier-card:hover { border-color: var(--accent); opacity: 1; }
+.earlier-card { display: grid; grid-template-rows: auto 1fr auto; gap: 4px; height: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); opacity: 0.85; transition: border-color 260ms var(--ease-out), opacity 260ms var(--ease-out), translate 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
+.earlier-card { position: relative; }
+/* These cards are plain links to npm: on hover a ↗ appears in the corner and the card lifts,
+   unlike the treemap tiles above, which open a card in place. */
+.ec-go { position: absolute; top: 10px; right: 12px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 0.8rem; opacity: 0; translate: -4px 4px; transition: opacity 220ms var(--ease-out), translate 220ms var(--ease-out); }
+.earlier-card:hover, .earlier-card:focus-visible { border-color: var(--accent); opacity: 1; translate: 0 -2px; box-shadow: 0 10px 24px -14px rgba(4, 6, 15, 0.6); }
+.earlier-card:hover .ec-go, .earlier-card:focus-visible .ec-go { opacity: 1; translate: 0 0; }
+.ec-name { padding-right: 28px; }
 .ec-name { font-size: var(--fs-small); color: var(--ink); }
 .earlier-card:hover .ec-name { color: var(--accent); }
 .ec-line { font-size: 0.82rem; line-height: 1.45; color: var(--ink-lo); }
