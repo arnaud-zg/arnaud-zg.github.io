@@ -1,0 +1,160 @@
+// Open-source contributions: merged pull requests in other people's public repositories,
+// fetched at build time from GitHub. Projects are ranked by what was contributed
+// (features and fixes over chores), weighted by the project's reach and how recent it is.
+
+export type Change = { title: string; kind: string; year: number; url: string };
+export type Project = { repo: string; about: string; stars: number; changes: Change[]; score: number };
+export type PrGroup = { repo: string; prs: Change[] };
+export type Contributions = { totalPrs: number; projects: number; highlights: Project[]; all: PrGroup[] };
+
+import config from "../../portfolio.config";
+
+const USER = config.github.user;
+// Never count work on my own account or on organisations I run (see portfolio.config.ts).
+const PRIVATE_ORGS: readonly string[] = config.github.ownOrgs;
+const KEEP = new Set(config.github.keepOrgs.map((o) => o.toLowerCase()));
+const TRIVIAL = /typo|console log|optimi[sz]e images|readme|faq|^docs\b|hello-world|update \S+\.json|add ".*" on/i;
+const WEIGHT: Record<string, number> = { Feature: 3, Fix: 3, Performance: 3, Types: 2.5, Refactor: 2, Change: 1.5, Test: 1.5, Docs: 0.5 };
+
+type RawPr = { repo: string; title: string; url: string; date: string };
+type RawRepo = { stars: number; about: string };
+
+// Snapshot taken 2026-11-21 with an authenticated API call. Used when GitHub is unreachable or rate limited.
+const snapshotRepos: Record<string, RawRepo> = {
+  "web-infra-dev/rspack": { stars: 12987, about: "Fast Rust-based bundler for the web" },
+  "ohmyzsh/ohmyzsh": { stars: 190707, about: "Framework for managing your zsh configuration" },
+  "supasate/connected-react-router": { stars: 4681, about: "A Redux binding for React Router" },
+  "module-federation/vite": { stars: 896, about: "Vite plugin for Module Federation" },
+  "DefinitelyTyped/DefinitelyTyped": { stars: 51481, about: "High quality TypeScript type definitions" },
+  "maticzav/graphql-middleware": { stars: 1146, about: "Split up your GraphQL resolvers in middleware functions" },
+  "XD2Sketch/react-oauth-popup": { stars: 63, about: "React component for doing OAuth popups" },
+  "Cero-Studio/ReactNativeWheelPicker": { stars: 387, about: "Wheel picker for React Native" },
+};
+const snapshotPrs: RawPr[] = [
+  { repo: "Cero-Studio/ReactNativeWheelPicker", date: "2020-02-25", title: "feat(date-picker): display a custom date format for date picker", url: "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103" },
+  { repo: "DefinitelyTyped/DefinitelyTyped", date: "2019-09-27", title: "[@types/react-native-modal-filter-picker] Update type definition for ModalFilterPickerProps", url: "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356" },
+  { repo: "diezcami/arctic-fox-theme", date: "2016-04-04", title: "Fix align obsolete attribute", url: "https://github.com/diezcami/arctic-fox-theme/pull/4" },
+  { repo: "Garee/skyscannerjs", date: "2016-11-19", title: "Update README.md", url: "https://github.com/Garee/skyscannerjs/pull/3" },
+  { repo: "gitlabhq/gitlabhq", date: "2015-11-02", title: "Go to gitlab installation folder before initialize database", url: "https://github.com/gitlabhq/gitlabhq/pull/9794" },
+  { repo: "keystonejs/generator-keystone", date: "2020-03-28", title: "Optimize images", url: "https://github.com/keystonejs/generator-keystone/pull/288" },
+  { repo: "keystonejs/keystone", date: "2019-10-22", title: "docs: update authentication documentation", url: "https://github.com/keystonejs/keystone/pull/1807" },
+  { repo: "keystonejs/keystone", date: "2019-10-30", title: "docs: update next app documentation", url: "https://github.com/keystonejs/keystone/pull/1860" },
+  { repo: "maticzav/graphql-middleware", date: "2021-01-08", title: "fix(deps): move @graphql-tools/delegate to dependencies", url: "https://github.com/maticzav/graphql-middleware/pull/321" },
+  { repo: "mermaid-js/mermaid", date: "2019-10-01", title: "Optimize images", url: "https://github.com/mermaid-js/mermaid/pull/966" },
+  { repo: "module-federation/vite", date: "2026-11-16", title: "fix: name the exports field in the error when a shared package has no root", url: "https://github.com/module-federation/vite/pull/1579" },
+  { repo: "muan/hello-world", date: "2016-05-25", title: "Create arnaud-zg.html", url: "https://github.com/muan/hello-world/pull/47" },
+  { repo: "nextauthjs/next-auth", date: "2022-12-02", title: "chore(types): fix typo in comment", url: "https://github.com/nextauthjs/next-auth/pull/5815" },
+  { repo: "nextauthjs/next-auth", date: "2022-12-14", title: "chore: removing console log", url: "https://github.com/nextauthjs/next-auth/pull/6061" },
+  { repo: "ohmyzsh/ohmyzsh", date: "2023-01-09", title: "feat(jira): support rapid view on rapid board mode", url: "https://github.com/ohmyzsh/ohmyzsh/pull/9459" },
+  { repo: "Orlands/snake-tj", date: "2015-10-19", title: "Add folder and file for workspace", url: "https://github.com/Orlands/snake-tj/pull/1" },
+  { repo: "Orlands/snake-tj", date: "2015-10-19", title: "Add module name at REAME.md", url: "https://github.com/Orlands/snake-tj/pull/2" },
+  { repo: "Orlands/snake-tj", date: "2015-10-21", title: "Add skeleton code of the project", url: "https://github.com/Orlands/snake-tj/pull/4" },
+  { repo: "Orlands/snake-tj", date: "2015-10-26", title: "Push game skeleton", url: "https://github.com/Orlands/snake-tj/pull/5" },
+  { repo: "Orlands/snake-tj", date: "2015-10-30", title: "Update", url: "https://github.com/Orlands/snake-tj/pull/6" },
+  { repo: "Orlands/snake-tj", date: "2015-11-02", title: "Merge project", url: "https://github.com/Orlands/snake-tj/pull/7" },
+  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Add report pdf and diagram png", url: "https://github.com/Orlands/snake-tj/pull/10" },
+  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Add report pdf and diagram png", url: "https://github.com/Orlands/snake-tj/pull/11" },
+  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Design documentation and code", url: "https://github.com/Orlands/snake-tj/pull/8" },
+  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Design documentation and code", url: "https://github.com/Orlands/snake-tj/pull/9" },
+  { repo: "Orlands/snake-tj", date: "2015-11-20", title: "Add headers", url: "https://github.com/Orlands/snake-tj/pull/12" },
+  { repo: "pqvst/cafeandcowork", date: "2019-10-31", title: "Add place to work at paris", url: "https://github.com/pqvst/cafeandcowork/pull/1" },
+  { repo: "pqvst/cafeandcowork", date: "2019-10-31", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/2" },
+  { repo: "pqvst/cafeandcowork", date: "2019-11-04", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/3" },
+  { repo: "pqvst/cafeandcowork", date: "2019-11-14", title: "Add \"Nuage Caf\u00e9\" on paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/4" },
+  { repo: "pqvst/cafeandcowork", date: "2019-11-28", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/6" },
+  { repo: "supasate/connected-react-router", date: "2019-10-06", title: "Add example for react native support", url: "https://github.com/supasate/connected-react-router/pull/350" },
+  { repo: "supasate/connected-react-router", date: "2019-11-17", title: "fix(action): remove duplicate action key", url: "https://github.com/supasate/connected-react-router/pull/364" },
+  { repo: "supasate/connected-react-router", date: "2019-11-17", title: "Update FAQ for react native example", url: "https://github.com/supasate/connected-react-router/pull/363" },
+  { repo: "web-infra-dev/rspack", date: "2026-11-10", title: "fix(mf): keep the whole requiredVersion range in mf-manifest.json", url: "https://github.com/web-infra-dev/rspack/pull/16402" },
+  { repo: "web-infra-dev/rspack", date: "2026-11-19", title: "fix(mf): match short caret and tilde ranges in the consume runtime", url: "https://github.com/web-infra-dev/rspack/pull/16663" },
+  { repo: "XD2Sketch/react-oauth-popup", date: "2020-01-16", title: "feat(tick): use requestAnimationFrame instead of setInterval", url: "https://github.com/XD2Sketch/react-oauth-popup/pull/10" },
+  { repo: "XD2Sketch/react-oauth-popup", date: "2020-06-18", title: "test: calls onClose when popup closed", url: "https://github.com/XD2Sketch/react-oauth-popup/pull/17" },
+];
+
+// "fix(mf): keep the whole range" -> { kind: "Fix", title: "Keep the whole range" }
+function describe(raw: string): { kind: string; title: string } {
+  const types = raw.match(/^\[@types\/[^\]]+\]\s*(.*)$/);
+  if (types) return { kind: "Types", title: cap(types[1]) };
+  const cc = raw.match(/^(\w+)(?:\([^)]*\))?!?:\s*(.*)$/);
+  const map: Record<string, string> = { feat: "Feature", fix: "Fix", perf: "Performance", refactor: "Refactor", test: "Test", docs: "Docs", chore: "Change" };
+  if (cc) return { kind: map[cc[1].toLowerCase()] ?? "Change", title: cap(cc[2]) };
+  return { kind: "Change", title: cap(raw) };
+}
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const brief = (text: string) =>
+  text.replace(/\p{Extended_Pictographic}|\uFE0F|:[a-z_]+:/gu, "").trim().replace(/\s*\([^)]*\)/g, "").split(" | ")[0].split(/(?<=[.!])\s/)[0].replace(/[.!]$/, "").replace(/^A delightful community-driven framework/, "Framework").trim();
+
+function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
+  const now = new Date().getFullYear();
+  const byRepo = new Map<string, Change[]>();
+  for (const pr of prs) {
+    if (TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < 50) continue;
+    const d = describe(pr.title);
+    if (d.kind === "Docs") continue;
+    (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
+  }
+  return [...byRepo]
+    .map(([repo, changes]) => {
+      changes.sort((a, b) => WEIGHT[b.kind] - WEIGHT[a.kind] || b.year - a.year);
+      const substance = changes.slice(0, 2).reduce((n, c) => n + (WEIGHT[c.kind] ?? 1), 0);
+      const latest = Math.max(...changes.map((c) => c.year));
+      const score = substance * Math.log10(repos[repo].stars + 10) + Math.max(0, 4 - (now - latest));
+      return { repo, about: repos[repo].about, stars: repos[repo].stars, changes, score };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+// Every merged PR, grouped by project: ranked projects first, then the rest by most recent.
+function group(prs: RawPr[], ranked: Project[]): PrGroup[] {
+  const byRepo = new Map<string, Change[]>();
+  for (const pr of prs) {
+    const d = describe(pr.title);
+    (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
+  }
+  const order = new Map(ranked.map((p, i) => [p.repo, i]));
+  return [...byRepo]
+    .map(([repo, list]) => ({ repo, prs: list.sort((a, b) => b.year - a.year) }))
+    .sort((a, b) => (order.get(a.repo) ?? 999) - (order.get(b.repo) ?? 999) || b.prs[0].year - a.prs[0].year);
+}
+
+const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
+if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+async function json(url: string) {
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(`${res.status} ${url}`);
+  return res.json();
+}
+
+export async function getContributions(): Promise<Contributions> {
+  try {
+    const publicOrgs = ((await json(`https://api.github.com/users/${USER}/orgs`)) as { login: string }[]).map((o) => o.login);
+    const owners = [...new Set([USER, ...PRIVATE_ORGS, ...publicOrgs])].filter((o) => !KEEP.has(o.toLowerCase()));
+    const excluded = owners.map((o) => `-user:${o}`).join(" ");
+    const q = encodeURIComponent(`author:${USER} type:pr is:merged is:public ${excluded}`);
+    const search = await json(`https://api.github.com/search/issues?q=${q}&per_page=100`);
+    const prs: RawPr[] = (search.items as { repository_url: string; title: string; html_url: string; closed_at: string }[]).map((i) => ({
+      repo: i.repository_url.replace("https://api.github.com/repos/", ""),
+      title: i.title,
+      url: i.html_url,
+      date: i.closed_at,
+    }));
+    if (!prs.length) throw new Error("no pull requests");
+    const names = [...new Set(prs.map((p) => p.repo))];
+    const repos: Record<string, RawRepo> = {};
+    // Only look up projects that have a substantive change: fewer API calls, same ranking.
+    const substantive = names.filter((n) => prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
+    await Promise.all(substantive.map(async (n) => {
+      const r = await json(`https://api.github.com/repos/${n}`);
+      repos[n] = { stars: r.stargazers_count, about: brief(r.description ?? "") };
+    }));
+    const ownedRepo = (repo: string) => owners.some((o) => repo.toLowerCase().startsWith(`${o.toLowerCase()}/`));
+    const external = prs.filter((p) => !ownedRepo(p.repo));
+    return { totalPrs: external.length, projects: new Set(external.map((p) => p.repo)).size, highlights: rank(external, repos), all: group(external, rank(external, repos)) };
+  } catch (error) {
+    console.warn(`[oss] using snapshot: ${(error as Error).message}`);
+    const highlights = rank(snapshotPrs, snapshotRepos);
+    return { totalPrs: snapshotPrs.length, projects: new Set(snapshotPrs.map((p) => p.repo)).size, highlights, all: group(snapshotPrs, highlights) };
+  }
+}
+
+export const formatStars = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
