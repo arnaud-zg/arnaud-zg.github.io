@@ -270,6 +270,18 @@ html { scroll-padding-top: 72px; }
 .ec-line { font-size: 0.82rem; line-height: 1.45; color: var(--ink-lo); }
 .ec-year { font: 400 0.62rem/1.4 var(--mono); letter-spacing: 0.08em; color: var(--ink-lo); }
 
+/* Agent skills: cards that read as slash commands, plus the install line. */
+.skill-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.skill-card { position: relative; display: grid; align-content: start; gap: 6px; height: 100%; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); transition: border-color 260ms var(--ease-out), translate 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
+.skill-card:hover, .skill-card:focus-visible { border-color: var(--accent); translate: 0 -2px; box-shadow: 0 10px 24px -14px rgba(4, 6, 15, 0.6); }
+.skill-card:hover .ec-go, .skill-card:focus-visible .ec-go { opacity: 1; translate: 0 0; }
+.skill-name { padding-right: 28px; font: 500 0.92rem/1.4 var(--mono); color: var(--accent); overflow-wrap: anywhere; }
+.skill-use { font-size: var(--fs-small); line-height: 1.5; color: var(--ink-lo); }
+.skill-install { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 22px; padding: 14px 18px; border-radius: 14px; border: 1px dashed var(--line); }
+.skill-install code { flex: 1 1 320px; min-width: 0; font: 400 0.85rem/1.5 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.copy { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink); font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: border-color 200ms var(--ease-out), color 200ms var(--ease-out); }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+
 /* Writing */
 .inline { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-soft); text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
 .inline:hover { text-decoration-color: currentColor; }
@@ -380,7 +392,7 @@ html { scroll-padding-top: 72px; }
     @keyframes rise { from { opacity: 0; translate: 0 12px; } }
     .cover { animation: shutter linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--a, 0) * 7%) cover calc(30% + var(--a, 0) * 7%); }
     @keyframes shutter { from { clip-path: inset(0 0 100% 0 round var(--radius)); } to { clip-path: inset(0 0 0 0 round var(--radius)); } }
-    .tm-group, .ds-repo-row, .numbers li { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+    .tm-group, .ds-repo-row, .skill-card, .numbers li { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
   }
 }
 

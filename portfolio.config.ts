@@ -93,6 +93,14 @@ export default {
     } as Record<string, string>,
   },
 
+  // Agent skills, read from the "Available skills" table in this repo's README.
+  skills: {
+    repo: "arnaud-zg/skills",
+    pitch: "Reusable workflows for AI coding agents, published and maintained: linted, tested and versioned, so they install cleanly instead of being copy-pasted.",
+    agents: ["Claude Code", "Codex", "Cursor", "Copilot CLI"],
+    install: "/plugin install arnaud-zg --marketplace arnaud-zg/skills",
+  },
+
   substack: {
     feed: "https://arnaudzg.substack.com/feed",
   },

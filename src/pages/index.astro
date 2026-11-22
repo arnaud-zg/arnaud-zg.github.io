@@ -7,11 +7,13 @@ import { career } from "../data/career";
 import { getSideQuests } from "../data/npm";
 import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
+import { getSkills } from "../data/skills";
 
 const { name, role, links, about, numbers: words } = config;
 const quests = await getSideQuests();
 const { repos: prRepos } = await getContributions();
 const articles = await getArticles();
+const skills = await getSkills();
 
 const numbers = [
   { value: career.years, unit: "years", label: words.years },
@@ -192,6 +194,34 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           </ul>
         </details>
       )}
+    </section>
+
+    <section id="skills" class="section skills" aria-labelledby="skills-title">
+      <header class="section-head">
+        <h2 id="skills-title">Agent skills</h2>
+        <p class="lede">{config.skills.pitch}</p>
+        <ul class="quest-kpis">
+          <li><b>{skills.length}</b> skills</li>
+          <li><b>{config.skills.agents.length}</b> agents: {config.skills.agents.join(", ")}</li>
+        </ul>
+      </header>
+      <ul class="skill-grid">
+        {skills.map((k) => (
+          <li>
+            <a class="skill-card" href={k.href} aria-label={`${k.name}: ${k.use}`} {...ext}>
+              <span class="ec-go" aria-hidden="true">↗</span>
+              <span class="skill-name">/{k.name}</span>
+              <span class="skill-use">{k.use}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="skill-install">
+        <span class="label">Install in Claude Code</span>
+        <code data-copy-text>{config.skills.install}</code>
+        <button class="copy" type="button" data-copy aria-label="Copy the install command">Copy</button>
+        <a class="inline" href={`https://github.com/${config.skills.repo}`} {...ext}>Other agents ↗</a>
+      </div>
     </section>
 
     <section id="writing" class="section writing" aria-labelledby="writing-title">
@@ -417,4 +447,16 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
     }
   }
+</script>
+
+<script>
+  // Copy the skills install command.
+  document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const text = btn.parentElement?.querySelector("[data-copy-text]")?.textContent ?? "";
+      await navigator.clipboard?.writeText(text);
+      btn.textContent = "Copied";
+      setTimeout(() => (btn.textContent = "Copy"), 1600);
+    });
+  });
 </script>
