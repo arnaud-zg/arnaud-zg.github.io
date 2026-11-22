@@ -8,7 +8,9 @@ export type Station = { name: string; type: CompanyType; industry?: string; role
 
 export default {
   name: "Arnaud Zheng",
-  role: { text: "Software engineer, Platform at", company: "Doctolib" },
+  // Under the name in the hero: what I do, then where.
+  tagline: "I build tools and features that make sense: explicit, with clear boundaries.",
+  role: { text: "Platform engineer at", company: "Doctolib" },
   links: [
     { label: "GitHub", href: "https://github.com/arnaud-zg", icon: "github" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/arnaudzheng", icon: "linkedin" },

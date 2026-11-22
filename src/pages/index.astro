@@ -57,6 +57,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           </span>
         ))}
       </h1>
+      <p class="tagline">{config.tagline}</p>
       <p class="role">{role.text} <strong>{role.company}</strong></p>
       <ul class="socials" aria-label="Profiles">
         {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}

@@ -96,11 +96,13 @@ html { scroll-padding-top: 72px; }
 .ch { display: inline-block; }
 .role { font-size: clamp(1rem, 1.3vw, 1.15rem); letter-spacing: 0.12em; color: rgba(244, 246, 255, 0.82); }
 .role strong { color: #d9bcff; font-weight: 500; }
+.tagline { max-width: 30ch; font-size: clamp(1.1rem, 1.6vw, 1.4rem); font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: #f4f6ff; text-wrap: balance; }
 .socials { display: flex; gap: 12px; margin-top: 8px; }
 .socials a { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(244, 246, 255, 0.35); background: rgba(4, 6, 15, 0.35); color: #f4f6ff; overflow: hidden; isolation: isolate; transition: color 260ms var(--ease-out), border-color 260ms var(--ease-out); }
-.socials a::before { content: ""; position: absolute; inset: 0; z-index: -1; background: #f4f6ff; clip-path: circle(0% at 50% 100%); transition: clip-path 380ms var(--ease-out); }
-.socials a:hover { color: #121a2e; border-color: #f4f6ff; }
-.socials a:hover::before { clip-path: circle(75% at 50% 100%); }
+/* Hover fill: a disc that grows from the centre and covers the ring, so it stays round. */
+.socials a::before { content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: 50%; background: #f4f6ff; scale: 0; transition: scale 320ms var(--ease-out); }
+.socials a:hover, .socials a:focus-visible { color: #121a2e; border-color: #f4f6ff; }
+.socials a:hover::before, .socials a:focus-visible::before { scale: 1; }
 .credit { position: absolute; right: var(--edge); bottom: 22px; z-index: 3; font: 400 0.68rem/1 var(--mono); letter-spacing: 0.06em; color: rgba(244, 246, 255, 0.6); }
 .credit a { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: rgba(236, 238, 255, 0.3); }
 .credit a:hover { color: var(--ink); }
@@ -400,8 +402,8 @@ html { scroll-padding-top: 72px; }
   @keyframes arrive-city { from { scale: 1.08; filter: blur(6px) brightness(0.6); } }
   .ch { animation: ink-in 900ms var(--ease-out) both; animation-delay: calc(var(--i) * 50ms + 500ms); }
   @keyframes ink-in { from { opacity: 0; translate: 0 0.3em; filter: blur(6px); } }
-  .role, .socials { animation: settle 900ms var(--ease-out) both; }
-  .role { animation-delay: 1100ms; } .socials { animation-delay: 1250ms; }
+  .tagline, .role, .socials { animation: settle 900ms var(--ease-out) both; }
+  .tagline { animation-delay: 1000ms; } .role { animation-delay: 1150ms; } .socials { animation-delay: 1300ms; }
   @keyframes settle { from { opacity: 0; translate: 0 10px; } }
   .scroll-cue span { animation: cue 1.8s var(--ease-out) infinite; }
   @keyframes cue { 0% { opacity: 0; translate: 0 0; } 30% { opacity: 1; } 100% { opacity: 0; translate: 0 10px; } }
