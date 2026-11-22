@@ -363,7 +363,7 @@ html { scroll-padding-top: 72px; }
     @keyframes heading-in { from { opacity: 0; letter-spacing: 0.16em; } }
     .range { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
     @keyframes draw { from { scale: 0 1; } }
-    .ds-bar b, .ds-bar i { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
+    .ds-bar { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
     @keyframes rise { from { opacity: 0; translate: 0 12px; } }
     .cover { animation: shutter linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--a, 0) * 7%) cover calc(30% + var(--a, 0) * 7%); }
     @keyframes shutter { from { clip-path: inset(0 0 100% 0 round var(--radius)); } to { clip-path: inset(0 0 0 0 round var(--radius)); } }
@@ -381,8 +381,12 @@ html { scroll-padding-top: 72px; }
   .career-row { grid-template-columns: 7rem minmax(0, 1fr); gap: 6px 16px; }
   .cr-note, .cr-time { grid-column: 1 / -1; }
   .cr-time { min-height: 22px; }
-  .ds-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; }
-  .ds-bar { grid-column: 1 / -1; }
+  /* Each repo stacks: name and +/- on one line, what it is under it, the bar full width. */
+  .ds-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "repo diff" "about about" "bar bar"; gap: 6px 16px; align-items: end; }
+  .ds-repo { grid-area: repo; }
+  .ds-row .diff { grid-area: diff; text-align: right; }
+  .ds-count { grid-area: about; }
+  .ds-bar { grid-area: bar; margin-top: 6px; }
   /* Side quests: the treemap gives way to a plain list of cards with their numbers. */
   .treemap { display: none !important; }
   .sq-list { display: grid; gap: 26px; }
