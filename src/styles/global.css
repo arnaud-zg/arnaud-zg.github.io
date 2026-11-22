@@ -151,7 +151,7 @@ html { scroll-padding-top: 72px; }
 [data-theme="night"] :is(.swatch--large, .row--large) { --c: #7d9df5; }
 
 /* Summary: the facts a recruiter looks for first. */
-.cv-summary { display: grid; grid-template-columns: repeat(5, auto) minmax(0, 1fr); gap: 0; margin: 0 0 clamp(28px, 4vw, 44px); border-block: 1px solid var(--line); }
+.cv-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 0 0 clamp(28px, 4vw, 44px); border-block: 1px solid var(--line); }
 .cv-summary > div { display: grid; gap: 6px; align-content: start; padding: 18px 22px; }
 .cv-summary > div + div { border-left: 1px solid var(--line); }
 .cv-summary > div:first-child { padding-left: 0; }
@@ -433,10 +433,9 @@ html { scroll-padding-top: 72px; }
 @media (max-width: 960px) {
   .masthead nav { display: none; }
   .about { grid-template-columns: minmax(0, 1fr); }
-  .cv-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cv-summary > div { padding: 14px 16px 14px 0; border-left: 0 !important; border-top: 1px solid var(--line); }
-  .cv-summary > div:nth-child(-n + 2) { border-top: 0; }
-  .cv-industries { grid-column: 1 / -1; }
+  .cv-summary { grid-template-columns: minmax(0, 1fr); }
+  .cv-summary > div { padding: 14px 0; border-left: 0 !important; border-top: 1px solid var(--line); }
+  .cv-summary > div:first-child { border-top: 0; }
   .cv-role { padding: 18px; }
   .cv-early li { grid-template-columns: 14px minmax(0, 1fr) auto; }
   .cv-early-note { grid-column: 2 / -1; }

@@ -98,11 +98,8 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
       <dl class="cv-summary">
         <div><dt>Now</dt><dd>{career.summary.role}<span>at {career.summary.company}</span></dd></div>
-        <div><dt>Experience</dt><dd>{career.years} years</dd></div>
-        {career.summary.seniorSince && <div><dt>Senior since</dt><dd>{career.summary.seniorSince}</dd></div>}
-        <div><dt>Average stay</dt><dd>~{career.averageYears} years<span>longest {career.longestYears} years</span></dd></div>
+        <div><dt>Experience</dt><dd>{career.years} years{career.summary.seniorSince && <span>Senior since {career.summary.seniorSince}</span>}</dd></div>
         {career.summary.education && <div><dt>Education</dt><dd>{career.summary.education.split(", ")[0]}<span>{career.summary.education.split(", ").slice(1).join(", ")}</span></dd></div>}
-        <div class="cv-industries"><dt>Industries</dt><dd>{career.summary.industries.join(" · ")}</dd></div>
       </dl>
 
       <ol class="cv-roles">
