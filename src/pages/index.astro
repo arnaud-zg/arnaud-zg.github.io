@@ -9,7 +9,8 @@ import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
 import { getSkills } from "../data/skills";
 
-const { name, role, links, about, numbers: words } = config;
+const { name, role, links, site, photo, sections } = config;
+const { glance: words, about } = sections;
 const quests = await getSideQuests();
 const { repos: prRepos } = await getContributions();
 const articles = await getArticles();
@@ -21,6 +22,9 @@ const numbers = [
   { value: quests.tools, unit: "tools", label: `${quests.releases} releases, ${words.tools}` },
 ];
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
+// Header nav: every shown section that has a nav label, in page order.
+const ids: Record<string, string> = { about: "about", journey: "journey", quests: "quests", skills: "skills", writing: "writing", openSource: "open-source" };
+const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" in sec && ids[key] ? [{ href: `/#${ids[key]}`, label: sec.nav as string }] : []));
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
 // Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
@@ -31,13 +35,10 @@ const moreRepos = prRepos.slice(config.github.top);
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
-<Base
-  title={`${name} · Software engineer`}
-  description={`${name}, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, and contributions to rspack and Module Federation.`}
->
+<Base title={site.title} description={site.description} nav={nav}>
   <section class="hero" aria-labelledby="name">
     <div class="scene" aria-hidden="true">
-      <img src="/images/bund-day-2400.webp" srcset="/images/bund-day-1200.webp 1200w, /images/bund-day-2400.webp 2400w, /images/bund-day-3840.webp 3840w" sizes="100vw" alt="" width="3840" height="2560" fetchpriority="high" />
+      <img src={`${photo.base}-${photo.widths[1] ?? photo.widths[0]}.webp`} srcset={photo.widths.map((w) => `${photo.base}-${w}.webp ${w}w`).join(", ")} sizes="100vw" alt="" width="3840" height="2560" fetchpriority="high" />
     </div>
     <div class="sky-life" aria-hidden="true" data-loop>
       {[0, 1].map((f) => (
@@ -63,7 +64,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
       </ul>
     </div>
-    <p class="credit">Photo: <a href="https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/" {...ext}>Jiawei Wen</a> on Pexels</p>
+    <p class="credit">Photo: <a href={photo.credit.href} {...ext}>{photo.credit.author}</a> on {photo.credit.source}</p>
     <a class="scroll-cue" href="#glance" aria-label="Scroll to the numbers"><span></span></a>
   </section>
 
@@ -73,6 +74,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     </div>
     <div class="lantern" aria-hidden="true"></div>
 
+    {sections.glance.show && (
     <section id="glance" class="glance" aria-label="At a glance">
       <ul class="numbers">
         {numbers.map((n) => (
@@ -83,15 +85,19 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         ))}
       </ul>
     </section>
+    )}
 
+    {sections.about.show && (
     <section id="about" class="section about" aria-labelledby="about-title">
       <h2 id="about-title">{about.title}</h2>
       <p class="about-lede">{about.lede}</p>
     </section>
+    )}
 
+    {sections.journey.show && (
     <section id="journey" class="section journey" aria-labelledby="journey-title">
       <header class="section-head section-head--row">
-        <h2 id="journey-title">Journey</h2>
+        <h2 id="journey-title">{sections.journey.title}</h2>
         <ul class="legend" aria-label="Company types">
           {career.types.map(([t, label]) => <li><span class={`swatch swatch--${t}`}></span>{label}</li>)}
         </ul>
@@ -128,7 +134,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         </ul>
       </details>
 
-      <h3 class="cv-subhead">Education</h3>
+      <h3 class="cv-subhead">{sections.journey.educationTitle}</h3>
       <ol class="cv-edu">
         {career.education.map((e) => (
           <li class="cv-edu-card">
@@ -143,11 +149,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         ))}
       </ol>
     </section>
+    )}
 
+    {sections.quests.show && (
     <section id="quests" class="section quests" aria-labelledby="quests-title">
       <header class="section-head">
-        <h2 id="quests-title">Side quests</h2>
-        <p class="lede">{config.npm.pitch}</p>
+        <h2 id="quests-title">{sections.quests.title}</h2>
+        <p class="lede">{sections.quests.lede}</p>
         <ul class="quest-kpis">
           <li><b>{quests.tools}</b> tools</li>
           <li><b>{quests.releases}</b> releases</li>
@@ -219,11 +227,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         </details>
       )}
     </section>
+    )}
 
+    {sections.skills.show && (
     <section id="skills" class="section skills" aria-labelledby="skills-title">
       <header class="section-head">
-        <h2 id="skills-title">Agent skills</h2>
-        <p class="lede">{config.skills.pitch}</p>
+        <h2 id="skills-title">{sections.skills.title}</h2>
+        <p class="lede">{sections.skills.lede}</p>
         <ul class="quest-kpis">
           <li><b>{skills.length}</b> skills</li>
           <li>Compatible with {config.skills.agents.join(", ")} and more</li>
@@ -246,11 +256,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         <button class="copy" type="button" data-copy aria-label="Copy the install command">Copy</button>
       </div>
     </section>
+    )}
 
+    {sections.writing.show && (
     <section id="writing" class="section writing" aria-labelledby="writing-title">
       <header class="section-head">
-        <h2 id="writing-title">Writing</h2>
-        <p class="lede">Notes on code design, on <a class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Substack</a>.</p>
+        <h2 id="writing-title">{sections.writing.title}</h2>
+        <p class="lede">{sections.writing.lede} <a class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Read them on Substack ↗</a></p>
       </header>
       <ul class="articles">
         {articles.map((a, i) => (
@@ -264,11 +276,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         ))}
       </ul>
     </section>
+    )}
 
+    {sections.openSource.show && (
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <header class="section-head">
-        <h2 id="oss-title">Open source</h2>
-        <p class="lede">Fixes and features merged upstream, in tools other teams rely on. Largest first.</p>
+        <h2 id="oss-title">{sections.openSource.title}</h2>
+        <p class="lede">{sections.openSource.lede}</p>
       </header>
       <div class="diffstat">
         <ul class="ds-list">
@@ -293,7 +307,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       {moreRepos.length > 0 && (
         <dialog id="more-prs" class="prs-dialog" aria-labelledby="more-prs-title">
           <header class="dialog-head">
-            <h2 id="more-prs-title">More projects</h2>
+            <h2 id="more-prs-title">{sections.openSource.moreTitle}</h2>
             <button class="dialog-close" type="button" data-close-dialog aria-label="Close">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
             </button>
@@ -313,14 +327,17 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         </dialog>
       )}
     </section>
+    )}
 
+    {sections.ending.show && (
     <footer id="contact" class="ending">
-      <h2 class="tbc">{config.ending.title}</h2>
-      <p class="ending-line">{config.ending.line}</p>
+      <h2 class="tbc">{sections.ending.title}</h2>
+      <p class="ending-line">{sections.ending.line}</p>
       <ul class="end-links">
         {links.map((l) => <li><a href={l.href} {...ext}><Icon name={l.icon} size={17} /> {l.label}</a></li>)}
       </ul>
     </footer>
+    )}
   </div>
 </Base>
 

@@ -1,14 +1,28 @@
-// What the portfolio shows, in one place. Data is fetched at build time; this file decides
-// what to keep, how to group it and what to call it. Edit it, rebuild, done.
+// The whole portfolio, configured in one place.
+//
+// Data is fetched when the site builds, from four sources, each with a saved snapshot if it is
+// down: GitHub (merged pull requests), npm (tools, releases, downloads), the skills repo README
+// (agent skills) and Substack (articles). This file holds everything else: who I am, the words
+// on the page, which sections show, and how fetched data is filtered and grouped.
+//
+// Sections:  site · hero · sections (page order) · career · data sources
+// Edit, rebuild, done. The daily scheduled build keeps fetched numbers fresh.
 
 export type CompanyType = "agency" | "startup" | "sme" | "large";
 // `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
 // A milestone can carry a new title (a promotion), shown as the title progression.
-export type Station = { name: string; type: CompanyType; industry?: string; role: string; start: string; end?: string; fullTime: boolean; note: string; highlights?: string[]; stack: string; milestones?: { at: string; label: string; title?: string }[] };
+export type Station = { name: string; type: CompanyType; industry?: string; role: string; start: string; end?: string; fullTime: boolean; note?: string; highlights?: string[]; stack: string; milestones?: { at: string; label: string; title?: string }[] };
 
 export default {
+  // ─── Site ──────────────────────────────────────────────────────────────────────────────────
+  site: {
+    title: "Arnaud Zheng · Software engineer",
+    description: "Arnaud Zheng, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, agent skills, and contributions to rspack and Module Federation.",
+  },
+
+  // ─── Hero ──────────────────────────────────────────────────────────────────────────────────
   name: "Arnaud Zheng",
-  // Under the name in the hero: what I do, then where.
+  // Under the name: what I do, then where.
   tagline: "Software that explains itself: tools and features with clear intent and clean boundaries.",
   role: { text: "Software Engineer, Platform at", company: "Doctolib" },
   links: [
@@ -16,29 +30,45 @@ export default {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/arnaudzheng", icon: "linkedin" },
     { label: "Substack", href: "https://arnaudzg.substack.com", icon: "substack" },
   ],
-
-  about: {
-    title: "Hi, I'm Arnaud.",
-    lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
+  // Served from public/; one file per width: `${base}-${width}.webp`.
+  photo: {
+    base: "/images/bund-day",
+    widths: [1200, 2400, 3840],
+    credit: { author: "Jiawei Wen", source: "Pexels", href: "https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/" },
   },
 
-  // The last words on the page, above the profile links.
-  ending: {
-    title: "Let's catch up 👋",
-    line: "A question, an idea, or just to say hi: I'd love to hear from you.",
+  // ─── Sections, in page order ───────────────────────────────────────────────────────────────
+  // `show: false` hides a section and its nav link. `nav` is the label in the header.
+  sections: {
+    // Figures under the hero, computed from the career and npm; only the words live here.
+    glance: { show: true, years: "shipping software", stay: "longest stay", tools: "built off hours: dev tooling, automation, AI" },
+    about: {
+      show: true, nav: "About", title: "Hi, I'm Arnaud.",
+      lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
+    },
+    journey: { show: true, nav: "Journey", title: "Journey", educationTitle: "Education" },
+    quests: {
+      show: true, nav: "Side quests", title: "Side quests",
+      lede: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
+    },
+    skills: {
+      show: true, nav: "Skills", title: "Agent skills",
+      lede: "Reusable workflows for AI coding agents, published and maintained: linted, tested and versioned, so they install cleanly instead of being copy-pasted.",
+    },
+    writing: { show: true, nav: "Writing", title: "Writing", lede: "Notes on code design." },
+    openSource: {
+      show: true, nav: "Open source", title: "Open source", moreTitle: "More projects",
+      lede: "Fixes and features merged upstream, in tools other teams rely on. Largest first.",
+    },
+    // The last words on the page, above the profile links.
+    ending: { show: true, title: "Let's catch up 👋", line: "A question, an idea, or just to say hi: I'd love to hear from you." },
   },
 
-  // Numbers are computed from the career below and from npm; only the words live here.
-  numbers: {
-    years: "shipping software",
-    stay: "longest stay",
-    tools: "built off hours: dev tooling, automation, AI",
-  },
-
+  // ─── Career ────────────────────────────────────────────────────────────────────────────────
   // Career, oldest first. Months are "YYYY-MM"; leave `end` out for the current role.
   // `fullTime: false` stints fold into one school row and are not counted in tenure.
   career: {
-    school: { name: "Early career", role: "Five six-month stints alongside Epitech", note: "Agency sites, a user-testing back office, an R&D tool in Go, e-commerce automation, real-time sports visuals" },
+    school: { name: "Early career", role: "Five six-month stints alongside Epitech" },
     // Education, newest first. `short` is what the summary strip shows.
     education: [
       { school: "Epitech", degree: "Master-level, Computer Software Engineering", start: "2012", end: "2017", short: "Master-level, Epitech",
@@ -61,13 +91,15 @@ export default {
       { name: "Valeo", type: "large", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, note: "Project tracking tool for the lighting R&D teams", stack: "Go" },
       { name: "ASC", type: "sme", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, note: "E-commerce automation: abandoned cart and post-purchase emails", stack: "Shopify, Liquid" },
       { name: "Solive", type: "startup", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, note: "Real-time sports visuals for clubs like PSG and Manchester City", stack: "Node.js, MongoDB" },
-      { name: "Veepee", type: "large", industry: "E-commerce, ticketing", role: "Front-end Developer", start: "2017-03", end: "2019-05", fullTime: true, note: "Ticketing: SEO, time to first byte, a design system shared with the app", highlights: ["SEO with structured data and a faster time to first byte", "Components shared with the mobile app through the design system"], stack: "React, SSR, Design systems" },
-      { name: "Onepark", type: "startup", industry: "Mobility", role: "Mobile Software Engineer", start: "2019-06", end: "2020-01", fullTime: true, note: "Parking app on iOS and Android: maps, Stripe payments", highlights: ["Parking booking app on iOS and Android, from one React Native codebase", "Maps across Google Maps, Mapbox and OpenStreetMap, with Stripe payments"], stack: "React Native, TypeScript" },
-      { name: "PayFit", type: "startup", industry: "HR & payroll SaaS", role: "Software Engineer", start: "2020-01", end: "2025-12", fullTime: true, note: "Monolith to microservices, then an event-sourced company lifecycle", highlights: ["Moved a monolith to microservices, split by business domain with shared SDKs", "Designed the event-sourced company lifecycle with CQRS and DDD", "Owned latency and error SLOs for the services"], stack: "TypeScript, Microservices, Event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior", title: "Senior Software Engineer" }] },
-      { name: "Doctolib", type: "startup", industry: "Health tech", role: "Software Engineer, Platform", start: "2026-01", fullTime: true, note: "Platform products that help engineers ship faster", highlights: ["Platform products that help engineers ship faster"], stack: "Monorepos, Module Federation, TypeScript" },
+      { name: "Veepee", type: "large", industry: "E-commerce, ticketing", role: "Front-end Developer", start: "2017-03", end: "2019-05", fullTime: true, highlights: ["SEO with structured data and a faster time to first byte", "Components shared with the mobile app through the design system"], stack: "React, SSR, Design systems" },
+      { name: "Onepark", type: "startup", industry: "Mobility", role: "Mobile Software Engineer", start: "2019-06", end: "2020-01", fullTime: true, highlights: ["Parking booking app on iOS and Android, from one React Native codebase", "Maps across Google Maps, Mapbox and OpenStreetMap, with Stripe payments"], stack: "React Native, TypeScript" },
+      { name: "PayFit", type: "startup", industry: "HR & payroll SaaS", role: "Software Engineer", start: "2020-01", end: "2025-12", fullTime: true, highlights: ["Moved a monolith to microservices, split by business domain with shared SDKs", "Designed the event-sourced company lifecycle with CQRS and DDD", "Owned latency and error SLOs for the services"], stack: "TypeScript, Microservices, Event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior", title: "Senior Software Engineer" }] },
+      { name: "Doctolib", type: "startup", industry: "Health tech", role: "Software Engineer, Platform", start: "2026-01", fullTime: true, highlights: ["Platform products that help engineers ship faster"], stack: "Monorepos, Module Federation, TypeScript" },
     ] as Station[],
   },
 
+  // ─── Data sources ──────────────────────────────────────────────────────────────────────────
+  // Open source: merged pull requests in other people's public repos.
   github: {
     user: "arnaud-zg",
     // Organisations I run. Work on their repos never counts as an open-source contribution.
@@ -81,13 +113,12 @@ export default {
     top: 5,
   },
 
+  // Side quests: packages I maintain on npm, with their releases and last month's downloads.
   npm: {
     maintainer: "arnaud-zg",
     // Versions that only reserve a name (0.0.0, 0.0.0-x): not a release. A package whose latest
     // version is one of these is parked and stays off the page.
     parkedVersion: /^0\.0\.0(-|$)/,
-    // The value in one line, shown under the Side quests title before the live numbers.
-    pitch: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
     // A tool with no release in this many months folds into "Earlier".
     activeMonths: 24,
     // Treemap groups, drawn in this order. A tool joins the first group with a matching keyword
@@ -115,12 +146,12 @@ export default {
   // Agent skills, read from the "Available skills" table in this repo's README.
   skills: {
     repo: "arnaud-zg/skills",
-    pitch: "Reusable workflows for AI coding agents, published and maintained: linted, tested and versioned, so they install cleanly instead of being copy-pasted.",
     // Named on the page as examples; the install command works with any agent that reads SKILL.md.
     agents: ["Claude Code", "Codex", "Cursor", "Copilot CLI", "Gemini CLI", "OpenCode"],
     install: "npx skills add arnaud-zg/skills",
   },
 
+  // Writing: the latest articles from the RSS feed.
   substack: {
     feed: "https://arnaudzg.substack.com/feed",
   },

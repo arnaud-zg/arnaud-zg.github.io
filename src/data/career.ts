@@ -38,7 +38,7 @@ const roles: Role[] = [...fullTime].reverse().map((s: Station) => ({
   dates: `${s.start.slice(0, 4)} → ${s.end ? s.end.slice(0, 4) : "now"}`,
   span: formatSpan(months(s)),
   now: !s.end,
-  highlights: s.highlights ?? [s.note],
+  highlights: s.highlights ?? (s.note ? [s.note] : []),
   stack: s.stack.split(", "),
 }));
 
@@ -47,7 +47,7 @@ const early = {
   role: school.role,
   years: partTime.length ? `${partTime[0].start.slice(0, 4)}–${(partTime[partTime.length - 1].end ?? "").slice(0, 4)}` : "",
   // Newest first, like the role cards above.
-  stints: [...partTime].reverse().map((s) => ({ company: s.name, type: s.type, role: s.role, year: s.start.slice(0, 4), note: s.note })) as Stint[],
+  stints: [...partTime].reverse().map((s) => ({ company: s.name, type: s.type, role: s.role, year: s.start.slice(0, 4), note: s.note ?? "" })) as Stint[],
 };
 
 // Summary facts.

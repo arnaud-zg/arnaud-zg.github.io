@@ -3,8 +3,8 @@ import "@fontsource-variable/m-plus-1";
 import "@fontsource-variable/m-plus-1-code";
 import "../styles/global.css";
 
-interface Props { title: string; description: string }
-const { title, description } = Astro.props;
+interface Props { title: string; description: string; nav: { href: string; label: string }[] }
+const { title, description, nav } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -41,12 +41,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         </span>
       </button>
       <nav aria-label="Main">
-        <a href="/#about">About</a>
-        <a href="/#journey">Journey</a>
-        <a href="/#quests">Side quests</a>
-        <a href="/#skills">Skills</a>
-        <a href="/#writing">Writing</a>
-        <a href="/#open-source">Open source</a>
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
       </nav>
     </header>
     <main id="main"><slot /></main>
