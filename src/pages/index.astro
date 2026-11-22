@@ -139,7 +139,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
               <p class="cv-dates">{e.start} → {e.end}</p>
             </div>
             <p class="cv-title">{e.degree}</p>
-            <p class="cv-edu-note">{e.note}</p>
+            <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
           </li>
         ))}
       </ol>

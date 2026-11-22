@@ -37,13 +37,22 @@ export default {
   // `fullTime: false` stints fold into one school row and are not counted in tenure.
   career: {
     school: { name: "Early career", role: "Five six-month stints alongside Epitech", note: "Agency sites, a user-testing back office, an R&D tool in Go, e-commerce automation, real-time sports visuals" },
-    // Education, essentials only. `short` is what the summary strip shows.
+    // Education, newest first. `short` is what the summary strip shows.
     education: [
       { school: "Epitech", degree: "Master-level, Computer Software Engineering", start: "2012", end: "2017", short: "Master-level, Epitech",
-        note: "Built a product from scratch over three years, in a team of six across three time zones" },
-      { school: "Tongji University", degree: "Master's exchange, Software Engineering", start: "2015", end: "2017",
-        note: "Software engineering and project leadership" },
-    ] as { school: string; degree: string; start: string; end: string; short?: string; note: string }[],
+        highlights: [
+          "Five-year, project-based programme: learning by building, in teams, in C, C++ and C#",
+          "Built a product from scratch over three years (Epitech Innovative Project), in an international team of six across three time zones",
+          "Ran it like a real product: specifications, market study, architecture reviews, test strategy, planning and steering committees",
+          "Shipped with C#, .NET, SQL, Angular and Apache Cordova",
+        ] },
+      { school: "Tongji University", degree: "Master's programme, Software Engineering", start: "2015", end: "2017",
+        highlights: [
+          "International university exchange, during the Epitech programme",
+          "Trained for leadership roles in software development and project management",
+          "Coursework in C++ and SQL",
+        ] },
+    ] as { school: string; degree: string; start: string; end: string; short?: string; highlights: string[] }[],
     types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
     stations: [
       { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce", stack: "PHP, WordPress, PrestaShop" },
