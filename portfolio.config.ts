@@ -58,6 +58,9 @@ export default {
 
   npm: {
     maintainer: "arnaud-zg",
+    // Versions that only reserve a name (0.0.0, 0.0.0-x): not a release. A package whose latest
+    // version is one of these is parked and stays off the page.
+    parkedVersion: /^0\.0\.0(-|$)/,
     // The value in one line, shown under the Side quests title before the live numbers.
     pitch: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
     // A tool with no release in this many months folds into "Earlier".

@@ -15,23 +15,22 @@ export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: nu
 export type Group = { name: string; emoji: string; releases: number; rect: Rect; tiles: Tile[] };
 export type SideQuests = { tools: number; releases: number; downloads?: number; downloadsMonth?: string; groups: Group[]; earlier: Quest[] };
 
-const { maintainer, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
+const { maintainer, parkedVersion, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
 // One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
 
 // Snapshot taken 2026-11-22, used when the registry is unreachable.
 const snapshot: Quest[] = [
-  { name: "shiplane", line: "Release and deploy a monorepo in one command", href: "https://www.npmjs.com/package/shiplane", keywords: ["release", "deploy", "monorepo"], releases: 28, updated: "2026-11-15", members: 8 },
+  { name: "shiplane", line: "Release and deploy a monorepo in one command", href: "https://www.npmjs.com/package/shiplane", keywords: ["release", "deploy", "monorepo"], releases: 26, updated: "2026-11-15", members: 8 },
   { name: "blast-shield", line: "Technical debt protection tool for any codebase", href: "https://www.npmjs.com/package/blast-shield", keywords: ["technical-debt", "code-quality"], releases: 23, updated: "2026-04-21", members: 8 },
   { name: "eslint-plugin-feature-flags", line: "Lint rules to enforce feature flag hygiene", href: "https://www.npmjs.com/package/eslint-plugin-feature-flags", keywords: ["eslint", "feature-flags"], releases: 7, updated: "2025-06-15", members: 4 },
-  { name: "expo-pnpm-catalog", line: "Checks and syncs Expo SDK versions in pnpm catalogs", href: "https://www.npmjs.com/package/expo-pnpm-catalog", keywords: ["expo", "react-native", "pnpm"], releases: 7, updated: "2026-11-14", members: 1 },
-  { name: "expo-native-guard", line: "Load native-only modules safely in Expo Go", href: "https://www.npmjs.com/package/expo-native-guard", keywords: ["expo", "react-native"], releases: 7, updated: "2026-11-14", members: 1 },
-  { name: "agent-context-budget", line: "Scores the markdown files an AI agent loads", href: "https://www.npmjs.com/package/agent-context-budget", keywords: ["claude-code", "llm", "ai-agents"], releases: 7, updated: "2026-11-14", members: 1 },
-  { name: "vite-workspace-resolver", line: "Vite and Vitest plugin that resolves workspace packages' exports-map subpaths", href: "https://www.npmjs.com/package/vite-workspace-resolver", keywords: ["vite", "vite-plugin", "monorepo"], releases: 6, updated: "2026-11-14", members: 1 },
-  { name: "migration-preflight", line: "Test database migrations before you ship them", href: "https://www.npmjs.com/package/migration-preflight", keywords: ["migration", "database"], releases: 4, updated: "2026-11-01", members: 3 },
+  { name: "expo-pnpm-catalog", line: "Checks and syncs Expo SDK versions in pnpm catalogs", href: "https://www.npmjs.com/package/expo-pnpm-catalog", keywords: ["expo", "react-native", "pnpm"], releases: 6, updated: "2026-11-14", members: 1 },
+  { name: "expo-native-guard", line: "Load native-only modules safely in Expo Go", href: "https://www.npmjs.com/package/expo-native-guard", keywords: ["expo", "react-native"], releases: 6, updated: "2026-11-14", members: 1 },
+  { name: "agent-context-budget", line: "Scores the markdown files an AI agent loads", href: "https://www.npmjs.com/package/agent-context-budget", keywords: ["claude-code", "llm", "ai-agents"], releases: 6, updated: "2026-11-14", members: 1 },
+  { name: "vite-workspace-resolver", line: "Vite and Vitest plugin that resolves workspace packages' exports-map subpaths", href: "https://www.npmjs.com/package/vite-workspace-resolver", keywords: ["vite", "vite-plugin", "monorepo"], releases: 5, updated: "2026-11-14", members: 1 },
+  { name: "migration-preflight", line: "Test database migrations before you ship them", href: "https://www.npmjs.com/package/migration-preflight", keywords: ["migration", "database"], releases: 3, updated: "2026-11-01", members: 3 },
   { name: "immutable-instance", line: "Makes immutable class instances reactive for front-end application", href: "https://www.npmjs.com/package/immutable-instance", keywords: ["react", "immutable"], releases: 2, updated: "2025-11-04", members: 1 },
-  { name: "expo-catalog", line: "Deterministic Expo SDK checks and sync for workspace catalogs", href: "https://www.npmjs.com/package/expo-catalog", keywords: [], releases: 1, updated: "2026-06-19", members: 1 },
   { name: "http-response-status", line: "HTTP Status Map", href: "https://www.npmjs.com/package/http-response-status", keywords: [], releases: 1, updated: "2022-12-18", members: 1 },
   { name: "selector", line: "Generic selector library", href: "https://www.npmjs.com/package/selector", keywords: [], releases: 1, updated: "2022-06-24", members: 1 },
   { name: "popup-sensor", line: "Popup window sensor written in typescript", href: "https://www.npmjs.com/package/popup-sensor", keywords: [], releases: 1, updated: "2022-06-24", members: 1 },
@@ -42,7 +41,7 @@ const snapshot: Quest[] = [
   { name: "request-init", line: "Configuration toolset for fetch API", href: "https://www.npmjs.com/package/request-init", keywords: [], releases: 1, updated: "2020-02-28", members: 1 },
 ];
 
-type Hit = { package: { name: string; date?: string; description?: string; keywords?: string[]; links?: { npm?: string } } };
+type Hit = { package: { name: string; version?: string; date?: string; description?: string; keywords?: string[]; links?: { npm?: string } } };
 
 // The first clause of a description: what the tool does, not how.
 const brief = (d: string) => d.split(/:\s|\.\s|\s\(|,\s(?:like|without)\s/)[0].replace(/\.$/, "").trim();
@@ -72,7 +71,7 @@ async function detailsOf(name: string) {
     .then((r) => (r.ok ? r.json() : null)).then((d) => d?.downloads as number | undefined).catch(() => undefined);
   const downloads = (await point()) ?? (await new Promise((r) => setTimeout(r, 600)).then(point));
   return {
-    releases: Object.keys(doc.versions ?? {}).length,
+    releases: Object.keys(doc.versions ?? {}).filter((v) => !parkedVersion.test(v)).length,
     version: doc["dist-tags"]?.latest as string | undefined,
     created: (doc.time?.created as string | undefined)?.slice(0, 10),
     downloads,
@@ -83,7 +82,8 @@ async function detailsOf(name: string) {
 async function fetchQuests(): Promise<Quest[]> {
   const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`, { signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(String(res.status));
-  const hits = ((await res.json()).objects as Hit[]).filter((h) => !SKIP.test(h.package.description ?? ""));
+  // Parked packages (latest is a 0.0.0 placeholder) are not tools yet, and do not count as plugins.
+  const hits = ((await res.json()).objects as Hit[]).filter((h) => !SKIP.test(h.package.description ?? "") && !parkedVersion.test(h.package.version ?? ""));
   if (!hits.length) throw new Error("no packages");
 
   const families = new Map<string, { lead?: Hit; updated: string; members: number }>();
