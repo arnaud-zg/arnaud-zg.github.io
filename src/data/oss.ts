@@ -11,6 +11,8 @@ export type RepoChanges = { repo: string; about: string; prs: Row[]; added: numb
 export type Contributions = { repos: RepoChanges[] };
 
 import config from "../../portfolio.config";
+import { fallback } from "../lib/fallback";
+import saved from "./snapshots/github.json";
 
 const USER = config.github.user;
 // Never count work on my own account or on organisations I run (see portfolio.config.ts).
@@ -18,78 +20,16 @@ const PRIVATE_ORGS: readonly string[] = config.github.ownOrgs;
 const KEEP = new Set(config.github.keepOrgs.map((o) => o.toLowerCase()));
 const EXCLUDE = new Set(config.github.excludeRepos.map((r) => r.toLowerCase()));
 // Only changes that say something about the work: no chores, docs or bare "Update X".
-const SHOWN = new Set(["Feature", "Fix", "Performance", "Types", "Refactor", "Test"]);
-const TRIVIAL = /typo|console log|optimi[sz]e images|readme|faq|^docs\b|hello-world|update \S+\.json|add ".*" on/i;
-const WEIGHT: Record<string, number> = { Feature: 3, Fix: 3, Performance: 3, Types: 2.5, Refactor: 2, Change: 1.5, Test: 1.5, Docs: 0.5 };
+const SHOWN = new Set<string>(config.github.shownKinds);
+const TRIVIAL = config.github.trivial;
+const WEIGHT: Record<string, number> = config.github.weights;
+const savedLines = saved.lines as unknown as Record<string, [number, number]>;
 
 type RawPr = { repo: string; title: string; url: string; date: string };
 type RawRepo = { stars: number; about: string };
 
-// Snapshot taken 2026-11-21 with an authenticated API call. Used when GitHub is unreachable or rate limited.
-const snapshotRepos: Record<string, RawRepo> = {
-  "web-infra-dev/rspack": { stars: 12987, about: "Fast Rust-based bundler for the web" },
-  "ohmyzsh/ohmyzsh": { stars: 190707, about: "Framework for managing your zsh configuration" },
-  "supasate/connected-react-router": { stars: 4681, about: "A Redux binding for React Router" },
-  "module-federation/vite": { stars: 896, about: "Vite plugin for Module Federation" },
-  "DefinitelyTyped/DefinitelyTyped": { stars: 51481, about: "High quality TypeScript type definitions" },
-  "maticzav/graphql-middleware": { stars: 1146, about: "Split up your GraphQL resolvers in middleware functions" },
-  "XD2Sketch/react-oauth-popup": { stars: 63, about: "React component for doing OAuth popups" },
-  "Cero-Studio/ReactNativeWheelPicker": { stars: 387, about: "Wheel picker for React Native" },
-};
-const snapshotPrs: RawPr[] = [
-  { repo: "Cero-Studio/ReactNativeWheelPicker", date: "2020-02-25", title: "feat(date-picker): display a custom date format for date picker", url: "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103" },
-  { repo: "DefinitelyTyped/DefinitelyTyped", date: "2019-09-27", title: "[@types/react-native-modal-filter-picker] Update type definition for ModalFilterPickerProps", url: "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356" },
-  { repo: "diezcami/arctic-fox-theme", date: "2016-04-04", title: "Fix align obsolete attribute", url: "https://github.com/diezcami/arctic-fox-theme/pull/4" },
-  { repo: "Garee/skyscannerjs", date: "2016-11-19", title: "Update README.md", url: "https://github.com/Garee/skyscannerjs/pull/3" },
-  { repo: "gitlabhq/gitlabhq", date: "2015-11-02", title: "Go to gitlab installation folder before initialize database", url: "https://github.com/gitlabhq/gitlabhq/pull/9794" },
-  { repo: "keystonejs/generator-keystone", date: "2020-03-28", title: "Optimize images", url: "https://github.com/keystonejs/generator-keystone/pull/288" },
-  { repo: "keystonejs/keystone", date: "2019-10-22", title: "docs: update authentication documentation", url: "https://github.com/keystonejs/keystone/pull/1807" },
-  { repo: "keystonejs/keystone", date: "2019-10-30", title: "docs: update next app documentation", url: "https://github.com/keystonejs/keystone/pull/1860" },
-  { repo: "maticzav/graphql-middleware", date: "2021-01-08", title: "fix(deps): move @graphql-tools/delegate to dependencies", url: "https://github.com/maticzav/graphql-middleware/pull/321" },
-  { repo: "mermaid-js/mermaid", date: "2019-10-01", title: "Optimize images", url: "https://github.com/mermaid-js/mermaid/pull/966" },
-  { repo: "module-federation/vite", date: "2026-11-16", title: "fix: name the exports field in the error when a shared package has no root", url: "https://github.com/module-federation/vite/pull/1579" },
-  { repo: "muan/hello-world", date: "2016-05-25", title: "Create arnaud-zg.html", url: "https://github.com/muan/hello-world/pull/47" },
-  { repo: "nextauthjs/next-auth", date: "2022-12-02", title: "chore(types): fix typo in comment", url: "https://github.com/nextauthjs/next-auth/pull/5815" },
-  { repo: "nextauthjs/next-auth", date: "2022-12-14", title: "chore: removing console log", url: "https://github.com/nextauthjs/next-auth/pull/6061" },
-  { repo: "ohmyzsh/ohmyzsh", date: "2023-01-09", title: "feat(jira): support rapid view on rapid board mode", url: "https://github.com/ohmyzsh/ohmyzsh/pull/9459" },
-  { repo: "Orlands/snake-tj", date: "2015-10-19", title: "Add folder and file for workspace", url: "https://github.com/Orlands/snake-tj/pull/1" },
-  { repo: "Orlands/snake-tj", date: "2015-10-19", title: "Add module name at REAME.md", url: "https://github.com/Orlands/snake-tj/pull/2" },
-  { repo: "Orlands/snake-tj", date: "2015-10-21", title: "Add skeleton code of the project", url: "https://github.com/Orlands/snake-tj/pull/4" },
-  { repo: "Orlands/snake-tj", date: "2015-10-26", title: "Push game skeleton", url: "https://github.com/Orlands/snake-tj/pull/5" },
-  { repo: "Orlands/snake-tj", date: "2015-10-30", title: "Update", url: "https://github.com/Orlands/snake-tj/pull/6" },
-  { repo: "Orlands/snake-tj", date: "2015-11-02", title: "Merge project", url: "https://github.com/Orlands/snake-tj/pull/7" },
-  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Add report pdf and diagram png", url: "https://github.com/Orlands/snake-tj/pull/10" },
-  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Add report pdf and diagram png", url: "https://github.com/Orlands/snake-tj/pull/11" },
-  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Design documentation and code", url: "https://github.com/Orlands/snake-tj/pull/8" },
-  { repo: "Orlands/snake-tj", date: "2015-11-09", title: "Design documentation and code", url: "https://github.com/Orlands/snake-tj/pull/9" },
-  { repo: "Orlands/snake-tj", date: "2015-11-20", title: "Add headers", url: "https://github.com/Orlands/snake-tj/pull/12" },
-  { repo: "pqvst/cafeandcowork", date: "2019-10-31", title: "Add place to work at paris", url: "https://github.com/pqvst/cafeandcowork/pull/1" },
-  { repo: "pqvst/cafeandcowork", date: "2019-10-31", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/2" },
-  { repo: "pqvst/cafeandcowork", date: "2019-11-04", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/3" },
-  { repo: "pqvst/cafeandcowork", date: "2019-11-14", title: "Add \"Nuage Caf\u00e9\" on paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/4" },
-  { repo: "pqvst/cafeandcowork", date: "2019-11-28", title: "Update paris.json", url: "https://github.com/pqvst/cafeandcowork/pull/6" },
-  { repo: "supasate/connected-react-router", date: "2019-10-06", title: "Add example for react native support", url: "https://github.com/supasate/connected-react-router/pull/350" },
-  { repo: "supasate/connected-react-router", date: "2019-11-17", title: "fix(action): remove duplicate action key", url: "https://github.com/supasate/connected-react-router/pull/364" },
-  { repo: "supasate/connected-react-router", date: "2019-11-17", title: "Update FAQ for react native example", url: "https://github.com/supasate/connected-react-router/pull/363" },
-  { repo: "web-infra-dev/rspack", date: "2026-11-10", title: "fix(mf): keep the whole requiredVersion range in mf-manifest.json", url: "https://github.com/web-infra-dev/rspack/pull/16402" },
-  { repo: "web-infra-dev/rspack", date: "2026-11-19", title: "fix(mf): match short caret and tilde ranges in the consume runtime", url: "https://github.com/web-infra-dev/rspack/pull/16663" },
-  { repo: "XD2Sketch/react-oauth-popup", date: "2020-01-16", title: "feat(tick): use requestAnimationFrame instead of setInterval", url: "https://github.com/XD2Sketch/react-oauth-popup/pull/10" },
-  { repo: "XD2Sketch/react-oauth-popup", date: "2020-06-18", title: "test: calls onClose when popup closed", url: "https://github.com/XD2Sketch/react-oauth-popup/pull/17" },
-];
 
-// Lines added and removed per PR, taken 2026-11-22. Used with the snapshot above.
-const snapshotLines: Record<string, [number, number]> = {
-  "https://github.com/web-infra-dev/rspack/pull/16402": [87, 18],
-  "https://github.com/web-infra-dev/rspack/pull/16663": [52, 9],
-  "https://github.com/module-federation/vite/pull/1579": [45, 2],
-  "https://github.com/ohmyzsh/ohmyzsh/pull/9459": [14, 2],
-  "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356": [12, 3],
-  "https://github.com/supasate/connected-react-router/pull/364": [0, 1],
-  "https://github.com/maticzav/graphql-middleware/pull/321": [2, 2],
-  "https://github.com/XD2Sketch/react-oauth-popup/pull/10": [99, 53],
-  "https://github.com/XD2Sketch/react-oauth-popup/pull/17": [3, 8],
-  "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103": [10, 6],
-};
+
 
 // "fix(mf): keep the whole range" -> { kind: "Fix", title: "Keep the whole range" }
 function describe(raw: string): { kind: string; title: string } {
@@ -108,7 +48,7 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
   const now = new Date().getFullYear();
   const byRepo = new Map<string, Change[]>();
   for (const pr of prs) {
-    if (EXCLUDE.has(pr.repo.toLowerCase()) || TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < 50) continue;
+    if (EXCLUDE.has(pr.repo.toLowerCase()) || TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < config.github.minStars) continue;
     const d = describe(pr.title);
     if (d.kind === "Docs") continue;
     (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
@@ -160,13 +100,13 @@ export async function getContributions(): Promise<Contributions> {
     await withLines(rows, async (c) => {
       const [, repo, n] = c.url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
       try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [pr.additions, pr.deletions]; }
-      catch { return snapshotLines[c.url]; }
+      catch (error) { return fallback("github", error, savedLines[c.url]); }
     });
     return { repos: byRepo(rows) };
   } catch (error) {
-    console.warn(`[oss] using snapshot: ${(error as Error).message}`);
-    const rows = flatten(rank(snapshotPrs, snapshotRepos));
-    await withLines(rows, async (c) => snapshotLines[c.url]);
+    const { prs, repos } = fallback("github", error, saved);
+    const rows = flatten(rank(prs, repos));
+    await withLines(rows, async (c) => savedLines[c.url]);
     return { repos: byRepo(rows) };
   }
 }

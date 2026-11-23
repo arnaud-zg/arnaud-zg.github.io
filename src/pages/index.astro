@@ -15,13 +15,14 @@ import Dialog from "@arnaud-zg/design/Dialog.astro";
 import SecretBird from "../components/SecretBird.astro";
 import "../styles/global.css";
 import config from "../../portfolio.config";
+import { siteInfo } from "../site";
 import { career } from "../data/career";
 import { getSideQuests } from "../data/npm";
 import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
 import { getSkills } from "../data/skills";
 
-const { name, role, links, site, sections } = config;
+const { name, role, links, site, sections, labels } = config;
 const { glance: words, about } = sections;
 const quests = await getSideQuests();
 const { repos: prRepos } = await getContributions();
@@ -29,9 +30,9 @@ const articles = await getArticles();
 const skills = await getSkills();
 
 const numbers = [
-  { value: career.years, unit: "years", label: words.years },
-  { value: career.longestYears, unit: "years", label: `${words.stay}, ~${career.averageYears} yrs avg` },
-  { value: quests.tools, unit: "tools", label: `${quests.releases} releases, ${words.tools}` },
+  { value: career.years, unit: labels.years, label: words.years },
+  { value: career.longestYears, unit: labels.years, label: `${words.stay}, ${labels.average(career.averageYears)}` },
+  { value: quests.tools, unit: labels.tools, label: `${quests.releases} ${labels.releases}, ${words.tools}` },
 ];
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Header nav: every shown section that has a nav label, in page order.
@@ -42,26 +43,24 @@ const ext = { target: "_blank", rel: "noopener noreferrer" };
 // Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
 const maxLines = Math.max(1, ...prRepos.map((r) => r.lines));
 // Totals cover every project, the ones in the dialog included.
-const total = { added: prRepos.reduce((n, r) => n + r.added, 0), removed: prRepos.reduce((n, r) => n + r.removed, 0) };
-// Totals cover every project, the ones in the dialog included.
 const sumOf = (key: "added" | "removed") => prRepos.reduce((n, r) => n + r[key], 0);
 const totals = [
-  { value: `+${sumOf("added").toLocaleString("en-US")}`, label: "lines added", tone: "added" as const },
-  { value: `−${sumOf("removed").toLocaleString("en-US")}`, label: "lines removed", tone: "removed" as const },
+  { value: `+${sumOf("added").toLocaleString("en-US")}`, label: labels.linesAdded, tone: "added" as const },
+  { value: `−${sumOf("removed").toLocaleString("en-US")}`, label: labels.linesRemoved, tone: "removed" as const },
 ];
 const topRepos = prRepos.slice(0, config.github.top);
 const moreRepos = prRepos.slice(config.github.top);
 // 1234 -> 1.2k, so a stat fits its badge.
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
 const questKpis = [
-  { value: quests.tools, label: "tools" },
-  { value: quests.releases, label: "releases" },
-  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: `npm downloads in ${quests.downloadsMonth}` }] : []),
+  { value: quests.tools, label: labels.tools },
+  { value: quests.releases, label: labels.releases },
+  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: labels.downloadsIn(quests.downloadsMonth!) }] : []),
 ];
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
-<Site site="home" title={site.title} description={site.description} nav={nav}>
-  <Hero size="full" title={name} tagline={config.tagline} next="#glance">
+<Site site={siteInfo} title={site.title} description={site.description} nav={nav}>
+  <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} next="#glance">
     <p class="role">{role.text} <strong>{role.company}</strong></p>
     <ul class="socials" aria-label="Profiles">
       {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
@@ -70,7 +69,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
   <Content>
     {sections.glance.show && (
-    <section id="glance" class="glance" aria-label="At a glance">
+    <section id="glance" class="glance" aria-label={labels.glance}>
       <Numbers items={numbers} />
     </section>
     )}
@@ -87,9 +86,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       <SectionHead id="journey-title" title={sections.journey.title} lede={sections.journey.lede} />
 
       <dl class="cv-summary">
-        <div><dt>Now</dt><dd>{career.summary.role}<span>at {career.summary.company}</span></dd></div>
-        <div><dt>Experience</dt><dd>{career.years} years</dd></div>
-        {career.summary.education && <div><dt>Education</dt><dd>{career.summary.education.split(", ")[0]}<span>{career.summary.education.split(", ").slice(1).join(", ")}</span></dd></div>}
+        <div><dt>{labels.now}</dt><dd>{career.summary.role}<span>{labels.at} {career.summary.company}</span></dd></div>
+        <div><dt>{labels.experience}</dt><dd>{career.years} {labels.years}</dd></div>
+        {career.summary.education && <div><dt>{labels.education}</dt><dd>{career.summary.education.split(", ")[0]}<span>{career.summary.education.split(", ").slice(1).join(", ")}</span></dd></div>}
       </dl>
 
       <ol class="cv-roles">
@@ -100,10 +99,10 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
               <p class="cv-dates">{r.dates}</p>
             </div>
             <p class="cv-titles">
-              {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label="then">→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
+              {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
             </p>
             <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
-            <Tags items={r.stack} label="Stack" />
+            <Tags items={r.stack} label={labels.stack} />
           </li>
         ))}
       </ol>
@@ -127,7 +126,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             </div>
             <p class="cv-title">{e.degree}</p>
             <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
-            {e.skills && <Tags items={e.skills} label="Skills" />}
+            {e.skills && <Tags items={e.skills} label={labels.skillsTaught} />}
           </li>
         ))}
       </ol>
@@ -149,18 +148,18 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
                   {t.quest ? (
                     <div class="tm-link">
                       <span class="tm-name">{t.quest.name}</span>
-                      <button class="tm-open" type="button" aria-expanded="false" aria-label={`${t.quest.name}: show details`}><span aria-hidden="true"></span></button>
+                      <button class="tm-open" type="button" aria-expanded="false" aria-label={labels.showDetails(t.quest.name)}><span aria-hidden="true"></span></button>
                       <span class="tm-line">{t.quest.line}</span>
                       <span class="tm-stats">
-                        {t.quest.downloads !== undefined && <span class="stat" title={`npm downloads, ${t.quest.downloadsMonth}`}><b><i aria-hidden="true">⬇️</i>{compact(t.quest.downloads)}</b><small>monthly downloads</small></span>}
-                        <span class="stat"><b><i aria-hidden="true">🚀</i>{t.releases}</b><small>releases</small></span>
-                        {t.quest.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{t.quest.members - 1}</b><small>plugins</small></span>}
+                        {t.quest.downloads !== undefined && <span class="stat" title={labels.downloadsTitle(t.quest.downloadsMonth!)}><b><i aria-hidden="true">⬇️</i>{compact(t.quest.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
+                        <span class="stat"><b><i aria-hidden="true">🚀</i>{t.releases}</b><small>{labels.releases}</small></span>
+                        {t.quest.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{t.quest.members - 1}</b><small>{labels.plugins}</small></span>}
                       </span>
-                      <a class="tm-go" href={t.quest.href} {...ext}>View on npm <span aria-hidden="true">↗</span></a>
+                      <a class="tm-go" href={t.quest.href} {...ext}>{labels.viewOnNpm} <span aria-hidden="true">↗</span></a>
                     </div>
                   ) : (
                     <div class="tm-link tm-more">
-                      <span class="tm-name">+{t.more!.length} more</span>
+                      <span class="tm-name">{labels.more(t.more!.length)}</span>
                       <span class="tm-line">{t.more!.map((q, i) => <>{i > 0 && ", "}<a class="inline" href={q.href} {...ext}>{q.name}</a></>)}</span>
                     </div>
                   )}
@@ -182,9 +181,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
                     <span class="sq-name">{q.name}</span>
                     <span class="sq-line">{q.line}</span>
                     <span class="sq-stats">
-                      {q.downloads !== undefined && <span class="stat"><b><i aria-hidden="true">⬇️</i>{compact(q.downloads)}</b><small>monthly downloads</small></span>}
-                      <span class="stat"><b><i aria-hidden="true">🚀</i>{q.releases}</b><small>releases</small></span>
-                      {q.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{q.members - 1}</b><small>plugins</small></span>}
+                      {q.downloads !== undefined && <span class="stat"><b><i aria-hidden="true">⬇️</i>{compact(q.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
+                      <span class="stat"><b><i aria-hidden="true">🚀</i>{q.releases}</b><small>{labels.releases}</small></span>
+                      {q.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{q.members - 1}</b><small>{labels.plugins}</small></span>}
                     </span>
                   </a>
                 </li>
@@ -195,10 +194,10 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       </div>
       {quests.earlier.length > 0 && (
         <details class="earlier">
-          <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> See {quests.earlier.length} earlier libraries · {quests.earlier[quests.earlier.length - 1].updated.slice(0, 4)}–{quests.earlier[0].updated.slice(0, 4)}</summary>
+          <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> {labels.earlier(quests.earlier.length, quests.earlier[quests.earlier.length - 1].updated.slice(0, 4), quests.earlier[0].updated.slice(0, 4))}</summary>
           <ul class="earlier-grid">
             {quests.earlier.map((q) => (
-              <li><a class="earlier-card" href={q.href} aria-label={`${q.name} on npm`} {...ext}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
+              <li><a class="earlier-card" href={q.href} aria-label={labels.onNpm(q.name)} {...ext}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
             ))}
           </ul>
         </details>
@@ -209,19 +208,19 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     {sections.skills.show && (
     <section id="skills" class="section skills" aria-labelledby="skills-title">
       <SectionHead id="skills-title" title={sections.skills.title} lede={sections.skills.lede}>
-        <Kpis items={[{ value: skills.length, label: "skills" }]} />
+        <Kpis items={[{ value: skills.length, label: labels.skills }]} />
       </SectionHead>
       <ul class="card-grid">
         {skills.map((k) => <li><LinkCard href={k.href} name={`/${k.name}`} text={k.use} /></li>)}
       </ul>
-      <Command label="Install, any agent" command={config.skills.install} />
+      <Command label={labels.install} command={config.skills.install} />
     </section>
     )}
 
     {sections.writing.show && (
     <section id="writing" class="section writing" aria-labelledby="writing-title">
       <SectionHead id="writing-title" title={sections.writing.title} lede={`${sections.writing.lede} `}>
-        <a slot="lede" class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Read them on Substack ↗</a>
+        <a slot="lede" class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>{labels.readArticles} ↗</a>
       </SectionHead>
       <ul class="articles">
         {articles.map((a, i) => (
@@ -240,7 +239,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     {sections.openSource.show && (
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
-        <Kpis items={totals} label="Across every project" />
+        <Kpis items={totals} label={labels.total} />
       </SectionHead>
       <div class="diffstat">
         <ul class="ds-list">
@@ -256,9 +255,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           ))}
         </ul>
         <div class="ds-foot">
-          <p class="ds-key"><b></b> added <i></i> removed</p>
+          <p class="ds-key"><b></b> {labels.added} <i></i> {labels.removed}</p>
           {moreRepos.length > 0 && (
-            <Pill opens="more-prs">{moreRepos.length} more {moreRepos.length === 1 ? "project" : "projects"}</Pill>
+            <Pill opens="more-prs">{labels.moreProjects(moreRepos.length)}</Pill>
           )}
         </div>
       </div>
@@ -281,7 +280,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     </section>
     )}
 
-    {sections.ending.show && <Ending site="home" title={sections.ending.title} line={sections.ending.line} links={links}><SecretBird /></Ending>}
+    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}><SecretBird /></Ending>}
   </Content>
 </Site>
 

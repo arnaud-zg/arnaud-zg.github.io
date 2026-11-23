@@ -17,7 +17,8 @@ build keeps it current:
 | Open source | GitHub, merged pull requests in repositories I do not own           |
 | Writing     | Substack RSS feed                                                   |
 
-If a source cannot be reached, the build falls back to a saved snapshot instead of failing.
+If a source cannot be reached, a local build falls back to the saved data in `src/data/snapshots`.
+The deploy sets `STRICT_DATA=1` and fails instead, so the site online never goes back to old numbers.
 What to fetch, and which organisations count as mine, is set in
 [`portfolio.config.ts`](./portfolio.config.ts).
 

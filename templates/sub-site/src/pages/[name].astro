@@ -2,13 +2,13 @@
 import Page from "@arnaud-zg/design/Page.astro";
 import Command from "@arnaud-zg/design/Command.astro";
 import Ending from "@arnaud-zg/design/Ending.astro";
-import { base, ending, hero, links, packages, repo, site } from "../site";
+import { base, ending, hero, info, links, packages, repo, site } from "../site";
 
 export const getStaticPaths = () => packages.map((p) => ({ params: { name: p.name }, props: p }));
 const { name, line, problem } = Astro.props;
 const docs = `${repo}/blob/main/docs/${name}`;
 ---
-<Page site={site.id} title={`${name} · ${site.title}`} description={line} nav={site.nav} heading={name} tagline={line} transitionName={`pkg-${name}`} hero={hero.page}>
+<Page site={info} title={`${name} · ${site.title}`} description={line} nav={site.nav} heading={name} tagline={line} transitionName={`pkg-${name}`} hero={hero.page}>
     <article class="section section--first">
       <Command label="Install" command={`pnpm add -D ${name}`} />
       <div class="prose">

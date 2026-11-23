@@ -5,7 +5,7 @@
 // (agent skills) and Substack (articles). This file holds everything else: who I am, the words
 // on the page, which sections show, and how fetched data is filtered and grouped.
 //
-// Sections:  site · hero · sections (page order) · career · data sources
+// Sections:  site · hero · sections (page order) · labels · career · data sources
 // Edit, rebuild, done. The daily scheduled build keeps fetched numbers fresh.
 
 // `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
@@ -15,9 +15,22 @@ export type Station = { name: string; industry?: string; role: string; start: st
 export default {
   // ─── Site ──────────────────────────────────────────────────────────────────────────────────
   site: {
+    id: "home",
+    url: "https://arnaud-zg.github.io",
+    // Shown top left on every page.
+    brand: "arnaud-zg",
+    // One of the photos of @arnaud-zg/design, with its credit.
+    photo: "bund",
     title: "Arnaud Zheng · Software engineer",
     description: "Arnaud Zheng, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, agent skills, and contributions to rspack and Module Federation.",
   },
+
+  // Sites under the same address, linked from the header and the footer. Turn `live` on once a
+  // site is deployed: until then nothing links to it. Sub-sites keep the same list.
+  sites: [
+    { id: "home", label: "arnaud-zg", path: "/", line: "Portfolio", live: true },
+    { id: "js-packages", label: "js-packages", path: "/js-packages/", line: "TypeScript tools for monorepos", live: false },
+  ],
 
   // ─── Hero ──────────────────────────────────────────────────────────────────────────────────
   name: "Arnaud Zheng",
@@ -57,11 +70,25 @@ export default {
     ending: { show: true, title: "Let's catch up 👋", line: "A question, an idea, or just to say hi: I'd love to hear from you." },
   },
 
+  // ─── Labels ────────────────────────────────────────────────────────────────────────────────
+  // The small words around fetched data.
+  labels: {
+    glance: "At a glance", years: "years", tools: "tools", average: (years: number) => `~${years} yrs avg`,
+    now: "Now", at: "at", experience: "Experience", education: "Education", stack: "Stack", skillsTaught: "Skills", then: "then",
+    releases: "releases", plugins: "plugins", monthlyDownloads: "monthly downloads",
+    downloadsIn: (month: string) => `npm downloads in ${month}`, downloadsTitle: (month: string) => `npm downloads, ${month}`,
+    viewOnNpm: "View on npm", onNpm: (name: string) => `${name} on npm`, showDetails: (name: string) => `${name}: show details`,
+    more: (n: number) => `+${n} more`, earlier: (n: number, from: string, to: string) => `See ${n} earlier libraries · ${from}–${to}`,
+    skills: "skills", install: "Install, any agent", readArticles: "Read them on Substack",
+    linesAdded: "lines added", linesRemoved: "lines removed", added: "added", removed: "removed", total: "Across every project",
+    moreProjects: (n: number) => `${n} more ${n === 1 ? "project" : "projects"}`,
+  },
+
   // ─── Career ────────────────────────────────────────────────────────────────────────────────
   // Career, oldest first. Months are "YYYY-MM"; leave `end` out for the current role.
   // `fullTime: false` stints fold into one school row and are not counted in tenure.
   career: {
-    school: { name: "Early career", role: "Five six-month stints alongside Epitech" },
+    school: { name: "Early career", role: "Six-month internships alongside Epitech" },
     // Education, newest first. `short` is what the summary strip shows.
     education: [
       { school: "Epitech", degree: "Master-level, Computer Software Engineering", start: "2012", end: "2017", short: "Master-level, Epitech",
@@ -103,6 +130,13 @@ export default {
     excludeRepos: ["Orlands/snake-tj", "pqvst/cafeandcowork", "muan/hello-world"],
     // How many repos (largest total change first) show on the page; the rest open in a dialog.
     top: 5,
+    // Projects with fewer stars than this are left out.
+    minStars: 50,
+    // Only changes that say something about the work: no chores, docs or bare "Update X".
+    shownKinds: ["Feature", "Fix", "Performance", "Types", "Refactor", "Test"],
+    trivial: /typo|console log|optimi[sz]e images|readme|faq|^docs\b|hello-world|update \S+\.json|add ".*" on/i,
+    // How much each kind of change counts when projects are ranked.
+    weights: { Feature: 3, Fix: 3, Performance: 3, Types: 2.5, Refactor: 2, Change: 1.5, Test: 1.5, Docs: 0.5 },
   },
 
   // Side quests: packages I maintain on npm, with their releases and last month's downloads.

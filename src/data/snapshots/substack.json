@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Applying Object Calisthenics Principles to Front-End Applications",
+    "subtitle": "How object calisthenics make your user interface code cleaner",
+    "url": "https://arnaudzg.substack.com/p/applying-object-calisthenics-principles",
+    "date": "2025-11-05",
+    "image": "https://images.unsplash.com/photo-1502904550040-7534597429ae?ixlib=rb-4.1.0&fm=jpg&q=60&w=3000"
+  },
+  {
+    "title": "Effective feature flag management",
+    "subtitle": "The cost of neglecting feature flags: risks and best practices",
+    "url": "https://arnaudzg.substack.com/p/effective-feature-flag-management",
+    "date": "2025-05-26",
+    "image": "https://substackcdn.com/image/fetch/$s_!zkP7!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fbcf9f1c1-6653-401e-90d1-69ed32aa418b_2992x2992.jpeg"
+  },
+  {
+    "title": "Simplicity Meets Power: The Role of Variants in Software Development",
+    "subtitle": "Insights from Coffee Machine Comparisons to Software Design",
+    "url": "https://arnaudzg.substack.com/p/simplicity-power-variants-software-development",
+    "date": "2024-10-18",
+    "image": "https://substackcdn.com/image/fetch/$s_!BxbW!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5e3fce66-5c6f-429e-bec4-945dd1000c8b_640x640.jpeg"
+  },
+  {
+    "title": "Why I'm Starting a Tech Blog Now",
+    "subtitle": "Plant your tree today; it’s never too late",
+    "url": "https://arnaudzg.substack.com/p/why-im-starting-a-tech-blog-now",
+    "date": "2024-09-24",
+    "image": "https://substackcdn.com/image/fetch/$s_!a6Ff!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0bc871ea-c1d1-4722-b40f-742de5e72476_7952x5304.jpeg"
+  }
+]

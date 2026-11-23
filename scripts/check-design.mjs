@@ -20,6 +20,14 @@ for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
   }
 }
 
+// The package knows nothing about who uses it: no owner name, no site id.
+const { default: config } = await import("../portfolio.config.ts");
+const own = [config.name, config.site.brand, ...config.sites.map((s) => s.id).filter((id) => id !== "home")];
+for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
+  const text = readFileSync(file, "utf8").replaceAll("@arnaud-zg/design", "");
+  for (const word of own) if (text.includes(word)) problems.push(`${relative(".", file)} names "${word}": take it from the site`);
+}
+
 // 2. Sites reach the package by name, and use its classes without restyling them.
 const classes = (css) => new Set([...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/(?:^|[},])\s*\.([a-z][\w-]*)\s*(?=[{,])/gm)].map((m) => m[1]));
 const shared = new Set(walk(join(src, "styles")).flatMap((f) => [...classes(readFileSync(f, "utf8"))]));

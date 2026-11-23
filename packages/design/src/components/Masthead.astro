@@ -1,14 +1,14 @@
 ---
 import ThemeSwitch from "./ThemeSwitch.astro";
-import { otherSites, siteById } from "../sites";
-interface Props { site: string; nav: { href: string; label: string }[]; solid?: boolean }
+import { currentSite, otherSites, type SiteInfo } from "../site";
+interface Props { site: SiteInfo; nav: { href: string; label: string }[]; solid?: boolean }
 const { site, nav, solid = false } = Astro.props;
-const here = siteById(site);
+const here = currentSite(site);
 const others = otherSites(site).filter((s) => s.id !== "home");
 ---
 <header class:list={["masthead", solid && "is-scrolled"]} data-solid={solid || undefined}>
   <p class="crumbs">
-    <a class="wordmark" href="/">arnaud-zg</a>
+    <a class="wordmark" href="/">{site.brand}</a>
     {here && here.id !== "home" && <><span class="crumb-sep" aria-hidden="true">/</span><a class="crumb" href={here.path}>{here.label}</a></>}
   </p>
   <nav class="nav-wide" aria-label="Main">
@@ -23,7 +23,7 @@ const others = otherSites(site).filter((s) => s.id !== "home");
     <nav aria-label="Menu">
       {nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
       {(here?.id !== "home" || others.length > 0) && <hr />}
-      {here?.id !== "home" && <a href="/" data-menu-link>arnaud-zg</a>}
+      {here?.id !== "home" && <a href="/" data-menu-link>{site.brand}</a>}
       {others.map((s) => <a href={s.path} data-menu-link>{s.label}</a>)}
     </nav>
   </div>

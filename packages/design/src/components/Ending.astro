@@ -1,8 +1,8 @@
 ---
 // The end of every page: the last words, the profiles, and the other sites.
 import Icon from "./Icon.astro";
-import { otherSites } from "../sites";
-interface Props { site: string; title: string; line: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
+import { otherSites, type SiteInfo } from "../site";
+interface Props { site: SiteInfo; title: string; line: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
 const { site, title, line, links } = Astro.props;
 const others = otherSites(site);
 ---
@@ -13,7 +13,7 @@ const others = otherSites(site);
     {links.map((l) => <li><a href={l.href} target="_blank" rel="noopener noreferrer"><Icon name={l.icon} size={17} /> {l.label}</a></li>)}
   </ul>
   {others.length > 0 && (
-    <ul class="end-sites" aria-label="More from arnaud-zg">
+    <ul class="end-sites" aria-label={`More from ${site.brand}`}>
       {others.map((s) => <li><a class="inline" href={s.path}>{s.label}</a> <span>{s.line}</span></li>)}
     </ul>
   )}

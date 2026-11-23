@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
+import config from "./portfolio.config.ts";
 
 export default defineConfig({
-  site: "https://arnaud-zg.github.io",
+  site: config.site.url,
 });

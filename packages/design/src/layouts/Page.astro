@@ -3,14 +3,15 @@
 import Site from "./Site.astro";
 import Hero from "../components/Hero.astro";
 import PageHead from "../components/PageHead.astro";
+import type { SiteInfo } from "../site";
 import Content from "../components/Content.astro";
 
-interface Props { site: string; title: string; description: string; nav: { href: string; label: string }[]; heading: string; tagline?: string; hero?: boolean; transitionName?: string; noindex?: boolean }
+interface Props { site: SiteInfo; title: string; description: string; nav: { href: string; label: string }[]; heading: string; tagline?: string; hero?: boolean; transitionName?: string; noindex?: boolean }
 const { site, title, description, nav, heading, tagline, hero = true, transitionName, noindex } = Astro.props;
 const top = { title: heading, tagline, transitionName };
 ---
 <Site {...{ site, title, description, nav, noindex }} solid={!hero}>
-  {hero && <Hero {...top} />}
+  {hero && <Hero site={site} {...top} />}
   <Content>
     {!hero && <PageHead {...top} />}
     <slot />

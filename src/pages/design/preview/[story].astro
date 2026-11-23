@@ -9,6 +9,7 @@ import LinkCard from "@arnaud-zg/design/LinkCard.astro";
 import Command from "@arnaud-zg/design/Command.astro";
 import Ending from "@arnaud-zg/design/Ending.astro";
 import config from "../../../../portfolio.config";
+import { siteInfo } from "../../../site";
 import { frames } from "../../../design/stories";
 
 export const getStaticPaths = () => frames.map((f) => ({ params: { story: f.id }, props: { name: f.name } }));
@@ -18,7 +19,8 @@ const nav = [{ href: "#packages", label: "Packages" }, { href: "#contact", label
 const line = "Small, focused TypeScript tools for monorepos.";
 const [kind, top] = story.split("-");
 const isTemplate = top === "hero" || top === "plain";
-const shell = { site: "js-packages", title: `${Astro.props.name} · Design workshop`, description: "A part of the shared design, on its own.", nav, noindex: true };
+const sub = { ...siteInfo, id: "js-packages" };
+const shell = { site: sub, title: `${Astro.props.name} · Design workshop`, description: "A part of the shared design, on its own.", nav, noindex: true };
 ---
 {isTemplate ? (
   <Page {...shell} heading={kind === "home" ? "js-packages" : "shiplane"} tagline={line} hero={top === "hero"}>
@@ -35,16 +37,16 @@ const shell = { site: "js-packages", title: `${Astro.props.name} · Design works
         <div class="prose"><h2>When you need it</h2><p>Releasing several apps from one repo is a pile of scripts.</p><h2>What it does</h2><ul><li>Finds what changed</li><li>Versions and tags it</li><li>Ships each app through plugins</li></ul></div>
       </article>
     )}
-    <Ending site="js-packages" title={sections.ending.title} line={sections.ending.line} links={links} />
+    <Ending site={sub} title={sections.ending.title} line={sections.ending.line} links={links} />
   </Page>
 ) : (
   <Site {...shell} bare={story !== "masthead" && story !== "page-head"} solid={story === "page-head"}>
-    {story === "hero-full" && <Hero size="full" title={config.name} tagline={config.tagline} />}
-    {(story === "hero-banner" || story === "masthead") && <Hero title="js-packages" tagline={line} />}
+    {story === "hero-full" && <Hero site={sub} size="full" title={config.name} tagline={config.tagline} />}
+    {(story === "hero-banner" || story === "masthead") && <Hero site={sub} title="js-packages" tagline={line} />}
     {(story === "masthead" || story === "ending" || story === "page-head") && (
       <Content>
         {story === "page-head" && <PageHead title="shiplane" tagline={line} />}
-        {story === "ending" && <Ending site="js-packages" title={sections.ending.title} line={sections.ending.line} links={links} />}
+        {story === "ending" && <Ending site={sub} title={sections.ending.title} line={sections.ending.line} links={links} />}
       </Content>
     )}
   </Site>

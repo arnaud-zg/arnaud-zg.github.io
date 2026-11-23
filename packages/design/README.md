@@ -1,6 +1,6 @@
 # @arnaud-zg/design
 
-The shared design of arnaud-zg.github.io and its sub-sites, for Astro: tokens, styles, page shell,
+A shared design for a site and its sub-sites, for Astro: tokens, styles, page shell,
 components and page transitions. See every part live at `/design/`.
 
 ## Start a sub-site
@@ -9,15 +9,17 @@ components and page transitions. See every part live at `/design/`.
 2. Point its dependency at this package. No npm release needed:
    `"@arnaud-zg/design": "github:arnaud-zg/arnaud-zg.github.io#main&path:/packages/design"`
 3. Set `base` in `astro.config.mjs` to the repository name, and edit `src/site.ts`.
-4. Add the site to `src/sites.ts` here. Set `live: true` once it is deployed.
+4. Add the site to `sites` in `portfolio.config.ts` and in the sub-site. Set `live: true` once it is
+   deployed.
 
 ## Use it
 
 ```astro
 ---
 import Page from "@arnaud-zg/design/Page.astro";
+import { info } from "../site"; // id, brand, sites and photo: see src/site.ts in this package
 ---
-<Page site="js-packages" title="…" description="…" nav={[]} heading="js-packages" tagline="…" hero={false}>
+<Page site={info} title="…" description="…" nav={[]} heading="js-packages" tagline="…" hero={false}>
   <section class="section section--first">…</section>
 </Page>
 ```

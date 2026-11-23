@@ -2,9 +2,10 @@
 // The page shell of every site. `solid` is for pages that do not open on a Hero; `bare` leaves
 // the header out, for previews of a single part.
 import "../styles/index.css";
+import type { SiteInfo } from "../site";
 import Masthead from "../components/Masthead.astro";
 
-interface Props { site: string; title: string; description: string; nav: { href: string; label: string }[]; solid?: boolean; noindex?: boolean; bare?: boolean }
+interface Props { site: SiteInfo; title: string; description: string; nav: { href: string; label: string }[]; solid?: boolean; noindex?: boolean; bare?: boolean }
 const { site, title, description, nav, solid, noindex, bare } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
