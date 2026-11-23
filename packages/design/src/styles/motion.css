@@ -1,0 +1,64 @@
+/* How parts move. Nothing here is needed to read or use a page: it is all off under reduced motion,
+   and browsers without a feature just show the end state. */
+:root { interpolate-size: allow-keywords; }
+.hero .key { color: inherit; }
+
+/* The header marks the section being read. */
+.nav-wide a[aria-current]::after { scale: 1 1; transform-origin: left; }
+.nav-wide a[aria-current] { color: var(--on-photo); }
+.masthead.is-scrolled .nav-wide a[aria-current] { color: var(--ink); }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Day and night: the new sky spreads from the switch that was pressed. */
+  .theming, .theming * { transition: none !important; }
+  .theming :is(.masthead, .hero), .theming [style*="view-transition-name"] { view-transition-name: none !important; }
+  .theming::view-transition-group(root) { animation-duration: 700ms; }
+  .theming::view-transition-old(root) { animation: none; mix-blend-mode: normal; }
+  .theming::view-transition-new(root) { animation: sky-spread 700ms var(--ease-move) both; mix-blend-mode: normal; }
+  @keyframes sky-spread { from { clip-path: circle(0 at var(--sky-x) var(--sky-y)); } to { clip-path: circle(var(--sky-r) at var(--sky-x) var(--sky-y)); } }
+
+  /* The hero's key words settle last. */
+  .hero .key { animation: key-in 800ms var(--ease-out) 1500ms both; }
+  @keyframes key-in { from { opacity: 0.45; } }
+  .arrived .hero .key { animation: none; }
+
+  /* Pressed controls give a little. */
+  :is(.link-card, .pill, .copy, .dialog-close, .menu-button, .socials a, .end-links a) { transition-property: border-color, background-color, color, box-shadow, translate, scale; transition-duration: 260ms; transition-timing-function: var(--ease-out); }
+  :is(.link-card, .pill, .copy, .end-links a):active { scale: 0.98; }
+  :is(.dialog-close, .menu-button, .socials a):active { scale: 0.92; }
+
+  /* Dialogs and the menu leave as gently as they arrive. The script closes them after the fade. */
+  .dialog[open], .menu:popover-open { transition: opacity 320ms var(--ease-out), translate 320ms var(--ease-out), scale 320ms var(--ease-out); }
+  .dialog::backdrop { transition: opacity 320ms ease; }
+  .dialog.is-leaving, .menu.is-leaving { opacity: 0; transition-duration: 220ms; }
+  .dialog.is-leaving { translate: 0 14px; scale: 0.98; }
+  .menu.is-leaving { translate: 0 -8px; }
+  .dialog.is-leaving::backdrop { opacity: 0; transition-duration: 220ms; }
+  @starting-style {
+    .dialog[open] { opacity: 0; translate: 0 14px; scale: 0.98; }
+    .dialog[open]::backdrop { opacity: 0; }
+    .menu:popover-open { opacity: 0; translate: 0 -8px; }
+  }
+
+  /* Expandable rows open to their own height. */
+  @supports (interpolate-size: allow-keywords) {
+  details::details-content { height: 0; opacity: 0; overflow: clip; transition: height 420ms var(--ease-out), opacity 300ms ease, content-visibility 420ms allow-discrete; }
+  details[open]::details-content { height: auto; opacity: 1; overflow-clip-margin: 12px; }
+  }
+
+  /* Copied: the button says so in the accent, then goes back. */
+  .copy.is-done { border-color: var(--accent); color: var(--accent); }
+
+  @supports (animation-timeline: view()) {
+    /* Headings come into focus; cards of one row follow each other. */
+    .section-head h2, .intro h2 { animation: heading-in linear both; animation-timeline: view(); animation-range: entry 20% cover 25%; }
+    @keyframes heading-in { from { opacity: 0; filter: blur(6px); translate: 0 10px; } }
+    @keyframes rise { from { opacity: 0; translate: 0 12px; } }
+    .link-card, .numbers li { animation: rise linear both; animation-timeline: view(); animation-range: entry calc(5% + var(--row, 0) * 7%) cover calc(20% + var(--row, 0) * 3%); }
+    .numbers li:nth-child(3n + 2), .card-grid li:nth-child(3n + 2) { --row: 1; }
+    .numbers li:nth-child(3n), .card-grid li:nth-child(3n) { --row: 2; }
+    .avatar { animation: portrait-in linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; }
+    @keyframes portrait-in { from { clip-path: inset(100% 0 0 0 round var(--radius)); } to { clip-path: inset(0 round var(--radius)); } }
+    .intro-lede { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+  }
+}

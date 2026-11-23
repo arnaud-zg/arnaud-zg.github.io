@@ -1,0 +1,9 @@
+---
+interface Props { label: string; command: string }
+const { label, command } = Astro.props;
+---
+<div class="command">
+  <span class="label">{label}</span>
+  <code data-copy-text>{command}</code>
+  <button class="copy" type="button" data-copy aria-label={`Copy: ${command}`}>Copy</button>
+</div>

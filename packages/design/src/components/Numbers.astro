@@ -1,0 +1,12 @@
+---
+// Large figures in a strip. They count up once, when first seen.
+interface Props { items: { value: number; unit: string; label: string }[] }
+---
+<ul class="numbers">
+  {Astro.props.items.map((n) => (
+    <li>
+      <span class="count-line"><span class="count" data-count={n.value}>{n.value}</span><span class="unit">{n.unit}</span></span>
+      <span class="n-label">{n.label}</span>
+    </li>
+  ))}
+</ul>

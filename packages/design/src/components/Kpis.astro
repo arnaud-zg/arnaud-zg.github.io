@@ -1,0 +1,9 @@
+---
+// One line of figures. An item without a value is plain text. `tone` colours added and removed.
+export type Kpi = { value?: string | number; label: string; tone?: "added" | "removed" };
+interface Props { items: Kpi[]; label?: string }
+const { items, label } = Astro.props;
+---
+<ul class="kpis" aria-label={label}>
+  {items.map((k) => <li>{k.value !== undefined && <b class={k.tone}>{k.value}</b>} {k.label}</li>)}
+</ul>

@@ -1,0 +1,8 @@
+---
+// Starlight's footer (edit link, previous and next), then the other sites.
+import Default from "@astrojs/starlight/components/Footer.astro";
+import { site } from "virtual:design/site";
+import SiteLinks from "../components/SiteLinks.astro";
+---
+<Default />
+<SiteLinks site={site} />

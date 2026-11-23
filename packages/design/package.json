@@ -1,0 +1,34 @@
+{
+  "name": "@arnaud-zg/design",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A shared design for a site and its sub-sites: tokens, styles, layout and components for Astro.",
+  "type": "module",
+  "exports": {
+    "./Site.astro": "./src/layouts/Site.astro",
+    "./Page.astro": "./src/layouts/Page.astro",
+    "./starlight": "./src/starlight/index.mjs",
+    "./starlight/*": "./src/starlight/*",
+    "./*.astro": "./src/components/*.astro",
+    "./styles/*": "./src/styles/*",
+    "./site": "./src/site.ts",
+    "./photos": "./src/photos.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/m-plus-1": "^5.3.1",
+    "@fontsource-variable/m-plus-1-code": "^5.3.1",
+    "simple-icons": "^16.38.0"
+  },
+  "peerDependencies": {
+    "astro": "^7.4.13",
+    "@astrojs/starlight": "^0.43.1"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/starlight": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "^0.43.1"
+  }
+}

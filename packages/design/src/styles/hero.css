@@ -1,0 +1,89 @@
+/* ───────── Hero: the photo at the top of a page ───────── */
+.hero { position: relative; height: 100svh; min-height: 640px; max-height: 1100px; overflow: hidden; isolation: isolate; background: #0b2a66; color: var(--on-photo); }
+.scene { position: absolute; inset: 0; z-index: -3; }
+.scene img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scene img { object-position: 50% 70%; }
+/* One photo for both themes: the hero stays the same; only the page below changes. */
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -2; background: linear-gradient(90deg, rgba(6, 22, 56, 0.62), rgba(6, 22, 56, 0.5) 24%, rgba(6, 22, 56, 0.28) 38%, transparent 56%); pointer-events: none; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 16%; z-index: -1; background: linear-gradient(transparent, var(--bg)); }
+.hero-copy { position: absolute; left: var(--edge); top: clamp(104px, 15vh, 170px); z-index: 2; display: grid; gap: 20px; max-width: min(44vw, 620px); }
+.hero h1 { display: grid; font-weight: 200; font-size: clamp(3rem, 7.2vw, 7rem); line-height: 0.98; letter-spacing: 0.1em; }
+.hero-copy :is(.role, .tagline) { text-shadow: 0 1px 14px rgba(6, 16, 40, 0.75), 0 1px 3px rgba(6, 16, 40, 0.5); }
+.word { display: block; white-space: nowrap; }
+.ch { display: inline-block; }
+.role { font-size: clamp(1rem, 1.3vw, 1.15rem); letter-spacing: 0.12em; color: var(--on-photo); }
+.role strong { color: var(--on-photo-accent); font-weight: 600; }
+.tagline { max-width: 30ch; font-size: clamp(1.1rem, 1.6vw, 1.4rem); font-weight: 300; line-height: 1.45; letter-spacing: 0.01em; color: var(--on-photo); text-wrap: balance; }
+.socials { display: flex; gap: 12px; margin-top: 8px; }
+.socials a { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--on-photo-line); background: var(--on-photo-fill); color: var(--on-photo); overflow: hidden; isolation: isolate; transition: color 260ms var(--ease-out), border-color 260ms var(--ease-out); }
+/* Hover fill: a disc that grows from the centre and covers the ring, so it stays round. */
+.socials a::before { content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: 50%; background: var(--on-photo); scale: 0; transition: scale 320ms var(--ease-out); }
+.socials a:hover, .socials a:focus-visible { color: #121a2e; border-color: var(--on-photo); }
+.socials a:hover::before, .socials a:focus-visible::before { scale: 1; }
+.credit { position: absolute; right: var(--edge); bottom: 22px; z-index: 3; font: 400 0.68rem/1 var(--mono); letter-spacing: 0.06em; color: rgba(244, 246, 255, 0.6); }
+.credit a { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-color: rgba(236, 238, 255, 0.3); }
+.credit a:hover { color: var(--ink); }
+.scroll-cue { position: absolute; z-index: 3; left: 50%; bottom: 22px; translate: -50% 0; width: 22px; height: 36px; border: 1px solid rgba(244, 246, 255, 0.4); border-radius: 12px; }
+.scroll-cue span { position: absolute; left: 50%; top: 7px; width: 2px; height: 7px; margin-left: -1px; border-radius: 1px; background: var(--on-photo); }
+.sky-life { position: absolute; inset: 0 0 45% 0; z-index: -1; pointer-events: none; overflow: hidden; }
+/* Flocks of birds crossing the sky */
+.flock { position: absolute; top: calc(14% + var(--f) * 13%); left: -140px; width: calc(120px - var(--f) * 34px); height: auto; opacity: 0; transition: opacity 1s ease; }
+.bird { fill: none; stroke: rgba(14, 24, 50, 0.75); stroke-width: 2.2; stroke-linecap: round; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Arrival: the city comes into focus, then the name is written over the sky */
+  .scene img { animation: arrive-city 2.4s var(--ease-out) both; }
+  @keyframes arrive-city { from { scale: 1.08; filter: blur(6px) brightness(0.6); } }
+  .ch { animation: ink-in 900ms var(--ease-out) both; animation-delay: calc(var(--i) * 50ms + 500ms); }
+  @keyframes ink-in { from { opacity: 0; translate: 0 0.3em; filter: blur(6px); } }
+  .tagline, .role, .socials { animation: settle 900ms var(--ease-out) both; }
+  .tagline { animation-delay: 1000ms; } .role { animation-delay: 1150ms; } .socials { animation-delay: 1300ms; }
+  @keyframes settle { from { opacity: 0; translate: 0 10px; } }
+  .scroll-cue span { animation: cue 1.8s var(--ease-out) infinite; }
+  @keyframes cue { 0% { opacity: 0; translate: 0 0; } 30% { opacity: 1; } 100% { opacity: 0; translate: 0 10px; } }
+  .flock { opacity: 1; animation: fly calc(26s + var(--f) * 9s) linear infinite; animation-delay: calc(var(--f) * -11s); }
+  @keyframes fly { from { translate: 0 0; } 50% { translate: 55vw -26px; } to { translate: calc(100vw + 280px) 8px; } }
+  .bird { animation: flap calc(0.5s + var(--b) * 0.07s) ease-in-out infinite alternate; }
+  @keyframes flap { to { scale: 1 0.35; } }
+  .is-offscreen .flock, .is-offscreen .bird { animation-play-state: paused; }
+
+  @supports (animation-timeline: view()) {
+    /* Scrolling away, the city sinks slowly and the name lifts */
+    .scene { animation: sink linear both; animation-timeline: scroll(root); animation-range: 0 100svh; }
+    .hero-copy { animation: lift linear both; animation-timeline: scroll(root); animation-range: 0 80svh; }
+    @keyframes sink { to { translate: 0 12%; } }
+    @keyframes lift { to { opacity: 0; translate: 0 -10vh; } }
+  }
+}
+@media (max-width: 640px) {
+  /* On phones the towers fill the frame, so the name moves down onto the river */
+  .scene img { object-position: 47% 50%; }
+  .hero-copy { top: auto; bottom: 74px; translate: none; max-width: none; right: var(--edge); }
+  .hero::after { height: 58%; background: linear-gradient(transparent, rgba(6, 10, 24, 0.72) 40%, rgba(6, 10, 24, 0.88) 92%, var(--bg)); }
+  .hero h1 { font-size: clamp(2.8rem, 15vw, 4rem); }
+  @supports (animation-timeline: view()) { @keyframes lift { to { opacity: 0; translate: 0 -8vh; } } }
+  .credit { right: auto; left: var(--edge); bottom: 22px; }
+  .scroll-cue { display: none; }
+}
+/* Banner: the short hero of a sub-site. The copy sits on the sky, at every width. */
+.hero--banner { height: clamp(380px, 52svh, 520px); min-height: 0; }
+/* The photo is drawn exactly where the full hero draws it, so it holds still during navigation
+   and only the bottom edge moves. Keep these three in step with .hero. */
+.hero--banner .scene { bottom: auto; height: 100svh; min-height: 640px; max-height: 1100px; }
+.hero--banner::before { background: linear-gradient(90deg, rgba(6, 22, 56, 0.6), rgba(6, 22, 56, 0.36) 36%, transparent 72%); }
+.hero--banner .hero-copy { top: auto; bottom: clamp(64px, 10svh, 96px); gap: 14px; max-width: min(620px, calc(100vw - 2 * var(--edge))); }
+.hero--banner h1 { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.1; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+.hero-title { width: fit-content; }
+.hero--banner .tagline { max-width: 44ch; font-size: clamp(1rem, 1.4vw, 1.2rem); }
+@media (max-width: 640px) {
+    .hero--banner::before { background: rgba(6, 22, 56, 0.36); }
+  .hero--banner::after { height: 16%; background: linear-gradient(transparent, var(--bg)); }
+  .hero--banner h1 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .hero--banner .credit { display: none; }
+  [data-theme] .hero:not(.hero--banner) .credit { bottom: 40px; color: var(--on-photo-lo); }
+}
+
+/* Day: the hero fades into a light page, so the bottom details switch to ink */
+[data-theme="light"] .credit { color: var(--ink-lo); }
+[data-theme="light"] .credit a:hover { color: var(--ink); }
+[data-theme="light"] .scroll-cue { border-color: var(--line); }
+[data-theme="light"] .scroll-cue span { background: var(--ink); }
