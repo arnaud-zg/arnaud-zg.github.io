@@ -17,10 +17,10 @@ refreshes it:
 | Open source | GitHub, merged pull requests in repositories I do not own           |
 | Writing     | Substack RSS feed                                                   |
 
-If a source cannot be reached, a local build falls back to the saved data in `src/data/snapshots`.
+If a source cannot be reached, a local build falls back to the saved data in `apps/portfolio/src/data/snapshots`.
 The deploy sets `STRICT_DATA=1` and fails instead, so the site online never goes back to old numbers.
 What to fetch, and which organisations count as mine, is set in
-[`portfolio.config.ts`](./portfolio.config.ts).
+[`portfolio.config.ts`](./apps/portfolio/portfolio.config.ts).
 
 ## Develop
 
@@ -28,10 +28,20 @@ What to fetch, and which organisations count as mine, is set in
 nvm use        # Node 24
 pnpm install
 pnpm dev       # http://localhost:4321
-pnpm build     # static site in dist/
+pnpm build     # static site in apps/portfolio/dist/
 ```
 
 Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
+
+## Layout
+
+| Folder                     | Holds                                      |
+| -------------------------- | ------------------------------------------ |
+| `apps/portfolio`           | this site                                  |
+| `apps/analytics-collector` | Cloudflare Worker that keeps its events    |
+| `packages/design`          | the shared design                          |
+| `packages/analytics`       | consent, tracking plan, providers          |
+| `templates/sub-site`       | starts a new sub-site                      |
 
 ## Shared design
 

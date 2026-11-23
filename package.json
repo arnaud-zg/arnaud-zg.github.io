@@ -3,28 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "pnpm check && astro build",
-    "preview": "astro preview",
-    "preview:sites": "PREVIEW_SITES=1 astro build --outDir .preview && pnpm --filter js-packages-site preview:build && astro preview --outDir .preview --port 4330",
+    "dev": "pnpm --filter portfolio dev",
+    "build": "pnpm check && pnpm --filter portfolio build",
+    "preview": "pnpm --filter portfolio preview",
+    "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve",
     "check": "node scripts/check-design.mjs && pnpm test",
-    "test": "node --test \"packages/*/test/*.test.ts\"",
-    "analytics:deploy": "pnpm --filter @arnaud-zg/analytics-collector run deploy",
+    "test": "node --test \"{apps,packages}/*/test/*.test.ts\"",
     "analytics:report": "pnpm --filter @arnaud-zg/analytics-collector run report",
     "site:deploy": "node scripts/deploy.mjs"
-  },
-  "dependencies": {
-    "@arnaud-zg/analytics": "workspace:*",
-    "@arnaud-zg/design": "workspace:*",
-    "@astrojs/sitemap": "^3.7.6",
-    "@astrojs/starlight": "^0.43.1",
-    "astro": "^7.4.13"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {
     "node": ">=22.23.4"
-  },
-  "devDependencies": {
-    "@types/node": "^24.19.2"
   }
 }

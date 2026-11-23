@@ -1,0 +1,22 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview",
+    "preview:serve": "astro preview --outDir ../../.preview --port 4330"
+  },
+  "dependencies": {
+    "@arnaud-zg/analytics": "workspace:*",
+    "@arnaud-zg/design": "workspace:*",
+    "@astrojs/sitemap": "^3.7.6",
+    "@astrojs/starlight": "^0.43.1",
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2"
+  }
+}

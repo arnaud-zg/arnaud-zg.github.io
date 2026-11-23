@@ -94,7 +94,7 @@ export default {
     providers: {
       // Page views and speed. Cloudflare dashboard, Web Analytics: the site token.
       "cloudflare-web-analytics": "",
-      // The KPIs. The address printed by `pnpm analytics:deploy`.
+      // The KPIs. The address of the collector Worker.
       "cloudflare-events": "",
     },
     words: {

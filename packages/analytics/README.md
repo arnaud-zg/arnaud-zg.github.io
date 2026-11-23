@@ -4,14 +4,14 @@ Consent-first analytics. The core decides what may be sent and when; providers p
 
 ## Turn on
 
-Fill a value in `portfolio.config.ts`, under `analytics.providers`. Empty is off. Each works alone.
+Fill a value in `apps/portfolio/portfolio.config.ts`, under `analytics.providers`. Empty is off. Each works alone.
 
 | Provider                   | Gives                 | Its value                                                              |
 | -------------------------- | --------------------- | ---------------------------------------------------------------------- |
 | `cloudflare-web-analytics` | page views, speed     | dashboard, Web Analytics, add the site, manual snippet: its token      |
-| `cloudflare-events`        | the KPIs below        | the address printed by `pnpm analytics:deploy`                         |
+| `cloudflare-events`        | the KPIs below        | the address of the collector Worker                                    |
 
-Web Analytics takes no custom events, so a Worker (`packages/analytics-collector`) keeps ours in
+Web Analytics takes no custom events, so a Worker (`apps/analytics-collector`) keeps ours in
 Analytics Engine, for three months. Leave Web Analytics' automatic setup off: it would skip the question.
 
 ## Read
@@ -25,14 +25,14 @@ Analytics Engine, for three months. Leave Web Analytics' automatic setup off: it
 | Followed through | went to a link. **The goal.** | `link_followed`    | links beside the sections they read     |
 
 `page_viewed` (source, device) counts visits and says who follows through most. Targets are in
-`packages/analytics-collector/src/domain/kpis.ts`: starting points, to move after a first month.
+`apps/analytics-collector/src/domain/kpis.ts`: starting points, to move after a first month.
 Only people who said yes are counted: read rates and rankings, not totals.
 
 ## Change
 
 - **What is collected**: [`src/domain/plan.ts`](./src/domain/plan.ts), the only list. The browser and
   the collector check events against it, and the privacy dialog prints it. Raise `PLAN_VERSION` when
-  it collects more: everyone is asked again. Redeploy the Worker.
+  it collects more: everyone is asked again. The Worker must be updated with it.
 - **Another provider**: one adapter, one line in [`src/providers.ts`](./src/providers.ts).
 - **Off for one build**: `ANALYTICS=none pnpm build`. Try it: `ANALYTICS=console pnpm dev`.
 - **Off for a visitor**: Privacy, at the end of the page.

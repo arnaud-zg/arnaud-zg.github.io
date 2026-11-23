@@ -21,7 +21,7 @@ run("pnpm", ["build"], { env: { ...process.env, GITHUB_TOKEN: token, STRICT_DATA
 
 const dir = mkdtempSync(join(tmpdir(), "site-"));
 try {
-  cpSync("dist", dir, { recursive: true });
+  cpSync("apps/portfolio/dist", dir, { recursive: true });
   // Without this file GitHub Pages hides folders that start with an underscore.
   writeFileSync(join(dir, ".nojekyll"), "");
   const git = (...args) => run("git", args, { cwd: dir });

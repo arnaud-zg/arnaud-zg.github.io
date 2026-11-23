@@ -22,7 +22,7 @@ for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
 }
 
 // The package knows nothing about who uses it: no owner name, no site id.
-const { default: config } = await import("../portfolio.config.ts");
+const { default: config } = await import("../apps/portfolio/portfolio.config.ts");
 const own = [config.name, config.site.brand, ...config.sites.map((s) => s.id).filter((id) => id !== "home")];
 for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
   const text = readFileSync(file, "utf8").replaceAll("@arnaud-zg/design", "");
@@ -32,14 +32,14 @@ for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
 // 2. Sites reach the package by name, and use its classes without restyling them.
 const classes = (css) => new Set([...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/(?:^|[},])\s*\.([a-z][\w-]*)\s*(?=[{,])/gm)].map((m) => m[1]));
 const shared = new Set(walk(join(src, "styles")).flatMap((f) => [...classes(readFileSync(f, "utf8"))]));
-for (const root of ["src", "templates/sub-site/src"]) for (const file of walk(root)) {
+for (const root of ["apps/portfolio/src", "templates/sub-site/src"]) for (const file of walk(root)) {
   const text = readFileSync(file, "utf8");
   if (/packages\/design\/src/.test(text)) problems.push(`${file}: use @arnaud-zg/design, not its path`);
   if (file.endsWith(".css")) for (const c of classes(text)) if (shared.has(c)) problems.push(`${file}: restyles .${c}, which the package owns`);
 }
 
 // 3. Every component is on show in the workshop, directly or inside another one.
-const shown = walk("src/pages/design").map((f) => readFileSync(f, "utf8")).join("\n");
+const shown = walk("apps/portfolio/src/pages/design").map((f) => readFileSync(f, "utf8")).join("\n");
 // Starlight overrides are shown by the Starlight pages instead.
 for (const file of walk(src).filter((f) => f.endsWith(".astro") && !f.includes("/starlight/"))) {
   const name = file.split("/").pop().replace(".astro", "");

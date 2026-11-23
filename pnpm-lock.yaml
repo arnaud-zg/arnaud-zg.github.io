@@ -164,14 +164,22 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  apps/analytics-collector:
     dependencies:
       '@arnaud-zg/analytics':
         specifier: workspace:*
-        version: link:packages/analytics
+        version: link:../../packages/analytics
+
+  apps/portfolio:
+    dependencies:
+      '@arnaud-zg/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@arnaud-zg/design':
         specifier: workspace:*
-        version: link:packages/design
+        version: link:../../packages/design
       '@astrojs/sitemap':
         specifier: ^3.7.6
         version: 3.7.6
@@ -187,12 +195,6 @@ importers:
         version: 24.19.2
 
   packages/analytics: {}
-
-  packages/analytics-collector:
-    dependencies:
-      '@arnaud-zg/analytics':
-        specifier: workspace:*
-        version: link:../analytics
 
   packages/design:
     dependencies:
