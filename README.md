@@ -8,8 +8,8 @@ Shanghai from Suzhou Creek.
 
 ## Data
 
-Everything on the page that can change is fetched when the site is built, and a daily scheduled
-build keeps it current:
+Everything on the page that can change is fetched when the site is built. Each deploy
+refreshes it:
 
 | Section     | Source                                                              |
 | ----------- | ------------------------------------------------------------------- |
@@ -41,8 +41,14 @@ together.
 
 ## Deploy
 
-Every push to `main` builds the site and publishes it to the `gh-pages` branch, which
-GitHub Pages serves. A scheduled build runs every day to refresh the data.
+By hand, with no GitHub workflow:
+
+```sh
+pnpm site:deploy
+```
+
+It builds with live data and publishes to the `gh-pages` branch, which GitHub Pages must be set to
+serve. Run it again whenever the numbers should be refreshed.
 
 ## Credits
 

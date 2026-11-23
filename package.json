@@ -7,7 +7,8 @@
     "build": "pnpm check && astro build",
     "preview": "astro preview",
     "preview:sites": "PREVIEW_SITES=1 astro build --outDir .preview && pnpm --filter js-packages-site preview:build && astro preview --outDir .preview --port 4330",
-    "check": "node scripts/check-design.mjs"
+    "check": "node scripts/check-design.mjs",
+    "site:deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@arnaud-zg/design": "workspace:*",

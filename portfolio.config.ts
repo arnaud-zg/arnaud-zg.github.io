@@ -6,7 +6,7 @@
 // on the page, which sections show, and how fetched data is filtered and grouped.
 //
 // Sections:  site · hero · sections (page order) · labels · career · data sources
-// Edit, rebuild, done. The daily scheduled build keeps fetched numbers fresh.
+// Edit, rebuild, done. Fetched numbers are as fresh as the last deploy.
 
 // `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
 // A milestone can carry a new title (a promotion), shown as the title progression.

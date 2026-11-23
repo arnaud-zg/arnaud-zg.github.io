@@ -9,8 +9,7 @@ web
 ## Stack
 
 Astro, static, hosted on GitHub Pages at the root of the user site. Data is fetched at build time
-(GitHub, npm registry, Substack RSS) with saved snapshots as fallback. A daily scheduled rebuild
-keeps numbers fresh.
+(GitHub, npm registry, Substack RSS) with saved snapshots as fallback. Deployed by hand; each deploy refreshes the numbers.
 
 ## Users
 
