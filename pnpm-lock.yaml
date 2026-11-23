@@ -166,6 +166,9 @@ importers:
 
   .:
     dependencies:
+      '@arnaud-zg/analytics':
+        specifier: workspace:*
+        version: link:packages/analytics
       '@arnaud-zg/design':
         specifier: workspace:*
         version: link:packages/design
@@ -182,6 +185,14 @@ importers:
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
+
+  packages/analytics: {}
+
+  packages/analytics-collector:
+    dependencies:
+      '@arnaud-zg/analytics':
+        specifier: workspace:*
+        version: link:../analytics
 
   packages/design:
     dependencies:

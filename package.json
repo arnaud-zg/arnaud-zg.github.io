@@ -7,10 +7,14 @@
     "build": "pnpm check && astro build",
     "preview": "astro preview",
     "preview:sites": "PREVIEW_SITES=1 astro build --outDir .preview && pnpm --filter js-packages-site preview:build && astro preview --outDir .preview --port 4330",
-    "check": "node scripts/check-design.mjs",
+    "check": "node scripts/check-design.mjs && pnpm test",
+    "test": "node --test \"packages/*/test/*.test.ts\"",
+    "analytics:deploy": "pnpm --filter @arnaud-zg/analytics-collector run deploy",
+    "analytics:report": "pnpm --filter @arnaud-zg/analytics-collector run report",
     "site:deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
+    "@arnaud-zg/analytics": "workspace:*",
     "@arnaud-zg/design": "workspace:*",
     "@astrojs/sitemap": "^3.7.6",
     "@astrojs/starlight": "^0.43.1",

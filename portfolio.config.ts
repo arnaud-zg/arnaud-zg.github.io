@@ -87,6 +87,34 @@ export default {
     moreProjects: (n: number) => `${n} more ${n === 1 ? "project" : "projects"}`,
   },
 
+  // ─── Analytics ─────────────────────────────────────────────────────────────────────────────
+  // Fill a value to turn that provider on; empty is off. Both are public: they end up in the page.
+  // For one build: ANALYTICS=none turns all off, ANALYTICS=console shows events in the console.
+  analytics: {
+    providers: {
+      // Page views and speed. Cloudflare dashboard, Web Analytics: the site token.
+      "cloudflare-web-analytics": "",
+      // The KPIs. The address printed by `pnpm analytics:deploy`.
+      "cloudflare-events": "",
+    },
+    words: {
+      link: "Privacy",
+      ask: "Which parts did you like?",
+      askText: "May I count what gets read here? No cookies, no profile of you, and nothing to lose by saying no.",
+      yes: "Yes, count me", no: "No thanks", more: "What is counted",
+      title: "What this site counts",
+      state: "Nothing is counted unless you say yes, and you can change your mind here at any time. Your browser's Do Not Track or Global Privacy Control signal counts as a no.",
+      listTitle: "If you say yes",
+      vitals: "How fast the page loads, with Cloudflare Web Analytics",
+      country: "Your country, which Cloudflare works out from your connection",
+      limitsTitle: "What is never kept",
+      limits: "No cookies, no name, no IP address in the events, nothing that follows you to another visit or site. Your IP address reaches Cloudflare with each request, and is used for a minute to stop abuse.",
+      whoTitle: "Who, where, how long",
+      who: "Arnaud Zheng is responsible for it, with your consent as the legal basis, only to learn what is useful on this site. Cloudflare processes it, and may do so outside the European Union. Events are deleted after three months; Cloudflare Web Analytics shows up to six. Your answer stays in this browser for six months, then you are asked again.",
+      rights: "The events cannot be tied back to you, so there is nothing to look up by name. To ask a question, write to me on LinkedIn; you can also complain to your data protection authority, the CNIL in France.",
+    },
+  },
+
   // ─── Career ────────────────────────────────────────────────────────────────────────────────
   // Career, oldest first. Months are "YYYY-MM"; leave `end` out for the current role.
   // `fullTime: false` stints fold into one school row and are not counted in tenure.

@@ -39,6 +39,10 @@ Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 user. [`templates/sub-site`](./templates/sub-site) starts a new one. `pnpm preview:sites` runs both
 together.
 
+## Analytics
+
+Opt-in, off until configured, and swappable: see [`packages/analytics`](./packages/analytics).
+
 ## Deploy
 
 By hand, with no GitHub workflow:

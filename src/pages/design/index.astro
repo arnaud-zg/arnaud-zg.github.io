@@ -14,6 +14,7 @@ import Kpis from "@arnaud-zg/design/Kpis.astro";
 import Numbers from "@arnaud-zg/design/Numbers.astro";
 import Tags from "@arnaud-zg/design/Tags.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
+import Ask from "@arnaud-zg/design/Ask.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
 import { portrait, siteInfo } from "../../site";
 import Story from "../../components/Story.astro";
@@ -33,7 +34,7 @@ const framed = [
   { level: "Templates", lede: "Custom pages, for anything that is not documentation.", items: preview("Templates") },
   { level: "Starlight", lede: "Documentation sites. Search, sidebar and Markdown are Starlight's; the look is this design, through one plugin.", items: starlightFrames.map((f) => ({ ...f, src: `/design/starlight/${f.id}/` })) },
 ];
-const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const;
+const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] as const;
 ---
 <Site site={siteInfo} title={`Design workshop · ${config.site.brand}`} description="The parts this site and its sub-sites are built from." nav={nav} noindex>
   <Hero site={siteInfo} title="Design workshop" tagline="You found the door. These are the parts every site here is built from, live." />
@@ -71,7 +72,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const
           <Story name="ThemeSwitch" use="Remembers the choice for every site on this origin." code="<ThemeSwitch />"><div class="ws-on-photo"><ThemeSwitch /></div></Story>
           <Story name="Avatar" use="A portrait, square with the shared corner." code={'<Avatar src={photo} alt="…" />'}><Avatar {...portrait} /></Story>
           <Story name="Tags" use="Short facts, read together." code={'<Tags items={["TypeScript", "Astro"]} label="Stack" />'}><Tags items={["TypeScript", "Astro"]} label="Stack" /></Story>
-          <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><Pill opens="ws-dialog">Open the dialog</Pill></Story>
+          <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><div class="pills"><Pill opens="ws-dialog">Open the dialog</Pill><Pill plain aria-pressed="true">Chosen</Pill><Pill plain aria-pressed="false">Not chosen</Pill></div></Story>
           <Story name="Rich" use="Marks the words that matter. Two or three per text." code={'<Rich text="Now I build **tools**." />'}><p><Rich text="Now I build **tools other engineers rely on**." /></p></Story>
           <Story name="Link and label" use="Links in running text, labels on data." code={'<a class="inline" href="…">…</a>  <span class="label">…</span>'}><p class="ws-row"><a class="inline" href="#atoms">An inline link</a><span class="label">A label</span></p></Story>
         </section>
@@ -86,6 +87,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const
           <Story name="Kpis" use="One line of figures, real ones only." code={'<Kpis items={[{ value: 84, label: "releases" }]} />'}><Kpis items={[{ value: 84, label: "releases" }, { value: "+120", label: "lines added", tone: "added" }, { value: "−30", label: "lines removed", tone: "removed" }]} /></Story>
           <Story name="Numbers" use="The figures a page opens on." code={'<Numbers items={[{ value: 13, unit: "years", label: "…" }]} />'}><Numbers items={[{ value: 13, unit: "years", label: "shipping software" }, { value: 9, unit: "tools", label: "open source" }]} /></Story>
           <Story name="Dialog" use="For detail that would crowd the page." code={'<Dialog id="my-dialog" title="More">…</Dialog>'}><Pill opens="ws-dialog">Open the dialog</Pill><Dialog id="ws-dialog" title="A dialog"><p>Escape, the close button or a click outside closes it.</p></Dialog></Story>
+          <Story name="Ask" use="A question the page can do without. Corner of the screen, never over the page; both answers weigh the same." code={'<Ask title="…" text="…"><Pill plain>Yes</Pill><Pill plain>No</Pill></Ask>'}><div class="pills"><Pill plain data-show-ask>Show it</Pill></div><Ask title="May I ask?" text="Either answer is fine, and the page stays the same." data-ws-ask><Pill plain data-hide-ask>Yes</Pill><Pill plain data-hide-ask>No</Pill></Ask></Story>
           <Story name="Command" use="One command to copy." code={'<Command label="Install" command="pnpm add -D shiplane" />'}><Command label="Install" command={config.skills.install} /></Story>
         </section>
 
@@ -111,6 +113,9 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const
 </Site>
 
 <script>
+  const ask = document.querySelector<HTMLElement>("[data-ws-ask]")!;
+  document.querySelector("[data-show-ask]")!.addEventListener("click", () => { ask.hidden = false; });
+  document.querySelectorAll("[data-hide-ask]").forEach((b) => b.addEventListener("click", () => { ask.hidden = true; }));
   document.querySelectorAll<HTMLElement>("[data-frame]").forEach((box) => {
     const frame = box.querySelector("iframe")!;
     const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-width]")];

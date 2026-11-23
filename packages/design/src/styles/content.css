@@ -108,3 +108,16 @@
   .intro-who h2:only-child { grid-column: 1 / -1; }
   .intro .avatar { width: 112px; height: 112px; }
 }
+.pill[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+/* Beside a dialog's edges, for running text. */
+.dialog-body > .prose { padding-block: 22px 14px; }
+
+/* Ask: a question that waits in the corner */
+.ask { position: fixed; right: clamp(16px, 2.5vw, 32px); bottom: max(clamp(16px, 2.5vw, 32px), env(safe-area-inset-bottom)); z-index: 15; display: grid; gap: 6px; width: min(330px, calc(100vw - 32px)); padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--ink); box-shadow: var(--shadow-lift); }
+.ask[hidden] { display: none; }
+.ask-bird { position: absolute; top: -19px; right: 24px; color: var(--accent); line-height: 0; }
+.ask-title { font-size: var(--fs-body); font-weight: 500; line-height: 1.4; }
+.ask-text { font-size: var(--fs-small); line-height: 1.55; color: var(--ink-lo); }
+.ask .inline { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+.ask-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
