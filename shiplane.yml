@@ -1,10 +1,7 @@
 # yaml-language-server: $schema=node_modules/.cache/shiplane/shiplane.schema.json
 # How this repository releases. Your editor completes every key from the schema above.
 flow:
-  sourceControl:
-    use: git
-    with:
-      main: develop
+  sourceControl: git
   codeHost: github
   ciPipeline: github-actions
   versioning: changesets

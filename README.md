@@ -58,7 +58,7 @@ With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It n
 
 ```sh
 pnpm changeset   # in your pull request: what changed
-pnpm release     # on develop: opens the release PR; once merged, ships the preview
+pnpm release     # on main: opens the release PR; once merged, ships the preview
 pnpm release promote   # ships the preview to production
 ```
 
