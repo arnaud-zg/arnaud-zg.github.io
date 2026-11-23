@@ -166,12 +166,6 @@ importers:
 
   .: {}
 
-  apps/analytics-collector:
-    dependencies:
-      '@arnaud-zg/analytics':
-        specifier: workspace:*
-        version: link:../../packages/analytics
-
   apps/portfolio:
     dependencies:
       '@arnaud-zg/analytics':

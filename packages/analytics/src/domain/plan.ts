@@ -1,5 +1,4 @@
-// The tracking plan: four events, each a step from arriving to following through. Nothing outside it can be sent: the browser and the collector both check it,
-// and the privacy dialog prints it.
+// The tracking plan: four events, each a step from arriving to following through. Nothing outside it can be sent, and the privacy dialog prints it.
 
 type Rule = (value: unknown) => boolean;
 const oneOf = (...values: string[]): Rule => (v) => typeof v === "string" && values.includes(v);

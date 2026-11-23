@@ -2,7 +2,7 @@
 
 ## Layout
 
-- `apps/`: what runs. `portfolio` is the site, `analytics-collector` a Cloudflare Worker.
+- `apps/`: what runs. `portfolio` is the site.
 - `packages/`: what apps share. `templates/`: the sub-site starter. Run scripts from the root.
 
 ## UI: always use the design system

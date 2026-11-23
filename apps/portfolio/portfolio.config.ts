@@ -88,15 +88,13 @@ export default {
   },
 
   // ─── Analytics ─────────────────────────────────────────────────────────────────────────────
-  // Fill a value to turn that provider on; empty is off. Both are public: they end up in the page.
-  // For one build: ANALYTICS=none turns all off, ANALYTICS=console shows events in the console.
+  // PostHog, and off until the key is filled. The key is public: it ends up in the page.
+  // `pnpm dev` uses a mock. ANALYTICS=on uses PostHog there, ANALYTICS=off removes it anywhere.
   analytics: {
-    providers: {
-      // Page views and speed. Cloudflare dashboard, Web Analytics: the site token.
-      "cloudflare-web-analytics": "",
-      // The KPIs. The address of the collector Worker.
-      "cloudflare-events": "",
-    },
+    // The project key: PostHog, Settings, Project. Starts with phc_.
+    posthogKey: "",
+    // "eu" or "us", as in your PostHog address.
+    posthogRegion: "eu",
     words: {
       link: "Privacy",
       ask: "Which parts did you like?",
@@ -105,12 +103,10 @@ export default {
       title: "What this site counts",
       state: "Nothing is counted unless you say yes, and you can change your mind here at any time. Your browser's Do Not Track or Global Privacy Control signal counts as a no.",
       listTitle: "If you say yes",
-      vitals: "How fast the page loads, with Cloudflare Web Analytics",
-      country: "Your country, which Cloudflare works out from your connection",
       limitsTitle: "What is never kept",
-      limits: "No cookies, no name, no IP address in the events, nothing that follows you to another visit or site. Your IP address reaches Cloudflare with each request, and is used for a minute to stop abuse.",
+      limits: "No cookies, no name, no location, no profile, nothing that follows you to another visit or site. Your IP address reaches PostHog with each request, and its settings keep it out of the events.",
       whoTitle: "Who, where, how long",
-      who: "Arnaud Zheng is responsible for it, with your consent as the legal basis, only to learn what is useful on this site. Cloudflare processes it, and may do so outside the European Union. Events are deleted after three months; Cloudflare Web Analytics shows up to six. Your answer stays in this browser for six months, then you are asked again.",
+      who: (region: string) => `Arnaud Zheng is responsible for it, with your consent as the legal basis, only to learn what is useful on this site. PostHog processes it, on servers in ${region === "eu" ? "Frankfurt, Germany" : "the United States"}, and keeps events for a year. Your answer stays in this browser for six months, then you are asked again.`,
       rights: "The events cannot be tied back to you, so there is nothing to look up by name. To ask a question, write to me on LinkedIn; you can also complain to your data protection authority, the CNIL in France.",
     },
   },

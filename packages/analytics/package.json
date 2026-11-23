@@ -7,7 +7,6 @@
   "exports": {
     ".": "./src/composition.ts",
     "./plan": "./src/domain/plan.ts",
-    "./providers": "./src/providers.ts",
     "./settings": "./src/domain/settings.ts"
   },
   "scripts": { "test": "node --test \"test/*.test.ts\"" }

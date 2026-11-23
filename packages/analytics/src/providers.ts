@@ -1,15 +1,10 @@
-// Every provider, by the name used in the settings. To add one: an adapter, and a line here.
+// The providers. To add one: an adapter, a case here, and its settings in domain/settings.ts.
 // Loaded on demand: no provider code reaches a visitor who has not said yes.
+import type { Settings } from "./domain/settings.ts";
 import type { AnalyticsProvider } from "./ports/AnalyticsProvider.ts";
 
-type Provider = {
-  // What the privacy dialog must say for it: the planned events, the country, the loading speed.
-  discloses: readonly ("events" | "country" | "vitals")[];
-  load: (setting: string) => Promise<AnalyticsProvider>;
-};
-
-export const providers: Record<string, Provider> = {
-  "cloudflare-web-analytics": { discloses: ["country", "vitals"], load: async (token) => (await import("./adapters/cloudflare-web-analytics.provider.ts")).cloudflareWebAnalytics(token) },
-  "cloudflare-events": { discloses: ["events"], load: async (url) => (await import("./adapters/cloudflare-events.provider.ts")).cloudflareEvents(url) },
-  console: { discloses: ["events"], load: async () => (await import("./adapters/console.provider.ts")).consoleProvider() },
+export const loadProvider = async (s: Settings): Promise<AnalyticsProvider> => {
+  if (s.provider === "mock") return (await import("./adapters/mock.provider.ts")).mock();
+  const environment = location.hostname === s.host ? "production" : "local";
+  return (await import("./adapters/posthog.provider.ts")).posthog({ key: s.key, region: s.region, environment });
 };

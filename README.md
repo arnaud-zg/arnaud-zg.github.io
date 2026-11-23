@@ -38,7 +38,6 @@ Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 | Folder                     | Holds                                      |
 | -------------------------- | ------------------------------------------ |
 | `apps/portfolio`           | this site                                  |
-| `apps/analytics-collector` | Cloudflare Worker that keeps its events    |
 | `packages/design`          | the shared design                          |
 | `packages/analytics`       | consent, tracking plan, providers          |
 | `templates/sub-site`       | starts a new sub-site                      |
@@ -51,7 +50,7 @@ together.
 
 ## Analytics
 
-Opt-in, off until configured, and swappable: see [`packages/analytics`](./packages/analytics).
+Opt-in, mocked in development, off until configured: see [`packages/analytics`](./packages/analytics).
 
 ## Deploy
 

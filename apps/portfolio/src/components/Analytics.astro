@@ -1,7 +1,6 @@
 ---
 // The question and the privacy dialog, from design parts, then the analytics itself.
 import { plan } from "@arnaud-zg/analytics/plan";
-import { providers } from "@arnaud-zg/analytics/providers";
 import type { Settings } from "@arnaud-zg/analytics/settings";
 import Ask from "@arnaud-zg/design/Ask.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
@@ -11,13 +10,6 @@ import config from "../../portfolio.config";
 interface Props { settings: Settings }
 const { settings } = Astro.props;
 const { words } = config.analytics;
-// Only what the running providers really send.
-const sent = new Set(Object.keys(settings).flatMap((name) => providers[name].discloses));
-const counted = [
-  ...(sent.has("events") ? Object.values(plan).map((e) => e.shown) : []),
-  ...(sent.has("country") ? [words.country] : []),
-  ...(sent.has("vitals") ? [words.vitals] : []),
-];
 ---
 <Ask title={words.ask} text={words.askText} more={{ label: words.more, opens: "privacy" }} data-analytics-ask>
   <Pill plain data-analytics-choice="granted">{words.yes}</Pill>
@@ -31,11 +23,11 @@ const counted = [
       <Pill plain data-analytics-choice="refused" aria-pressed="false">{words.no}</Pill>
     </div>
     <h3>{words.listTitle}</h3>
-    <ul>{counted.map((c) => <li>{c}</li>)}</ul>
+    <ul>{Object.values(plan).map((e) => <li>{e.shown}</li>)}</ul>
     <h3>{words.limitsTitle}</h3>
     <p>{words.limits}</p>
     <h3>{words.whoTitle}</h3>
-    <p>{words.who}</p>
+    <p>{words.who(config.analytics.posthogRegion)}</p>
     <p>{words.rights} <a href={config.links.find((l) => l.icon === "linkedin")?.href} target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
   </div>
 </Dialog>

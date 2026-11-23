@@ -8,38 +8,36 @@ export type Needs = {
   store: ConsentStore;
   signal: PrivacySignal;
   now: () => number;
-  // Called on a yes only, so the code of a provider is not even downloaded before.
-  providers: () => Promise<AnalyticsProvider[]>;
+  // Called on a yes only, so the provider's code is not even downloaded before.
+  provider: () => Promise<AnalyticsProvider>;
 };
 
-type Session = { running: Promise<AnalyticsProvider[]>; over: boolean };
+type Session = { running: Promise<AnalyticsProvider | undefined>; over: boolean };
 
-export const createAnalytics = ({ store, signal, now, providers }: Needs) => {
+export const createAnalytics = ({ store, signal, now, provider }: Needs) => {
   let status: Status = "unasked";
   // A new session on each yes. A provider that finishes loading after a no finds its session over.
   let session: Session | undefined;
   const listeners: ((status: Status) => void)[] = [];
-  // One broken provider never breaks the page, or the others.
-  const each = (list: AnalyticsProvider[], act: (p: AnalyticsProvider) => void) => {
-    for (const p of list) try { act(p); } catch { /* analytics is never worth an error */ }
-  };
+  // A provider that fails never breaks the page.
+  const quietly = (act: () => void) => { try { act(); } catch { /* analytics is never worth an error */ } };
 
   const follow = () => {
     const next = statusOf(store.read(), now(), signal.objects());
     if (next === "granted" && !session) {
-      const mine: Session = { running: Promise.resolve([]), over: false };
+      const mine: Session = { running: Promise.resolve(undefined), over: false };
       session = mine;
-      mine.running = providers().catch(() => []).then((list) => {
-        if (mine.over) return [];
-        each(list, (p) => p.start());
-        return list;
-      });
+      mine.running = provider().then((p) => {
+        if (mine.over) return;
+        quietly(() => p.start());
+        return p;
+      }).catch(() => undefined);
     }
     if (next !== "granted" && session) {
       const old = session;
       session = undefined;
       old.over = true;
-      void old.running.then((list) => each(list, (p) => p.stop()));
+      void old.running.then((p) => quietly(() => p?.stop()));
     }
     const changed = next !== status;
     status = next;
@@ -54,7 +52,7 @@ export const createAnalytics = ({ store, signal, now, providers }: Needs) => {
     onStatus(listener: (status: Status) => void) { listeners.push(listener); listener(status); },
     track(name: string, props: Props) {
       const event = toEvent(name, props), mine = session;
-      if (event && mine) void mine.running.then((list) => { if (!mine.over) each(list, (p) => p.track(event)); });
+      if (event && mine) void mine.running.then((p) => { if (!mine.over) quietly(() => p?.track(event)); });
     },
   };
 };

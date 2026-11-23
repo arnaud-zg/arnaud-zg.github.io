@@ -1,40 +1,48 @@
 # @arnaud-zg/analytics
 
-Consent-first analytics. The core decides what may be sent and when; providers plug in.
+Consent-first analytics. The core decides what may be sent and when; a provider receives it.
 
 ## Turn on
 
-Fill a value in `apps/portfolio/portfolio.config.ts`, under `analytics.providers`. Empty is off. Each works alone.
+1. In PostHog, copy the project key (Settings, Project). It starts with `phc_`.
+2. Paste it as `posthogKey` in `apps/portfolio/portfolio.config.ts`, and set `posthogRegion`.
+3. In PostHog, keep IP data capture off (Settings, Project), and no card on the account.
 
-| Provider                   | Gives                 | Its value                                                              |
-| -------------------------- | --------------------- | ---------------------------------------------------------------------- |
-| `cloudflare-web-analytics` | page views, speed     | dashboard, Web Analytics, add the site, manual snippet: its token      |
-| `cloudflare-events`        | the KPIs below        | the address of the collector Worker                                    |
+A wrong value stops the build and says what to write.
 
-Web Analytics takes no custom events, so a Worker (`apps/analytics-collector`) keeps ours in
-Analytics Engine, for three months. Leave Web Analytics' automatic setup off: it would skip the question.
+## Run locally
+
+| Run                     | What happens                                               |
+| ----------------------- | ---------------------------------------------------------- |
+| `pnpm dev`              | A mock: events print in the console, PostHog never loads   |
+| `ANALYTICS=on pnpm dev` | PostHog, after a yes. Events are tagged `environment: local` |
+| `ANALYTICS=off`         | No analytics code and no question, in `dev` or `build`     |
+| `pnpm build`            | PostHog when the key is filled, else nothing               |
+
+Events are `environment: production` only on the live address, so a local preview never counts.
 
 ## Read
 
-`pnpm analytics:report [days]` prints the KPIs and what to check next.
+In PostHog, filter every insight on `environment = production`. A visit is one page opened by
+someone who said yes: read rates and rankings, not totals.
 
-| KPI              | Share of visits that...       | Event              | If low, check                           |
-| ---------------- | ----------------------------- | ------------------ | --------------------------------------- |
-| Engaged          | read two sections or more     | `section_read`     | the hero: is there a reason to scroll?  |
-| Explored         | opened or copied something    | `content_explored` | do tiles and folded parts look clickable? |
-| Followed through | went to a link. **The goal.** | `link_followed`    | links beside the sections they read     |
+| KPI              | Insight                                                          | If low, check                             |
+| ---------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| Engaged          | Funnel: `page_viewed`, `section_read`, `section_read`            | Is there a reason to scroll?              |
+| Explored         | Funnel: `page_viewed`, `content_explored`                        | Do tiles and folded parts look clickable? |
+| Followed through | Funnel: `page_viewed`, `link_followed`. **The goal.**            | Links beside the sections they read       |
+| Interest         | Trend: `section_read`, sum of `seconds`, by `section`            | What to move up or cut                    |
 
-`page_viewed` (source, device) counts visits and says who follows through most. Targets are in
-`apps/analytics-collector/src/domain/kpis.ts`: starting points, to move after a first month.
-Only people who said yes are counted: read rates and rankings, not totals.
+Split a funnel by `source` or `device` to see who follows through. Engaged can count one section
+read twice, when a visitor leaves the tab and comes back.
 
 ## Change
 
-- **What is collected**: [`src/domain/plan.ts`](./src/domain/plan.ts), the only list. The browser and
-  the collector check events against it, and the privacy dialog prints it. Raise `PLAN_VERSION` when
-  it collects more: everyone is asked again. The Worker must be updated with it.
-- **Another provider**: one adapter, one line in [`src/providers.ts`](./src/providers.ts).
-- **Off for one build**: `ANALYTICS=none pnpm build`. Try it: `ANALYTICS=console pnpm dev`.
+- **What is collected**: [`src/domain/plan.ts`](./src/domain/plan.ts), the only list. Events are
+  checked against it, and the privacy dialog prints it. Raise `PLAN_VERSION` when it collects more:
+  everyone is asked again.
+- **Another provider**: one adapter, one case in [`src/providers.ts`](./src/providers.ts), its settings
+  in [`src/domain/settings.ts`](./src/domain/settings.ts).
 - **Off for a visitor**: Privacy, at the end of the page.
 
 ## Why it asks
@@ -45,5 +53,6 @@ before a yes. A careful reading, not legal advice.
 
 ## Parts
 
-`adapters → application → ports → domain`. Driven ports: `AnalyticsProvider`, `ConsentStore`,
-`PrivacySignal`. Driving adapters: `dom.visitor` (what visitors do), `dom.ask` (what they answer).
+`adapters → application → ports → domain`. Driven ports: `AnalyticsProvider` (`posthog`, `mock`),
+`ConsentStore`, `PrivacySignal`. Driving adapters: `dom.visitor` (what visitors do), `dom.ask` (what
+they answer).
