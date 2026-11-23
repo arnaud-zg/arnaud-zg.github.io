@@ -1,0 +1,432 @@
+---
+import Site from "@arnaud-zg/design/Site.astro";
+import Hero from "@arnaud-zg/design/Hero.astro";
+import Content from "@arnaud-zg/design/Content.astro";
+import LinkCard from "@arnaud-zg/design/LinkCard.astro";
+import Command from "@arnaud-zg/design/Command.astro";
+import Ending from "@arnaud-zg/design/Ending.astro";
+import Icon from "@arnaud-zg/design/Icon.astro";
+import Intro from "@arnaud-zg/design/Intro.astro";
+import SectionHead from "@arnaud-zg/design/SectionHead.astro";
+import Kpis from "@arnaud-zg/design/Kpis.astro";
+import Numbers from "@arnaud-zg/design/Numbers.astro";
+import Tags from "@arnaud-zg/design/Tags.astro";
+import Pill from "@arnaud-zg/design/Pill.astro";
+import Dialog from "@arnaud-zg/design/Dialog.astro";
+import "../styles/global.css";
+import config from "../../portfolio.config";
+import { portrait, siteInfo } from "../site";
+import { career } from "../data/career";
+import { getSideQuests } from "../data/npm";
+import { getContributions } from "../data/oss";
+import { getArticles, formatDate } from "../data/substack";
+import { getSkills } from "../data/skills";
+
+const { name, role, links, site, sections, labels } = config;
+const { glance: words, about } = sections;
+const quests = await getSideQuests();
+const { repos: prRepos } = await getContributions();
+const articles = await getArticles();
+const skills = await getSkills();
+
+const numbers = [
+  { value: career.years, unit: labels.years, label: words.years },
+  { value: career.longestYears, unit: labels.years, label: words.stay },
+  { value: quests.releases, unit: labels.releases, label: words.releases },
+];
+const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
+// Header nav: every shown section that has a nav label, in page order.
+const ids: Record<string, string> = { about: "about", journey: "journey", quests: "quests", skills: "skills", writing: "writing", openSource: "open-source" };
+const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" in sec && ids[key] ? [{ href: `/#${ids[key]}`, label: sec.nav as string }] : []));
+// Every link that leaves the site opens in a new tab.
+const ext = { target: "_blank", rel: "noopener noreferrer" };
+// Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
+const maxLines = Math.max(1, ...prRepos.map((r) => r.lines));
+// Totals cover every project, the ones in the dialog included.
+const sumOf = (key: "added" | "removed") => prRepos.reduce((n, r) => n + r[key], 0);
+const totals = [
+  { value: `+${sumOf("added").toLocaleString("en-US")}`, label: labels.linesAdded, tone: "added" as const },
+  { value: `−${sumOf("removed").toLocaleString("en-US")}`, label: labels.linesRemoved, tone: "removed" as const },
+];
+const topRepos = prRepos.slice(0, config.github.top);
+const moreRepos = prRepos.slice(config.github.top);
+// 1234 -> 1.2k, so a stat fits its badge.
+const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
+const questKpis = [
+  { value: quests.tools, label: labels.tools },
+  { value: quests.releases, label: labels.releases },
+  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: labels.downloadsIn(quests.downloadsMonth!) }] : []),
+];
+const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
+---
+<Site site={siteInfo} title={site.title} description={site.description} nav={nav}>
+  <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} next="#glance">
+    <p class="role">{role.text} <strong>{role.company}</strong></p>
+    <ul class="socials" aria-label="Profiles">
+      {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
+    </ul>
+  </Hero>
+
+  <Content>
+    {sections.glance.show && (
+    <section id="glance" class="glance" aria-label={labels.glance}>
+      <Numbers items={numbers} />
+    </section>
+    )}
+
+    {sections.about.show && (
+    <section id="about" class="section" aria-labelledby="about-title">
+      <Intro id="about-title" title={about.title} lede={about.lede} portrait={portrait} />
+    </section>
+    )}
+
+    {sections.journey.show && (
+    <section id="journey" class="section journey" aria-labelledby="journey-title">
+      <SectionHead id="journey-title" title={sections.journey.title} lede={sections.journey.lede} />
+
+      <dl class="cv-summary">
+        <div><dt>{labels.now}</dt><dd>{career.summary.role}<span>{labels.at} {career.summary.company}</span></dd></div>
+        <div><dt>{labels.experience}</dt><dd>{career.years} {labels.years}</dd></div>
+        {career.summary.education && <div><dt>{labels.education}</dt><dd>{career.summary.education.split(", ")[0]}<span>{career.summary.education.split(", ").slice(1).join(", ")}</span></dd></div>}
+      </dl>
+
+      <ol class="cv-roles">
+        {career.roles.map((r) => (
+          <li class:list={["cv-role", r.now && "cv-role--now"]}>
+            <div class="cv-head">
+              <h3 class="cv-company">{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+              <p class="cv-dates">{r.dates}</p>
+            </div>
+            <p class="cv-titles">
+              {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
+            </p>
+            <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
+            <Tags items={r.stack} label={labels.stack} />
+          </li>
+        ))}
+      </ol>
+
+      <details class="cv-early">
+        <summary><span class="cv-early-title">{career.early.title}</span> · {career.early.years} · {career.early.role}</summary>
+        <ul>
+          {career.early.stints.map((st) => (
+            <li><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+          ))}
+        </ul>
+      </details>
+
+      <h3 class="cv-subhead">{sections.journey.educationTitle}</h3>
+      <ol class="cv-edu">
+        {career.education.map((e) => (
+          <li class="cv-edu-card">
+            <div class="cv-head">
+              <p class="cv-school">{e.school}</p>
+              <p class="cv-dates">{e.start} → {e.end}</p>
+            </div>
+            <p class="cv-title">{e.degree}</p>
+            <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
+            {e.skills && <Tags items={e.skills} label={labels.skillsTaught} />}
+          </li>
+        ))}
+      </ol>
+    </section>
+    )}
+
+    {sections.quests.show && (
+    <section id="quests" class="section quests" aria-labelledby="quests-title">
+      <SectionHead id="quests-title" title={sections.quests.title} lede={sections.quests.lede}>
+        <Kpis items={questKpis} />
+      </SectionHead>
+      <div class="treemap" data-treemap>
+        {quests.groups.map((g) => (
+          <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={g.name}>
+            <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span></h3>
+            <ul class="tm-tiles">
+              {g.tiles.map((t) => (
+                <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} data-tool={t.quest?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+                  {t.quest ? (
+                    <div class="tm-link">
+                      <span class="tm-name">{t.quest.name}</span>
+                      <button class="tm-open" type="button" aria-expanded="false" aria-label={labels.showDetails(t.quest.name)}><span aria-hidden="true"></span></button>
+                      <span class="tm-line">{t.quest.line}</span>
+                      <span class="tm-stats">
+                        {t.quest.downloads !== undefined && <span class="stat" title={labels.downloadsTitle(t.quest.downloadsMonth!)}><b><i aria-hidden="true">⬇️</i>{compact(t.quest.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
+                        <span class="stat"><b><i aria-hidden="true">🚀</i>{t.releases}</b><small>{labels.releases}</small></span>
+                        {t.quest.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{t.quest.members - 1}</b><small>{labels.plugins}</small></span>}
+                      </span>
+                      <a class="tm-go" href={t.quest.href} {...ext}>{labels.viewOnNpm} <span aria-hidden="true">↗</span></a>
+                    </div>
+                  ) : (
+                    <div class="tm-link tm-more">
+                      <span class="tm-name">{labels.more(t.more!.length)}</span>
+                      <span class="tm-line">{t.more!.map((q, i) => <>{i > 0 && ", "}<a class="inline" href={q.href} {...ext}>{q.name}</a></>)}</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      {/* Small screens: no treemap, no tapping. A plain list of cards with their numbers. */}
+      <div class="sq-list">
+        {quests.groups.map((g) => (
+          <section class="sq-group" aria-label={g.name}>
+            <h3 class="sq-head"><span aria-hidden="true">{g.emoji}</span> {g.name}</h3>
+            <ul>
+              {g.tiles.flatMap((t) => (t.quest ? [t.quest] : t.more!)).map((q) => (
+                <li>
+                  <a class="sq-card" href={q.href} data-tool={q.name} {...ext}>
+                    <span class="sq-name">{q.name}</span>
+                    <span class="sq-line">{q.line}</span>
+                    <span class="sq-stats">
+                      {q.downloads !== undefined && <span class="stat"><b><i aria-hidden="true">⬇️</i>{compact(q.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
+                      <span class="stat"><b><i aria-hidden="true">🚀</i>{q.releases}</b><small>{labels.releases}</small></span>
+                      {q.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{q.members - 1}</b><small>{labels.plugins}</small></span>}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      {quests.earlier.length > 0 && (
+        <details class="earlier">
+          <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> {labels.earlier(quests.earlier.length, quests.earlier[quests.earlier.length - 1].updated.slice(0, 4), quests.earlier[0].updated.slice(0, 4))}</summary>
+          <ul class="earlier-grid">
+            {quests.earlier.map((q) => (
+              <li><a class="earlier-card" href={q.href} aria-label={labels.onNpm(q.name)} {...ext}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+    )}
+
+    {sections.skills.show && (
+    <section id="skills" class="section skills" aria-labelledby="skills-title">
+      <SectionHead id="skills-title" title={sections.skills.title} lede={sections.skills.lede}>
+        <Kpis items={[{ value: skills.length, label: labels.skills }]} />
+      </SectionHead>
+      <ul class="card-grid">
+        {skills.map((k) => <li><LinkCard href={k.href} name={`/${k.name}`} text={k.use} /></li>)}
+      </ul>
+      <Command label={labels.install} command={config.skills.install} />
+    </section>
+    )}
+
+    {sections.writing.show && (
+    <section id="writing" class="section writing" aria-labelledby="writing-title">
+      <SectionHead id="writing-title" title={sections.writing.title} lede={`${sections.writing.lede} `}>
+        <a slot="lede" class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>{labels.readArticles} ↗</a>
+      </SectionHead>
+      <ul class="articles">
+        {articles.map((a, i) => (
+          <li style={`--a:${i}`}>
+            <a class="article" href={a.url} {...ext}>
+              <span class="cover">{a.image && <img src={a.image} alt="" loading="lazy" decoding="async" width="720" height="480" />}</span>
+              <time datetime={a.date}>{formatDate(a.date)}</time>
+              <span class="a-title">{a.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+    )}
+
+    {sections.openSource.show && (
+    <section id="open-source" class="section oss" aria-labelledby="oss-title">
+      <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
+        <Kpis items={totals} label={labels.total} />
+      </SectionHead>
+      <div class="diffstat">
+        <ul class="ds-list">
+          {topRepos.map((r) => (
+            <li class="ds-repo-row">
+                <div class="ds-row">
+                  <a class="ds-repo" href={`https://github.com/${r.repo}/pulls?q=${encodeURIComponent(`is:pr is:merged author:${config.github.user}`)}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <span class="ds-count"><span class="ds-about">{r.about}</span><span class="ds-kinds">{r.kinds}</span></span>
+                  <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
+                  <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+                </div>
+              </li>
+          ))}
+        </ul>
+        <div class="ds-foot">
+          <p class="ds-key"><b></b> {labels.added} <i></i> {labels.removed}</p>
+          {moreRepos.length > 0 && (
+            <Pill opens="more-prs">{labels.moreProjects(moreRepos.length)}</Pill>
+          )}
+        </div>
+      </div>
+      {moreRepos.length > 0 && (
+        <Dialog id="more-prs" title={sections.openSource.moreTitle}>
+          <ul class="ds-list">
+            {moreRepos.map((r) => (
+              <li class="ds-repo-row">
+                <div class="ds-row">
+                  <a class="ds-repo" href={`https://github.com/${r.repo}/pulls?q=${encodeURIComponent(`is:pr is:merged author:${config.github.user}`)}`} {...ext}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+                  <span class="ds-count"><span class="ds-about">{r.about}</span><span class="ds-kinds">{r.kinds}</span></span>
+                  <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
+                  <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Dialog>
+      )}
+    </section>
+    )}
+
+    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links} />}
+  </Content>
+</Site>
+
+<script>
+  // Side quests: pointing at a tile grows it to a readable size and the rest of the
+  // treemap shrinks around it, animated by CSS transitions on the box variables.
+  import { squarify, TREEMAP_BOX as BOX } from "../lib/treemap";
+
+  const map = document.querySelector<HTMLElement>("[data-treemap]");
+  const wide = matchMedia("(min-width: 961px) and (hover: hover)");
+  if (map) {
+    const groups = [...map.querySelectorAll<HTMLElement>("[data-group]")].map((el) => ({
+      el,
+      tiles: [...el.querySelectorAll<HTMLElement>("[data-v]")].map((t) => ({ el: t, v: Number(t.dataset.v) })),
+    }));
+    const set = (el: HTMLElement, r: { x: number; y: number; w: number; h: number }) => {
+      for (const [k, v] of Object.entries(r)) el.style.setProperty(`--${k}`, `${v}%`);
+    };
+
+    // Lay out with one tile weighted up. Try the biggest boost first and keep the first one
+    // where every other tile still has room for its text; if none fits, only highlight it.
+    const MIN_W = 150, MIN_H = 40, HEAD = 44, PAD = 8;
+    // `whole`: grow the focused tile's whole group, for tiles that sit in a tight row.
+    const compute = (focus: HTMLElement | undefined, boost: number, whole = false) => {
+      const values = groups.map((g) => {
+        const mine = g.tiles.some((t) => t.el === focus);
+        return g.tiles.map((t) => (t.el === focus || (whole && mine) ? t.v * boost : t.v));
+      });
+      const outer = squarify(values.map((vs) => vs.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
+      const inner = groups.map((_, gi) => squarify(values[gi], (outer[gi].w / 100) * BOX.w, (outer[gi].h / 100) * BOX.h, true));
+      return { outer, inner };
+    };
+    // Tile sizes in pixels for a layout.
+    const sizes = (l: ReturnType<typeof compute>) => {
+      const { width: W, height: H } = map.getBoundingClientRect();
+      return groups.map((_, gi) => {
+        const gw = (l.outer[gi].w / 100) * W - PAD, gh = (l.outer[gi].h / 100) * H - HEAD;
+        return l.inner[gi].map((r) => ({ w: (r.w / 100) * gw, h: (r.h / 100) * gh }));
+      });
+    };
+    // Every other tile keeps room for its text: at least the minimum, or its normal size if
+    // that is already smaller.
+    // Each group header needs its natural width, so it never runs into the next group.
+    const headW = groups.map((g) => (g.el.querySelector<HTMLElement>(".tm-head span")?.scrollWidth ?? 0) + 24);
+    // Each tile needs room for its name and description: measured at rest, from the top of
+    // the tile to the bottom of its description, plus the bottom padding.
+    const needH = groups.map((g) => g.tiles.map((t) => {
+      const link = t.el.querySelector<HTMLElement>(".tm-link")!, line = t.el.querySelector<HTMLElement>(".tm-line");
+      if (!line) return MIN_H;
+      return line.getBoundingClientRect().bottom - link.getBoundingClientRect().top + 14;
+    }));
+    const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
+      const base = sizes(compute(undefined, 1)), next = sizes(l);
+      const W = map.getBoundingClientRect().width;
+      const headsFit = groups.every((_, gi) => (l.outer[gi].w / 100) * W >= headW[gi]);
+      return headsFit && groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
+        (next[gi][ti].w >= Math.min(base[gi][ti].w, Math.max(MIN_W, base[gi][ti].w * 0.85)) - 0.5 && next[gi][ti].h >= Math.min(Math.max(MIN_H, needH[gi][ti]), base[gi][ti].h) - 0.5)));
+    };
+    // Opening runs in two beats so nothing jumps: the treemap reflows first, then, once it has
+    // settled, the card is placed where it will stay and fades in. Closing hides the card
+    // first, then reflows back. A newer click cancels any beat still waiting.
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    // Motion runs in beats so only one thing moves at a time:
+    //   1. an open card fades out (LEAVE_MS);
+    //   2. tiles glide to their new places (MOVE_MS), text visible throughout;
+    //   3. the new card fades in where it will stay.
+    // A newer click cancels whatever is still waiting.
+    const LEAVE_MS = 170, MOVE_MS = 460;
+    let beat = 0, run = 0;
+    const wait = (ms: number) => new Promise<void>((r) => { beat = window.setTimeout(r, still.matches ? 0 : ms); });
+    const layout = async (focus?: HTMLElement) => {
+      const id = ++run;
+      clearTimeout(beat);
+      let l = compute(undefined, 1);
+      if (focus) search: for (const whole of [false, true]) for (const boost of [3, 2.4, 1.9, 1.5, 1.25]) {
+        const next = compute(focus, boost, whole);
+        if (fits(focus, next)) { l = next; break search; }
+      }
+      const shown = map.querySelector<HTMLElement>(".tm-tile.is-focus");
+      if (shown) {
+        shown.classList.add("is-leaving");
+        await wait(LEAVE_MS);
+        if (id !== run) return;
+        shown.classList.remove("is-focus", "is-leaving");
+      }
+      map.classList.add("is-moving");
+      groups.forEach((g, gi) => {
+        set(g.el, l.outer[gi]);
+        g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
+        g.tiles.forEach((t, ti) => set(t.el, l.inner[gi][ti]));
+      });
+      await wait(MOVE_MS);
+      if (id !== run) return;
+      map.classList.remove("is-moving");
+      if (focus) place(focus);
+    };
+    // Show the card at its final spot: measured once, nudged left or up to stay in the treemap.
+    const place = (tile: HTMLElement) => {
+      const link = tile.querySelector<HTMLElement>(".tm-link")!;
+      link.style.setProperty("--dx", "0px"); link.style.setProperty("--dy", "0px");
+      tile.classList.add("is-focus");
+      const m = map.getBoundingClientRect(), t = tile.getBoundingClientRect();
+      const right = t.left + 3 + link.offsetWidth, bottom = t.top + 3 + link.offsetHeight;
+      link.style.setProperty("--dx", `${Math.min(0, m.right - right)}px`);
+      link.style.setProperty("--dy", `${Math.min(0, m.bottom - bottom)}px`);
+    };
+    // Tapping a tile opens its card; the ✕, a click anywhere else or Escape closes it. Opening grows the tile and reflows the treemap around it.
+    let focused: HTMLElement | undefined;
+    // The open card lives in the URL (?tool=shiplane), so it can be shared as is; opening a
+    // shared link scrolls to the section by itself.
+    const remember = (tile?: HTMLElement) => {
+      const url = new URL(location.href);
+      if (tile?.dataset.tool) url.searchParams.set("tool", tile.dataset.tool);
+      else url.searchParams.delete("tool");
+      history.replaceState(null, "", url);
+    };
+    const open = (tile?: HTMLElement) => {
+      if (tile === focused) tile = undefined;
+      focused = tile;
+      remember(tile);
+      map.querySelectorAll<HTMLButtonElement>(".tm-open").forEach((b) => b.setAttribute("aria-expanded", String(b.closest(".tm-tile") === tile)));
+      layout(tile);
+    };
+    for (const g of groups) for (const t of g.tiles) {
+      t.el.querySelector(".tm-open")?.addEventListener("click", () => open(t.el));
+    }
+    document.addEventListener("click", (e) => { if (focused && !focused.contains(e.target as Node)) open(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && focused) { const b = focused.querySelector<HTMLButtonElement>(".tm-open"); open(); b?.focus(); } });
+
+    // Arriving with ?tool=…: bring the section into view, then open that card. On phones,
+    // where there are no cards to open, the matching card is scrolled to and highlighted.
+    const shared = new URLSearchParams(location.search).get("tool");
+    if (shared) {
+      const tile = groups.flatMap((g) => g.tiles).find((t) => t.el.dataset.tool === shared)?.el;
+      const card = document.querySelector<HTMLElement>(`.sq-card[data-tool="${CSS.escape(shared)}"]`);
+      // Wait for the page to finish loading: late images would otherwise move the page
+      // after our scroll.
+      const go = () => setTimeout(() => {
+        if (wide.matches && tile) {
+          map.scrollIntoView({ block: "center" });
+          setTimeout(() => open(tile), 350);
+        } else if (card) {
+          card.classList.add("is-target");
+          card.scrollIntoView({ block: "center" });
+        }
+      }, 120);
+      if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
+    }
+  }
+</script>
