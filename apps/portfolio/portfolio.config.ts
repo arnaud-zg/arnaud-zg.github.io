@@ -87,6 +87,26 @@ export default {
     moreProjects: (n: number) => `${n} more ${n === 1 ? "project" : "projects"}`,
   },
 
+  // ─── Analytics ─────────────────────────────────────────────────────────────────────────────
+  // PostHog, set when building by POSTHOG_KEY and POSTHOG_REGION: see .env.example. Here, the words.
+  // `pnpm dev` uses a mock. ANALYTICS=on uses PostHog there, ANALYTICS=off removes it anywhere.
+  analytics: {
+    words: {
+      link: "Privacy",
+      ask: "Which parts did you like?",
+      askText: "May I count what gets read here? No cookies, no profile of you, and nothing to lose by saying no.",
+      yes: "Yes, count me", no: "No thanks", more: "What is counted",
+      title: "What this site counts",
+      state: "Nothing is counted unless you say yes, and you can change your mind here at any time. Your browser's Do Not Track or Global Privacy Control signal counts as a no.",
+      listTitle: "If you say yes",
+      limitsTitle: "What is never kept",
+      limits: "No cookies, no name, no location, no profile, nothing that follows you to another visit or site. Your IP address reaches PostHog with each request, and its settings keep it out of the events.",
+      whoTitle: "Who, where, how long",
+      who: (region: string) => `Arnaud Zheng is responsible for it, with your consent as the legal basis, only to learn what is useful on this site. PostHog processes it, on servers in ${region === "eu" ? "Frankfurt, Germany" : "the United States"}, and keeps events for a year. Your answer stays in this browser for six months, then you are asked again.`,
+      rights: "The events cannot be tied back to you, so there is nothing to look up by name. To ask a question, write to me on LinkedIn; you can also complain to your data protection authority, the CNIL in France.",
+    },
+  },
+
   // ─── Career ────────────────────────────────────────────────────────────────────────────────
   // Career, oldest first. Months are "YYYY-MM"; leave `end` out for the current role.
   // `fullTime: false` stints fold into one school row and are not counted in tenure.

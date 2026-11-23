@@ -1,0 +1,13 @@
+---
+// A small question that waits in the corner, for something the page can do without. Hidden until a
+// script shows it; it never takes the focus or blocks the page. `more` opens the Dialog of that id.
+import Icon from "./Icon.astro";
+interface Props { title: string; text: string; more?: { label: string; opens: string }; [data: `data-${string}`]: string | boolean | undefined }
+const { title, text, more, ...data } = Astro.props;
+---
+<aside class="ask" aria-label={title} hidden {...data}>
+  <span class="ask-bird"><Icon name="bird" size={22} /></span>
+  <p class="ask-title">{title}</p>
+  <p class="ask-text">{text}{more && <> <button class="inline" type="button" data-open-dialog={more.opens} aria-haspopup="dialog">{more.label}</button></>}</p>
+  <div class="ask-actions"><slot /></div>
+</aside>

@@ -19,7 +19,7 @@ starlight({ title: "my-site", plugins: [design({ site: info })] });
    `"@arnaud-zg/design": "github:arnaud-zg/arnaud-zg.github.io#main&path:/packages/design"`
 3. Set `base` in `astro.config.mjs` to the repository name, and edit `site.config.mjs`.
 4. Write pages in `src/content/docs`. Sub-sites have no hero: pages start with their title.
-5. Add the site to `sites` in `portfolio.config.ts` and in the sub-site. Set `live: true` once it is
+5. Add the site to `sites` in `apps/portfolio/portfolio.config.ts` and in the sub-site. Set `live: true` once it is
    deployed.
 
 A site's own `components` overrides win over the plugin's. Search works in a build, not in `astro dev`.
