@@ -1,0 +1,14 @@
+---
+// Who is speaking, then what they say. The portrait is optional; `lede` takes **marks**.
+import Rich from "./Rich.astro";
+import Avatar from "./Avatar.astro";
+interface Props { id?: string; title: string; lede: string; portrait?: { src: string; alt: string } }
+const { id, title, lede, portrait } = Astro.props;
+---
+<div class="intro">
+  <div class="intro-who">
+    {portrait && <Avatar {...portrait} />}
+    <h2 id={id}>{title}</h2>
+  </div>
+  <p class="intro-lede"><Rich text={lede} /></p>
+</div>

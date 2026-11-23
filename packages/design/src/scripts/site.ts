@@ -18,10 +18,26 @@ const paint = () => {
 };
 const apply = (theme: string) => { root.dataset.theme = theme; paint(); };
 paint();
+const still = matchMedia("(prefers-reduced-motion: reduce)");
+// The new sky spreads from the switch; without view transitions the page just changes.
+let skies = 0;
+const spread = (from: HTMLElement, theme: string) => {
+  if (still.matches || !document.startViewTransition) return apply(theme);
+  const r = from.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  root.style.setProperty("--sky-x", `${x}px`);
+  root.style.setProperty("--sky-y", `${y}px`);
+  root.style.setProperty("--sky-r", `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))}px`);
+  root.classList.add("theming");
+  const mine = ++skies;
+  const done = () => { if (mine === skies) root.classList.remove("theming"); };
+  const change = document.startViewTransition(() => apply(theme));
+  change.ready.catch(() => {});
+  change.finished.then(done, done);
+};
 switches.forEach((sw) => sw.addEventListener("click", () => {
   const next = root.dataset.theme === "night" ? "day" : "night";
   localStorage.setItem("theme", next);
-  apply(next);
+  spread(sw, next);
 }));
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
   if (!localStorage.getItem("theme")) apply(e.matches ? "night" : "day");
@@ -41,6 +57,20 @@ const head = document.querySelector<HTMLElement>(".masthead");
 const hero = document.querySelector<HTMLElement>(".hero");
 if (head && hero && !("solid" in head.dataset)) {
   new IntersectionObserver(([e]) => head.classList.toggle("is-scrolled", !e.isIntersecting), { rootMargin: "-72px 0px 0px 0px" }).observe(hero);
+}
+
+// Header: mark the section in the middle of the screen.
+const links = [...document.querySelectorAll<HTMLAnchorElement>(".nav-wide a")].filter((a) => a.hash && a.pathname === location.pathname);
+const spy = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    const link = links.find((a) => a.hash === `#${e.target.id}`);
+    if (e.isIntersecting) link?.setAttribute("aria-current", "true");
+    else link?.removeAttribute("aria-current");
+  }
+}, { rootMargin: "-45% 0px -54% 0px" });
+for (const a of links) {
+  const section = document.getElementById(a.hash.slice(1));
+  if (section) spy.observe(section);
 }
 
 // Dialogs: open from their button, close on the close button or a click outside.
@@ -89,10 +119,11 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
     try {
       await navigator.clipboard.writeText(btn.parentElement?.querySelector("[data-copy-text]")?.textContent ?? "");
       btn.textContent = "Copied";
+      btn.classList.add("is-done");
     } catch {
       btn.textContent = "Not copied";
     }
-    setTimeout(() => (btn.textContent = "Copy"), 1600);
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("is-done"); }, 1600);
   });
 });
 

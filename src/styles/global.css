@@ -2,10 +2,6 @@
 
 
 
-/* About */
-.about { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr); gap: clamp(24px, 6vw, 96px); align-items: baseline; }
-.about h2 { font-size: var(--fs-h2); line-height: 1.15; letter-spacing: 0.06em; }
-.about-lede { font-size: clamp(1.15rem, 1.7vw, 1.45rem); font-weight: 300; line-height: 1.6; max-width: 46ch; }
 
 /* Journey: a table with range bars. Text on the left, real dates on a shared axis on the right. */
 
@@ -141,7 +137,6 @@
 .earlier summary::-webkit-details-marker { display: none; }
 .earlier summary:hover { color: var(--accent); border-color: var(--accent); }
 .earlier[open] summary { margin-bottom: 14px; }
-@media (prefers-reduced-motion: no-preference) { .earlier[open] .earlier-grid { animation: fade-in 300ms var(--ease-out); } }
 .earlier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
 .earlier-card { display: grid; grid-template-rows: auto 1fr auto; gap: 4px; height: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); opacity: 0.85; transition: border-color 260ms var(--ease-out), opacity 260ms var(--ease-out), translate 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
 .earlier-card { position: relative; }
@@ -205,7 +200,6 @@
 }
 /* ───────── Responsive ───────── */
 @media (max-width: 960px) {
-  .about { grid-template-columns: minmax(0, 1fr); }
   .cv-summary { grid-template-columns: minmax(0, 1fr); }
   .cv-summary > div { padding: 14px 0; border-left: 0 !important; border-top: 1px solid var(--line); }
   .cv-summary > div:first-child { border-top: 0; }

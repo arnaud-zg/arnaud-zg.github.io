@@ -6,13 +6,16 @@ import LinkCard from "@arnaud-zg/design/LinkCard.astro";
 import Command from "@arnaud-zg/design/Command.astro";
 import Icon from "@arnaud-zg/design/Icon.astro";
 import ThemeSwitch from "@arnaud-zg/design/ThemeSwitch.astro";
+import Rich from "@arnaud-zg/design/Rich.astro";
+import Avatar from "@arnaud-zg/design/Avatar.astro";
+import Intro from "@arnaud-zg/design/Intro.astro";
 import SectionHead from "@arnaud-zg/design/SectionHead.astro";
 import Kpis from "@arnaud-zg/design/Kpis.astro";
 import Numbers from "@arnaud-zg/design/Numbers.astro";
 import Tags from "@arnaud-zg/design/Tags.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
-import { siteInfo } from "../../site";
+import { portrait, siteInfo } from "../../site";
 import Story from "../../components/Story.astro";
 import { frames } from "../../design/stories";
 import config from "../../../portfolio.config";
@@ -60,8 +63,10 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const
             <ul class="ws-icons">{icons.map((n) => <li><Icon name={n} size={22} /><code>{n}</code></li>)}</ul>
           </Story>
           <Story name="ThemeSwitch" use="Remembers the choice for every site on this origin." code="<ThemeSwitch />"><div class="ws-on-photo"><ThemeSwitch /></div></Story>
+          <Story name="Avatar" use="A portrait, square with the shared corner." code={'<Avatar src={photo} alt="…" />'}><Avatar {...portrait} /></Story>
           <Story name="Tags" use="Short facts, read together." code={'<Tags items={["TypeScript", "Astro"]} label="Stack" />'}><Tags items={["TypeScript", "Astro"]} label="Stack" /></Story>
           <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><Pill opens="ws-dialog">Open the dialog</Pill></Story>
+          <Story name="Rich" use="Marks the words that matter. Two or three per text." code={'<Rich text="Now I build **tools**." />'}><p><Rich text="Now I build **tools other engineers rely on**." /></p></Story>
           <Story name="Link and label" use="Links in running text, labels on data." code={'<a class="inline" href="…">…</a>  <span class="label">…</span>'}><p class="ws-row"><a class="inline" href="#atoms">An inline link</a><span class="label">A label</span></p></Story>
         </section>
 
@@ -71,6 +76,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const
             <ul class="card-grid"><li><LinkCard href="#molecules" name="shiplane" text="Stays on this site: the page transition runs" /></li><li><LinkCard href={config.links[0].href} name={config.links[0].label} text="Leaves this site: a new tab opens" /></li></ul>
           </Story>
           <Story name="SectionHead" use="Title, lede, then figures." code={'<SectionHead title="Packages" lede="…" />'}><SectionHead title="Packages" lede="Each card opens its own page." /></Story>
+          <Story name="Intro" use="Who is speaking, then what they say. The portrait is optional." code={'<Intro title="Hi" lede="…" portrait={{ src, alt }} />'}><Intro title={config.sections.about.title} lede={config.sections.about.lede} portrait={portrait} /></Story>
           <Story name="Kpis" use="One line of figures, real ones only." code={'<Kpis items={[{ value: 84, label: "releases" }]} />'}><Kpis items={[{ value: 84, label: "releases" }, { value: "+120", label: "lines added", tone: "added" }, { value: "−30", label: "lines removed", tone: "removed" }]} /></Story>
           <Story name="Numbers" use="The figures a page opens on." code={'<Numbers items={[{ value: 13, unit: "years", label: "…" }]} />'}><Numbers items={[{ value: 13, unit: "years", label: "shipping software" }, { value: 9, unit: "tools", label: "open source" }]} /></Story>
           <Story name="Dialog" use="For detail that would crowd the page." code={'<Dialog id="my-dialog" title="More">…</Dialog>'}><Pill opens="ws-dialog">Open the dialog</Pill><Dialog id="ws-dialog" title="A dialog"><p>Escape, the close button or a click outside closes it.</p></Dialog></Story>

@@ -37,7 +37,3 @@
   .nav-wide { display: none; }
   .menu-button { display: grid; }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .menu:popover-open { animation: menu-in 240ms var(--ease-out); }
-  @keyframes menu-in { from { opacity: 0; translate: 0 -8px; } }
-}

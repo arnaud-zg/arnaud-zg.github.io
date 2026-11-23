@@ -34,9 +34,11 @@ export default {
 
   // ─── Hero ──────────────────────────────────────────────────────────────────────────────────
   name: "Arnaud Zheng",
-  // Under the name: what I do, then where.
-  tagline: "Software that explains itself: tools and features with clear intent and clean boundaries.",
-  role: { text: "Software Engineer, Platform at", company: "Doctolib" },
+  // Describes src/assets/profile.jpeg, shown in About.
+  portraitAlt: "Arnaud Zheng, smiling, with headphones around the neck",
+  // Words between ** are shown in bold. Under the name: what I do, then where.
+  tagline: "I build **features** people use, and the **tooling** that helps engineers ship them.",
+  role: { text: "Software Engineer at", company: "Doctolib" },
   links: [
     { label: "GitHub", href: "https://github.com/arnaud-zg", icon: "github" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/arnaudzheng", icon: "linkedin" },
@@ -47,10 +49,11 @@ export default {
   // `show: false` hides a section and its nav link. `nav` is the label in the header.
   sections: {
     // Figures under the hero, computed from the career and npm; only the words live here.
-    glance: { show: true, years: "full-time, across startups and large companies", stay: "in one company, promoted to Senior", releases: "of open-source tools that help engineers ship" },
+    glance: { show: true, years: "full-time, across startups and large companies", stay: "in one company, promoted to Senior", releases: "of open-source tools I build and maintain" },
     about: {
       show: true, nav: "About", title: "Hi, I'm Arnaud.",
-      lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
+      // Words between ** are shown in bold: two or three at most.
+      lede: "Full-stack engineer. I shipped **product features**, then designed **event-sourced systems** with DDD. Now I build the **tools other engineers rely on**: release pipelines, database migration checks, bundler fixes.",
     },
     journey: { show: true, nav: "Journey", title: "Journey", lede: "From agency and startup to scale-up and large company.", educationTitle: "Education" },
     quests: {

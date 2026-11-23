@@ -6,6 +6,7 @@ import LinkCard from "@arnaud-zg/design/LinkCard.astro";
 import Command from "@arnaud-zg/design/Command.astro";
 import Ending from "@arnaud-zg/design/Ending.astro";
 import Icon from "@arnaud-zg/design/Icon.astro";
+import Intro from "@arnaud-zg/design/Intro.astro";
 import SectionHead from "@arnaud-zg/design/SectionHead.astro";
 import Kpis from "@arnaud-zg/design/Kpis.astro";
 import Numbers from "@arnaud-zg/design/Numbers.astro";
@@ -15,7 +16,7 @@ import Dialog from "@arnaud-zg/design/Dialog.astro";
 import SecretBird from "../components/SecretBird.astro";
 import "../styles/global.css";
 import config from "../../portfolio.config";
-import { siteInfo } from "../site";
+import { portrait, siteInfo } from "../site";
 import { career } from "../data/career";
 import { getSideQuests } from "../data/npm";
 import { getContributions } from "../data/oss";
@@ -75,9 +76,8 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     )}
 
     {sections.about.show && (
-    <section id="about" class="section about" aria-labelledby="about-title">
-      <h2 id="about-title">{about.title}</h2>
-      <p class="about-lede">{about.lede}</p>
+    <section id="about" class="section" aria-labelledby="about-title">
+      <Intro id="about-title" title={about.title} lede={about.lede} portrait={portrait} />
     </section>
     )}
 

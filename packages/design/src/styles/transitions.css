@@ -1,6 +1,6 @@
 /* Moving between pages, on one site or across sites of the same origin. The header holds still,
-   the photo stays put while its frame
-   resizes between the full hero and the banner, the rest crossfades. Browsers without
+   the photo stays put while its frame resizes
+   between the full hero and the banner, the rest crossfades. Browsers without
    cross-document view transitions simply navigate. The opt-in itself is inlined by Site.astro. */
 @media (prefers-reduced-motion: no-preference) {
   .masthead { view-transition-name: masthead; }
