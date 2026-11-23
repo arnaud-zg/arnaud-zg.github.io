@@ -1,0 +1,14 @@
+{
+  "name": "js-packages-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview/js-packages"
+  },
+  "dependencies": {
+    "@arnaud-zg/design": "workspace:*",
+    "astro": "^7.4.13"
+  }
+}

@@ -1,0 +1,56 @@
+/* Arnaud Zheng: Shanghai from the Bund, by day and by night.
+   One accent (violet), one type family, one spacing rhythm. */
+:root, [data-theme="day"] {
+  color-scheme: light;
+  --bg: #f3f5fa;
+  --bg-deep: #e8ecf4;
+  --ink: #121a2e;
+  --ink-lo: #4a5470;
+  --line: rgba(18, 26, 46, 0.12);
+  --surface: rgba(255, 255, 255, 0.65);
+  --surface-hi: #ffffff;
+  --accent: #6b3fc4;
+  --accent-soft: rgba(107, 63, 196, 0.1);
+  --added: #2c8a50;
+  --removed: #c4483e;
+  --night: 0;
+}
+[data-theme="night"] {
+  color-scheme: dark;
+  --bg: #04060f;
+  --bg-deep: #020309;
+  --ink: #eceeff;
+  --ink-lo: #9ea4c4;
+  --line: rgba(236, 238, 255, 0.12);
+  --surface: rgba(236, 238, 255, 0.04);
+  --surface-hi: rgba(236, 238, 255, 0.07);
+  --accent: #c99bff;
+  --accent-soft: rgba(201, 155, 255, 0.14);
+  --added: #3fae6a;
+  --removed: #e0645a;
+  --night: 1;
+}
+:root {
+  /* Anything drawn on the photo: the same by day and by night. */
+  --on-photo: #f4f6ff;
+  --on-photo-lo: rgba(244, 246, 255, 0.82);
+  --on-photo-line: rgba(244, 246, 255, 0.35);
+  --on-photo-fill: rgba(4, 6, 15, 0.35);
+  --on-photo-accent: #ead9ff;
+  --shadow-lift: 0 10px 24px -14px rgba(4, 6, 15, 0.6);
+
+  --font: "M PLUS 1 Variable", system-ui, sans-serif;
+  --mono: "M PLUS 1 Code Variable", ui-monospace, monospace;
+  --fs-h2: clamp(1.9rem, 3.4vw, 2.8rem);
+  --fs-h3: clamp(1.15rem, 1.5vw, 1.35rem);
+  --fs-body: 1.04rem;
+  --fs-small: 0.94rem;
+  --fs-label: 0.74rem;
+
+  --edge: clamp(20px, 6vw, 96px);
+  --section: clamp(96px, 11vw, 160px);
+  --head: clamp(32px, 4vw, 52px);
+  --radius: 16px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+}

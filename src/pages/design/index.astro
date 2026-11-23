@@ -1,0 +1,109 @@
+---
+import Site from "@arnaud-zg/design/Site.astro";
+import Hero from "@arnaud-zg/design/Hero.astro";
+import Content from "@arnaud-zg/design/Content.astro";
+import LinkCard from "@arnaud-zg/design/LinkCard.astro";
+import Command from "@arnaud-zg/design/Command.astro";
+import Icon from "@arnaud-zg/design/Icon.astro";
+import ThemeSwitch from "@arnaud-zg/design/ThemeSwitch.astro";
+import SectionHead from "@arnaud-zg/design/SectionHead.astro";
+import Kpis from "@arnaud-zg/design/Kpis.astro";
+import Numbers from "@arnaud-zg/design/Numbers.astro";
+import Tags from "@arnaud-zg/design/Tags.astro";
+import Pill from "@arnaud-zg/design/Pill.astro";
+import Dialog from "@arnaud-zg/design/Dialog.astro";
+import Story from "../../components/Story.astro";
+import { frames } from "../../design/stories";
+import config from "../../../portfolio.config";
+import "../../styles/workshop.css";
+
+const levels = ["Tokens", "Atoms", "Molecules", "Organisms", "Templates"];
+const id = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const nav = levels.map((l) => ({ href: `#${id(l)}`, label: l }));
+const colors = [["--bg", "Page"], ["--bg-deep", "Page, end of the gradient"], ["--surface", "Card"], ["--surface-hi", "Card, raised"], ["--ink", "Text"], ["--ink-lo", "Secondary text"], ["--line", "Hairline"], ["--accent", "Accent"], ["--accent-soft", "Accent, tint"]];
+const type = [["--fs-h2", "Section title", 300], ["--fs-h3", "Card title", 400], ["--fs-body", "Body text", 400], ["--fs-small", "Secondary text", 400], ["--fs-label", "Label", 400]] as const;
+const spaces = [["--edge", "Page edge"], ["--section", "Between sections"], ["--head", "Under a section head"], ["--radius", "Corner"]];
+const icons = ["github", "linkedin", "substack", "star", "arrow", "pr"] as const;
+---
+<Site site="home" title="Design workshop · arnaud-zg" description="The parts this site and its sub-sites are built from." nav={nav} noindex>
+  <Hero title="Design workshop" tagline="You found the door. These are the parts every site here is built from, live." />
+  <Content>
+    <div class="workshop">
+      <aside class="ws-nav">
+        <nav aria-label="Parts">
+          {levels.map((l) => <a href={`#${id(l)}`}>{l}</a>)}
+          <hr />
+          <a href="/">Back to the portfolio</a>
+        </nav>
+      </aside>
+      <div class="ws-main">
+        <section id="tokens" class="ws-level">
+          <SectionHead title="Tokens" lede="Named values. Switch day and night in the header and they all follow." />
+          <Story name="Colour" use="One accent. Everything else is ink and paper." code="color: var(--accent);">
+            <ul class="ws-colors">{colors.map(([t, l]) => <li><span style={`background:var(${t})`}></span><b>{l}</b><code>{t}</code></li>)}</ul>
+          </Story>
+          <Story name="Type" use="M PLUS 1 for words, M PLUS 1 Code for labels and code." code="font-size: var(--fs-h2);">
+            <ul class="ws-type">{type.map(([t, l, weight]) => <li><span class:list={[t === "--fs-label" && "label"]} style={`font-size:var(${t});font-weight:${weight}`}>{l}</span><code>{t}</code></li>)}</ul>
+          </Story>
+          <Story name="Space and shape" use="One rhythm, fluid with the screen." code="padding-inline: var(--edge);">
+            <ul class="ws-spaces">{spaces.map(([t, l]) => <li><span style={`width:var(${t})`}></span><b>{l}</b><code>{t}</code></li>)}</ul>
+          </Story>
+          <Story name="Motion" use="Out for what appears, move for what travels. Point at the lane." code="transition: translate 600ms var(--ease-out);">
+            <ul class="ws-motion">{["--ease-out", "--ease-move"].map((t) => <li tabindex="0"><span style={`transition-timing-function:var(${t})`}></span><code>{t}</code></li>)}</ul>
+          </Story>
+        </section>
+
+        <section id="atoms" class="ws-level">
+          <SectionHead title="Atoms" lede="The smallest parts, with no layout of their own." />
+          <Story name="Icon" use="Drawn, one colour, inherits the text's." code={'<Icon name="github" size={20} />'}>
+            <ul class="ws-icons">{icons.map((n) => <li><Icon name={n} size={22} /><code>{n}</code></li>)}</ul>
+          </Story>
+          <Story name="ThemeSwitch" use="Remembers the choice for every site on this origin." code="<ThemeSwitch />"><div class="ws-on-photo"><ThemeSwitch /></div></Story>
+          <Story name="Tags" use="Short facts, read together." code={'<Tags items={["TypeScript", "Astro"]} label="Stack" />'}><Tags items={["TypeScript", "Astro"]} label="Stack" /></Story>
+          <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><Pill opens="ws-dialog">Open the dialog</Pill></Story>
+          <Story name="Link and label" use="Links in running text, labels on data." code={'<a class="inline" href="…">…</a>  <span class="label">…</span>'}><p class="ws-row"><a class="inline" href="#atoms">An inline link</a><span class="label">A label</span></p></Story>
+        </section>
+
+        <section id="molecules" class="ws-level">
+          <SectionHead title="Molecules" lede="Atoms that do one job together." />
+          <Story name="LinkCard" use="A card that is one link. Leaving the origin opens a new tab." code={'<LinkCard href="/js-packages/shiplane/" name="shiplane" text="…" />'}>
+            <ul class="card-grid"><li><LinkCard href="#molecules" name="shiplane" text="Stays on this site: the page transition runs" /></li><li><LinkCard href="https://github.com/arnaud-zg" name="GitHub" text="Leaves this site: a new tab opens" /></li></ul>
+          </Story>
+          <Story name="SectionHead" use="Title, lede, then figures." code={'<SectionHead title="Packages" lede="…" />'}><SectionHead title="Packages" lede="Each card opens its own page." /></Story>
+          <Story name="Kpis" use="One line of figures, real ones only." code={'<Kpis items={[{ value: 84, label: "releases" }]} />'}><Kpis items={[{ value: 84, label: "releases" }, { value: "+120", label: "lines added", tone: "added" }, { value: "−30", label: "lines removed", tone: "removed" }]} /></Story>
+          <Story name="Numbers" use="The figures a page opens on." code={'<Numbers items={[{ value: 13, unit: "years", label: "…" }]} />'}><Numbers items={[{ value: 13, unit: "years", label: "shipping software" }, { value: 9, unit: "tools", label: "open source" }]} /></Story>
+          <Story name="Dialog" use="For detail that would crowd the page." code={'<Dialog id="my-dialog" title="More">…</Dialog>'}><Pill opens="ws-dialog">Open the dialog</Pill><Dialog id="ws-dialog" title="A dialog"><p>Escape, the close button or a click outside closes it.</p></Dialog></Story>
+          <Story name="Command" use="One command to copy." code={'<Command label="Install" command="pnpm add -D shiplane" />'}><Command label="Install" command={config.skills.install} /></Story>
+        </section>
+
+        {["Organisms", "Templates"].map((level) => (
+          <section id={id(level)} class="ws-level">
+            <SectionHead title={level} lede={level === "Organisms" ? "Whole regions of a page, each in its own frame." : "Full pages, ready to fill."} />
+            {frames.filter((f) => f.level === level).map((f) => (
+              <Story name={f.name} use={f.use} code={f.code}>
+                <div class="ws-frame" data-frame>
+                  <div class="ws-sizes" role="group" aria-label={`${f.name}: preview width`}>
+                    {[["390px", "Phone"], ["768px", "Tablet"], ["100%", "Full"]].map(([v, l]) => <button type="button" data-width={v} aria-pressed={String(v === "100%")}>{l}</button>)}
+                    <a class="inline" href={`/design/preview/${f.id}/`} target="_blank" rel="noopener">Open alone</a>
+                  </div>
+                  <iframe src={`/design/preview/${f.id}/`} title={`${f.name} preview`} loading="lazy" height={f.height}></iframe>
+                </div>
+              </Story>
+            ))}
+          </section>
+        ))}
+      </div>
+    </div>
+  </Content>
+</Site>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-frame]").forEach((box) => {
+    const frame = box.querySelector("iframe")!;
+    const buttons = [...box.querySelectorAll<HTMLButtonElement>("[data-width]")];
+    buttons.forEach((b) => b.addEventListener("click", () => {
+      frame.style.width = b.dataset.width!;
+      buttons.forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
+    }));
+  });
+</script>

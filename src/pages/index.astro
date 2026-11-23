@@ -1,7 +1,19 @@
 ---
-import Base from "../layouts/Base.astro";
-import Stars from "../components/Stars.astro";
-import Icon from "../components/Icon.astro";
+import Site from "@arnaud-zg/design/Site.astro";
+import Hero from "@arnaud-zg/design/Hero.astro";
+import Content from "@arnaud-zg/design/Content.astro";
+import LinkCard from "@arnaud-zg/design/LinkCard.astro";
+import Command from "@arnaud-zg/design/Command.astro";
+import Ending from "@arnaud-zg/design/Ending.astro";
+import Icon from "@arnaud-zg/design/Icon.astro";
+import SectionHead from "@arnaud-zg/design/SectionHead.astro";
+import Kpis from "@arnaud-zg/design/Kpis.astro";
+import Numbers from "@arnaud-zg/design/Numbers.astro";
+import Tags from "@arnaud-zg/design/Tags.astro";
+import Pill from "@arnaud-zg/design/Pill.astro";
+import Dialog from "@arnaud-zg/design/Dialog.astro";
+import SecretBird from "../components/SecretBird.astro";
+import "../styles/global.css";
 import config from "../../portfolio.config";
 import { career } from "../data/career";
 import { getSideQuests } from "../data/npm";
@@ -9,7 +21,7 @@ import { getContributions } from "../data/oss";
 import { getArticles, formatDate } from "../data/substack";
 import { getSkills } from "../data/skills";
 
-const { name, role, links, site, photo, sections } = config;
+const { name, role, links, site, sections } = config;
 const { glance: words, about } = sections;
 const quests = await getSideQuests();
 const { repos: prRepos } = await getContributions();
@@ -29,61 +41,37 @@ const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" 
 const ext = { target: "_blank", rel: "noopener noreferrer" };
 // Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
 const maxLines = Math.max(1, ...prRepos.map((r) => r.lines));
+// Totals cover every project, the ones in the dialog included.
+const total = { added: prRepos.reduce((n, r) => n + r.added, 0), removed: prRepos.reduce((n, r) => n + r.removed, 0) };
+// Totals cover every project, the ones in the dialog included.
+const sumOf = (key: "added" | "removed") => prRepos.reduce((n, r) => n + r[key], 0);
+const totals = [
+  { value: `+${sumOf("added").toLocaleString("en-US")}`, label: "lines added", tone: "added" as const },
+  { value: `−${sumOf("removed").toLocaleString("en-US")}`, label: "lines removed", tone: "removed" as const },
+];
 const topRepos = prRepos.slice(0, config.github.top);
 const moreRepos = prRepos.slice(config.github.top);
 // 1234 -> 1.2k, so a stat fits its badge.
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
+const questKpis = [
+  { value: quests.tools, label: "tools" },
+  { value: quests.releases, label: "releases" },
+  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: `npm downloads in ${quests.downloadsMonth}` }] : []),
+];
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
-<Base title={site.title} description={site.description} nav={nav}>
-  <section class="hero" aria-labelledby="name">
-    <div class="scene" aria-hidden="true">
-      <img src={`${photo.base}-${photo.widths[1] ?? photo.widths[0]}.webp`} srcset={photo.widths.map((w) => `${photo.base}-${w}.webp ${w}w`).join(", ")} sizes="100vw" alt="" width="3840" height="2560" fetchpriority="high" />
-    </div>
-    <div class="sky-life" aria-hidden="true" data-loop>
-      {[0, 1].map((f) => (
-        <svg class="flock" style={`--f:${f}`} viewBox="0 0 120 50" width="120" height="50">
-          {[[0, 20, 1], [18, 10, 0.8], [30, 26, 0.9], [46, 14, 0.7], [62, 24, 0.85], [78, 8, 0.6]].map(([x, y, sc], b) => (
-            <g transform={`translate(${x} ${y}) scale(${sc})`}><path class="bird" style={`--b:${b}`} d="M0 6 Q5 0 10 6 Q15 0 20 6" /></g>
-          ))}
-        </svg>
-      ))}
-    </div>
+<Site site="home" title={site.title} description={site.description} nav={nav}>
+  <Hero size="full" title={name} tagline={config.tagline} next="#glance">
+    <p class="role">{role.text} <strong>{role.company}</strong></p>
+    <ul class="socials" aria-label="Profiles">
+      {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
+    </ul>
+  </Hero>
 
-    <div class="hero-copy">
-      <h1 id="name" aria-label={name}>
-        {name.split(" ").map((word, w) => (
-          <span class="word" aria-hidden="true">
-            {[...word].map((ch, i) => <span class="ch" style={`--i:${w * 6 + i}`}>{ch}</span>)}
-          </span>
-        ))}
-      </h1>
-      <p class="tagline">{config.tagline}</p>
-      <p class="role">{role.text} <strong>{role.company}</strong></p>
-      <ul class="socials" aria-label="Profiles">
-        {links.map((l) => <li><a href={l.href} aria-label={l.label} {...ext}><Icon name={l.icon} size={20} /></a></li>)}
-      </ul>
-    </div>
-    <p class="credit">Photo: <a href={photo.credit.href} {...ext}>{photo.credit.author}</a> on {photo.credit.source}</p>
-    <a class="scroll-cue" href="#glance" aria-label="Scroll to the numbers"><span></span></a>
-  </section>
-
-  <div class="content">
-    <div class="night-sky" data-loop>
-      <Stars class="night-stars" seed={12} count={180} />
-    </div>
-    <div class="lantern" aria-hidden="true"></div>
-
+  <Content>
     {sections.glance.show && (
     <section id="glance" class="glance" aria-label="At a glance">
-      <ul class="numbers">
-        {numbers.map((n) => (
-          <li>
-            <span class="count-line"><span class="count" data-count={n.value}>{n.value}</span><span class="unit">{n.unit}</span></span>
-            <span class="n-label">{n.label}</span>
-          </li>
-        ))}
-      </ul>
+      <Numbers items={numbers} />
     </section>
     )}
 
@@ -96,12 +84,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
     {sections.journey.show && (
     <section id="journey" class="section journey" aria-labelledby="journey-title">
-      <header class="section-head section-head--row">
-        <h2 id="journey-title">{sections.journey.title}</h2>
-        <ul class="legend" aria-label="Company types">
-          {career.types.map(([t, label]) => <li><span class={`swatch swatch--${t}`}></span>{label}</li>)}
-        </ul>
-      </header>
+      <SectionHead id="journey-title" title={sections.journey.title} lede={sections.journey.lede} />
 
       <dl class="cv-summary">
         <div><dt>Now</dt><dd>{career.summary.role}<span>at {career.summary.company}</span></dd></div>
@@ -111,16 +94,16 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
       <ol class="cv-roles">
         {career.roles.map((r) => (
-          <li class:list={["cv-role", `row--${r.type}`, r.now && "cv-role--now"]}>
+          <li class:list={["cv-role", r.now && "cv-role--now"]}>
             <div class="cv-head">
-              <h3 class="cv-company"><span class="cv-dot" aria-hidden="true"></span>{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
-              <p class="cv-dates">{r.dates}<span>{r.span}</span></p>
+              <h3 class="cv-company">{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+              <p class="cv-dates">{r.dates}</p>
             </div>
             <p class="cv-titles">
               {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label="then">→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
             </p>
             <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
-            <ul class="cv-stack" aria-label="Stack">{r.stack.map((t) => <li>{t}</li>)}</ul>
+            <Tags items={r.stack} label="Stack" />
           </li>
         ))}
       </ol>
@@ -129,7 +112,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         <summary><span class="cv-early-title">{career.early.title}</span> · {career.early.years} · {career.early.role}</summary>
         <ul>
           {career.early.stints.map((st) => (
-            <li class={`row--${st.type}`}><span class="cv-dot" aria-hidden="true"></span><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+            <li><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
           ))}
         </ul>
       </details>
@@ -144,7 +127,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
             </div>
             <p class="cv-title">{e.degree}</p>
             <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
-            {e.skills && <ul class="cv-stack" aria-label="Skills">{e.skills.map((t) => <li>{t}</li>)}</ul>}
+            {e.skills && <Tags items={e.skills} label="Skills" />}
           </li>
         ))}
       </ol>
@@ -153,15 +136,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
     {sections.quests.show && (
     <section id="quests" class="section quests" aria-labelledby="quests-title">
-      <header class="section-head">
-        <h2 id="quests-title">{sections.quests.title}</h2>
-        <p class="lede">{sections.quests.lede}</p>
-        <ul class="quest-kpis">
-          <li><b>{quests.tools}</b> tools</li>
-          <li><b>{quests.releases}</b> releases</li>
-          {quests.downloads !== undefined && <li><b>{compact(quests.downloads)}</b> npm downloads in {quests.downloadsMonth}</li>}
-        </ul>
-      </header>
+      <SectionHead id="quests-title" title={sections.quests.title} lede={sections.quests.lede}>
+        <Kpis items={questKpis} />
+      </SectionHead>
       <div class="treemap" data-treemap>
         {quests.groups.map((g) => (
           <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={g.name}>
@@ -221,7 +198,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
           <summary><span class="tm-emoji" aria-hidden="true">🗃️</span> See {quests.earlier.length} earlier libraries · {quests.earlier[quests.earlier.length - 1].updated.slice(0, 4)}–{quests.earlier[0].updated.slice(0, 4)}</summary>
           <ul class="earlier-grid">
             {quests.earlier.map((q) => (
-              <li><a class="earlier-card" href={q.href} aria-label={`${q.name} on npm`} {...ext}><span class="ec-go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
+              <li><a class="earlier-card" href={q.href} aria-label={`${q.name} on npm`} {...ext}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.updated.slice(0, 4)}</span></a></li>
             ))}
           </ul>
         </details>
@@ -231,39 +208,21 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
     {sections.skills.show && (
     <section id="skills" class="section skills" aria-labelledby="skills-title">
-      <header class="section-head">
-        <h2 id="skills-title">{sections.skills.title}</h2>
-        <p class="lede">{sections.skills.lede}</p>
-        <ul class="quest-kpis">
-          <li><b>{skills.length}</b> skills</li>
-          <li>Compatible with {config.skills.agents.join(", ")} and more</li>
-        </ul>
-      </header>
-      <ul class="skill-grid">
-        {skills.map((k) => (
-          <li>
-            <a class="skill-card" href={k.href} aria-label={`${k.name}: ${k.use}`} {...ext}>
-              <span class="ec-go" aria-hidden="true">↗</span>
-              <span class="skill-name">/{k.name}</span>
-              <span class="skill-use">{k.use}</span>
-            </a>
-          </li>
-        ))}
+      <SectionHead id="skills-title" title={sections.skills.title} lede={sections.skills.lede}>
+        <Kpis items={[{ value: skills.length, label: "skills" }]} />
+      </SectionHead>
+      <ul class="card-grid">
+        {skills.map((k) => <li><LinkCard href={k.href} name={`/${k.name}`} text={k.use} /></li>)}
       </ul>
-      <div class="skill-install">
-        <span class="label">Install, any agent</span>
-        <code data-copy-text>{config.skills.install}</code>
-        <button class="copy" type="button" data-copy aria-label="Copy the install command">Copy</button>
-      </div>
+      <Command label="Install, any agent" command={config.skills.install} />
     </section>
     )}
 
     {sections.writing.show && (
     <section id="writing" class="section writing" aria-labelledby="writing-title">
-      <header class="section-head">
-        <h2 id="writing-title">{sections.writing.title}</h2>
-        <p class="lede">{sections.writing.lede} <a class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Read them on Substack ↗</a></p>
-      </header>
+      <SectionHead id="writing-title" title={sections.writing.title} lede={`${sections.writing.lede} `}>
+        <a slot="lede" class="inline" href={links.find((l) => l.icon === "substack")?.href} {...ext}>Read them on Substack ↗</a>
+      </SectionHead>
       <ul class="articles">
         {articles.map((a, i) => (
           <li style={`--a:${i}`}>
@@ -280,10 +239,9 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 
     {sections.openSource.show && (
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
-      <header class="section-head">
-        <h2 id="oss-title">{sections.openSource.title}</h2>
-        <p class="lede">{sections.openSource.lede}</p>
-      </header>
+      <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
+        <Kpis items={totals} label="Across every project" />
+      </SectionHead>
       <div class="diffstat">
         <ul class="ds-list">
           {topRepos.map((r) => (
@@ -300,19 +258,13 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
         <div class="ds-foot">
           <p class="ds-key"><b></b> added <i></i> removed</p>
           {moreRepos.length > 0 && (
-            <button class="ds-more" type="button" data-open-dialog="more-prs" aria-haspopup="dialog">{moreRepos.length} more {moreRepos.length === 1 ? "project" : "projects"} <Icon name="arrow" size={16} /></button>
+            <Pill opens="more-prs">{moreRepos.length} more {moreRepos.length === 1 ? "project" : "projects"}</Pill>
           )}
         </div>
       </div>
       {moreRepos.length > 0 && (
-        <dialog id="more-prs" class="prs-dialog" aria-labelledby="more-prs-title">
-          <header class="dialog-head">
-            <h2 id="more-prs-title">{sections.openSource.moreTitle}</h2>
-            <button class="dialog-close" type="button" data-close-dialog aria-label="Close">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
-            </button>
-          </header>
-          <ul class="ds-list dialog-body">
+        <Dialog id="more-prs" title={sections.openSource.moreTitle}>
+          <ul class="ds-list">
             {moreRepos.map((r) => (
               <li class="ds-repo-row">
                 <div class="ds-row">
@@ -324,22 +276,14 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
               </li>
             ))}
           </ul>
-        </dialog>
+        </Dialog>
       )}
     </section>
     )}
 
-    {sections.ending.show && (
-    <footer id="contact" class="ending">
-      <h2 class="tbc">{sections.ending.title}</h2>
-      <p class="ending-line">{sections.ending.line}</p>
-      <ul class="end-links">
-        {links.map((l) => <li><a href={l.href} {...ext}><Icon name={l.icon} size={17} /> {l.label}</a></li>)}
-      </ul>
-    </footer>
-    )}
-  </div>
-</Base>
+    {sections.ending.show && <Ending site="home" title={sections.ending.title} line={sections.ending.line} links={links}><SecretBird /></Ending>}
+  </Content>
+</Site>
 
 <script>
   // Side quests: pointing at a tile grows it to a readable size and the rest of the
@@ -487,16 +431,4 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
       if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
     }
   }
-</script>
-
-<script>
-  // Copy the skills install command.
-  document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const text = btn.parentElement?.querySelector("[data-copy-text]")?.textContent ?? "";
-      await navigator.clipboard?.writeText(text);
-      btn.textContent = "Copied";
-      setTimeout(() => (btn.textContent = "Copy"), 1600);
-    });
-  });
 </script>

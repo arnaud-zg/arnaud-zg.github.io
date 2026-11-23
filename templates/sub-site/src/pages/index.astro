@@ -1,0 +1,16 @@
+---
+import Page from "@arnaud-zg/design/Page.astro";
+import SectionHead from "@arnaud-zg/design/SectionHead.astro";
+import LinkCard from "@arnaud-zg/design/LinkCard.astro";
+import Ending from "@arnaud-zg/design/Ending.astro";
+import { base, ending, hero, links, packages, site } from "../site";
+---
+<Page site={site.id} title={`${site.title} · arnaud-zg`} description={site.description} nav={site.nav} heading={site.title} tagline={site.description} hero={hero.home}>
+    <section id="packages" class="section section--first" aria-labelledby="packages-title">
+      <SectionHead id="packages-title" title="Packages" lede="Each is a dependency of your project, not of the others: installing one never pulls in another." />
+      <ul class="card-grid">
+        {packages.map((p) => <li><LinkCard href={`${base}${p.name}/`} name={p.name} text={p.line} transitionName={`pkg-${p.name}`} /></li>)}
+      </ul>
+    </section>
+    <Ending {...ending} links={links} />
+</Page>

@@ -1,0 +1,23 @@
+{
+  "name": "@arnaud-zg/design",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The shared design of arnaud-zg.github.io and its sub-sites: tokens, styles, layout and components for Astro.",
+  "type": "module",
+  "exports": {
+    "./Site.astro": "./src/layouts/Site.astro",
+    "./Page.astro": "./src/layouts/Page.astro",
+    "./*.astro": "./src/components/*.astro",
+    "./styles/*": "./src/styles/*",
+    "./sites": "./src/sites.ts",
+    "./photo": "./src/photo.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/m-plus-1": "^5.3.1",
+    "@fontsource-variable/m-plus-1-code": "^5.3.1",
+    "simple-icons": "^16.38.0"
+  },
+  "peerDependencies": {
+    "astro": "^7.4.13"
+  }
+}

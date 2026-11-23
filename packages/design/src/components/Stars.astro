@@ -1,0 +1,18 @@
+---
+// Two star groups that twinkle against each other: two animated layers instead of hundreds.
+// Drawn as a repeating tile, so stars keep their size however tall the page is.
+interface Props { seed?: number; count?: number; class?: string }
+const { seed = 9, count = 60, class: className } = Astro.props;
+const TILE = 1000;
+let s = seed;
+const r = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
+const groups: string[][] = [[], []];
+for (let i = 0; i < count; i++) {
+  const x = r() * TILE, y = r() * TILE, rad = r() < 0.08 ? 1.5 : 0.5 + r() * 0.6;
+  groups[i % 2].push(`M${(x - rad).toFixed(1)},${y.toFixed(1)}a${rad.toFixed(2)},${rad.toFixed(2)} 0 1,0 ${(rad * 2).toFixed(2)},0a${rad.toFixed(2)},${rad.toFixed(2)} 0 1,0 -${(rad * 2).toFixed(2)},0`);
+}
+---
+<svg class={className} width="100%" height="100%" aria-hidden="true">
+  <defs>{groups.map((g, i) => <pattern id={`stars-${seed}-${i}`} width={TILE} height={TILE} patternUnits="userSpaceOnUse"><path d={g.join("")} fill="#fff" /></pattern>)}</defs>
+  {groups.map((_, i) => <rect class={`twinkle twinkle-${i}`} width="100%" height="100%" fill={`url(#stars-${seed}-${i})`} />)}
+</svg>

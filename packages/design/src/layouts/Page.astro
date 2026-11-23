@@ -1,0 +1,18 @@
+---
+// A whole sub-site page. `hero` picks the top: the photo banner, or a plain page head.
+import Site from "./Site.astro";
+import Hero from "../components/Hero.astro";
+import PageHead from "../components/PageHead.astro";
+import Content from "../components/Content.astro";
+
+interface Props { site: string; title: string; description: string; nav: { href: string; label: string }[]; heading: string; tagline?: string; hero?: boolean; transitionName?: string; noindex?: boolean }
+const { site, title, description, nav, heading, tagline, hero = true, transitionName, noindex } = Astro.props;
+const top = { title: heading, tagline, transitionName };
+---
+<Site {...{ site, title, description, nav, noindex }} solid={!hero}>
+  {hero && <Hero {...top} />}
+  <Content>
+    {!hero && <PageHead {...top} />}
+    <slot />
+  </Content>
+</Site>

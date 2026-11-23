@@ -4,14 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
+    "build": "pnpm check && astro build",
+    "preview": "astro preview",
+    "preview:sites": "PREVIEW_SITES=1 astro build --outDir .preview && pnpm --filter js-packages-site preview:build && astro preview --outDir .preview --port 4330",
+    "check": "node scripts/check-design.mjs"
   },
   "dependencies": {
-    "@fontsource-variable/m-plus-1": "^5.3.1",
-    "@fontsource-variable/m-plus-1-code": "^5.3.1",
-    "astro": "^7.4.13",
-    "simple-icons": "^16.38.0"
+    "@arnaud-zg/design": "workspace:*",
+    "astro": "^7.4.13"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {

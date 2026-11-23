@@ -1,0 +1,47 @@
+---
+// The page shell of every site. `solid` is for pages that do not open on a Hero; `bare` leaves
+// the header out, for previews of a single part.
+import "../styles/index.css";
+import Masthead from "../components/Masthead.astro";
+
+interface Props { site: string; title: string; description: string; nav: { href: string; label: string }[]; solid?: boolean; noindex?: boolean; bare?: boolean }
+const { site, title, description, nav, solid, noindex, bare } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    {/* Inline, so the transition opt-in is known before any stylesheet arrives. */}
+    <style is:inline>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#f3f5fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#04060f" media="(prefers-color-scheme: dark)" />
+    {/* Pages of the same origin are fetched as the pointer approaches, so transitions start at once. */}
+    <script is:inline type="speculationrules" set:html={JSON.stringify({ prefetch: [{ where: { and: [{ href_matches: "/*" }, { not: { href_matches: "/*\\?*" } }] }, eagerness: "moderate" }] })} />
+    <script is:inline>
+      // Pick day or night before the first paint: the saved choice, else the system setting.
+      (() => {
+        const saved = localStorage.getItem("theme");
+        const night = saved ? saved === "night" : matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.dataset.theme = night ? "night" : "day";
+        // Reached through a page transition: the hero skips its entrance.
+        addEventListener("pagereveal", (e) => { if (e.viewTransition) document.documentElement.classList.add("arrived"); });
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    {!bare && <Masthead site={site} nav={nav} solid={solid} />}
+    <main id="main"><slot /></main>
+    <script>import "../scripts/site";</script>
+  </body>
+</html>

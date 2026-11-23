@@ -32,6 +32,12 @@ pnpm build     # static site in dist/
 
 Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 
+## Shared design
+
+[`packages/design`](./packages/design) holds what every site here shares; this portfolio is its first
+user. [`templates/sub-site`](./templates/sub-site) starts a new one. `pnpm preview:sites` runs both
+together.
+
 ## Deploy
 
 Every push to `main` builds the site and publishes it to the `gh-pages` branch, which

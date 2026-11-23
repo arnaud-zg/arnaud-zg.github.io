@@ -1,0 +1,30 @@
+---
+import ThemeSwitch from "./ThemeSwitch.astro";
+import { otherSites, siteById } from "../sites";
+interface Props { site: string; nav: { href: string; label: string }[]; solid?: boolean }
+const { site, nav, solid = false } = Astro.props;
+const here = siteById(site);
+const others = otherSites(site).filter((s) => s.id !== "home");
+---
+<header class:list={["masthead", solid && "is-scrolled"]} data-solid={solid || undefined}>
+  <p class="crumbs">
+    <a class="wordmark" href="/">arnaud-zg</a>
+    {here && here.id !== "home" && <><span class="crumb-sep" aria-hidden="true">/</span><a class="crumb" href={here.path}>{here.label}</a></>}
+  </p>
+  <nav class="nav-wide" aria-label="Main">
+    {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+    {others.map((s) => <a class="nav-site" href={s.path}>{s.label}</a>)}
+  </nav>
+  <ThemeSwitch />
+  <button class="menu-button" type="button" popovertarget="site-menu" aria-label="Menu">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 8.5h16M4 15.5h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+  </button>
+  <div class="menu" id="site-menu" popover>
+    <nav aria-label="Menu">
+      {nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
+      {(here?.id !== "home" || others.length > 0) && <hr />}
+      {here?.id !== "home" && <a href="/" data-menu-link>arnaud-zg</a>}
+      {others.map((s) => <a href={s.path} data-menu-link>{s.label}</a>)}
+    </nav>
+  </div>
+</header>

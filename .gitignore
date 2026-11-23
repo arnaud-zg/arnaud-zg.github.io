@@ -3,3 +3,4 @@ dist/
 .astro/
 .impeccable/
 .DS_Store
+.preview/

@@ -1,0 +1,9 @@
+---
+// Everything below the hero: the page's sky, its stars at night, its pointer light.
+import Stars from "./Stars.astro";
+---
+<div class="content">
+  <div class="night-sky" data-loop><Stars class="night-stars" seed={12} count={60} /></div>
+  <div class="lantern" aria-hidden="true"></div>
+  <slot />
+</div>

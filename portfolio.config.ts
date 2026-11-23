@@ -8,10 +8,9 @@
 // Sections:  site · hero · sections (page order) · career · data sources
 // Edit, rebuild, done. The daily scheduled build keeps fetched numbers fresh.
 
-export type CompanyType = "agency" | "startup" | "sme" | "large";
 // `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
 // A milestone can carry a new title (a promotion), shown as the title progression.
-export type Station = { name: string; type: CompanyType; industry?: string; role: string; start: string; end?: string; fullTime: boolean; note?: string; highlights?: string[]; stack: string; milestones?: { at: string; label: string; title?: string }[] };
+export type Station = { name: string; industry?: string; role: string; start: string; end?: string; fullTime: boolean; note?: string; highlights?: string[]; stack: string; milestones?: { at: string; label: string; title?: string }[] };
 
 export default {
   // ─── Site ──────────────────────────────────────────────────────────────────────────────────
@@ -30,12 +29,6 @@ export default {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/arnaudzheng", icon: "linkedin" },
     { label: "Substack", href: "https://arnaudzg.substack.com", icon: "substack" },
   ],
-  // Served from public/; one file per width: `${base}-${width}.webp`.
-  photo: {
-    base: "/images/bund-day",
-    widths: [1200, 2400, 3840],
-    credit: { author: "Jiawei Wen", source: "Pexels", href: "https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/" },
-  },
 
   // ─── Sections, in page order ───────────────────────────────────────────────────────────────
   // `show: false` hides a section and its nav link. `nav` is the label in the header.
@@ -46,7 +39,7 @@ export default {
       show: true, nav: "About", title: "Hi, I'm Arnaud.",
       lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
     },
-    journey: { show: true, nav: "Journey", title: "Journey", educationTitle: "Education" },
+    journey: { show: true, nav: "Journey", title: "Journey", lede: "From agency and startup to scale-up and large company.", educationTitle: "Education" },
     quests: {
       show: true, nav: "Side quests", title: "Side quests",
       lede: "Open-source tools that take the toil out of shipping: releases, migrations, tech debt, mobile.",
@@ -84,17 +77,16 @@ export default {
         ],
         skills: ["C++", "SQL", "Software engineering", "Leadership"] },
     ] as { school: string; degree: string; start: string; end: string; short?: string; highlights: string[]; skills?: string[] }[],
-    types: { agency: "Agency", startup: "Startup", sme: "SME", large: "Large company" } as Record<CompanyType, string>,
     stations: [
-      { name: "Adveris", type: "agency", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce", stack: "PHP, WordPress, PrestaShop" },
-      { name: "Testapic", type: "startup", role: "Full-stack developer", start: "2014-09", end: "2015-02", fullTime: false, note: "Back office for remote user testing", stack: "PHP, Zend, SQL" },
-      { name: "Valeo", type: "large", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, note: "Project tracking tool for the lighting R&D teams", stack: "Go" },
-      { name: "ASC", type: "sme", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, note: "E-commerce automation: abandoned cart and post-purchase emails", stack: "Shopify, Liquid" },
-      { name: "Solive", type: "startup", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, note: "Real-time sports visuals for clubs like PSG and Manchester City", stack: "Node.js, MongoDB" },
-      { name: "Veepee", type: "large", industry: "E-commerce, ticketing", role: "Front-end Developer", start: "2017-03", end: "2019-05", fullTime: true, highlights: ["SEO with structured data and a faster time to first byte", "Components shared with the mobile app through the design system"], stack: "React, SSR, Design systems" },
-      { name: "Onepark", type: "startup", industry: "Mobility", role: "Mobile Software Engineer", start: "2019-06", end: "2020-01", fullTime: true, highlights: ["Parking booking app on iOS and Android, from one React Native codebase", "Maps across Google Maps, Mapbox and OpenStreetMap, with Stripe payments"], stack: "React Native, TypeScript" },
-      { name: "PayFit", type: "startup", industry: "HR & payroll SaaS", role: "Software Engineer", start: "2020-01", end: "2025-12", fullTime: true, highlights: ["Moved a monolith to microservices, split by business domain with shared SDKs", "Designed the event-sourced company lifecycle with CQRS and DDD", "Owned latency and error SLOs for the services"], stack: "TypeScript, Microservices, Event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior", title: "Senior Software Engineer" }] },
-      { name: "Doctolib", type: "startup", industry: "Health tech", role: "Software Engineer, Platform", start: "2026-01", fullTime: true, highlights: ["Platform products that help engineers ship faster"], stack: "Monorepos, Module Federation, TypeScript" },
+      { name: "Adveris", role: "Full-stack developer", start: "2013-07", end: "2013-12", fullTime: false, note: "Eight client sites: storefronts, portals, e-commerce", stack: "PHP, WordPress, PrestaShop" },
+      { name: "Testapic", role: "Full-stack developer", start: "2014-09", end: "2015-02", fullTime: false, note: "Back office for remote user testing", stack: "PHP, Zend, SQL" },
+      { name: "Valeo", role: "R&D project developer", start: "2015-03", end: "2015-08", fullTime: false, note: "Project tracking tool for the lighting R&D teams", stack: "Go" },
+      { name: "ASC", role: "Full-stack developer", start: "2016-01", end: "2016-06", fullTime: false, note: "E-commerce automation: abandoned cart and post-purchase emails", stack: "Shopify, Liquid" },
+      { name: "Solive", role: "Full-stack developer", start: "2016-09", end: "2017-02", fullTime: false, note: "Real-time sports visuals for clubs like PSG and Manchester City", stack: "Node.js, MongoDB" },
+      { name: "Veepee", industry: "E-commerce, ticketing", role: "Front-end Developer", start: "2017-03", end: "2019-05", fullTime: true, highlights: ["SEO with structured data and a faster time to first byte", "Components shared with the mobile app through the design system"], stack: "React, SSR, Design systems" },
+      { name: "Onepark", industry: "Mobility", role: "Mobile Software Engineer", start: "2019-06", end: "2020-01", fullTime: true, highlights: ["Parking booking app on iOS and Android, from one React Native codebase", "Maps across Google Maps, Mapbox and OpenStreetMap, with Stripe payments"], stack: "React Native, TypeScript" },
+      { name: "PayFit", industry: "HR & payroll SaaS", role: "Software Engineer", start: "2020-01", end: "2025-12", fullTime: true, highlights: ["Moved a monolith to microservices, split by business domain with shared SDKs", "Designed the event-sourced company lifecycle with CQRS and DDD", "Owned latency and error SLOs for the services"], stack: "TypeScript, Microservices, Event sourcing, CQRS, DDD", milestones: [{ at: "2023-01", label: "Senior", title: "Senior Software Engineer" }] },
+      { name: "Doctolib", industry: "Health tech", role: "Software Engineer, Platform", start: "2026-01", fullTime: true, highlights: ["Platform products that help engineers ship faster"], stack: "Monorepos, Module Federation, TypeScript" },
     ] as Station[],
   },
 
@@ -146,8 +138,6 @@ export default {
   // Agent skills, read from the "Available skills" table in this repo's README.
   skills: {
     repo: "arnaud-zg/skills",
-    // Named on the page as examples; the install command works with any agent that reads SKILL.md.
-    agents: ["Claude Code", "Codex", "Cursor", "Copilot CLI", "Gemini CLI", "OpenCode"],
     install: "npx skills add arnaud-zg/skills",
   },
 

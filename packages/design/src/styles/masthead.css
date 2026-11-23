@@ -1,0 +1,43 @@
+/* ───────── Masthead ───────── */
+.masthead { position: fixed; inset: 0 0 auto 0; z-index: 20; display: flex; align-items: center; gap: 24px; padding: 22px var(--edge); color: var(--on-photo); transition: padding 300ms var(--ease-out), background-color 300ms var(--ease-out), color 300ms var(--ease-out), border-color 300ms var(--ease-out); border-bottom: 1px solid transparent; }
+/* Past the hero the header stays, on a frosted bar in the page's own colours. */
+.masthead.is-scrolled { padding-block: 12px; color: var(--ink); background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom-color: var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.masthead.is-scrolled .nav-wide a { color: var(--ink-lo); }
+.masthead.is-scrolled .nav-wide a:hover { color: var(--ink); }
+.masthead.is-scrolled .theme-switch { border-color: var(--line); background: var(--surface); }
+.crumbs { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; white-space: nowrap; }
+.crumb-sep { opacity: 0.5; }
+.crumb { letter-spacing: 0.04em; }
+.wordmark { font-weight: 500; letter-spacing: 0.08em; }
+.nav-wide { display: flex; gap: clamp(18px, 2.6vw, 36px); font-size: 0.88rem; letter-spacing: 0.08em; }
+.nav-wide a { position: relative; color: var(--on-photo-lo); transition: color 200ms var(--ease-out); }
+.nav-wide a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: var(--accent); scale: 0 1; transform-origin: right; transition: scale 300ms var(--ease-out); }
+.nav-wide a:hover { color: #fff; }
+.theme-switch { order: 2; position: relative; width: 54px; height: 30px; padding: 0; border-radius: 999px; border: 1px solid var(--on-photo-line); background: var(--on-photo-fill); color: #fff; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: border-color 300ms var(--ease-out); }
+.theme-switch:hover { border-color: #fff; }
+.ts-thumb { position: absolute; top: 3px; left: 3px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ffd27a; color: #5a3a00; transition: translate 600ms var(--ease-out), background-color 600ms var(--ease-out), color 600ms var(--ease-out); }
+[data-theme="night"] .ts-thumb { translate: 24px 0; background: #c99bff; color: #1b0f33; }
+.ts-sun, .ts-moon { grid-area: 1 / 1; transition: opacity 300ms var(--ease-out), rotate 600ms var(--ease-out); }
+.ts-moon { opacity: 0; rotate: -60deg; }
+[data-theme="night"] .ts-sun { opacity: 0; rotate: 90deg; }
+[data-theme="night"] .ts-moon { opacity: 1; rotate: 0deg; }
+.nav-wide a:hover::after { scale: 1 1; transform-origin: left; }
+.nav-site { padding-left: clamp(18px, 2.6vw, 36px); border-left: 1px solid var(--on-photo-line); }
+.nav-wide .nav-site::after { left: clamp(18px, 2.6vw, 36px); }
+.masthead.is-scrolled .nav-site { border-color: var(--line); }
+
+/* Small screens: the links move into a menu. */
+.menu-button { display: none; order: 3; place-items: center; width: 44px; height: 44px; margin: -7px -12px -7px -12px; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
+.menu { inset: 64px var(--edge) auto auto; width: min(280px, calc(100vw - 2 * var(--edge))); margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--ink); box-shadow: 0 24px 60px -24px rgba(4, 6, 15, 0.6); }
+.menu nav { display: grid; }
+.menu a { padding: 10px 14px; border-radius: 10px; }
+.menu a:hover, .menu a:focus-visible { background: var(--accent-soft); color: var(--accent); outline-offset: -2px; }
+.menu hr { width: calc(100% - 28px); margin: 8px 14px; border: 0; border-top: 1px solid var(--line); }
+@media (max-width: 960px) {
+  .nav-wide { display: none; }
+  .menu-button { display: grid; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .menu:popover-open { animation: menu-in 240ms var(--ease-out); }
+  @keyframes menu-in { from { opacity: 0; translate: 0 -8px; } }
+}
