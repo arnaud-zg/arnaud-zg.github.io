@@ -1,7 +1,7 @@
 ---
 import Crumbs from "./Crumbs.astro";
 import ThemeSwitch from "./ThemeSwitch.astro";
-import { currentSite, otherSites, type SiteLinksInfo } from "../site";
+import { currentSite, homePath, otherSites, type SiteLinksInfo } from "../site";
 interface Props { site: SiteLinksInfo; nav: { href: string; label: string }[]; solid?: boolean }
 const { site, nav, solid = false } = Astro.props;
 const here = currentSite(site);
@@ -21,7 +21,7 @@ const others = otherSites(site).filter((s) => s.id !== "home");
     <nav aria-label="Menu">
       {nav.map((n) => <a href={n.href} data-menu-link>{n.label}</a>)}
       {(here?.id !== "home" || others.length > 0) && <hr />}
-      {here?.id !== "home" && <a href="/" data-menu-link>{site.brand}</a>}
+      {here?.id !== "home" && <a href={homePath(site)} data-menu-link>{site.brand}</a>}
       {others.map((s) => <a href={s.path} data-menu-link>{s.label}</a>)}
     </nav>
   </div>

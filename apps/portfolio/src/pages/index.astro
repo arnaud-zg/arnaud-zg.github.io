@@ -40,7 +40,7 @@ const numbers = [
 const box = (r: { x: number; y: number; w: number; h: number }, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
 // Header nav: every shown section that has a nav label, in page order.
 const ids: Record<string, string> = { about: "about", journey: "journey", quests: "quests", skills: "skills", writing: "writing", openSource: "open-source" };
-const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" in sec && ids[key] ? [{ href: `/#${ids[key]}`, label: sec.nav as string }] : []));
+const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" in sec && ids[key] ? [{ href: `${import.meta.env.BASE_URL}#${ids[key]}`, label: sec.nav as string }] : []));
 // Every link that leaves the site opens in a new tab.
 const ext = { target: "_blank", rel: "noopener noreferrer" };
 // Diffstat by repo: largest total change first, bars scaled to the largest repo. The rest go in a dialog.
@@ -62,7 +62,7 @@ const questKpis = [
 ];
 const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
 ---
-<Site site={siteInfo} title={site.title} description={site.description} nav={nav}>
+<Site site={siteInfo} title={site.title} description={site.description} nav={nav} noindex={import.meta.env.BASE_URL !== "/"}>
   <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} next="#glance">
     <p class="role">{role.text} <strong>{role.company}</strong></p>
     <ul class="socials" aria-label="Profiles">

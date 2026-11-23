@@ -28,11 +28,11 @@ const nav = levels.map((l) => ({ href: `#${id(l)}`, label: l }));
 const colors = [["--bg", "Page"], ["--bg-deep", "Page, end of the gradient"], ["--surface", "Card"], ["--surface-hi", "Card, raised"], ["--ink", "Text"], ["--ink-lo", "Secondary text"], ["--line", "Hairline"], ["--accent", "Accent"], ["--accent-soft", "Accent, tint"]];
 const type = [["--fs-h2", "Section title", 300], ["--fs-h3", "Card title", 400], ["--fs-body", "Body text", 400], ["--fs-small", "Secondary text", 400], ["--fs-label", "Label", 400]] as const;
 const spaces = [["--edge", "Page edge"], ["--section", "Between sections"], ["--head", "Under a section head"], ["--radius", "Corner"]];
-const preview = (level: string) => frames.filter((f) => f.level === level).map((f) => ({ ...f, src: `/design/preview/${f.id}/` }));
+const preview = (level: string) => frames.filter((f) => f.level === level).map((f) => ({ ...f, src: `${import.meta.env.BASE_URL}design/preview/${f.id}/` }));
 const framed = [
   { level: "Organisms", lede: "Whole regions of a page, each in its own frame.", items: preview("Organisms") },
   { level: "Templates", lede: "Custom pages, for anything that is not documentation.", items: preview("Templates") },
-  { level: "Starlight", lede: "Documentation sites. Search, sidebar and Markdown are Starlight's; the look is this design, through one plugin.", items: starlightFrames.map((f) => ({ ...f, src: `/design/starlight/${f.id}/` })) },
+  { level: "Starlight", lede: "Documentation sites. Search, sidebar and Markdown are Starlight's; the look is this design, through one plugin.", items: starlightFrames.map((f) => ({ ...f, src: `${import.meta.env.BASE_URL}design/starlight/${f.id}/` })) },
 ];
 const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] as const;
 ---
@@ -44,7 +44,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
         <nav aria-label="Parts">
           {levels.map((l) => <a href={`#${id(l)}`}>{l}</a>)}
           <hr />
-          <a href="/">Back to the portfolio</a>
+          <a href={import.meta.env.BASE_URL}>Back to the portfolio</a>
         </nav>
       </aside>
       <div class="ws-main">
