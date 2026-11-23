@@ -44,8 +44,8 @@ const early = {
   stints: [...partTime].reverse().map((s) => ({ company: s.name, role: s.role, year: s.start.slice(0, 4), note: s.note ?? "" })) as Stint[],
 };
 
-// Summary facts.
-const firstYear = Math.floor(Math.min(...stations.map((s) => toMonth(s.start))) / 12);
+// Summary facts. Experience counts full-time roles only, not the internships.
+const firstYear = Math.floor(Math.min(...fullTime.map((s) => toMonth(s.start))) / 12);
 const lastYear = Math.floor(NOW / 12);
 const done = fullTime.filter((s) => s.end).map(months);
 const longest = Math.max(...fullTime.map(months));
