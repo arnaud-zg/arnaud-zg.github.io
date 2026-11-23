@@ -1,5 +1,5 @@
 // Career, shaped for how a recruiter reads it: a summary first (current role, experience,
-// seniority, average stay, industries), then one card per full-time role, newest first, and
+// seniority, industries), then one card per full-time role, newest first, and
 // the early part-time stints folded into a single line. Everything is computed from
 // portfolio.config.ts at build time.
 
@@ -47,7 +47,6 @@ const early = {
 // Summary facts. Experience counts full-time roles only, not the internships.
 const firstYear = Math.floor(Math.min(...fullTime.map((s) => toMonth(s.start))) / 12);
 const lastYear = Math.floor(NOW / 12);
-const done = fullTime.filter((s) => s.end).map(months);
 const longest = Math.max(...fullTime.map(months));
 const current = fullTime.find((s) => !s.end) ?? fullTime[fullTime.length - 1];
 const seniorSince = fullTime.flatMap((s) => s.milestones ?? []).find((m) => /senior/i.test(m.title ?? m.label))?.at.slice(0, 4);
@@ -60,5 +59,4 @@ export const career = {
   summary: { role: current.role, company: current.name, seniorSince, industries, education: education.find((e) => e.short)?.short },
   years: lastYear - firstYear,
   longestYears: Math.round(longest / 12),
-  averageYears: done.length ? Math.round(done.reduce((a, b) => a + b, 0) / done.length / 12) : 0,
 };

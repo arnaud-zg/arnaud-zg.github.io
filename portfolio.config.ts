@@ -47,7 +47,7 @@ export default {
   // `show: false` hides a section and its nav link. `nav` is the label in the header.
   sections: {
     // Figures under the hero, computed from the career and npm; only the words live here.
-    glance: { show: true, years: "full-time, shipping software", stay: "longest stay", tools: "built off hours: dev tooling, automation, AI" },
+    glance: { show: true, years: "full-time, across startups and large companies", stay: "in one company, promoted to Senior", releases: "of open-source tools that help engineers ship" },
     about: {
       show: true, nav: "About", title: "Hi, I'm Arnaud.",
       lede: "I build the tools other engineers rely on: release pipelines, database migration checks, bundler fixes. Before that, full-stack engineer shipping product features, then designing event-sourced systems with DDD.",
@@ -73,7 +73,7 @@ export default {
   // ─── Labels ────────────────────────────────────────────────────────────────────────────────
   // The small words around fetched data.
   labels: {
-    glance: "At a glance", years: "years", tools: "tools", average: (years: number) => `~${years} yrs avg`,
+    glance: "At a glance", years: "years", tools: "tools",
     now: "Now", at: "at", experience: "Full-time experience", education: "Education", stack: "Stack", skillsTaught: "Skills", then: "then",
     releases: "releases", plugins: "plugins", monthlyDownloads: "monthly downloads",
     downloadsIn: (month: string) => `npm downloads in ${month}`, downloadsTitle: (month: string) => `npm downloads, ${month}`,
