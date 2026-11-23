@@ -1,7 +1,7 @@
 /* Moving between pages, on one site or across sites of the same origin. The header holds still,
    the photo stays put while its frame resizes
    between the full hero and the banner, the rest crossfades. Browsers without
-   cross-document view transitions simply navigate. The opt-in itself is inlined by Site.astro. */
+   cross-document view transitions fade the new page in. The opt-in itself is inlined by Site.astro. */
 @media (prefers-reduced-motion: no-preference) {
   .masthead { view-transition-name: masthead; }
   .hero { view-transition-name: hero; }
@@ -10,6 +10,9 @@
   ::view-transition-new(root) { animation-duration: 420ms; }
   ::view-transition-old(hero), ::view-transition-new(hero) { width: 100%; height: 100%; object-fit: none; object-position: 0 0; }
   ::view-transition-group(hero) { overflow: clip; }
+  /* Browsers that cannot: the new page fades in, its header stays. */
+  .arrived-plain :is(body > main, .main-frame) { animation: page-in 380ms var(--ease-out); }
+  @keyframes page-in { from { opacity: 0; } }
   /* Arriving through a transition, the hero is already on screen: no second entrance. */
   .arrived :is(.scene img, .ch, .tagline, .role, .socials) { animation: none; }
 }

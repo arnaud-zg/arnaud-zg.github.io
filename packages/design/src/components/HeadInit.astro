@@ -15,6 +15,9 @@
     const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     // Reached through a page transition: the hero skips its entrance.
+    // Browsers without transitions between pages: a short fade, and the same skipped entrance.
+    const inside = document.referrer.startsWith(location.origin + "/");
+    if (!("CSSViewTransitionRule" in window) && inside) document.documentElement.classList.add("arrived", "arrived-plain");
     addEventListener("pagereveal", (e) => { if (e.viewTransition) document.documentElement.classList.add("arrived"); });
   })();
 </script>

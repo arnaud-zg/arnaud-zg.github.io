@@ -48,9 +48,67 @@ const sync = () => { const t = localStorage.getItem("theme"); if (t && t !== roo
 addEventListener("storage", sync);
 addEventListener("pageshow", sync);
 
-// Menu: a link to a section of this page closes it.
+// Closing: fade first, then close. Done here rather than in CSS because only Chrome keeps a closing
+// dialog or popover on screen while it fades.
+const leave = (el: HTMLElement, close: () => void) => {
+  if (el.classList.contains("is-leaving")) return;
+  if (still.matches) return close();
+  el.classList.add("is-leaving");
+  setTimeout(() => { close(); el.classList.remove("is-leaving"); }, 220);
+};
+
+// Menu: the button toggles it; a link, a click outside or Escape closes it.
 const menu = document.querySelector<HTMLElement>("#site-menu");
-menu?.querySelectorAll("[data-menu-link]").forEach((a) => a.addEventListener("click", () => menu.hidePopover()));
+const menuButton = document.querySelector<HTMLButtonElement>("[popovertarget='site-menu']");
+if (menu && menuButton) {
+  // Without this script the browser's own popover behaviour still works.
+  menu.popover = "manual";
+  menuButton.removeAttribute("popovertarget");
+  menuButton.setAttribute("aria-expanded", "false");
+  menuButton.setAttribute("aria-controls", menu.id);
+  const isOpen = () => menu.matches(":popover-open");
+  const hide = () => {
+    if (!isOpen()) return;
+    menuButton.setAttribute("aria-expanded", "false");
+    leave(menu, () => menu.hidePopover());
+  };
+  menuButton.addEventListener("click", () => {
+    if (isOpen()) return hide();
+    menu.showPopover();
+    menuButton.setAttribute("aria-expanded", "true");
+  });
+  menu.querySelectorAll("[data-menu-link]").forEach((a) => a.addEventListener("click", hide));
+  document.addEventListener("click", (e) => { const t = e.target as Node; if (!menu.contains(t) && !menuButton.contains(t)) hide(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && isOpen()) { hide(); menuButton.focus(); } });
+  // Widening past the phone layout leaves no button to close it with.
+  matchMedia("(min-width: 961px)").addEventListener("change", (e) => { if (e.matches && isOpen()) menu.hidePopover(); });
+}
+
+// Expandable rows: browsers that cannot animate to an automatic height in CSS get it here.
+if (!CSS.supports("interpolate-size", "allow-keywords")) {
+  document.querySelectorAll<HTMLDetailsElement>("main details").forEach((row) => {
+    const summary = row.querySelector("summary");
+    let running: Animation | undefined;
+    summary?.addEventListener("click", (e) => {
+      if (still.matches) return;
+      e.preventDefault();
+      const opening = !row.open || row.dataset.closing !== undefined;
+      const from = row.offsetHeight;
+      running?.cancel();
+      delete row.dataset.closing;
+      if (opening) row.open = true;
+      else row.dataset.closing = "";
+      const to = opening ? row.offsetHeight : summary.offsetHeight + parseFloat(getComputedStyle(row).paddingTop);
+      row.style.overflow = "clip";
+      running = row.animate({ height: [`${from}px`, `${to}px`] }, { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+      running.onfinish = () => {
+        if (!opening) row.open = false;
+        delete row.dataset.closing;
+        row.style.overflow = "";
+      };
+    });
+  });
+}
 
 // Header: once the hero is behind us, switch it to the frosted bar.
 const head = document.querySelector<HTMLElement>(".masthead");
@@ -73,13 +131,17 @@ for (const a of links) {
   if (section) spy.observe(section);
 }
 
-// Dialogs: open from their button, close on the close button or a click outside.
+// Dialogs: open from their button, close on the close button, Escape or a click outside.
 document.querySelectorAll<HTMLButtonElement>("[data-open-dialog]").forEach((btn) => {
   const dialog = document.getElementById(btn.dataset.openDialog!) as HTMLDialogElement | null;
   if (!dialog) return;
   btn.addEventListener("click", () => dialog.showModal());
-  dialog.querySelector("[data-close-dialog]")?.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (e) => { if (e.target === dialog) dialog.close(); });
+  if (dialog.dataset.ready !== undefined) return;
+  dialog.dataset.ready = "";
+  const close = () => leave(dialog, () => dialog.close());
+  dialog.querySelector("[data-close-dialog]")?.addEventListener("click", close);
+  dialog.addEventListener("click", (e) => { if (e.target === dialog) close(); });
+  dialog.addEventListener("cancel", (e) => { e.preventDefault(); close(); });
 });
 
 // A soft lantern light follows the pointer through the night sections.
