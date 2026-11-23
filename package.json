@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "pnpm --filter portfolio dev",
     "build": "pnpm --filter portfolio build",
-    "preview": "pnpm --filter portfolio preview"
+    "preview": "pnpm --filter portfolio preview",
+    "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {

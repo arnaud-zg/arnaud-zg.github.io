@@ -201,6 +201,18 @@ importers:
         specifier: ^0.43.1
         version: 0.43.1(astro@7.4.13(@types/node@26.6.6)(yaml@2.9.1))
 
+  templates/sub-site:
+    dependencies:
+      '@arnaud-zg/design':
+        specifier: workspace:*
+        version: link:../../packages/design
+      '@astrojs/starlight':
+        specifier: ^0.43.1
+        version: 0.43.1(astro@7.4.13(@types/node@26.6.6)(yaml@2.9.1))
+      astro:
+        specifier: ^7.4.13
+        version: 7.4.13(@types/node@26.6.6)(yaml@2.9.1)
+
 packages:
 
   '@astrojs/compiler-binding-android-arm64@0.5.3':
