@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=node_modules/.cache/shiplane/shiplane.schema.json
+# How this repository releases. Your editor completes every key from the schema above.
+flow:
+  sourceControl: git
+  codeHost: github
+  ciPipeline: github-actions
+  # Each release lists what changed, with its pull request, in the CHANGELOG and on GitHub.
+  versioning:
+    use: changesets
+    with:
+      line: whatsChanged
+      thanks: none
+# GitHub Pages ships from this machine.
+via: local
+# What gets released, in this order. The first app is the repository's Latest release.
+modules:
+  - use: web-app
+    with:
+      staticHosting: github-pages
