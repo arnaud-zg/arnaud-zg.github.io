@@ -17,13 +17,13 @@ const { story } = Astro.params;
 const { links, sections } = config;
 const nav = [{ href: "#packages", label: "Packages" }, { href: "#contact", label: "Contact" }];
 const line = "Small, focused TypeScript tools for monorepos.";
-const [kind, top] = story.split("-");
-const isTemplate = top === "hero" || top === "plain";
+const kind = story;
+const isTemplate = kind === "home" || kind === "page";
 const sub = { ...siteInfo, id: "js-packages" };
 const shell = { site: sub, title: `${Astro.props.name} · Design workshop`, description: "A part of the shared design, on its own.", nav, noindex: true };
 ---
 {isTemplate ? (
-  <Page {...shell} heading={kind === "home" ? "js-packages" : "shiplane"} tagline={line} hero={top === "hero"}>
+  <Page {...shell} heading={kind === "home" ? "js-packages" : "shiplane"} tagline={line}>
     {kind === "home" ? (
       <section id="packages" class="section section--first">
         <SectionHead title="Packages" lede="Each card opens its own page." />

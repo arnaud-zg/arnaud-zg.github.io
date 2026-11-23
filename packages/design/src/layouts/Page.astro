@@ -1,19 +1,16 @@
 ---
-// A whole sub-site page. `hero` picks the top: the photo banner, or a plain page head.
+// A whole sub-site page that is not documentation. No hero: it starts with its title.
 import Site from "./Site.astro";
-import Hero from "../components/Hero.astro";
 import PageHead from "../components/PageHead.astro";
-import type { SiteInfo } from "../site";
+import type { SiteLinksInfo } from "../site";
 import Content from "../components/Content.astro";
 
-interface Props { site: SiteInfo; title: string; description: string; nav: { href: string; label: string }[]; heading: string; tagline?: string; hero?: boolean; transitionName?: string; noindex?: boolean }
-const { site, title, description, nav, heading, tagline, hero = true, transitionName, noindex } = Astro.props;
-const top = { title: heading, tagline, transitionName };
+interface Props { site: SiteLinksInfo; title: string; description: string; nav: { href: string; label: string }[]; heading: string; tagline?: string; transitionName?: string; noindex?: boolean }
+const { site, title, description, nav, heading, tagline, transitionName, noindex } = Astro.props;
 ---
-<Site {...{ site, title, description, nav, noindex }} solid={!hero}>
-  {hero && <Hero site={site} {...top} />}
+<Site {...{ site, title, description, nav, noindex }} solid>
   <Content>
-    {!hero && <PageHead {...top} />}
+    <PageHead title={heading} tagline={tagline} transitionName={transitionName} />
     <slot />
   </Content>
 </Site>

@@ -1,0 +1,11 @@
+---
+import { otherSites, type SiteLinksInfo } from "../site";
+interface Props { site: SiteLinksInfo }
+const { site } = Astro.props;
+const others = otherSites(site);
+---
+{others.length > 0 && (
+  <ul class="end-sites" aria-label={`More from ${site.brand}`}>
+    {others.map((s) => <li><a class="inline" href={s.path}>{s.label}</a> <span>{s.line}</span></li>)}
+  </ul>
+)}

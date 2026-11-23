@@ -10,7 +10,7 @@ document.querySelectorAll("[data-loop]").forEach((el) => io.observe(el));
 const root = document.documentElement;
 const switches = document.querySelectorAll<HTMLButtonElement>("[data-theme-switch]");
 const paint = () => {
-  const night = root.dataset.theme === "night";
+  const night = root.dataset.theme === "dark";
   for (const sw of switches) {
     // The label names the action, so there is no pressed state on top of it.
     sw.setAttribute("aria-label", night ? "Switch to day" : "Switch to night");
@@ -35,12 +35,12 @@ const spread = (from: HTMLElement, theme: string) => {
   change.finished.then(done, done);
 };
 switches.forEach((sw) => sw.addEventListener("click", () => {
-  const next = root.dataset.theme === "night" ? "day" : "night";
+  const next = root.dataset.theme === "dark" ? "light" : "dark";
   localStorage.setItem("theme", next);
   spread(sw, next);
 }));
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-  if (!localStorage.getItem("theme")) apply(e.matches ? "night" : "day");
+  if (!localStorage.getItem("theme")) apply(e.matches ? "dark" : "light");
 });
 
 // The theme may have changed on another page or site, in another tab or before going back.

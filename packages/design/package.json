@@ -7,6 +7,8 @@
   "exports": {
     "./Site.astro": "./src/layouts/Site.astro",
     "./Page.astro": "./src/layouts/Page.astro",
+    "./starlight": "./src/starlight/index.mjs",
+    "./starlight/*": "./src/starlight/*",
     "./*.astro": "./src/components/*.astro",
     "./styles/*": "./src/styles/*",
     "./site": "./src/site.ts",
@@ -18,6 +20,15 @@
     "simple-icons": "^16.38.0"
   },
   "peerDependencies": {
-    "astro": "^7.4.13"
+    "astro": "^7.4.13",
+    "@astrojs/starlight": "^0.43.1"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/starlight": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "^0.43.1"
   }
 }

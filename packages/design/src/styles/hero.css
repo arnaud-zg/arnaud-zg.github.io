@@ -83,7 +83,7 @@
 }
 
 /* Day: the hero fades into a light page, so the bottom details switch to ink */
-[data-theme="day"] .credit { color: var(--ink-lo); }
-[data-theme="day"] .credit a:hover { color: var(--ink); }
-[data-theme="day"] .scroll-cue { border-color: var(--line); }
-[data-theme="day"] .scroll-cue span { background: var(--ink); }
+[data-theme="light"] .credit { color: var(--ink-lo); }
+[data-theme="light"] .credit a:hover { color: var(--ink); }
+[data-theme="light"] .scroll-cue { border-color: var(--line); }
+[data-theme="light"] .scroll-cue span { background: var(--ink); }

@@ -15,6 +15,7 @@ const declared = Object.keys({ ...dependencies, ...peerDependencies });
 for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
   for (const [, , from] of readFileSync(file, "utf8").matchAll(/(^|\s)(?:import|from)\s+["']([^"']+)["']/g)) {
     const at = `${relative(".", file)} imports ${from}`;
+    if (from === "virtual:design/site") continue; // made by the Starlight plugin
     if (from.startsWith(".")) { if (!resolve(dirname(file), from).startsWith(src)) problems.push(`${at}: outside the package`); }
     else if (!declared.some((d) => from === d || from.startsWith(`${d}/`))) problems.push(`${at}: not a declared dependency`);
   }
@@ -39,7 +40,8 @@ for (const root of ["src", "templates/sub-site/src"]) for (const file of walk(ro
 
 // 3. Every component is on show in the workshop, directly or inside another one.
 const shown = walk("src/pages/design").map((f) => readFileSync(f, "utf8")).join("\n");
-for (const file of walk(src).filter((f) => f.endsWith(".astro"))) {
+// Starlight overrides are shown by the Starlight pages instead.
+for (const file of walk(src).filter((f) => f.endsWith(".astro") && !f.includes("/starlight/"))) {
   const name = file.split("/").pop().replace(".astro", "");
   const nested = walk(src).some((f) => f !== file && f.endsWith(".astro") && new RegExp(`<${name}[\\s/>]`).test(readFileSync(f, "utf8")));
   if (!nested && !new RegExp(`<${name}[\\s/>]`).test(shown)) problems.push(`${name} is not shown in /design/`);

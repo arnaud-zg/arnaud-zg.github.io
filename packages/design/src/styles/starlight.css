@@ -1,0 +1,87 @@
+/* Starlight in this design. Loaded instead of index.css: Starlight keeps its own reset and content
+   styles in cascade layers, so only the parts below are added, unlayered, on top. */
+@import "@fontsource-variable/m-plus-1/index.css";
+@import "@fontsource-variable/m-plus-1-code/index.css";
+@import "./tokens.css";
+@import "./masthead.css";
+@import "./motion.css";
+@import "./transitions.css";
+
+/* Starlight's names, from our tokens. Greys are ink mixed into the page. */
+:root, :root[data-theme="light"], :root[data-theme="dark"] {
+  --sl-font: var(--font);
+  --sl-font-mono: var(--mono);
+  --sl-color-white: var(--ink);
+  --sl-color-black: var(--bg);
+  --sl-color-gray-1: color-mix(in srgb, var(--ink) 94%, var(--bg));
+  --sl-color-gray-2: color-mix(in srgb, var(--ink) 84%, var(--bg));
+  --sl-color-gray-3: var(--ink-lo);
+  --sl-color-gray-4: color-mix(in srgb, var(--ink) 50%, var(--bg));
+  --sl-color-gray-5: color-mix(in srgb, var(--ink) 20%, var(--bg));
+  --sl-color-gray-6: color-mix(in srgb, var(--ink) 8%, var(--bg));
+  --sl-color-gray-7: color-mix(in srgb, var(--ink) 4%, var(--bg));
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent);
+  --sl-color-accent-low: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  --sl-color-text: var(--ink);
+  --sl-color-text-accent: var(--accent);
+  --sl-color-text-invert: var(--bg);
+  --sl-color-bg: var(--bg);
+  --sl-color-bg-nav: color-mix(in srgb, var(--bg) 78%, transparent);
+  --sl-color-bg-sidebar: transparent;
+  --sl-color-bg-inline-code: var(--accent-soft);
+  --sl-color-bg-accent: var(--accent);
+  --sl-color-hairline: var(--line);
+  --sl-color-hairline-light: var(--line);
+  --sl-color-hairline-shade: var(--line);
+  --sl-text-h1: clamp(2.2rem, 4vw, 3.2rem);
+  --sl-text-h2: 1.7rem;
+  --sl-text-h3: var(--fs-h3);
+  --sl-text-h4: 1.1rem;
+}
+html { scrollbar-color: var(--line) var(--bg); }
+body { background: linear-gradient(var(--bg), var(--bg-deep)) fixed; caret-color: var(--accent); }
+::selection { background: var(--accent); color: var(--bg); }
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+main :is(h1, h2, h3) { font-weight: 300; letter-spacing: 0.03em; text-wrap: balance; }
+main h1 { letter-spacing: 0.04em; }
+.sl-markdown-content :is(h4, h5) { font-weight: 500; }
+
+/* Header: the masthead's frosted bar. */
+.page > .header { view-transition-name: masthead; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: var(--ink); transition: background-color 300ms var(--ease-out), color 300ms var(--ease-out), border-color 300ms var(--ease-out); }
+.theming .page > .header { view-transition-name: none; }
+.page .crumbs { margin: 0; overflow: hidden; }
+.page .crumbs a { color: inherit; text-decoration: none; }
+.page .theme-switch { border-color: var(--line); background: var(--surface); }
+
+/* The switch is there at every width. */
+.page .social-icons a { color: inherit; }
+.page .social-icons::after { display: none; }
+.page .right-group { display: flex; }
+.page button[data-open-modal] { border-radius: 999px; }
+.page .sl-menu-button { background: transparent; color: var(--ink); box-shadow: none; }
+@media (max-width: 49.99rem) {
+  .page .right-group .social-icons { display: none; }
+  .page .right-group { margin-inline-start: auto; }
+  .page .crumbs { gap: 7px; font-size: 0.94rem; }
+  .page .crumbs :is(.wordmark, .crumb) { letter-spacing: 0.02em; }
+  .page .header > .header { gap: 8px; }
+}
+
+/* Sidebar, contents and cards. */
+.sidebar-content a { border-radius: 10px; }
+.sidebar-content a[aria-current="page"], .sidebar-content a[aria-current="page"]:is(:hover, :focus) { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.sidebar-content .large { font-weight: 500; letter-spacing: 0.02em; }
+.sl-markdown-content :is(.card, .sl-link-card), .sl-link-card, .pagination-links a { border-radius: var(--radius); border-color: var(--line); background: var(--surface); box-shadow: none; transition: border-color 260ms var(--ease-out), translate 260ms var(--ease-out), box-shadow 260ms var(--ease-out); }
+.sl-link-card:hover, .pagination-links a:hover { border-color: var(--accent); background: var(--surface); translate: 0 -2px; box-shadow: var(--shadow-lift); }
+.sl-link-card .title { font: 500 0.95rem/1.4 var(--mono); color: var(--accent); }
+.starlight-aside { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.starlight-aside--note, .starlight-aside--tip { border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: var(--accent-soft); }
+.starlight-aside--note .starlight-aside__title, .starlight-aside--tip .starlight-aside__title { color: var(--accent); }
+.sl-markdown-content a:not(:where(.not-content *)) { text-decoration-thickness: 1px; text-underline-offset: 0.25em; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.sl-markdown-content a:not(:where(.not-content *)):hover { color: var(--accent); text-decoration-color: currentColor; }
+
+/* The other sites, at the end. */
+.page .end-sites { display: grid; gap: 4px; margin: 32px 0 8px; padding: 0; list-style: none; text-align: center; font-size: var(--fs-small); color: var(--ink-lo); }
+.page .end-sites a { color: var(--accent); text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+.page .end-sites span { margin-left: 8px; }

@@ -5,29 +5,41 @@ components and page transitions. See every part live at `/design/`.
 
 ## Start a sub-site
 
+Documentation sites use [Starlight](https://starlight.astro.build), dressed by a plugin of this package:
+
+```js
+import starlight from "@astrojs/starlight";
+import design from "@arnaud-zg/design/starlight";
+
+starlight({ title: "my-site", plugins: [design({ site: info })] });
+```
+
 1. Copy `templates/sub-site` into the other repository, for example as `site/`.
 2. Point its dependency at this package. No npm release needed:
    `"@arnaud-zg/design": "github:arnaud-zg/arnaud-zg.github.io#main&path:/packages/design"`
-3. Set `base` in `astro.config.mjs` to the repository name, and edit `src/site.ts`.
-4. Add the site to `sites` in `portfolio.config.ts` and in the sub-site. Set `live: true` once it is
+3. Set `base` in `astro.config.mjs` to the repository name, and edit `site.config.mjs`.
+4. Write pages in `src/content/docs`. Sub-sites have no hero: pages start with their title.
+5. Add the site to `sites` in `portfolio.config.ts` and in the sub-site. Set `live: true` once it is
    deployed.
 
-## Use it
+A site's own `components` overrides win over the plugin's. Search works in a build, not in `astro dev`.
+
+## Custom pages
+
+For pages that are not documentation:
 
 ```astro
 ---
 import Page from "@arnaud-zg/design/Page.astro";
-import { info } from "../site"; // id, brand, sites and photo: see src/site.ts in this package
+import { info } from "../site"; // id, brand and sites: see src/site.ts in this package
 ---
-<Page site={info} title="…" description="…" nav={[]} heading="js-packages" tagline="…" hero={false}>
+<Page site={info} title="…" description="…" nav={[]} heading="js-packages" tagline="…">
   <section class="section section--first">…</section>
 </Page>
 ```
 
-`hero` (default `true`) opens the page on the photo banner; `hero={false}` opens it on a plain page
-head. Both can be mixed on one site: the starter picks per page type in `src/site.ts`. For anything
-else, compose `Site`, `Hero`, `PageHead` and `Content` yourself, with `solid` on a `Site` that has no
-hero.
+`Page` starts with its title. A page with a photo, on the portfolio only, composes `Site`, `Hero` and
+`Content` instead.
 
 ## Rules that keep it one design
 

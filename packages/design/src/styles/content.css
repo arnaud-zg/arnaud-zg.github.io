@@ -60,14 +60,14 @@
 
 /* Lantern and stars */
 .lantern { position: fixed; left: 0; top: 0; z-index: -1; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%; background: radial-gradient(circle, rgba(201, 155, 255, 0.07), transparent 65%); opacity: 0; pointer-events: none; transition: opacity 600ms var(--ease-out), translate 900ms var(--ease-out); }
-[data-theme="night"] .lantern.is-on { opacity: 1; }
+[data-theme="dark"] .lantern.is-on { opacity: 1; }
 /* By day the light is a soft violet glow, so the page still answers the pointer. */
-[data-theme="day"] .lantern { background: radial-gradient(circle, rgba(107, 63, 196, 0.09), rgba(107, 63, 196, 0.03) 40%, transparent 65%); }
-[data-theme="day"] .lantern.is-on { opacity: 1; }
+[data-theme="light"] .lantern { background: radial-gradient(circle, rgba(107, 63, 196, 0.09), rgba(107, 63, 196, 0.03) 40%, transparent 65%); }
+[data-theme="light"] .lantern.is-on { opacity: 1; }
 .twinkle { animation: twinkle 3.6s ease-in-out infinite alternate; }
 .twinkle-1 { animation-delay: -1.8s; }
 @keyframes twinkle { to { opacity: 0.25; } }
-.is-offscreen .twinkle, [data-theme="day"] .twinkle { animation-play-state: paused; }
+.is-offscreen .twinkle, [data-theme="light"] .twinkle { animation-play-state: paused; }
 @media (max-width: 960px) {
   .numbers { grid-template-columns: minmax(0, 1fr); }
   .numbers li + li { border-left: 0; border-top: 1px solid var(--line); }

@@ -16,11 +16,11 @@
 .theme-switch { order: 2; position: relative; width: 54px; height: 30px; padding: 0; border-radius: 999px; border: 1px solid var(--on-photo-line); background: var(--on-photo-fill); color: #fff; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: border-color 300ms var(--ease-out); }
 .theme-switch:hover { border-color: #fff; }
 .ts-thumb { position: absolute; top: 3px; left: 3px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ffd27a; color: #5a3a00; transition: translate 600ms var(--ease-out), background-color 600ms var(--ease-out), color 600ms var(--ease-out); }
-[data-theme="night"] .ts-thumb { translate: 24px 0; background: #c99bff; color: #1b0f33; }
+[data-theme="dark"] .ts-thumb { translate: 24px 0; background: #c99bff; color: #1b0f33; }
 .ts-sun, .ts-moon { grid-area: 1 / 1; transition: opacity 300ms var(--ease-out), rotate 600ms var(--ease-out); }
 .ts-moon { opacity: 0; rotate: -60deg; }
-[data-theme="night"] .ts-sun { opacity: 0; rotate: 90deg; }
-[data-theme="night"] .ts-moon { opacity: 1; rotate: 0deg; }
+[data-theme="dark"] .ts-sun { opacity: 0; rotate: 90deg; }
+[data-theme="dark"] .ts-moon { opacity: 1; rotate: 0deg; }
 .nav-wide a:hover::after { scale: 1 1; transform-origin: left; }
 .nav-site { padding-left: clamp(18px, 2.6vw, 36px); border-left: 1px solid var(--on-photo-line); }
 .nav-wide .nav-site::after { left: clamp(18px, 2.6vw, 36px); }

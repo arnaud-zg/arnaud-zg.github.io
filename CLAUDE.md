@@ -6,6 +6,8 @@ The design system is `packages/design` (`@arnaud-zg/design`), isolated so every 
 
 - Build every page, here and in sub-sites, from its components, layouts and tokens. Do not create
   custom UI: no one-off components, no new styles in `src/`, no raw colours or sizes.
+- Documentation sites use Astro Starlight with the package's plugin (`@arnaud-zg/design/starlight`).
+  Change its look in the package, never in a site. Sub-sites have no hero.
 - Look in `/design/` (the workshop) first for a part that fits.
 - If no part fits, add or extend it in `packages/design`, show it in `/design/`, then use it.
 - Never restyle the package's classes from a site, and never import anything from outside the

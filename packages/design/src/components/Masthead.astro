@@ -1,16 +1,14 @@
 ---
+import Crumbs from "./Crumbs.astro";
 import ThemeSwitch from "./ThemeSwitch.astro";
-import { currentSite, otherSites, type SiteInfo } from "../site";
-interface Props { site: SiteInfo; nav: { href: string; label: string }[]; solid?: boolean }
+import { currentSite, otherSites, type SiteLinksInfo } from "../site";
+interface Props { site: SiteLinksInfo; nav: { href: string; label: string }[]; solid?: boolean }
 const { site, nav, solid = false } = Astro.props;
 const here = currentSite(site);
 const others = otherSites(site).filter((s) => s.id !== "home");
 ---
 <header class:list={["masthead", solid && "is-scrolled"]} data-solid={solid || undefined}>
-  <p class="crumbs">
-    <a class="wordmark" href="/">{site.brand}</a>
-    {here && here.id !== "home" && <><span class="crumb-sep" aria-hidden="true">/</span><a class="crumb" href={here.path}>{here.label}</a></>}
-  </p>
+  <Crumbs site={site} />
   <nav class="nav-wide" aria-label="Main">
     {nav.map((n) => <a href={n.href}>{n.label}</a>)}
     {others.map((s) => <a class="nav-site" href={s.path}>{s.label}</a>)}

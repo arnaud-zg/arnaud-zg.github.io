@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@arnaud-zg/design": "workspace:*",
+    "@astrojs/starlight": "^0.43.1",
     "astro": "^7.4.13"
   }
 }

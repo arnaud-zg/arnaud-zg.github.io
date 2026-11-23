@@ -1,10 +1,10 @@
 ---
 // The end of every page: the last words, the profiles, and the other sites.
 import Icon from "./Icon.astro";
-import { otherSites, type SiteInfo } from "../site";
-interface Props { site: SiteInfo; title: string; line: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
+import SiteLinks from "./SiteLinks.astro";
+import type { SiteLinksInfo } from "../site";
+interface Props { site: SiteLinksInfo; title: string; line: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
 const { site, title, line, links } = Astro.props;
-const others = otherSites(site);
 ---
 <footer id="contact" class="ending">
   <h2 class="tbc">{title}</h2>
@@ -12,10 +12,6 @@ const others = otherSites(site);
   <ul class="end-links">
     {links.map((l) => <li><a href={l.href} target="_blank" rel="noopener noreferrer"><Icon name={l.icon} size={17} /> {l.label}</a></li>)}
   </ul>
-  {others.length > 0 && (
-    <ul class="end-sites" aria-label={`More from ${site.brand}`}>
-      {others.map((s) => <li><a class="inline" href={s.path}>{s.label}</a> <span>{s.line}</span></li>)}
-    </ul>
-  )}
+  <SiteLinks site={site} />
   <slot />
 </footer>

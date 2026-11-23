@@ -3,12 +3,12 @@
 // sub-sites open on. The browser morphs one into the other during navigation.
 import Rich from "./Rich.astro";
 import type { SiteInfo } from "../site";
-interface Props { site: SiteInfo; title: string; size?: "full" | "banner"; animate?: boolean; tagline?: string; next?: string; transitionName?: string }
-const { site, title, size = "banner", animate = size === "full", tagline, next, transitionName } = Astro.props;
+interface Props { site: SiteInfo; title: string; size?: "full" | "banner"; animate?: boolean; tagline?: string; next?: string; transitionName?: string; id?: string }
+const { site, title, size = "banner", animate = size === "full", tagline, next, transitionName, id = "name" } = Astro.props;
 const { photo } = site;
 const birds = [[0, 20, 1], [18, 10, 0.8], [30, 26, 0.9], [46, 14, 0.7], [62, 24, 0.85], [78, 8, 0.6]];
 ---
-<section class:list={["hero", size === "banner" && "hero--banner"]} aria-labelledby="name">
+<section class:list={["hero", size === "banner" && "hero--banner"]} aria-labelledby={id}>
   <div class="scene" aria-hidden="true">
     <img src={photo.src} srcset={photo.srcset} sizes="100vw" alt="" width={photo.width} height={photo.height} fetchpriority="high" />
   </div>
@@ -23,12 +23,12 @@ const birds = [[0, 20, 1], [18, 10, 0.8], [30, 26, 0.9], [46, 14, 0.7], [62, 24,
   </div>
   <div class="hero-copy">
     {animate ? (
-      <h1 id="name" aria-label={title}>
+      <h1 id={id} aria-label={title}>
         {title.split(" ").map((word, w) => (
           <span class="word" aria-hidden="true">{[...word].map((ch, i) => <span class="ch" style={`--i:${w * 6 + i}`}>{ch}</span>)}</span>
         ))}
       </h1>
-    ) : <h1 id="name"><span class="hero-title" style={transitionName && `view-transition-name:${transitionName}`}>{title}</span></h1>}
+    ) : <h1 id={id}><span class="hero-title" style={transitionName && `view-transition-name:${transitionName}`}>{title}</span></h1>}
     {tagline && <p class="tagline"><Rich text={tagline} /></p>}
     <slot />
   </div>

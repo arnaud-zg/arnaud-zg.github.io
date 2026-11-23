@@ -1,6 +1,6 @@
 /* By day and by night.
    One accent (violet), one type family, one spacing rhythm. */
-:root, [data-theme="day"] {
+:root, [data-theme="light"] {
   color-scheme: light;
   --bg: #f3f5fa;
   --bg-deep: #e8ecf4;
@@ -15,7 +15,7 @@
   --removed: #c4483e;
   --night: 0;
 }
-[data-theme="night"] {
+[data-theme="dark"] {
   color-scheme: dark;
   --bg: #04060f;
   --bg-deep: #020309;
