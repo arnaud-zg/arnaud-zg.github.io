@@ -39,6 +39,7 @@ Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 | -------------------------- | ------------------------------------------ |
 | `apps/portfolio`           | this site                                  |
 | `packages/design`          | the shared design                          |
+| `packages/analytics`       | consent, tracking plan, providers          |
 | `templates/sub-site`       | starts a new sub-site                      |
 
 ## Shared design
