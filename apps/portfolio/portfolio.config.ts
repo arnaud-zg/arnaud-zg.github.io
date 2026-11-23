@@ -25,10 +25,10 @@ export default {
     description: "Arnaud Zheng, software engineer working on platform at Doctolib, previously senior engineer at PayFit. Open-source tools for monorepos, Expo and Vite, agent skills, and contributions to rspack and Module Federation.",
   },
 
-  // Sites under the same address, linked from the header and the footer. Turn `live` on once a
+  // Sites under the same address. Home follows BASE_PATH, which a preview ship sets, linked from the header and the footer. Turn `live` on once a
   // site is deployed: until then nothing links to it. Sub-sites keep the same list.
   sites: [
-    { id: "home", label: "arnaud-zg", path: "/", line: "Portfolio", live: true },
+    { id: "home", label: "arnaud-zg", path: process.env.BASE_PATH ?? "/", line: "Portfolio", live: true },
     { id: "js-packages", label: "js-packages", path: "/js-packages/", line: "TypeScript tools for monorepos", live: false },
   ],
 

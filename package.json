@@ -9,10 +9,19 @@
     "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve",
     "check": "node scripts/check-design.mjs && pnpm test",
     "test": "node --test \"packages/*/test/*.test.ts\"",
-    "site:deploy": "node scripts/deploy.mjs"
+    "changeset": "changeset",
+    "release": "GITHUB_TOKEN=$(gh auth token) shiplane"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {
     "node": ">=22.23.4"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.1",
+    "@shiplane/changesets": "0.6.0-nightly.11",
+    "@shiplane/git": "0.6.0-nightly.11",
+    "@shiplane/github": "0.6.0-nightly.11",
+    "@shiplane/github-pages": "0.6.0-nightly.11",
+    "shiplane": "0.6.0-nightly.11"
   }
 }

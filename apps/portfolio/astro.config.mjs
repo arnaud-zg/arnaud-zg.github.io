@@ -6,9 +6,11 @@ import config from "./portfolio.config.ts";
 
 export default defineConfig({
   site: config.site.url,
+  // Set by Shiplane: the folder a preview lives in.
+  base: process.env.BASE_PATH ?? "/",
   integrations: [
     // The workshop is not for search engines.
-    sitemap({ filter: (page) => !new URL(page).pathname.startsWith("/design/") }),
+    sitemap({ filter: (page) => !new URL(page).pathname.includes("/design/") }),
     // Only for the workshop: the pages in src/content/docs/design/starlight, as a sub-site shows them.
     starlight({
       title: config.site.brand,

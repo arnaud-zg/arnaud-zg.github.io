@@ -52,16 +52,19 @@ together.
 
 Opt-in, mocked in development, off until configured: see [`packages/analytics`](./packages/analytics).
 
-## Deploy
+## Release
 
-By hand, with no GitHub workflow:
+With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It needs `gh auth login`.
 
 ```sh
-pnpm site:deploy
+pnpm changeset   # in your pull request: what changed
+pnpm release     # on develop: opens the release PR; once merged, ships the preview
+pnpm release promote   # ships the preview to production
 ```
 
-It builds with live data and publishes to the `gh-pages` branch, which GitHub Pages must be set to
-serve. Run it again whenever the numbers should be refreshed.
+The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it. See
+what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that is
+down stops the ship.
 
 ## Credits
 

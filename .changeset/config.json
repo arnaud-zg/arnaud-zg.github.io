@@ -1,0 +1,16 @@
+{
+  "changelog": false,
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "develop",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "js-packages-site"
+  ],
+  "privatePackages": {
+    "version": true,
+    "tag": false
+  }
+}
