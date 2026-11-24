@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "astro build && node scripts/minify.mjs",
+    "build": "astro build",
     "data:refresh": "node scripts/refresh-data.mjs",
     "dev": "astro dev",
     "preview": "astro preview",

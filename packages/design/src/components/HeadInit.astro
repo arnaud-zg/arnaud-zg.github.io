@@ -5,17 +5,16 @@
 <style is:inline>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
 {/* Pages of the same origin are fetched as the pointer approaches, so transitions start at once. */}
 <script is:inline type="speculationrules" set:html={JSON.stringify({ prefetch: [{ where: { and: [{ href_matches: "/*" }, { not: { href_matches: "/*\\?*" } }] }, eagerness: "moderate" }] })} />
+{/* Picks light or dark before the first paint: the saved choice (earlier names count), else the
+    system setting. Reached through a page transition, the hero skips its entrance; browsers without
+    them get a short fade. Inline scripts are not minified, so the comments stay out here. */}
 <script is:inline>
-  // Pick light or dark before the first paint: the saved choice, else the system setting.
   (() => {
-    // Choices saved under the earlier names still count.
     const earlier = { night: "dark", day: "light" };
     let saved = localStorage.getItem("theme");
     if (saved && earlier[saved]) localStorage.setItem("theme", (saved = earlier[saved]));
     const dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
     document.documentElement.dataset.theme = dark ? "dark" : "light";
-    // Reached through a page transition: the hero skips its entrance.
-    // Browsers without transitions between pages: a short fade, and the same skipped entrance.
     const inside = document.referrer.startsWith(location.origin + "/");
     if (!("CSSViewTransitionRule" in window) && inside) document.documentElement.classList.add("arrived", "arrived-plain");
     addEventListener("pagereveal", (e) => { if (e.viewTransition) document.documentElement.classList.add("arrived"); });
