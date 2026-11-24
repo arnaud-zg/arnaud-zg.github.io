@@ -1,0 +1,13 @@
+{
+  "name": "@arnaud-zg/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Consent-first analytics: one port, any provider.",
+  "type": "module",
+  "exports": {
+    ".": "./src/composition.ts",
+    "./plan": "./src/domain/plan.ts",
+    "./settings": "./src/domain/settings.ts"
+  },
+  "scripts": { "test": "node --test \"test/*.test.ts\"" }
+}
