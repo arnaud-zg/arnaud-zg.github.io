@@ -66,9 +66,8 @@
 }
 /* Banner: the short hero of a sub-site. The copy sits on the sky, at every width. */
 .hero--banner { height: clamp(380px, 52svh, 520px); min-height: 0; }
-/* The photo is drawn exactly where the full hero draws it, so it holds still during navigation
-   and only the bottom edge moves. Keep these three in step with .hero. */
-.hero--banner .scene { bottom: auto; height: 100svh; min-height: 640px; max-height: 1100px; }
+/* The photo fills the short frame and shows its middle. */
+.hero--banner .scene img { object-position: 50% 50%; }
 .hero--banner::before { background: linear-gradient(90deg, rgba(6, 22, 56, 0.6), rgba(6, 22, 56, 0.36) 36%, transparent 72%); }
 .hero--banner .hero-copy { top: auto; bottom: clamp(64px, 10svh, 96px); gap: 14px; max-width: min(620px, calc(100vw - 2 * var(--edge))); }
 .hero--banner h1 { font-size: clamp(2.2rem, 5vw, 4rem); line-height: 1.1; letter-spacing: 0.04em; overflow-wrap: anywhere; }
