@@ -69,8 +69,10 @@ Opt-in, mocked in development, off until configured: see
 
 ## Release
 
-With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It needs
-`gh auth login`, and `apps/portfolio/.env` for analytics.
+With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine or from GitHub Actions
+(`pnpm shiplane ship --via ci`, or Run workflow on Ship). This machine needs `gh auth login`, and
+`apps/portfolio/.env` for analytics. GitHub Actions reads `POSTHOG_KEY` and `POSTHOG_REGION` from
+the repository's variables.
 
 ```sh
 pnpm changeset   # in your pull request: what changed
