@@ -4,6 +4,7 @@
 import "../styles/index.css";
 import type { SiteLinksInfo } from "../site";
 import HeadInit from "../components/HeadInit.astro";
+import SiteScript from "../components/SiteScript.astro";
 import Masthead from "../components/Masthead.astro";
 
 interface Props { site: SiteLinksInfo; title: string; description: string; nav: { href: string; label: string }[]; solid?: boolean; noindex?: boolean; bare?: boolean }
@@ -31,6 +32,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <a class="skip" href="#main">Skip to content</a>
     {!bare && <Masthead site={site} nav={nav} solid={solid} />}
     <main id="main"><slot /></main>
-    <script>import "../scripts/site";</script>
+    <SiteScript />
   </body>
 </html>

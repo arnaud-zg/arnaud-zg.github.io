@@ -1,6 +1,12 @@
 ---
 // What every page needs before its first paint, whichever shell it uses.
+import sans from "@fontsource-variable/m-plus-1/files/m-plus-1-latin-wght-normal.woff2?url";
+import mono from "@fontsource-variable/m-plus-1-code/files/m-plus-1-code-latin-wght-normal.woff2?url";
+import icon from "../assets/icon.svg?url&no-inline";
 ---
+<link rel="icon" type="image/svg+xml" href={icon} />
+{/* The fonts are only named in the stylesheet: asked for here, they arrive with it. */}
+{[sans, mono].map((font) => <link rel="preload" as="font" type="font/woff2" href={font} crossorigin />)}
 {/* Inline, so the transition opt-in is known before any stylesheet arrives. */}
 <style is:inline>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
 {/* Pages of the same origin are fetched as the pointer approaches, so transitions start at once. */}

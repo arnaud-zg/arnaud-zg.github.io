@@ -1,7 +1,6 @@
 /* Starlight in this design. Loaded instead of index.css: Starlight keeps its own reset and content
    styles in cascade layers, so only the parts below are added, unlayered, on top. */
-@import "@fontsource-variable/m-plus-1/index.css";
-@import "@fontsource-variable/m-plus-1-code/index.css";
+@import "./fonts.css";
 @import "./tokens.css";
 @import "./masthead.css";
 @import "./motion.css";

@@ -14,7 +14,8 @@ export default function design({ site }) {
   return {
     name: "design",
     hooks: {
-      "config:setup"({ config, updateConfig, addIntegration }) {
+      "config:setup"({ config, updateConfig, addIntegration, addRouteMiddleware }) {
+        addRouteMiddleware({ entrypoint: "@arnaud-zg/design/starlight/head.ts" });
         // Sub-sites have no hero: pages start with their title.
         updateConfig({
           customCss: ["@arnaud-zg/design/styles/starlight.css", ...(config.customCss ?? [])],
