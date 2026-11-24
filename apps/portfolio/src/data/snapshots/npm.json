@@ -1,0 +1,186 @@
+[
+  {
+    "name": "shiplane",
+    "line": "Release and deploy a monorepo in one command",
+    "href": "https://www.npmjs.com/package/shiplane",
+    "keywords": [
+      "release",
+      "deploy",
+      "monorepo"
+    ],
+    "releases": 26,
+    "updated": "2026-11-15",
+    "members": 8
+  },
+  {
+    "name": "blast-shield",
+    "line": "Technical debt protection tool for any codebase",
+    "href": "https://www.npmjs.com/package/blast-shield",
+    "keywords": [
+      "technical-debt",
+      "code-quality"
+    ],
+    "releases": 23,
+    "updated": "2026-04-21",
+    "members": 8
+  },
+  {
+    "name": "eslint-plugin-feature-flags",
+    "line": "Lint rules to enforce feature flag hygiene",
+    "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
+    "keywords": [
+      "eslint",
+      "feature-flags"
+    ],
+    "releases": 7,
+    "updated": "2025-06-15",
+    "members": 4
+  },
+  {
+    "name": "expo-pnpm-catalog",
+    "line": "Checks and syncs Expo SDK versions in pnpm catalogs",
+    "href": "https://www.npmjs.com/package/expo-pnpm-catalog",
+    "keywords": [
+      "expo",
+      "react-native",
+      "pnpm"
+    ],
+    "releases": 6,
+    "updated": "2026-11-14",
+    "members": 1
+  },
+  {
+    "name": "expo-native-guard",
+    "line": "Load native-only modules safely in Expo Go",
+    "href": "https://www.npmjs.com/package/expo-native-guard",
+    "keywords": [
+      "expo",
+      "react-native"
+    ],
+    "releases": 6,
+    "updated": "2026-11-14",
+    "members": 1
+  },
+  {
+    "name": "agent-context-budget",
+    "line": "Scores the markdown files an AI agent loads",
+    "href": "https://www.npmjs.com/package/agent-context-budget",
+    "keywords": [
+      "claude-code",
+      "llm",
+      "ai-agents"
+    ],
+    "releases": 6,
+    "updated": "2026-11-14",
+    "members": 1
+  },
+  {
+    "name": "vite-workspace-resolver",
+    "line": "Resolves workspace package imports in Vite and Vitest",
+    "href": "https://www.npmjs.com/package/vite-workspace-resolver",
+    "keywords": [
+      "vite",
+      "vite-plugin",
+      "monorepo"
+    ],
+    "releases": 5,
+    "updated": "2026-11-14",
+    "members": 1
+  },
+  {
+    "name": "migration-preflight",
+    "line": "Test database migrations before you ship them",
+    "href": "https://www.npmjs.com/package/migration-preflight",
+    "keywords": [
+      "migration",
+      "database"
+    ],
+    "releases": 3,
+    "updated": "2026-11-01",
+    "members": 3
+  },
+  {
+    "name": "immutable-instance",
+    "line": "Makes immutable class instances reactive for front-end application",
+    "href": "https://www.npmjs.com/package/immutable-instance",
+    "keywords": [
+      "react",
+      "immutable"
+    ],
+    "releases": 2,
+    "updated": "2025-11-04",
+    "members": 1
+  },
+  {
+    "name": "http-response-status",
+    "line": "HTTP Status Map",
+    "href": "https://www.npmjs.com/package/http-response-status",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2022-12-18",
+    "members": 1
+  },
+  {
+    "name": "selector",
+    "line": "Generic selector library",
+    "href": "https://www.npmjs.com/package/selector",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2022-06-24",
+    "members": 1
+  },
+  {
+    "name": "popup-sensor",
+    "line": "Popup window sensor written in typescript",
+    "href": "https://www.npmjs.com/package/popup-sensor",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2022-06-24",
+    "members": 1
+  },
+  {
+    "name": "lazy-upload",
+    "line": "Simplify the file upload flow",
+    "href": "https://www.npmjs.com/package/lazy-upload",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2020-08-26",
+    "members": 1
+  },
+  {
+    "name": "ts-foursquare",
+    "line": "A simple library for Foursquare API",
+    "href": "https://www.npmjs.com/package/ts-foursquare",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2020-08-01",
+    "members": 1
+  },
+  {
+    "name": "react-lightsaber",
+    "line": "Just a simple lightsaber hosted on npmjs",
+    "href": "https://www.npmjs.com/package/react-lightsaber",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2020-07-06",
+    "members": 1
+  },
+  {
+    "name": "standalone-store",
+    "line": "Middleware for redux store in standalone mode for nodejs environment",
+    "href": "https://www.npmjs.com/package/standalone-store",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2020-05-26",
+    "members": 1
+  },
+  {
+    "name": "request-init",
+    "line": "Configuration toolset for fetch API",
+    "href": "https://www.npmjs.com/package/request-init",
+    "keywords": [],
+    "releases": 1,
+    "updated": "2020-02-28",
+    "members": 1
+  }
+]
