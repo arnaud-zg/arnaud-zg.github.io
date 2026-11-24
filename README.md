@@ -50,7 +50,23 @@ together.
 
 ## Analytics
 
-Opt-in, mocked in development, off until configured: see [`packages/analytics`](./packages/analytics).
+Opt-in, mocked in development, off until configured: see
+[`packages/analytics`](./packages/analytics).
+
+## Release
+
+With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It needs `gh auth login`,
+and `apps/portfolio/.env` for analytics.
+
+```sh
+pnpm changeset   # in your pull request: what changed
+pnpm release     # on main: opens the release PR; once merged, ships the preview
+pnpm release promote   # ships the preview to production
+```
+
+The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it. See
+what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that is
+down stops the ship.
 
 ## Credits
 

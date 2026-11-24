@@ -1,0 +1,21 @@
+{
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "arnaud-zg/arnaud-zg.github.io"
+    }
+  ],
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "js-packages-site"
+  ],
+  "privatePackages": {
+    "version": true,
+    "tag": false
+  }
+}
