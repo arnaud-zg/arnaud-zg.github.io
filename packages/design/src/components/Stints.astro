@@ -1,0 +1,14 @@
+---
+// Short jobs folded into one line.
+import "../styles/career.css";
+interface Props { title: string; years: string; role: string; stints: { company: string; year: string; note: string }[] }
+const { title, years, role, stints } = Astro.props;
+---
+<details class="cv-early">
+  <summary><span class="cv-early-title">{title}</span> · {years} · {role}</summary>
+  <ul>
+    {stints.map((st) => (
+      <li><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+    ))}
+  </ul>
+</details>

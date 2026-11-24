@@ -1,0 +1,205 @@
+---
+// Tools by group. A tile's area is its weight; opening one grows it and reflows the rest. On small
+// screens, a plain list of cards. The open tool lives in the URL, as ?tool=name.
+import "../styles/treemap.css";
+import { external } from "../links";
+import type { Group, Rect, ToolLabels } from "../treemap";
+import ToolStats from "./ToolStats.astro";
+interface Props { groups: Group[]; labels: ToolLabels }
+const { groups, labels } = Astro.props;
+const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}%;--${p}h:${r.h}%`;
+---
+<div class="treemap" data-treemap>
+  {groups.map((g) => (
+    <section class="tm-group" data-group style={`${box(g.rect)};--n:${Math.min(g.tiles.length, 3)}`} aria-label={g.name}>
+      <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span></h3>
+      <ul class="tm-tiles">
+        {g.tiles.map((t) => (
+          <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} data-tool={t.tool?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+            {t.tool ? (
+              <div class="tm-link">
+                <span class="tm-name">{t.tool.name}</span>
+                <button class="tm-open" type="button" aria-expanded="false" aria-label={labels.showDetails(t.tool.name)}><span aria-hidden="true"></span></button>
+                <span class="tm-line">{t.tool.line}</span>
+                <ToolStats class="tm-stats" tool={t.tool} labels={labels} />
+                <a class="tm-go" href={t.tool.href} {...external}>{labels.viewOnNpm} <span aria-hidden="true">↗</span></a>
+              </div>
+            ) : (
+              <div class="tm-link tm-more">
+                <span class="tm-name">{labels.more(t.more!.length)}</span>
+                <span class="tm-line">{t.more!.map((q, i) => <>{i > 0 && ", "}<a class="inline" href={q.href} {...external}>{q.name}</a></>)}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+{/* Small screens: no treemap, no tapping. A plain list of cards with their numbers. */}
+<div class="sq-list">
+  {groups.map((g) => (
+    <section class="sq-group" aria-label={g.name}>
+      <h3 class="sq-head"><span aria-hidden="true">{g.emoji}</span> {g.name}</h3>
+      <ul>
+        {g.tiles.flatMap((t) => (t.tool ? [t.tool] : t.more!)).map((q) => (
+          <li>
+            <a class="sq-card" href={q.href} data-tool={q.name} {...external}>
+              <span class="sq-name">{q.name}</span>
+              <span class="sq-line">{q.line}</span>
+              <ToolStats class="sq-stats" tool={q} labels={labels} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<script>
+  // Opening a tile grows it to a readable size and the rest of the
+  // treemap shrinks around it, animated by CSS transitions on the box variables.
+  import { squarify, TREEMAP_BOX as BOX } from "../treemap";
+
+  const map = document.querySelector<HTMLElement>("[data-treemap]");
+  const wide = matchMedia("(min-width: 961px) and (hover: hover)");
+  if (map) {
+    const groups = [...map.querySelectorAll<HTMLElement>("[data-group]")].map((el) => ({
+      el,
+      tiles: [...el.querySelectorAll<HTMLElement>("[data-v]")].map((t) => ({ el: t, v: Number(t.dataset.v) })),
+    }));
+    const set = (el: HTMLElement, r: { x: number; y: number; w: number; h: number }) => {
+      for (const [k, v] of Object.entries(r)) el.style.setProperty(`--${k}`, `${v}%`);
+    };
+
+    // Lay out with one tile weighted up. Try the biggest boost first and keep the first one
+    // where every other tile still has room for its text; if none fits, only highlight it.
+    const MIN_W = 150, MIN_H = 40, HEAD = 44, PAD = 8;
+    // `whole`: grow the focused tile's whole group, for tiles that sit in a tight row.
+    const compute = (focus: HTMLElement | undefined, boost: number, whole = false) => {
+      const values = groups.map((g) => {
+        const mine = g.tiles.some((t) => t.el === focus);
+        return g.tiles.map((t) => (t.el === focus || (whole && mine) ? t.v * boost : t.v));
+      });
+      const outer = squarify(values.map((vs) => vs.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
+      const inner = groups.map((_, gi) => squarify(values[gi], (outer[gi].w / 100) * BOX.w, (outer[gi].h / 100) * BOX.h, true));
+      return { outer, inner };
+    };
+    // Tile sizes in pixels for a layout.
+    const sizes = (l: ReturnType<typeof compute>) => {
+      const { width: W, height: H } = map.getBoundingClientRect();
+      return groups.map((_, gi) => {
+        const gw = (l.outer[gi].w / 100) * W - PAD, gh = (l.outer[gi].h / 100) * H - HEAD;
+        return l.inner[gi].map((r) => ({ w: (r.w / 100) * gw, h: (r.h / 100) * gh }));
+      });
+    };
+    // Every other tile keeps room for its text: at least the minimum, or its normal size if
+    // that is already smaller.
+    // Each group header needs its natural width, so it never runs into the next group.
+    const headW = groups.map((g) => (g.el.querySelector<HTMLElement>(".tm-head span")?.scrollWidth ?? 0) + 24);
+    // Each tile needs room for its name and description: measured at rest, from the top of
+    // the tile to the bottom of its description, plus the bottom padding.
+    const needH = groups.map((g) => g.tiles.map((t) => {
+      const link = t.el.querySelector<HTMLElement>(".tm-link")!, line = t.el.querySelector<HTMLElement>(".tm-line");
+      if (!line) return MIN_H;
+      return line.getBoundingClientRect().bottom - link.getBoundingClientRect().top + 14;
+    }));
+    const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
+      const base = sizes(compute(undefined, 1)), next = sizes(l);
+      const W = map.getBoundingClientRect().width;
+      const headsFit = groups.every((_, gi) => (l.outer[gi].w / 100) * W >= headW[gi]);
+      return headsFit && groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
+        (next[gi][ti].w >= Math.min(base[gi][ti].w, Math.max(MIN_W, base[gi][ti].w * 0.85)) - 0.5 && next[gi][ti].h >= Math.min(Math.max(MIN_H, needH[gi][ti]), base[gi][ti].h) - 0.5)));
+    };
+    // Opening runs in two beats so nothing jumps: the treemap reflows first, then, once it has
+    // settled, the card is placed where it will stay and fades in. Closing hides the card
+    // first, then reflows back. A newer click cancels any beat still waiting.
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    // Motion runs in beats so only one thing moves at a time:
+    //   1. an open card fades out (LEAVE_MS);
+    //   2. tiles glide to their new places (MOVE_MS), text visible throughout;
+    //   3. the new card fades in where it will stay.
+    // A newer click cancels whatever is still waiting.
+    const LEAVE_MS = 170, MOVE_MS = 460;
+    let beat = 0, run = 0;
+    const wait = (ms: number) => new Promise<void>((r) => { beat = window.setTimeout(r, still.matches ? 0 : ms); });
+    const layout = async (focus?: HTMLElement) => {
+      const id = ++run;
+      clearTimeout(beat);
+      let l = compute(undefined, 1);
+      if (focus) search: for (const whole of [false, true]) for (const boost of [3, 2.4, 1.9, 1.5, 1.25]) {
+        const next = compute(focus, boost, whole);
+        if (fits(focus, next)) { l = next; break search; }
+      }
+      const shown = map.querySelector<HTMLElement>(".tm-tile.is-focus");
+      if (shown) {
+        shown.classList.add("is-leaving");
+        await wait(LEAVE_MS);
+        if (id !== run) return;
+        shown.classList.remove("is-focus", "is-leaving");
+      }
+      map.classList.add("is-moving");
+      groups.forEach((g, gi) => {
+        set(g.el, l.outer[gi]);
+        g.el.classList.toggle("is-focus", g.tiles.some((t) => t.el === focus));
+        g.tiles.forEach((t, ti) => set(t.el, l.inner[gi][ti]));
+      });
+      await wait(MOVE_MS);
+      if (id !== run) return;
+      map.classList.remove("is-moving");
+      if (focus) place(focus);
+    };
+    // Show the card at its final spot: measured once, nudged left or up to stay in the treemap.
+    const place = (tile: HTMLElement) => {
+      const link = tile.querySelector<HTMLElement>(".tm-link")!;
+      link.style.setProperty("--dx", "0px"); link.style.setProperty("--dy", "0px");
+      tile.classList.add("is-focus");
+      const m = map.getBoundingClientRect(), t = tile.getBoundingClientRect();
+      const right = t.left + 3 + link.offsetWidth, bottom = t.top + 3 + link.offsetHeight;
+      link.style.setProperty("--dx", `${Math.min(0, m.right - right)}px`);
+      link.style.setProperty("--dy", `${Math.min(0, m.bottom - bottom)}px`);
+    };
+    // Tapping a tile opens its card; the ✕, a click anywhere else or Escape closes it. Opening grows the tile and reflows the treemap around it.
+    let focused: HTMLElement | undefined;
+    // The open card lives in the URL (?tool=shiplane), so it can be shared as is; opening a
+    // shared link scrolls to the section by itself.
+    const remember = (tile?: HTMLElement) => {
+      const url = new URL(location.href);
+      if (tile?.dataset.tool) url.searchParams.set("tool", tile.dataset.tool);
+      else url.searchParams.delete("tool");
+      history.replaceState(null, "", url);
+    };
+    const open = (tile?: HTMLElement) => {
+      if (tile === focused) tile = undefined;
+      focused = tile;
+      remember(tile);
+      map.querySelectorAll<HTMLButtonElement>(".tm-open").forEach((b) => b.setAttribute("aria-expanded", String(b.closest(".tm-tile") === tile)));
+      layout(tile);
+    };
+    for (const g of groups) for (const t of g.tiles) {
+      t.el.querySelector(".tm-open")?.addEventListener("click", () => open(t.el));
+    }
+    document.addEventListener("click", (e) => { if (focused && !focused.contains(e.target as Node)) open(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && focused) { const b = focused.querySelector<HTMLButtonElement>(".tm-open"); open(); b?.focus(); } });
+
+    // Arriving with ?tool=…: bring the section into view, then open that card. On phones,
+    // where there are no cards to open, the matching card is scrolled to and highlighted.
+    const shared = new URLSearchParams(location.search).get("tool");
+    if (shared) {
+      const tile = groups.flatMap((g) => g.tiles).find((t) => t.el.dataset.tool === shared)?.el;
+      const card = document.querySelector<HTMLElement>(`.sq-card[data-tool="${CSS.escape(shared)}"]`);
+      // Wait for the page to finish loading: late images would otherwise move the page
+      // after our scroll.
+      const go = () => setTimeout(() => {
+        if (wide.matches && tile) {
+          map.scrollIntoView({ block: "center" });
+          setTimeout(() => open(tile), 350);
+        } else if (card) {
+          card.classList.add("is-target");
+          card.scrollIntoView({ block: "center" });
+        }
+      }, 120);
+      if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
+    }
+  }
+</script>

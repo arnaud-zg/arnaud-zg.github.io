@@ -16,13 +16,23 @@ import Tags from "@arnaud-zg/design/Tags.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
 import Ask from "@arnaud-zg/design/Ask.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
+import Facts from "@arnaud-zg/design/Facts.astro";
+import Roles from "@arnaud-zg/design/Roles.astro";
+import Stints from "@arnaud-zg/design/Stints.astro";
+import Education from "@arnaud-zg/design/Education.astro";
+import Treemap from "@arnaud-zg/design/Treemap.astro";
+import Shelf from "@arnaud-zg/design/Shelf.astro";
+import Articles from "@arnaud-zg/design/Articles.astro";
+import Diffstat from "@arnaud-zg/design/Diffstat.astro";
+import SecretBird from "@arnaud-zg/design/SecretBird.astro";
+import { squarify, TREEMAP_BOX } from "@arnaud-zg/design/treemap";
 import { portrait, siteInfo } from "../../site";
 import Story from "../../components/Story.astro";
 import { frames, starlightFrames } from "../../design/stories";
 import config from "../../../portfolio.config";
 import "../../styles/workshop.css";
 
-const levels = ["Tokens", "Atoms", "Molecules", "Organisms", "Templates", "Starlight"];
+const levels = ["Tokens", "Atoms", "Molecules", "Sections", "Organisms", "Templates", "Starlight"];
 const id = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const nav = levels.map((l) => ({ href: `#${id(l)}`, label: l }));
 const colors = [["--bg", "Page"], ["--bg-deep", "Page, end of the gradient"], ["--surface", "Card"], ["--surface-hi", "Card, raised"], ["--ink", "Text"], ["--ink-lo", "Secondary text"], ["--line", "Hairline"], ["--accent", "Accent"], ["--accent-soft", "Accent, tint"]];
@@ -34,6 +44,13 @@ const framed = [
   { level: "Templates", lede: "Custom pages, for anything that is not documentation.", items: preview("Templates") },
   { level: "Starlight", lede: "Documentation sites. Search, sidebar and Markdown are Starlight's; the look is this design, through one plugin.", items: starlightFrames.map((f) => ({ ...f, src: `${import.meta.env.BASE_URL}design/starlight/${f.id}/` })) },
 ];
+// One made-up tool per tile, laid out as a site would.
+const tool = (name: string, releases: number, members = 1) => ({ name, releases, members, line: "What the tool does", href: "https://www.npmjs.com", downloads: releases * 100, downloadsMonth: "October 2026" });
+const tiles = [[tool("release-kit", 26, 4), tool("lint-kit", 18)], [tool("test-kit", 20, 2)]];
+const total = (group: { releases: number }[]) => group.reduce((n, t) => n + t.releases, 0);
+const [boxes, ...inner] = [tiles.map(total), ...tiles.map((g) => g.map((t) => t.releases))].map((v) => squarify(v, TREEMAP_BOX.w, TREEMAP_BOX.h, true));
+const groups = tiles.map((g, gi) => ({ name: ["Shipping", "Testing"][gi], emoji: ["🚢", "🧪"][gi], rect: boxes[gi], tiles: g.map((t, ti) => ({ tool: t, releases: t.releases, weight: t.releases, recent: ti === 0, rect: inner[gi][ti], mrect: inner[gi][ti] })) }));
+const diffs = [["acme/bundler", 420, 80], ["acme/cli", 120, 60], ["acme/docs", 20, 5]].map(([repo, added, removed]) => ({ repo: String(repo), about: "What the project is", kinds: "2 fixes", added: Number(added), removed: Number(removed), href: "https://github.com" }));
 const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] as const;
 ---
 <Site site={siteInfo} title={`Design workshop · ${config.site.brand}`} description="The parts this site and its sub-sites are built from." nav={nav} noindex>
@@ -89,6 +106,19 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
           <Story name="Dialog" use="For detail that would crowd the page." code={'<Dialog id="my-dialog" title="More">…</Dialog>'}><Pill opens="ws-dialog">Open the dialog</Pill><Dialog id="ws-dialog" title="A dialog"><p>Escape, the close button or a click outside closes it.</p></Dialog></Story>
           <Story name="Ask" use="A question the page can do without. Corner of the screen, never over the page; both answers weigh the same." code={'<Ask title="…" text="…"><Pill plain>Yes</Pill><Pill plain>No</Pill></Ask>'}><div class="pills"><Pill plain data-show-ask>Show it</Pill></div><Ask title="May I ask?" text="Either answer is fine, and the page stays the same." data-ws-ask><Pill plain data-hide-ask>Yes</Pill><Pill plain data-hide-ask>No</Pill></Ask></Story>
           <Story name="Command" use="One command to copy." code={'<Command label="Install" command="pnpm add -D shiplane" />'}><Command label="Install" command={config.skills.install} /></Story>
+          <Story name="Facts" use="What a reader looks for first, side by side." code={'<Facts items={[{ label: "Now", value: "Engineer", note: "at Acme" }]} />'}><Facts items={[{ label: "Now", value: "Engineer", note: "at Acme" }, { label: "Experience", value: "9 years" }]} /></Story>
+          <Story name="Stints" use="Short jobs folded into one line." code={'<Stints title="School" years="2013–2016" role="Intern" stints={stints} />'}><Stints title="School" years="2013–2016" role="Intern" stints={[{ company: "Acme", year: "2014", note: "What was done there" }]} /></Story>
+          <Story name="Shelf" use="Older work, folded away. Each card is a plain link." code={'<Shelf emoji="🗃️" title="See 2 earlier libraries" items={items} />'}><Shelf emoji="🗃️" title="See 2 earlier libraries" items={["old-kit", "older-kit"].map((n) => ({ name: n, line: "What it did", href: "https://www.npmjs.com", year: "2020", label: `${n} on npm` }))} /></Story>
+          <Story name="SecretBird" use="A quiet way in, at the end of a page." code={'<SecretBird href="/design/" label="Design workshop" />'}><SecretBird href="#molecules" label="Molecules" /></Story>
+        </section>
+
+        <section id="sections" class="ws-level">
+          <SectionHead title="Sections" lede="Whole sections of a page. Give them data; they bring their styles and behaviour." />
+          <Story name="Roles" use="One card per job, newest first." code={'<Roles roles={roles} labels={{ then: "then", stack: "Stack" }} />'}><Roles labels={{ then: "then", stack: "Stack" }} roles={[{ company: "Acme", industry: "Tools", titles: [{ title: "Engineer" }, { title: "Senior engineer", since: "2024" }], dates: "2022 → now", now: true, highlights: ["Something shipped, plain and specific"], stack: ["TypeScript"] }]} /></Story>
+          <Story name="Education" use="Compact cards, newest first." code={'<Education title="Education" items={items} labels={{ skills: "Skills" }} />'}><Education title="Education" labels={{ skills: "Skills" }} items={[{ school: "A school", degree: "A degree", start: "2013", end: "2016", highlights: ["What it was about"], skills: ["Algorithms"] }]} /></Story>
+          <Story name="Treemap" use="Tools by group, sized by weight. Open one: the rest reflows. A list on small screens." code={'<Treemap groups={groups} labels={labels} />'}><Treemap groups={groups} labels={config.labels} /></Story>
+          <Story name="Articles" use="Covers in a row, newest first." code={'<Articles items={articles} />'}><Articles items={[2, 1].map((n) => ({ title: `Article ${n}`, url: config.links[0].href, date: `2026-0${n}-01`, dateText: `0${n}/2026`, image: portrait.src }))} /></Story>
+          <Story name="Diffstat" use="Contributions by repository, largest first. The rest open in a dialog." code={'<Diffstat id="more" items={repos} top={2} labels={labels} />'}><Diffstat id="ws-diff" items={diffs} top={2} labels={{ added: "added", removed: "removed", more: (n) => `${n} more`, moreTitle: "More projects" }} /></Story>
         </section>
 
         {framed.map(({ level, lede, items }) => (

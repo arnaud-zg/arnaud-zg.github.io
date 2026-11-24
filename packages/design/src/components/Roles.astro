@@ -1,0 +1,23 @@
+---
+// One card per job, newest first. A title earned later carries its year.
+import "../styles/career.css";
+import Tags from "./Tags.astro";
+export type Role = { company: string; industry?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
+interface Props { roles: Role[]; labels: { then: string; stack: string } }
+const { roles, labels } = Astro.props;
+---
+<ol class="cv-roles">
+  {roles.map((r) => (
+    <li class:list={["cv-role", r.now && "cv-role--now"]}>
+      <div class="cv-head">
+        <h3 class="cv-company">{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+        <p class="cv-dates">{r.dates}</p>
+      </div>
+      <p class="cv-titles">
+        {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
+      </p>
+      <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
+      <Tags items={r.stack} label={labels.stack} />
+    </li>
+  ))}
+</ol>

@@ -1,0 +1,19 @@
+---
+// Contributions by repository, largest first. Past `top`, the rest open in a dialog.
+import "../styles/diffstat.css";
+import Dialog from "./Dialog.astro";
+import DiffRows, { type DiffRepo } from "./DiffRows.astro";
+import Pill from "./Pill.astro";
+interface Props { id: string; items: DiffRepo[]; top: number; labels: { added: string; removed: string; more: (n: number) => string; moreTitle: string } }
+const { id, items, top, labels } = Astro.props;
+const max = Math.max(1, ...items.map((r) => r.added + r.removed));
+const more = items.slice(top);
+---
+<div class="diffstat">
+  <DiffRows items={items.slice(0, top)} max={max} />
+  <div class="ds-foot">
+    <p class="ds-key"><b></b> {labels.added} <i></i> {labels.removed}</p>
+    {more.length > 0 && <Pill opens={id}>{labels.more(more.length)}</Pill>}
+  </div>
+</div>
+{more.length > 0 && <Dialog id={id} title={labels.moreTitle}><DiffRows items={more} max={max} /></Dialog>}

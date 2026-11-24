@@ -48,7 +48,7 @@ import { info } from "../site"; // id, brand and sites: see src/site.ts in this 
 - Links between sites open in the same tab; links that leave the origin open a new one.
 - Use tokens, never raw colours. Text on the photo uses `--on-photo-*`.
 - Morph one element into another by giving both the same `transitionName`, unique on each page.
-- Styles used by one site only stay in that site.
+- A site has no styles of its own: a component brings its stylesheet, loaded only where it is used.
 
 ## Preview every site together
 

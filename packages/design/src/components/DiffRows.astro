@@ -1,0 +1,21 @@
+---
+// One row per repository. The bar's length is lines changed, against `max`.
+import "../styles/diffstat.css";
+import { external } from "../links";
+export type DiffRepo = { repo: string; about: string; kinds: string; added: number; removed: number; href: string };
+interface Props { items: DiffRepo[]; max: number }
+const { items, max } = Astro.props;
+const pct = (n: number) => `--w:${(n / max) * 100}%`;
+---
+<ul class="ds-list">
+  {items.map((r) => (
+    <li class="ds-repo-row">
+      <div class="ds-row">
+        <a class="ds-repo" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+        <span class="ds-count"><span class="ds-about">{r.about}</span><span class="ds-kinds">{r.kinds}</span></span>
+        <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
+        <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+      </div>
+    </li>
+  ))}
+</ul>
