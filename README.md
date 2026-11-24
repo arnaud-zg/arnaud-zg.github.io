@@ -19,6 +19,11 @@ refreshes it:
 
 If a source cannot be reached, a local build falls back to the saved data in `apps/portfolio/src/data/snapshots`.
 The deploy sets `STRICT_DATA=1` and fails instead, so the site online never goes back to old numbers.
+
+```sh
+pnpm data:refresh   # rewrites the saved data from the live sources; all of it, or nothing
+```
+
 What to fetch, and which organisations count as mine, is set in
 [`portfolio.config.ts`](./apps/portfolio/portfolio.config.ts).
 

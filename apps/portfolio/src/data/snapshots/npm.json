@@ -1,186 +1,295 @@
 [
   {
+    "name": "ts-foursquare",
+    "downloads": 185,
+    "downloadsMonth": "October 2026",
+    "line": "A simple library for Foursquare API",
+    "href": "https://www.npmjs.com/package/ts-foursquare",
+    "keywords": [
+      "foursquare",
+      "foursquare-api",
+      "typescript"
+    ],
+    "updated": "2020-08-01",
+    "members": 1,
+    "releases": 98,
+    "version": "1.0.12",
+    "created": "2019-01-27"
+  },
+  {
+    "name": "react-lightsaber",
+    "downloads": 20,
+    "downloadsMonth": "October 2026",
+    "line": "Just a simple lightsaber hosted on npmjs",
+    "href": "https://www.npmjs.com/package/react-lightsaber",
+    "keywords": [],
+    "updated": "2020-07-06",
+    "members": 1,
+    "releases": 50,
+    "version": "1.0.0",
+    "created": "2019-02-04"
+  },
+  {
+    "name": "http-response-status",
+    "downloads": 744,
+    "downloadsMonth": "October 2026",
+    "line": "HTTP Status Map",
+    "href": "https://www.npmjs.com/package/http-response-status",
+    "keywords": [
+      "http",
+      "typescript",
+      "code",
+      "response",
+      "status"
+    ],
+    "updated": "2022-12-18",
+    "members": 1,
+    "releases": 42,
+    "version": "1.1.3",
+    "created": "2019-08-18"
+  },
+  {
+    "name": "popup-sensor",
+    "downloads": 47,
+    "downloadsMonth": "October 2026",
+    "line": "Popup window sensor written in typescript",
+    "href": "https://www.npmjs.com/package/popup-sensor",
+    "keywords": [
+      "popup",
+      "typescript"
+    ],
+    "updated": "2022-06-24",
+    "members": 1,
+    "releases": 35,
+    "version": "0.6.32",
+    "created": "2019-12-10"
+  },
+  {
+    "name": "standalone-store",
+    "downloads": 39,
+    "downloadsMonth": "October 2026",
+    "line": "Middleware for redux store in standalone mode for nodejs environment",
+    "href": "https://www.npmjs.com/package/standalone-store",
+    "keywords": [
+      "redux",
+      "redux-store",
+      "typescript",
+      "nodejs"
+    ],
+    "updated": "2020-05-26",
+    "members": 1,
+    "releases": 29,
+    "version": "1.1.15",
+    "created": "2019-10-18"
+  },
+  {
+    "name": "selector",
+    "downloads": 168,
+    "downloadsMonth": "October 2026",
+    "line": "Generic selector library",
+    "href": "https://www.npmjs.com/package/selector",
+    "keywords": [
+      "selector",
+      "typescript"
+    ],
+    "updated": "2022-06-24",
+    "members": 1,
+    "releases": 28,
+    "version": "2.1.1",
+    "created": "2013-07-28"
+  },
+  {
     "name": "shiplane",
+    "downloads": 281,
+    "downloadsMonth": "October 2026",
     "line": "Release and deploy a monorepo in one command",
     "href": "https://www.npmjs.com/package/shiplane",
     "keywords": [
       "release",
       "deploy",
-      "monorepo"
+      "monorepo",
+      "changesets",
+      "github-actions",
+      "ci-cd",
+      "cli"
     ],
-    "releases": 26,
-    "updated": "2026-11-15",
-    "members": 8
+    "updated": "2026-11-23",
+    "members": 9,
+    "releases": 28,
+    "version": "0.5.2",
+    "created": "2026-10-31"
   },
   {
     "name": "blast-shield",
+    "downloads": 84,
+    "downloadsMonth": "October 2026",
     "line": "Technical debt protection tool for any codebase",
     "href": "https://www.npmjs.com/package/blast-shield",
     "keywords": [
+      "cli",
+      "typescript",
+      "debt",
       "technical-debt",
       "code-quality"
     ],
-    "releases": 23,
     "updated": "2026-04-21",
-    "members": 8
+    "members": 8,
+    "releases": 23,
+    "version": "0.0.31",
+    "created": "2025-05-24"
   },
   {
     "name": "eslint-plugin-feature-flags",
+    "downloads": 20,
+    "downloadsMonth": "October 2026",
     "line": "Lint rules to enforce feature flag hygiene",
     "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
     "keywords": [
       "eslint",
+      "eslint-plugin",
       "feature-flags"
     ],
-    "releases": 7,
     "updated": "2025-06-15",
-    "members": 4
+    "members": 4,
+    "releases": 7,
+    "version": "0.1.2",
+    "created": "2025-06-08"
+  },
+  {
+    "name": "agent-context-budget",
+    "downloads": 291,
+    "downloadsMonth": "October 2026",
+    "line": "Scores the markdown files an AI agent loads",
+    "href": "https://www.npmjs.com/package/agent-context-budget",
+    "keywords": [
+      "claude-code",
+      "agents-md",
+      "markdown",
+      "llm",
+      "ai-agents",
+      "cursor",
+      "cli"
+    ],
+    "updated": "2026-11-14",
+    "members": 1,
+    "releases": 6,
+    "version": "0.1.3",
+    "created": "2026-10-31"
+  },
+  {
+    "name": "expo-native-guard",
+    "downloads": 84,
+    "downloadsMonth": "October 2026",
+    "line": "Load native-only modules safely in Expo Go",
+    "href": "https://www.npmjs.com/package/expo-native-guard",
+    "keywords": [
+      "expo",
+      "expo-go",
+      "react-native",
+      "native-module",
+      "expo-dev-client",
+      "turbomodules"
+    ],
+    "updated": "2026-11-14",
+    "members": 1,
+    "releases": 6,
+    "version": "0.1.3",
+    "created": "2026-09-02"
   },
   {
     "name": "expo-pnpm-catalog",
+    "downloads": 71,
+    "downloadsMonth": "October 2026",
     "line": "Checks and syncs Expo SDK versions in pnpm catalogs",
     "href": "https://www.npmjs.com/package/expo-pnpm-catalog",
     "keywords": [
       "expo",
       "react-native",
-      "pnpm"
+      "pnpm",
+      "monorepo",
+      "expo-doctor",
+      "pnpm-workspace"
     ],
-    "releases": 6,
     "updated": "2026-11-14",
-    "members": 1
+    "members": 1,
+    "releases": 6,
+    "version": "0.1.3",
+    "created": "2026-09-02"
   },
   {
-    "name": "expo-native-guard",
-    "line": "Load native-only modules safely in Expo Go",
-    "href": "https://www.npmjs.com/package/expo-native-guard",
+    "name": "lazy-upload",
+    "downloads": 8,
+    "downloadsMonth": "October 2026",
+    "line": "Simplify the file upload flow",
+    "href": "https://www.npmjs.com/package/lazy-upload",
     "keywords": [
-      "expo",
-      "react-native"
+      "lazy",
+      "upload"
     ],
-    "releases": 6,
-    "updated": "2026-11-14",
-    "members": 1
-  },
-  {
-    "name": "agent-context-budget",
-    "line": "Scores the markdown files an AI agent loads",
-    "href": "https://www.npmjs.com/package/agent-context-budget",
-    "keywords": [
-      "claude-code",
-      "llm",
-      "ai-agents"
-    ],
-    "releases": 6,
-    "updated": "2026-11-14",
-    "members": 1
+    "updated": "2020-08-26",
+    "members": 1,
+    "releases": 5,
+    "version": "0.2.4",
+    "created": "2020-03-03"
   },
   {
     "name": "vite-workspace-resolver",
+    "downloads": 286,
+    "downloadsMonth": "October 2026",
     "line": "Resolves workspace package imports in Vite and Vitest",
     "href": "https://www.npmjs.com/package/vite-workspace-resolver",
     "keywords": [
       "vite",
+      "vitest",
       "vite-plugin",
-      "monorepo"
+      "monorepo",
+      "pnpm-workspace",
+      "typescript"
     ],
-    "releases": 5,
     "updated": "2026-11-14",
-    "members": 1
+    "members": 1,
+    "releases": 5,
+    "version": "0.1.2",
+    "created": "2026-10-30"
   },
   {
     "name": "migration-preflight",
+    "downloads": 86,
+    "downloadsMonth": "October 2026",
     "line": "Test database migrations before you ship them",
     "href": "https://www.npmjs.com/package/migration-preflight",
     "keywords": [
       "migration",
-      "database"
+      "database",
+      "sql",
+      "testing",
+      "preflight",
+      "drizzle",
+      "prisma",
+      "data-safety"
     ],
-    "releases": 3,
     "updated": "2026-11-01",
-    "members": 3
+    "members": 3,
+    "releases": 3,
+    "version": "0.2.1",
+    "created": "2026-07-24"
   },
   {
     "name": "immutable-instance",
+    "downloads": 11,
+    "downloadsMonth": "October 2026",
     "line": "Makes immutable class instances reactive for front-end application",
     "href": "https://www.npmjs.com/package/immutable-instance",
     "keywords": [
       "react",
-      "immutable"
+      "immutable",
+      "state",
+      "domain-logic"
     ],
-    "releases": 2,
     "updated": "2025-11-04",
-    "members": 1
-  },
-  {
-    "name": "http-response-status",
-    "line": "HTTP Status Map",
-    "href": "https://www.npmjs.com/package/http-response-status",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2022-12-18",
-    "members": 1
-  },
-  {
-    "name": "selector",
-    "line": "Generic selector library",
-    "href": "https://www.npmjs.com/package/selector",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2022-06-24",
-    "members": 1
-  },
-  {
-    "name": "popup-sensor",
-    "line": "Popup window sensor written in typescript",
-    "href": "https://www.npmjs.com/package/popup-sensor",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2022-06-24",
-    "members": 1
-  },
-  {
-    "name": "lazy-upload",
-    "line": "Simplify the file upload flow",
-    "href": "https://www.npmjs.com/package/lazy-upload",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2020-08-26",
-    "members": 1
-  },
-  {
-    "name": "ts-foursquare",
-    "line": "A simple library for Foursquare API",
-    "href": "https://www.npmjs.com/package/ts-foursquare",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2020-08-01",
-    "members": 1
-  },
-  {
-    "name": "react-lightsaber",
-    "line": "Just a simple lightsaber hosted on npmjs",
-    "href": "https://www.npmjs.com/package/react-lightsaber",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2020-07-06",
-    "members": 1
-  },
-  {
-    "name": "standalone-store",
-    "line": "Middleware for redux store in standalone mode for nodejs environment",
-    "href": "https://www.npmjs.com/package/standalone-store",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2020-05-26",
-    "members": 1
-  },
-  {
-    "name": "request-init",
-    "line": "Configuration toolset for fetch API",
-    "href": "https://www.npmjs.com/package/request-init",
-    "keywords": [],
-    "releases": 1,
-    "updated": "2020-02-28",
-    "members": 1
+    "members": 1,
+    "releases": 2,
+    "version": "0.0.9",
+    "created": "2025-11-04"
   }
 ]

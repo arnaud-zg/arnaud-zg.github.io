@@ -67,7 +67,7 @@ async function detailsOf(name: string) {
   };
 }
 
-async function fetchQuests(): Promise<Quest[]> {
+export async function fetchQuests(): Promise<Quest[]> {
   const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`, { signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(String(res.status));
   // Parked packages (latest is a 0.0.0 placeholder) are not tools yet, and do not count as plugins.
@@ -86,7 +86,7 @@ async function fetchQuests(): Promise<Quest[]> {
   }
   const leads = [...families].filter(([, f]) => f.lead?.package.description);
   const downloads = await downloadsOf(leads.map(([name]) => name));
-  return Promise.all(leads.map(async ([name, f]) => ({
+  const quests = await Promise.all(leads.map(async ([name, f]) => ({
     name,
     downloads: downloads.get(name),
     downloadsMonth: downloads.has(name) ? lastMonth().label : undefined,
@@ -97,6 +97,8 @@ async function fetchQuests(): Promise<Quest[]> {
     members: f.members,
     ...(await detailsOf(name)),
   })));
+  // A stable order, so refreshing the saved data only shows what changed.
+  return quests.sort((a, b) => b.releases - a.releases || a.name.localeCompare(b.name));
 }
 
 // A tool joins the first configured group with a matching keyword or name part.
