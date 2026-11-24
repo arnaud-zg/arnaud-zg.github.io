@@ -13,6 +13,7 @@ import Numbers from "@arnaud-zg/design/Numbers.astro";
 import Tags from "@arnaud-zg/design/Tags.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
+import SecretBird from "../components/SecretBird.astro";
 import "../styles/global.css";
 import config from "../../portfolio.config";
 import { portrait, siteInfo } from "../site";
@@ -279,7 +280,7 @@ const pct = (n = 0) => `--w:${(n / maxLines) * 100}%`;
     </section>
     )}
 
-    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links} />}
+    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}><SecretBird /></Ending>}
   </Content>
 </Site>
 
