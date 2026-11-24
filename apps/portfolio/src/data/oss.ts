@@ -64,7 +64,9 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
 }
 
 const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
-if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+// GH_TOKEN is what shiplane passes on GitHub Actions.
+const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+if (token) headers.Authorization = `Bearer ${token}`;
 async function json(url: string) {
   const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`${res.status} ${url}`);
