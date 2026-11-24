@@ -22,6 +22,17 @@ The deploy sets `STRICT_DATA=1` and fails instead, so the site online never goes
 What to fetch, and which organisations count as mine, is set in
 [`portfolio.config.ts`](./apps/portfolio/portfolio.config.ts).
 
+## Develop
+
+```sh
+nvm use        # Node 24
+pnpm install
+pnpm dev       # http://localhost:4321
+pnpm build     # static site in apps/portfolio/dist/
+```
+
+Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
+
 ## Credits
 
 Hero photo by [Jiawei Wen](https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/) on Pexels.
