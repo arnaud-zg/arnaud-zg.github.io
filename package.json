@@ -9,7 +9,7 @@
     "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve",
     "check": "node scripts/check-design.mjs && pnpm test",
     "test": "node --test \"packages/*/test/*.test.ts\"",
-    "data:refresh": "GITHUB_TOKEN=${GITHUB_TOKEN:-$(gh auth token)} pnpm --filter portfolio data:refresh",
+    "data:refresh": "pnpm --filter portfolio data:refresh",
     "changeset": "changeset",
     "release": "shiplane"
   },

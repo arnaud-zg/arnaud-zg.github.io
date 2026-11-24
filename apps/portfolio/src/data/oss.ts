@@ -64,16 +64,15 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
     .sort((a, b) => b.score - a.score);
 }
 
-const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
+const headers = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
 async function json(url: string) {
   const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`${res.status} ${url}`);
   return res.json();
 }
 
-// `fresh` asks again for what is already saved: stars change, and it needs a token's higher limit.
-export async function fetchGithub({ fresh = false, token = "" } = {}): Promise<Saved> {
-  if (token) headers.Authorization = `Bearer ${token}`;
+// `fresh` asks again for what is already saved. GitHub allows 60 requests an hour; it makes about 20.
+export async function fetchGithub({ fresh = false } = {}): Promise<Saved> {
   const known = fresh ? { repos: {}, lines: {} } as Pick<Saved, "repos" | "lines"> : savedData;
   const owners = [USER, ...PRIVATE_ORGS].filter((o) => !KEEP.has(o.toLowerCase()));
   const excluded = owners.map((o) => `-user:${o}`).join(" ");

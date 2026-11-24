@@ -9,7 +9,7 @@ const load = async (name) => (await runnerImport(`./src/data/${name}.ts`, { conf
 try {
   const [oss, npm, skills, substack] = await Promise.all(["oss", "npm", "skills", "substack"].map(load));
   const data = Object.entries({
-    github: oss.fetchGithub({ fresh: true, token: process.env.GITHUB_TOKEN }),
+    github: oss.fetchGithub({ fresh: true }),
     npm: npm.fetchQuests(),
     skills: skills.fetchSkills(),
     substack: substack.fetchArticles(),
