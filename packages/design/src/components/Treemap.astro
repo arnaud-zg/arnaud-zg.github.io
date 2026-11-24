@@ -74,7 +74,7 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
 
     // Lay out with one tile weighted up. Try the biggest boost first and keep the first one
     // where every other tile still has room for its text; if none fits, only highlight it.
-    const MIN_W = 150, MIN_H = 40, HEAD = 44, PAD = 8;
+    const MIN_W = 150, MIN_H = 40, HEAD = 44, PAD = 8, GROW = 1.15;
     // `whole`: grow the focused tile's whole group, for tiles that sit in a tight row.
     const compute = (focus: HTMLElement | undefined, boost: number, whole = false) => {
       const values = groups.map((g) => {
@@ -153,8 +153,14 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
     const place = (tile: HTMLElement) => {
       const link = tile.querySelector<HTMLElement>(".tm-link")!;
       link.style.setProperty("--dx", "0px"); link.style.setProperty("--dy", "0px");
-      tile.classList.add("is-focus");
       const m = map.getBoundingClientRect(), t = tile.getBoundingClientRect();
+      // At least GROW times its size at rest, never past the treemap: a large tile may have no
+      // room to grow by reflow, so its card grows over its neighbours instead.
+      const gi = groups.findIndex((g) => g.tiles.some((x) => x.el === tile));
+      const rest = sizes(compute(undefined, 1))[gi][groups[gi].tiles.findIndex((x) => x.el === tile)];
+      link.style.setProperty("--min-w", `${Math.min(m.width, (rest.w - 6) * GROW)}px`);
+      link.style.setProperty("--min-h", `${Math.min(m.height, (rest.h - 6) * GROW)}px`);
+      tile.classList.add("is-focus");
       const right = t.left + 3 + link.offsetWidth, bottom = t.top + 3 + link.offsetHeight;
       link.style.setProperty("--dx", `${Math.min(0, m.right - right)}px`);
       link.style.setProperty("--dy", `${Math.min(0, m.bottom - bottom)}px`);
