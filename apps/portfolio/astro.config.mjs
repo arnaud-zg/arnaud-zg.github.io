@@ -10,6 +10,8 @@ export default defineConfig({
   // Set by Shiplane: the folder a preview lives in.
   base: process.env.BASE_PATH ?? "/",
   // Everything the bundler writes is minified. Astro compresses the pages by default.
+  // The styles are small: in the page, they save the request the first paint waits for.
+  build: { inlineStylesheets: "always" },
   vite: { build: { minify: "oxc", cssMinify: "lightningcss", sourcemap: false } },
   integrations: [
     // The workshop is not for search engines.

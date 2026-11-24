@@ -10,7 +10,10 @@ const birds = [[0, 20, 1], [18, 10, 0.8], [30, 26, 0.9], [46, 14, 0.7], [62, 24,
 ---
 <section class:list={["hero", size === "banner" && "hero--banner"]} aria-labelledby={id}>
   <div class="scene" aria-hidden="true">
-    <img src={photo.src} srcset={photo.srcset} sizes="100vw" alt="" width={photo.width} height={photo.height} fetchpriority="high" />
+    <picture>
+      <source type="image/avif" srcset={photo.srcset} sizes="100vw" />
+      <img src={photo.src} alt="" width={photo.width} height={photo.height} fetchpriority="high" />
+    </picture>
   </div>
   <div class="sky-life" aria-hidden="true" data-loop>
     {[0, 1].map((f) => (
