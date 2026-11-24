@@ -3,10 +3,10 @@ packages:
   - packages/*
   - templates/*
 minimumReleaseAgeExclude:
-  - '@shiplane/changesets@0.6.0-nightly.11'
-  - '@shiplane/git@0.6.0-nightly.11'
-  - '@shiplane/github-pages@0.6.0-nightly.11'
-  - '@shiplane/github@0.6.0-nightly.11'
+  - "@shiplane/changesets@0.6.0-nightly.11"
+  - "@shiplane/git@0.6.0-nightly.11"
+  - "@shiplane/github-pages@0.6.0-nightly.11"
+  - "@shiplane/github@0.6.0-nightly.11"
   - shiplane@0.6.0-nightly.11
 
 allowBuilds:

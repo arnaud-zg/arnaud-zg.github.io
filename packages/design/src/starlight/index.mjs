@@ -27,16 +27,35 @@ export default function design({ site }) {
             ...config.components,
           },
           // Code blocks sit on the page in both themes.
-          expressiveCode: config.expressiveCode === false ? false : {
-            themes: ["github-dark", "github-light"],
-            // A command is a command, not a picture of a terminal.
-            defaultProps: { overridesByLang: { "sh,bash,shell,console,powershell": { frame: "none" } } },
-            ...(typeof config.expressiveCode === "object" ? config.expressiveCode : {}),
-            styleOverrides: {
-              borderRadius: "16px", borderColor: "var(--line)", codeBackground: "var(--surface)", codeFontFamily: "var(--mono)", uiFontFamily: "var(--mono)",
-              frames: { shadowColor: "transparent", editorTabBarBackground: "transparent", terminalTitlebarBackground: "transparent", terminalBackground: "var(--surface)", editorActiveTabBackground: "transparent", editorActiveTabIndicatorTopColor: "transparent", editorActiveTabIndicatorBottomColor: "var(--accent)", terminalTitlebarBorderBottomColor: "var(--line)", editorTabBarBorderBottomColor: "var(--line)" },
-            },
-          },
+          expressiveCode:
+            config.expressiveCode === false
+              ? false
+              : {
+                  themes: ["github-dark", "github-light"],
+                  // A command is a command, not a picture of a terminal.
+                  defaultProps: {
+                    overridesByLang: { "sh,bash,shell,console,powershell": { frame: "none" } },
+                  },
+                  ...(typeof config.expressiveCode === "object" ? config.expressiveCode : {}),
+                  styleOverrides: {
+                    borderRadius: "16px",
+                    borderColor: "var(--line)",
+                    codeBackground: "var(--surface)",
+                    codeFontFamily: "var(--mono)",
+                    uiFontFamily: "var(--mono)",
+                    frames: {
+                      shadowColor: "transparent",
+                      editorTabBarBackground: "transparent",
+                      terminalTitlebarBackground: "transparent",
+                      terminalBackground: "var(--surface)",
+                      editorActiveTabBackground: "transparent",
+                      editorActiveTabIndicatorTopColor: "transparent",
+                      editorActiveTabIndicatorBottomColor: "var(--accent)",
+                      terminalTitlebarBorderBottomColor: "var(--line)",
+                      editorTabBarBorderBottomColor: "var(--line)",
+                    },
+                  },
+                },
         });
         addIntegration({
           name: "design",
@@ -44,13 +63,16 @@ export default function design({ site }) {
             "astro:config:setup"({ updateConfig: update }) {
               update({
                 vite: {
-                  plugins: [{
-                    name: "design-site",
-                    resolveId: (id) => (id === VIRTUAL ? RESOLVED : undefined),
-                    load: (id) => (id === RESOLVED
-                      ? `export const site = ${JSON.stringify(site)};`
-                      : undefined),
-                  }],
+                  plugins: [
+                    {
+                      name: "design-site",
+                      resolveId: (id) => (id === VIRTUAL ? RESOLVED : undefined),
+                      load: (id) =>
+                        id === RESOLVED
+                          ? `export const site = ${JSON.stringify(site)};`
+                          : undefined,
+                    },
+                  ],
                 },
               });
             },

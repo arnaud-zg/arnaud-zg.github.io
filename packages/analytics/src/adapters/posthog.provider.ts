@@ -8,10 +8,18 @@ export const posthog = ({ key, region, environment }: Options): AnalyticsProvide
   return {
     start() {},
     track({ name, props }) {
-      const properties = { ...props, path: location.pathname, environment, $process_person_profile: false, $geoip_disable: true };
+      const properties = {
+        ...props,
+        path: location.pathname,
+        environment,
+        $process_person_profile: false,
+        $geoip_disable: true,
+      };
       // `keepalive` lets the last events leave as the page closes. Nothing waits for the answer.
       fetch(`https://${region}.i.posthog.com/i/v0/e/`, {
-        method: "POST", keepalive: true, credentials: "omit",
+        method: "POST",
+        keepalive: true,
+        credentials: "omit",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ api_key: key, event: name, distinct_id: visit, properties }),
       }).catch(() => {});

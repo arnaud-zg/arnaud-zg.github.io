@@ -1,38 +1,153 @@
 /* Open source: a diffstat. One row per merged PR, bar length is lines changed. */
-.diffstat { display: grid; gap: 22px; }
-.ds-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 7rem minmax(160px, 1.3fr); gap: 0 clamp(12px, 1.8vw, 24px); align-items: center; }
-.ds-repo-row { padding: 14px 0; border-bottom: 1px solid var(--line); }
-.ds-repo { font-size: 1.12rem; letter-spacing: 0.01em; overflow-wrap: break-word; transition: color 300ms var(--ease-out); }
-.ds-repo:hover { color: var(--accent); }
-.ds-count { display: grid; gap: 2px; }
-.ds-about { font-size: var(--fs-small); line-height: 1.45; color: var(--ink-lo); }
-.ds-kinds { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-lo); }
-.ds-repo .owner { display: block; line-height: 1.2; }
-.owner { font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.06em; color: var(--ink-lo); }
-.diff { font: 400 var(--fs-label)/1.6 var(--mono); white-space: nowrap; text-align: right; }
-.diff b, .ds-bar b, .ds-key b { font-weight: 400; color: var(--added); }
-.diff i, .ds-bar i, .ds-key i { font-style: normal; color: var(--removed); }
-.ds-bar { display: flex; gap: 2px; height: 10px; }
-.ds-bar b, .ds-bar i { width: var(--w); min-width: 2px; border-radius: 2px; background: currentColor; }
-.ds-key { display: flex; align-items: center; gap: 8px; font: 400 var(--fs-label)/1.6 var(--mono); letter-spacing: 0.06em; color: var(--ink-lo); }
-.ds-key b, .ds-key i { display: inline-block; width: 18px; height: 8px; border-radius: 2px; background: currentColor; }
-.ds-key i { margin-left: 10px; }
-.ds-list { border-top: 1px solid var(--line); }
-.ds-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
-.dialog-body .ds-list { border-top: 0; }
+.diffstat {
+  display: grid;
+  gap: 22px;
+}
+.ds-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 7rem minmax(160px, 1.3fr);
+  gap: 0 clamp(12px, 1.8vw, 24px);
+  align-items: center;
+}
+.ds-repo-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ds-repo {
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+  transition: color 300ms var(--ease-out);
+}
+.ds-repo:hover {
+  color: var(--accent);
+}
+.ds-count {
+  display: grid;
+  gap: 2px;
+}
+.ds-about {
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--ink-lo);
+}
+.ds-kinds {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.ds-repo .owner {
+  display: block;
+  line-height: 1.2;
+}
+.owner {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--ink-lo);
+}
+.diff {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  white-space: nowrap;
+  text-align: right;
+}
+.diff b,
+.ds-bar b,
+.ds-key b {
+  font-weight: 400;
+  color: var(--added);
+}
+.diff i,
+.ds-bar i,
+.ds-key i {
+  font-style: normal;
+  color: var(--removed);
+}
+.ds-bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+.ds-bar b,
+.ds-bar i {
+  width: var(--w);
+  min-width: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.ds-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--ink-lo);
+}
+.ds-key b,
+.ds-key i {
+  display: inline-block;
+  width: 18px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.ds-key i {
+  margin-left: 10px;
+}
+.ds-list {
+  border-top: 1px solid var(--line);
+}
+.ds-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.dialog-body .ds-list {
+  border-top: 0;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    @keyframes draw { from { scale: 0 1; } }
-    .ds-bar { animation: draw linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; transform-origin: left; }
-    .ds-repo-row { animation: rise linear both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+    @keyframes draw {
+      from {
+        scale: 0 1;
+      }
+    }
+    .ds-bar {
+      animation: draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+      transform-origin: left;
+    }
+    .ds-repo-row {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
   }
 }
 @media (max-width: 960px) {
   /* Each repo stacks: name and +/- on one line, what it is under it, the bar full width. */
-  .ds-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "repo diff" "about about" "bar bar"; gap: 6px 16px; align-items: end; }
-  .ds-repo { grid-area: repo; }
-  .ds-row .diff { grid-area: diff; text-align: right; }
-  .ds-count { grid-area: about; }
-  .ds-bar { grid-area: bar; margin-top: 6px; }
+  .ds-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "repo diff" "about about" "bar bar";
+    gap: 6px 16px;
+    align-items: end;
+  }
+  .ds-repo {
+    grid-area: repo;
+  }
+  .ds-row .diff {
+    grid-area: diff;
+    text-align: right;
+  }
+  .ds-count {
+    grid-area: about;
+  }
+  .ds-bar {
+    grid-area: bar;
+    margin-top: 6px;
+  }
 }

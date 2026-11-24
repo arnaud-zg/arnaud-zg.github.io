@@ -1,6 +1,7 @@
-import starlight from "@astrojs/starlight";
 import design from "@arnaud-zg/design/starlight";
+import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+
 import { info, repo, sidebar } from "./site.config.mjs";
 
 // Served at arnaud-zg.github.io/js-packages: the same origin as the portfolio.
@@ -10,7 +11,8 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "js-packages",
-      description: "Small, focused TypeScript tools for monorepos: release automation, Expo, Vite and AI agents.",
+      description:
+        "Small, focused TypeScript tools for monorepos: release automation, Expo, Vite and AI agents.",
       social: [{ icon: "github", label: "GitHub", href: repo }],
       sidebar,
       plugins: [design({ site: info })],

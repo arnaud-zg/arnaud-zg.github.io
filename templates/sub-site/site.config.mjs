@@ -7,10 +7,25 @@ export const info = {
   brand: "arnaud-zg",
   sites: [
     { id: "home", label: "arnaud-zg", path: "/", line: "Portfolio", live: true },
-    { id: "js-packages", label: "js-packages", path: "/js-packages/", line: "TypeScript tools for monorepos", live: false },
+    {
+      id: "js-packages",
+      label: "js-packages",
+      path: "/js-packages/",
+      line: "TypeScript tools for monorepos",
+      live: false,
+    },
   ],
 };
 
 export const sidebar = [
-  { label: "Packages", items: ["shiplane", "expo-native-guard", "expo-pnpm-catalog", "vite-workspace-resolver", "agent-context-budget"] },
+  {
+    label: "Packages",
+    items: [
+      "shiplane",
+      "expo-native-guard",
+      "expo-pnpm-catalog",
+      "vite-workspace-resolver",
+      "agent-context-budget",
+    ],
+  },
 ];

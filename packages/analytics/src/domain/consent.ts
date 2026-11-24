@@ -10,9 +10,17 @@ export const CHOICE_LASTS_MS = 183 * 24 * 60 * 60 * 1000;
 // An explicit choice wins. Without one, a browser that says "do not track" is a no, and is not asked.
 export const statusOf = (saved: SavedChoice | undefined, now: number, objects: boolean): Status => {
   const age = saved ? now - saved.at : Infinity;
-  const valid = saved && age >= 0 && age < CHOICE_LASTS_MS && (saved.choice === "refused" || saved.plan === PLAN_VERSION);
+  const valid =
+    saved &&
+    age >= 0 &&
+    age < CHOICE_LASTS_MS &&
+    (saved.choice === "refused" || saved.plan === PLAN_VERSION);
   if (valid) return saved.choice;
   return objects ? "refused" : "unasked";
 };
 
-export const choose = (choice: Choice, now: number): SavedChoice => ({ choice, at: now, plan: PLAN_VERSION });
+export const choose = (choice: Choice, now: number): SavedChoice => ({
+  choice,
+  at: now,
+  plan: PLAN_VERSION,
+});

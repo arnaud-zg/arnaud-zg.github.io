@@ -9,19 +9,20 @@ web
 ## Stack
 
 Astro, static, hosted on GitHub Pages at the root of the user site. Data is fetched at build time
-(GitHub, npm registry, Substack RSS) with saved snapshots as fallback. Deployed by hand; each deploy refreshes the numbers.
+(GitHub, npm registry, Substack RSS) with saved snapshots as fallback. Deployed by hand; each deploy
+refreshes the numbers.
 
 ## Users
 
-1. Peers, recruiters and hiring managers assessing Arnaud as a software engineer: what he has
-   done, what he builds, what he contributes.
+1. Peers, recruiters and hiring managers assessing Arnaud as a software engineer: what he has done,
+   what he builds, what he contributes.
 2. Developers arriving from his packages or articles who want to know who is behind them.
 
 ## Product Purpose
 
 Present Arnaud Zheng in under one minute: who he is, his experience, his skills, the tools he
-publishes, his open-source contributions and his writing. Success: a visitor understands his
-profile at a glance and follows through to GitHub, LinkedIn or Substack.
+publishes, his open-source contributions and his writing. Success: a visitor understands his profile
+at a glance and follows through to GitHub, LinkedIn or Substack.
 
 ## Positioning
 
@@ -31,13 +32,13 @@ engineers ship faster with confidence, and publishes them as open source.
 
 ## Operating Context
 
-- Experience: startups and agencies from 2013 (Paris to Shanghai), Veepee 2017, Onepark 2019,
-  PayFit 2020 to 2025, Doctolib 2026 to now.
+- Experience: startups and agencies from 2013 (Paris to Shanghai), Veepee 2017, Onepark 2019, PayFit
+  2020 to 2025, Doctolib 2026 to now.
 - Education: graduated from Epitech and Tongji University.
 - Side quests: open-source tools on npm (Shiplane and plugins, agent-context-budget,
   vite-workspace-resolver, expo-native-guard, expo-pnpm-catalog, migration-preflight...).
-- Open source: 38 merged PRs in 18 external projects; most substantial are rspack Module
-  Federation fixes and an oh-my-zsh Jira feature.
+- Open source: 38 merged PRs in 18 external projects; most substantial are rspack Module Federation
+  fixes and an oh-my-zsh Jira feature.
 - Writing: Substack articles on code design.
 
 ## Capabilities and Constraints
@@ -59,9 +60,9 @@ engineers ship faster with confidence, and publishes them as open source.
 
 ## Evidence on Hand
 
-Real: LinkedIn experience and education (pasted by the user), GitHub contributions, npm
-packages, Substack feed with cover images. Absent, never invent: testimonials, client logos,
-download or usage claims.
+Real: LinkedIn experience and education (pasted by the user), GitHub contributions, npm packages,
+Substack feed with cover images. Absent, never invent: testimonials, client logos, download or usage
+claims.
 
 ## Product Principles
 

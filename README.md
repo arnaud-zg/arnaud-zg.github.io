@@ -12,14 +12,15 @@ Everything on the page that can change is fetched when the site is built, from p
 no token. Star counts and project descriptions are the exception: they are saved, and
 `pnpm data:refresh` updates them. Each deploy refreshes the rest:
 
-| Section     | Source                                                              |
-| ----------- | ------------------------------------------------------------------- |
-| Side quests | npm registry, packages I maintain, grouped with their plugins       |
-| Open source | GitHub, merged pull requests in repositories I do not own           |
-| Writing     | Substack RSS feed                                                   |
+| Section     | Source                                                        |
+| ----------- | ------------------------------------------------------------- |
+| Side quests | npm registry, packages I maintain, grouped with their plugins |
+| Open source | GitHub, merged pull requests in repositories I do not own     |
+| Writing     | Substack RSS feed                                             |
 
-If a source cannot be reached, a local build falls back to the saved data in `apps/portfolio/src/data/snapshots`.
-The deploy sets `STRICT_DATA=1` and fails instead, so the site online never goes back to old numbers.
+If a source cannot be reached, a local build falls back to the saved data in
+`apps/portfolio/src/data/snapshots`. The deploy sets `STRICT_DATA=1` and fails instead, so the site
+online never goes back to old numbers.
 
 ```sh
 pnpm data:refresh   # rewrites the saved data from the live sources; all of it, or nothing
@@ -37,20 +38,29 @@ pnpm dev       # http://localhost:4321
 pnpm build     # static site in apps/portfolio/dist/
 ```
 
+```sh
+pnpm verify    # types, lint, Markdown, format and tests
+pnpm format    # fix the format; `pnpm lint:fix` for the rest
+```
+
+The rules come from [`@arnaud-zg/configs`](https://www.npmjs.com/package/@arnaud-zg/configs).
+`pnpm install` adds its git hooks: no commit on `main`, staged files formatted, and commit messages
+as `type(scope): subject`. Switching branch pulls it.
+
 ## Layout
 
-| Folder                     | Holds                                      |
-| -------------------------- | ------------------------------------------ |
-| `apps/portfolio`           | this site                                  |
-| `packages/design`          | the shared design                          |
-| `packages/analytics`       | consent, tracking plan, providers          |
-| `templates/sub-site`       | starts a new sub-site                      |
+| Folder               | Holds                             |
+| -------------------- | --------------------------------- |
+| `apps/portfolio`     | this site                         |
+| `packages/design`    | the shared design                 |
+| `packages/analytics` | consent, tracking plan, providers |
+| `templates/sub-site` | starts a new sub-site             |
 
 ## Shared design
 
-[`packages/design`](./packages/design) holds what every site here shares; this portfolio is its first
-user. [`templates/sub-site`](./templates/sub-site) starts a new one. `pnpm preview:sites` runs both
-together.
+[`packages/design`](./packages/design) holds what every site here shares; this portfolio is its
+first user. [`templates/sub-site`](./templates/sub-site) starts a new one. `pnpm preview:sites` runs
+both together.
 
 ## Analytics
 
@@ -59,8 +69,8 @@ Opt-in, mocked in development, off until configured: see
 
 ## Release
 
-With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It needs `gh auth login`,
-and `apps/portfolio/.env` for analytics.
+With [Shiplane](https://www.npmjs.com/package/shiplane), from this machine. It needs
+`gh auth login`, and `apps/portfolio/.env` for analytics.
 
 ```sh
 pnpm changeset   # in your pull request: what changed
@@ -68,10 +78,12 @@ pnpm release     # on main: opens the release PR; once merged, ships the preview
 pnpm release promote   # ships the preview to production
 ```
 
-The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it. See
-what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that is
-down stops the ship.
+The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it.
+See what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that
+is down stops the ship.
 
 ## Credits
 
-Hero photo by [Jiawei Wen](https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/) on Pexels.
+Hero photo by
+[Jiawei Wen](https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/) on
+Pexels.

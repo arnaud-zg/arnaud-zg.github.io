@@ -9,5 +9,7 @@
     "./plan": "./src/domain/plan.ts",
     "./settings": "./src/domain/settings.ts"
   },
-  "scripts": { "test": "node --test \"test/*.test.ts\"" }
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\""
+  }
 }

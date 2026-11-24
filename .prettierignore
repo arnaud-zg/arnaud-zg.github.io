@@ -7,3 +7,5 @@
 pnpm-lock.yaml
 # Written by pnpm data:refresh.
 apps/portfolio/src/data/snapshots
+# Starlight asides (:::note): Prettier would break them.
+**/src/content/docs
