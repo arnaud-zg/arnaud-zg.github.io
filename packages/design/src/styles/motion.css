@@ -40,6 +40,12 @@
     .menu:popover-open { opacity: 0; translate: 0 -8px; }
   }
 
+  /* The question drifts in, and its bird lands last. */
+  .ask { animation: ask-in 700ms var(--ease-out) both; }
+  .ask-bird { animation: bird-in 1100ms var(--ease-out) 250ms both; }
+  @keyframes ask-in { from { opacity: 0; translate: 0 18px; } }
+  @keyframes bird-in { from { opacity: 0; translate: -46px -40px; rotate: -16deg; } }
+
   /* Expandable rows open to their own height. */
   @supports (interpolate-size: allow-keywords) {
   details::details-content { height: 0; opacity: 0; overflow: clip; transition: height 420ms var(--ease-out), opacity 300ms ease, content-visibility 420ms allow-discrete; }

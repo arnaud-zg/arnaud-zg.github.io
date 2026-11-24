@@ -168,6 +168,9 @@ importers:
 
   apps/portfolio:
     dependencies:
+      '@arnaud-zg/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@arnaud-zg/design':
         specifier: workspace:*
         version: link:../../packages/design
@@ -187,6 +190,8 @@ importers:
       vite:
         specifier: ^8.3.0
         version: 8.3.8(@types/node@24.19.2)(yaml@2.9.1)
+
+  packages/analytics: {}
 
   packages/design:
     dependencies:
