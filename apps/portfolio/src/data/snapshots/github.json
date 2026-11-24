@@ -243,7 +243,7 @@
       "about": "Split up your GraphQL resolvers in middleware functions"
     },
     "ohmyzsh/ohmyzsh": {
-      "stars": 190793,
+      "stars": 190822,
       "about": "Framework for managing your zsh configuration"
     },
     "XD2Sketch/react-oauth-popup": {
@@ -259,7 +259,7 @@
       "about": ""
     },
     "DefinitelyTyped/DefinitelyTyped": {
-      "stars": 51488,
+      "stars": 51490,
       "about": "The repository for high quality TypeScript type definitions"
     },
     "diezcami/arctic-fox-theme": {
@@ -267,7 +267,7 @@
       "about": "An even more lightweight theme for Jekyll"
     },
     "gitlabhq/gitlabhq": {
-      "stars": 24572,
+      "stars": 24570,
       "about": "GitLab CE Mirror"
     }
   },

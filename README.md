@@ -8,8 +8,9 @@ Shanghai from Suzhou Creek.
 
 ## Data
 
-Everything on the page that can change is fetched when the site is built. Each deploy
-refreshes it:
+Everything on the page that can change is fetched when the site is built, from public sources, with
+no token. Star counts and project descriptions are the exception: they are saved, and
+`pnpm data:refresh` updates them. Each deploy refreshes the rest:
 
 | Section     | Source                                                              |
 | ----------- | ------------------------------------------------------------------- |
@@ -35,8 +36,6 @@ pnpm install
 pnpm dev       # http://localhost:4321
 pnpm build     # static site in apps/portfolio/dist/
 ```
-
-Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 
 ## Layout
 
