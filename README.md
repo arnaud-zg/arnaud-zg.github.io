@@ -33,6 +33,20 @@ pnpm build     # static site in apps/portfolio/dist/
 
 Set `GITHUB_TOKEN` when building locally to avoid GitHub's anonymous rate limit.
 
+## Layout
+
+| Folder                     | Holds                                      |
+| -------------------------- | ------------------------------------------ |
+| `apps/portfolio`           | this site                                  |
+| `packages/design`          | the shared design                          |
+| `templates/sub-site`       | starts a new sub-site                      |
+
+## Shared design
+
+[`packages/design`](./packages/design) holds what every site here shares; this portfolio is its first
+user. [`templates/sub-site`](./templates/sub-site) starts a new one. `pnpm preview:sites` runs both
+together.
+
 ## Credits
 
 Hero photo by [Jiawei Wen](https://www.pexels.com/photo/the-lujiazui-skyline-across-the-huangpu-river-4118772/) on Pexels.

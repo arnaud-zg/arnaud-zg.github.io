@@ -1,0 +1,23 @@
+---
+title: js-packages
+description: "Small, focused TypeScript tools for monorepos: release automation, Expo, Vite and AI agents."
+template: splash
+prev: false
+next: false
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Small, focused TypeScript tools for monorepos: release automation, Expo, Vite and AI agents.
+
+## Packages
+
+Each is a dependency of your project, not of the others: installing one never pulls in another.
+
+<CardGrid>
+  <LinkCard href="/js-packages/shiplane/" title="shiplane" description="Versions, tags and ships each app through plugins (npm, Fly.io, EAS, Cloudflare Pages)" />
+  <LinkCard href="/js-packages/expo-native-guard/" title="expo-native-guard" description="Swaps in a visible fallback component instead of crashing" />
+  <LinkCard href="/js-packages/expo-pnpm-catalog/" title="expo-pnpm-catalog" description="Runs expo-doctor and expo install --fix against resolved catalog versions, syncs drift back" />
+  <LinkCard href="/js-packages/vite-workspace-resolver/" title="vite-workspace-resolver" description="Vite plugin that resolves workspace exports maps and deep src/ imports" />
+  <LinkCard href="/js-packages/agent-context-budget/" title="agent-context-budget" description="Scores context files against token budgets, shows which sections to cut" />
+</CardGrid>
