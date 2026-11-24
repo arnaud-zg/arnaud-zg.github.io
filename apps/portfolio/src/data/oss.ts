@@ -1,5 +1,6 @@
-// Open-source contributions: merged pull requests in other people's public repositories,
-// fetched at build time from GitHub. Projects are ranked by what was contributed
+// Open-source contributions: merged pull requests in other people's public repositories. A build
+// asks GitHub's public API, with no token, for the list, and for what is not saved yet: most builds
+// make one request. `pnpm data:refresh` asks for everything again. Projects are ranked by what was contributed
 // (features and fixes over chores), weighted by the project's reach and how recent it is.
 // The page then groups substantive PRs by repo, largest total change first.
 
@@ -64,18 +65,17 @@ function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
 }
 
 const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "portfolio-build" };
-// GH_TOKEN is what shiplane passes on GitHub Actions.
-const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-if (token) headers.Authorization = `Bearer ${token}`;
 async function json(url: string) {
   const res = await fetch(url, { headers, signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`${res.status} ${url}`);
   return res.json();
 }
 
-export async function fetchGithub(): Promise<Saved> {
-  const publicOrgs = ((await json(`https://api.github.com/users/${USER}/orgs`)) as { login: string }[]).map((o) => o.login);
-  const owners = [...new Set([USER, ...PRIVATE_ORGS, ...publicOrgs])].filter((o) => !KEEP.has(o.toLowerCase()));
+// `fresh` asks again for what is already saved: stars change, and it needs a token's higher limit.
+export async function fetchGithub({ fresh = false, token = "" } = {}): Promise<Saved> {
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const known = fresh ? { repos: {}, lines: {} } as Pick<Saved, "repos" | "lines"> : savedData;
+  const owners = [USER, ...PRIVATE_ORGS].filter((o) => !KEEP.has(o.toLowerCase()));
   const excluded = owners.map((o) => `-user:${o}`).join(" ");
   const q = encodeURIComponent(`author:${USER} type:pr is:merged is:public ${excluded}`);
   const search = await json(`https://api.github.com/search/issues?q=${q}&per_page=100`);
@@ -90,6 +90,7 @@ export async function fetchGithub(): Promise<Saved> {
   // Only look up projects that have a substantive change: fewer API calls, same ranking.
   const substantive = names.filter((n) => !EXCLUDE.has(n.toLowerCase()) && prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
   const repos: Record<string, RawRepo> = Object.fromEntries(await Promise.all(substantive.map(async (n) => {
+    if (known.repos[n]) return [n, known.repos[n]];
     const r = await json(`https://api.github.com/repos/${n}`);
     return [n, { stars: r.stargazers_count, about: brief(r.description ?? "") }];
   })));
@@ -97,6 +98,7 @@ export async function fetchGithub(): Promise<Saved> {
   const others = prs.filter((p) => !ownedRepo(p.repo));
   // Lines changed per PR shown. A failed lookup falls back to the snapshot.
   const lines = await Promise.all(flatten(rank(others, repos)).map(async ({ url }) => {
+    if (known.lines[url]) return [url, known.lines[url]] as const;
     const [, repo, n] = url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
     try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [url, [pr.additions, pr.deletions]] as const; }
     catch (error) { return [url, fallback("github", error, savedData.lines[url])] as const; }

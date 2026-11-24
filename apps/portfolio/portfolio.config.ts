@@ -144,7 +144,7 @@ export default {
   github: {
     user: "arnaud-zg",
     // Organisations I run. Work on their repos never counts as an open-source contribution.
-    // Public organisations are also read from GitHub at build time and excluded automatically.
+    // Add an organisation here when you join or start one.
     ownOrgs: ["airmelon-studio", "contraband-corp", "crispy-best", "semaphore-corporation", "Solfanto", "hangry-community", "imagette"],
     // Organisations to keep even though I am a member (my employer's open source counts).
     keepOrgs: ["doctolib"],

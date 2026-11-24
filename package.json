@@ -11,7 +11,7 @@
     "test": "node --test \"packages/*/test/*.test.ts\"",
     "data:refresh": "GITHUB_TOKEN=${GITHUB_TOKEN:-$(gh auth token)} pnpm --filter portfolio data:refresh",
     "changeset": "changeset",
-    "release": "GITHUB_TOKEN=$(gh auth token) shiplane"
+    "release": "shiplane"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {
