@@ -25,11 +25,9 @@ const { words } = config.analytics;
     </div>
     <h3>{words.listTitle}</h3>
     <ul>{Object.values(plan).map((e) => <li>{e.shown}</li>)}</ul>
-    <h3>{words.limitsTitle}</h3>
     <p>{words.limits}</p>
-    <h3>{words.whoTitle}</h3>
     <p>{words.who(posthogRegion)}</p>
-    <p>{words.rights} <a href={config.links.find((l) => l.icon === "linkedin")?.href} target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
+    <p>{words.rights} <a href={config.links.find((l) => l.icon === "linkedin")?.href} target="_blank" rel="noopener noreferrer">{words.contact}</a></p>
   </div>
 </Dialog>
 <script type="application/json" id="analytics-settings" is:inline set:html={JSON.stringify(settings).replaceAll("<", "\\u003c")} />

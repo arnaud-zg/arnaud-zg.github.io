@@ -9,22 +9,22 @@ const seconds: Rule = (v) => Number.isInteger(v) && (v as number) >= 1 && (v as 
 export const plan = {
   page_viewed: {
     question: "Where do visitors come from, and on what device?",
-    shown: "The page, the kind of site you came from, and whether you use a phone, tablet or desktop",
+    shown: "The page, your type of device, and the kind of site you came from",
     props: { source: oneOf("direct", "search", "linkedin", "github", "substack", "npm", "internal", "other"), device: oneOf("phone", "tablet", "desktop") },
   },
   section_read: {
     question: "Which parts hold attention, and for how long?",
-    shown: "The sections you read, and for how many seconds",
+    shown: "The sections you read, and for how long",
     props: { section: slug, seconds },
   },
   content_explored: {
     question: "What makes visitors curious enough to act?",
-    shown: "The tools and folded parts you open, and the commands you copy (never your clipboard)",
+    shown: "What you open, and the commands you copy",
     props: { section: slug, action: oneOf("open-tool", "open-details", "copy-command"), item: slug },
   },
   link_followed: {
     question: "Do visitors go on to GitHub, LinkedIn, npm or Substack, and from where?",
-    shown: "The links you follow out of this site",
+    shown: "The links you follow to other sites",
     props: { section: slug, destination: oneOf("github", "linkedin", "substack", "npm", "other"), item: slug },
   },
 } as const satisfies Record<string, { question: string; shown: string; props: Record<string, Rule> }>;
