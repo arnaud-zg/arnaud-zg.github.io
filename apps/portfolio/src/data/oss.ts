@@ -23,12 +23,11 @@ const EXCLUDE = new Set(config.github.excludeRepos.map((r) => r.toLowerCase()));
 const SHOWN = new Set<string>(config.github.shownKinds);
 const TRIVIAL = config.github.trivial;
 const WEIGHT: Record<string, number> = config.github.weights;
-const savedLines = saved.lines as unknown as Record<string, [number, number]>;
 
 type RawPr = { repo: string; title: string; url: string; date: string };
 type RawRepo = { stars: number; about: string };
-
-
+type Saved = { prs: RawPr[]; repos: Record<string, RawRepo>; lines: Record<string, readonly [number, number] | undefined> };
+const savedData = saved as unknown as Saved;
 
 
 // "fix(mf): keep the whole range" -> { kind: "Fix", title: "Keep the whole range" }
@@ -72,55 +71,49 @@ async function json(url: string) {
   return res.json();
 }
 
+export async function fetchGithub(): Promise<Saved> {
+  const publicOrgs = ((await json(`https://api.github.com/users/${USER}/orgs`)) as { login: string }[]).map((o) => o.login);
+  const owners = [...new Set([USER, ...PRIVATE_ORGS, ...publicOrgs])].filter((o) => !KEEP.has(o.toLowerCase()));
+  const excluded = owners.map((o) => `-user:${o}`).join(" ");
+  const q = encodeURIComponent(`author:${USER} type:pr is:merged is:public ${excluded}`);
+  const search = await json(`https://api.github.com/search/issues?q=${q}&per_page=100`);
+  const prs: RawPr[] = (search.items as { repository_url: string; title: string; html_url: string; closed_at: string }[]).map((i) => ({
+    repo: i.repository_url.replace("https://api.github.com/repos/", ""),
+    title: i.title,
+    url: i.html_url,
+    date: i.closed_at,
+  }));
+  if (!prs.length) throw new Error("no pull requests");
+  const names = [...new Set(prs.map((p) => p.repo))];
+  // Only look up projects that have a substantive change: fewer API calls, same ranking.
+  const substantive = names.filter((n) => !EXCLUDE.has(n.toLowerCase()) && prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
+  const repos: Record<string, RawRepo> = Object.fromEntries(await Promise.all(substantive.map(async (n) => {
+    const r = await json(`https://api.github.com/repos/${n}`);
+    return [n, { stars: r.stargazers_count, about: brief(r.description ?? "") }];
+  })));
+  const ownedRepo = (repo: string) => owners.some((o) => repo.toLowerCase().startsWith(`${o.toLowerCase()}/`));
+  const others = prs.filter((p) => !ownedRepo(p.repo));
+  // Lines changed per PR shown. A failed lookup falls back to the snapshot.
+  const lines = await Promise.all(flatten(rank(others, repos)).map(async ({ url }) => {
+    const [, repo, n] = url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
+    try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [url, [pr.additions, pr.deletions]] as const; }
+    catch (error) { return [url, fallback("github", error, savedData.lines[url])] as const; }
+  }));
+  return { prs: others, repos, lines: Object.fromEntries(lines) };
+}
+
 export async function getContributions(): Promise<Contributions> {
-  try {
-    const publicOrgs = ((await json(`https://api.github.com/users/${USER}/orgs`)) as { login: string }[]).map((o) => o.login);
-    const owners = [...new Set([USER, ...PRIVATE_ORGS, ...publicOrgs])].filter((o) => !KEEP.has(o.toLowerCase()));
-    const excluded = owners.map((o) => `-user:${o}`).join(" ");
-    const q = encodeURIComponent(`author:${USER} type:pr is:merged is:public ${excluded}`);
-    const search = await json(`https://api.github.com/search/issues?q=${q}&per_page=100`);
-    const prs: RawPr[] = (search.items as { repository_url: string; title: string; html_url: string; closed_at: string }[]).map((i) => ({
-      repo: i.repository_url.replace("https://api.github.com/repos/", ""),
-      title: i.title,
-      url: i.html_url,
-      date: i.closed_at,
-    }));
-    if (!prs.length) throw new Error("no pull requests");
-    const names = [...new Set(prs.map((p) => p.repo))];
-    const repos: Record<string, RawRepo> = {};
-    // Only look up projects that have a substantive change: fewer API calls, same ranking.
-    const substantive = names.filter((n) => !EXCLUDE.has(n.toLowerCase()) && prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
-    await Promise.all(substantive.map(async (n) => {
-      const r = await json(`https://api.github.com/repos/${n}`);
-      repos[n] = { stars: r.stargazers_count, about: brief(r.description ?? "") };
-    }));
-    const ownedRepo = (repo: string) => owners.some((o) => repo.toLowerCase().startsWith(`${o.toLowerCase()}/`));
-    const rows = flatten(rank(prs.filter((p) => !ownedRepo(p.repo)), repos));
-    // Lines changed per PR. A failed lookup falls back to the snapshot.
-    await withLines(rows, async (c) => {
-      const [, repo, n] = c.url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
-      try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [pr.additions, pr.deletions]; }
-      catch (error) { return fallback("github", error, savedLines[c.url]); }
-    });
-    return { repos: byRepo(rows) };
-  } catch (error) {
-    const { prs, repos } = fallback("github", error, saved);
-    const rows = flatten(rank(prs, repos));
-    await withLines(rows, async (c) => savedLines[c.url]);
-    return { repos: byRepo(rows) };
-  }
+  const { prs, repos, lines } = await fetchGithub().catch((error) => fallback("github", error, savedData));
+  const rows = flatten(rank(prs, repos)).map((r) => {
+    const [added, removed] = lines[r.url] ?? [];
+    return added === undefined || removed === undefined ? r : { ...r, added, removed, lines: added + removed };
+  });
+  return { repos: byRepo(rows) };
 }
 
 // Every substantive change, one row per PR.
 const flatten = (ranked: Project[]): Row[] =>
   ranked.flatMap((p) => p.changes.filter((c) => SHOWN.has(c.kind)).map((c) => ({ ...c, repo: p.repo, about: p.about, lines: 0 })));
-
-async function withLines(rows: Row[], lookup: (c: Change) => Promise<[number, number] | undefined>) {
-  await Promise.all(rows.map(async (r) => {
-    const lines = await lookup(r);
-    if (lines) { [r.added, r.removed] = lines; r.lines = lines[0] + lines[1]; }
-  }));
-}
 
 // One entry per repo with its PRs and summed lines; largest total first, ties to the most recent.
 function byRepo(rows: Row[]): RepoChanges[] {

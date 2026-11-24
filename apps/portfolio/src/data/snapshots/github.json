@@ -1,292 +1,300 @@
 {
+  "prs": [
+    {
+      "repo": "web-infra-dev/rspack",
+      "title": "fix(mf): match short caret and tilde ranges in the consume runtime",
+      "url": "https://github.com/web-infra-dev/rspack/pull/16663",
+      "date": "2026-11-19T07:39:33Z"
+    },
+    {
+      "repo": "module-federation/vite",
+      "title": "fix: name the exports field in the error when a shared package has no root",
+      "url": "https://github.com/module-federation/vite/pull/1579",
+      "date": "2026-11-16T09:21:44Z"
+    },
+    {
+      "repo": "web-infra-dev/rspack",
+      "title": "fix(mf): keep the whole requiredVersion range in mf-manifest.json",
+      "url": "https://github.com/web-infra-dev/rspack/pull/16402",
+      "date": "2026-11-10T04:42:00Z"
+    },
+    {
+      "repo": "nextauthjs/next-auth",
+      "title": "chore: removing console log",
+      "url": "https://github.com/nextauthjs/next-auth/pull/6061",
+      "date": "2022-12-14T23:24:16Z"
+    },
+    {
+      "repo": "nextauthjs/next-auth",
+      "title": "chore(types): fix typo in comment",
+      "url": "https://github.com/nextauthjs/next-auth/pull/5815",
+      "date": "2022-12-02T15:39:29Z"
+    },
+    {
+      "repo": "maticzav/graphql-middleware",
+      "title": "fix(deps): move @graphql-tools/delegate to dependencies",
+      "url": "https://github.com/maticzav/graphql-middleware/pull/321",
+      "date": "2021-01-08T12:05:31Z"
+    },
+    {
+      "repo": "ohmyzsh/ohmyzsh",
+      "title": "feat(jira): support rapid view on rapid board mode",
+      "url": "https://github.com/ohmyzsh/ohmyzsh/pull/9459",
+      "date": "2023-01-09T19:53:33Z"
+    },
+    {
+      "repo": "XD2Sketch/react-oauth-popup",
+      "title": "test: calls onClose when popup closed",
+      "url": "https://github.com/XD2Sketch/react-oauth-popup/pull/17",
+      "date": "2020-06-18T18:48:46Z"
+    },
+    {
+      "repo": "XD2Sketch/react-oauth-popup",
+      "title": "feat(tick): use requestAnimationFrame instead of setInterval",
+      "url": "https://github.com/XD2Sketch/react-oauth-popup/pull/10",
+      "date": "2020-01-16T14:34:18Z"
+    },
+    {
+      "repo": "pqvst/cafeandcowork",
+      "title": "Update paris.json",
+      "url": "https://github.com/pqvst/cafeandcowork/pull/6",
+      "date": "2019-11-28T00:42:44Z"
+    },
+    {
+      "repo": "pqvst/cafeandcowork",
+      "title": "Add \"Nuage Café\" on paris.json",
+      "url": "https://github.com/pqvst/cafeandcowork/pull/4",
+      "date": "2019-11-14T01:06:20Z"
+    },
+    {
+      "repo": "pqvst/cafeandcowork",
+      "title": "Update paris.json",
+      "url": "https://github.com/pqvst/cafeandcowork/pull/3",
+      "date": "2019-11-04T02:31:28Z"
+    },
+    {
+      "repo": "pqvst/cafeandcowork",
+      "title": "Update paris.json",
+      "url": "https://github.com/pqvst/cafeandcowork/pull/2",
+      "date": "2019-10-31T12:51:55Z"
+    },
+    {
+      "repo": "pqvst/cafeandcowork",
+      "title": "Add place to work at paris",
+      "url": "https://github.com/pqvst/cafeandcowork/pull/1",
+      "date": "2019-10-31T08:27:54Z"
+    },
+    {
+      "repo": "keystonejs/keystone",
+      "title": "docs: update next app documentation",
+      "url": "https://github.com/keystonejs/keystone/pull/1860",
+      "date": "2019-10-30T18:01:40Z"
+    },
+    {
+      "repo": "keystonejs/keystone",
+      "title": "docs: update authentication documentation",
+      "url": "https://github.com/keystonejs/keystone/pull/1807",
+      "date": "2019-10-22T21:59:22Z"
+    },
+    {
+      "repo": "supasate/connected-react-router",
+      "title": "fix(action): remove duplicate action key",
+      "url": "https://github.com/supasate/connected-react-router/pull/364",
+      "date": "2019-11-17T06:51:41Z"
+    },
+    {
+      "repo": "supasate/connected-react-router",
+      "title": "Update FAQ for react native example",
+      "url": "https://github.com/supasate/connected-react-router/pull/363",
+      "date": "2019-11-17T06:53:30Z"
+    },
+    {
+      "repo": "keystonejs/generator-keystone",
+      "title": "Optimize images",
+      "url": "https://github.com/keystonejs/generator-keystone/pull/288",
+      "date": "2020-03-28T02:39:59Z"
+    },
+    {
+      "repo": "mermaid-js/mermaid",
+      "title": "Optimize images",
+      "url": "https://github.com/mermaid-js/mermaid/pull/966",
+      "date": "2019-10-01T12:38:02Z"
+    },
+    {
+      "repo": "Cero-Studio/ReactNativeWheelPicker",
+      "title": "feat(date-picker): display a custom date format for date picker",
+      "url": "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103",
+      "date": "2020-02-25T14:34:22Z"
+    },
+    {
+      "repo": "DefinitelyTyped/DefinitelyTyped",
+      "title": "[@types/react-native-modal-filter-picker] Update type definition for ModalFilterPickerProps",
+      "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356",
+      "date": "2019-09-27T16:17:54Z"
+    },
+    {
+      "repo": "supasate/connected-react-router",
+      "title": "Add example for react native support",
+      "url": "https://github.com/supasate/connected-react-router/pull/350",
+      "date": "2019-10-06T03:23:22Z"
+    },
+    {
+      "repo": "Garee/skyscannerjs",
+      "title": "Update README.md",
+      "url": "https://github.com/Garee/skyscannerjs/pull/3",
+      "date": "2016-11-19T16:33:45Z"
+    },
+    {
+      "repo": "muan/hello-world",
+      "title": "Create arnaud-zg.html",
+      "url": "https://github.com/muan/hello-world/pull/47",
+      "date": "2016-05-25T12:32:34Z"
+    },
+    {
+      "repo": "diezcami/arctic-fox-theme",
+      "title": "Fix align obsolete attribute",
+      "url": "https://github.com/diezcami/arctic-fox-theme/pull/4",
+      "date": "2016-04-04T02:32:20Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add headers",
+      "url": "https://github.com/Orlands/snake-tj/pull/12",
+      "date": "2015-11-20T05:06:44Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add report pdf and diagram png",
+      "url": "https://github.com/Orlands/snake-tj/pull/11",
+      "date": "2015-11-09T14:11:07Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add report pdf and diagram png",
+      "url": "https://github.com/Orlands/snake-tj/pull/10",
+      "date": "2015-11-09T14:10:33Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Design documentation and code",
+      "url": "https://github.com/Orlands/snake-tj/pull/9",
+      "date": "2015-11-09T10:13:04Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Design documentation and code",
+      "url": "https://github.com/Orlands/snake-tj/pull/8",
+      "date": "2015-11-09T10:07:05Z"
+    },
+    {
+      "repo": "gitlabhq/gitlabhq",
+      "title": "Go to gitlab installation folder before initialize database",
+      "url": "https://github.com/gitlabhq/gitlabhq/pull/9794",
+      "date": "2015-11-02T09:12:18Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Merge project",
+      "url": "https://github.com/Orlands/snake-tj/pull/7",
+      "date": "2015-11-02T02:33:27Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Update",
+      "url": "https://github.com/Orlands/snake-tj/pull/6",
+      "date": "2015-10-30T03:47:46Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Push game skeleton",
+      "url": "https://github.com/Orlands/snake-tj/pull/5",
+      "date": "2015-10-26T02:31:05Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add skeleton code of the project",
+      "url": "https://github.com/Orlands/snake-tj/pull/4",
+      "date": "2015-10-21T14:13:55Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add module name at REAME.md",
+      "url": "https://github.com/Orlands/snake-tj/pull/2",
+      "date": "2015-10-19T06:25:31Z"
+    },
+    {
+      "repo": "Orlands/snake-tj",
+      "title": "Add folder and file for workspace",
+      "url": "https://github.com/Orlands/snake-tj/pull/1",
+      "date": "2015-10-19T05:57:05Z"
+    }
+  ],
   "repos": {
     "web-infra-dev/rspack": {
-      "stars": 12987,
-      "about": "Fast Rust-based bundler for the web"
-    },
-    "ohmyzsh/ohmyzsh": {
-      "stars": 190707,
-      "about": "Framework for managing your zsh configuration"
-    },
-    "supasate/connected-react-router": {
-      "stars": 4681,
-      "about": "A Redux binding for React Router"
+      "stars": 12994,
+      "about": "Fast Rust-based bundler for the web with a modernized webpack API"
     },
     "module-federation/vite": {
       "stars": 896,
-      "about": "Vite plugin for Module Federation"
-    },
-    "DefinitelyTyped/DefinitelyTyped": {
-      "stars": 51481,
-      "about": "High quality TypeScript type definitions"
+      "about": "Vite Plugin for Module Federation"
     },
     "maticzav/graphql-middleware": {
       "stars": 1146,
       "about": "Split up your GraphQL resolvers in middleware functions"
     },
+    "ohmyzsh/ohmyzsh": {
+      "stars": 190793,
+      "about": "Framework for managing your zsh configuration"
+    },
     "XD2Sketch/react-oauth-popup": {
       "stars": 63,
-      "about": "React component for doing OAuth popups"
+      "about": "React component for doing oAuth popups"
+    },
+    "supasate/connected-react-router": {
+      "stars": 4681,
+      "about": "A Redux binding for React Router v4"
     },
     "Cero-Studio/ReactNativeWheelPicker": {
       "stars": 387,
-      "about": "Wheel picker for React Native"
+      "about": ""
+    },
+    "DefinitelyTyped/DefinitelyTyped": {
+      "stars": 51488,
+      "about": "The repository for high quality TypeScript type definitions"
+    },
+    "diezcami/arctic-fox-theme": {
+      "stars": 72,
+      "about": "An even more lightweight theme for Jekyll"
+    },
+    "gitlabhq/gitlabhq": {
+      "stars": 24572,
+      "about": "GitLab CE Mirror"
     }
   },
-  "prs": [
-    {
-      "repo": "Cero-Studio/ReactNativeWheelPicker",
-      "date": "2020-02-25",
-      "title": "feat(date-picker): display a custom date format for date picker",
-      "url": "https://github.com/Cero-Studio/ReactNativeWheelPicker/pull/103"
-    },
-    {
-      "repo": "DefinitelyTyped/DefinitelyTyped",
-      "date": "2019-09-27",
-      "title": "[@types/react-native-modal-filter-picker] Update type definition for ModalFilterPickerProps",
-      "url": "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356"
-    },
-    {
-      "repo": "diezcami/arctic-fox-theme",
-      "date": "2016-04-04",
-      "title": "Fix align obsolete attribute",
-      "url": "https://github.com/diezcami/arctic-fox-theme/pull/4"
-    },
-    {
-      "repo": "Garee/skyscannerjs",
-      "date": "2016-11-19",
-      "title": "Update README.md",
-      "url": "https://github.com/Garee/skyscannerjs/pull/3"
-    },
-    {
-      "repo": "gitlabhq/gitlabhq",
-      "date": "2015-11-02",
-      "title": "Go to gitlab installation folder before initialize database",
-      "url": "https://github.com/gitlabhq/gitlabhq/pull/9794"
-    },
-    {
-      "repo": "keystonejs/generator-keystone",
-      "date": "2020-03-28",
-      "title": "Optimize images",
-      "url": "https://github.com/keystonejs/generator-keystone/pull/288"
-    },
-    {
-      "repo": "keystonejs/keystone",
-      "date": "2019-10-22",
-      "title": "docs: update authentication documentation",
-      "url": "https://github.com/keystonejs/keystone/pull/1807"
-    },
-    {
-      "repo": "keystonejs/keystone",
-      "date": "2019-10-30",
-      "title": "docs: update next app documentation",
-      "url": "https://github.com/keystonejs/keystone/pull/1860"
-    },
-    {
-      "repo": "maticzav/graphql-middleware",
-      "date": "2021-01-08",
-      "title": "fix(deps): move @graphql-tools/delegate to dependencies",
-      "url": "https://github.com/maticzav/graphql-middleware/pull/321"
-    },
-    {
-      "repo": "mermaid-js/mermaid",
-      "date": "2019-10-01",
-      "title": "Optimize images",
-      "url": "https://github.com/mermaid-js/mermaid/pull/966"
-    },
-    {
-      "repo": "module-federation/vite",
-      "date": "2026-11-16",
-      "title": "fix: name the exports field in the error when a shared package has no root",
-      "url": "https://github.com/module-federation/vite/pull/1579"
-    },
-    {
-      "repo": "muan/hello-world",
-      "date": "2016-05-25",
-      "title": "Create arnaud-zg.html",
-      "url": "https://github.com/muan/hello-world/pull/47"
-    },
-    {
-      "repo": "nextauthjs/next-auth",
-      "date": "2022-12-02",
-      "title": "chore(types): fix typo in comment",
-      "url": "https://github.com/nextauthjs/next-auth/pull/5815"
-    },
-    {
-      "repo": "nextauthjs/next-auth",
-      "date": "2022-12-14",
-      "title": "chore: removing console log",
-      "url": "https://github.com/nextauthjs/next-auth/pull/6061"
-    },
-    {
-      "repo": "ohmyzsh/ohmyzsh",
-      "date": "2023-01-09",
-      "title": "feat(jira): support rapid view on rapid board mode",
-      "url": "https://github.com/ohmyzsh/ohmyzsh/pull/9459"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-10-19",
-      "title": "Add folder and file for workspace",
-      "url": "https://github.com/Orlands/snake-tj/pull/1"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-10-19",
-      "title": "Add module name at REAME.md",
-      "url": "https://github.com/Orlands/snake-tj/pull/2"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-10-21",
-      "title": "Add skeleton code of the project",
-      "url": "https://github.com/Orlands/snake-tj/pull/4"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-10-26",
-      "title": "Push game skeleton",
-      "url": "https://github.com/Orlands/snake-tj/pull/5"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-10-30",
-      "title": "Update",
-      "url": "https://github.com/Orlands/snake-tj/pull/6"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-02",
-      "title": "Merge project",
-      "url": "https://github.com/Orlands/snake-tj/pull/7"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-09",
-      "title": "Add report pdf and diagram png",
-      "url": "https://github.com/Orlands/snake-tj/pull/10"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-09",
-      "title": "Add report pdf and diagram png",
-      "url": "https://github.com/Orlands/snake-tj/pull/11"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-09",
-      "title": "Design documentation and code",
-      "url": "https://github.com/Orlands/snake-tj/pull/8"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-09",
-      "title": "Design documentation and code",
-      "url": "https://github.com/Orlands/snake-tj/pull/9"
-    },
-    {
-      "repo": "Orlands/snake-tj",
-      "date": "2015-11-20",
-      "title": "Add headers",
-      "url": "https://github.com/Orlands/snake-tj/pull/12"
-    },
-    {
-      "repo": "pqvst/cafeandcowork",
-      "date": "2019-10-31",
-      "title": "Add place to work at paris",
-      "url": "https://github.com/pqvst/cafeandcowork/pull/1"
-    },
-    {
-      "repo": "pqvst/cafeandcowork",
-      "date": "2019-10-31",
-      "title": "Update paris.json",
-      "url": "https://github.com/pqvst/cafeandcowork/pull/2"
-    },
-    {
-      "repo": "pqvst/cafeandcowork",
-      "date": "2019-11-04",
-      "title": "Update paris.json",
-      "url": "https://github.com/pqvst/cafeandcowork/pull/3"
-    },
-    {
-      "repo": "pqvst/cafeandcowork",
-      "date": "2019-11-14",
-      "title": "Add \"Nuage Café\" on paris.json",
-      "url": "https://github.com/pqvst/cafeandcowork/pull/4"
-    },
-    {
-      "repo": "pqvst/cafeandcowork",
-      "date": "2019-11-28",
-      "title": "Update paris.json",
-      "url": "https://github.com/pqvst/cafeandcowork/pull/6"
-    },
-    {
-      "repo": "supasate/connected-react-router",
-      "date": "2019-10-06",
-      "title": "Add example for react native support",
-      "url": "https://github.com/supasate/connected-react-router/pull/350"
-    },
-    {
-      "repo": "supasate/connected-react-router",
-      "date": "2019-11-17",
-      "title": "fix(action): remove duplicate action key",
-      "url": "https://github.com/supasate/connected-react-router/pull/364"
-    },
-    {
-      "repo": "supasate/connected-react-router",
-      "date": "2019-11-17",
-      "title": "Update FAQ for react native example",
-      "url": "https://github.com/supasate/connected-react-router/pull/363"
-    },
-    {
-      "repo": "web-infra-dev/rspack",
-      "date": "2026-11-10",
-      "title": "fix(mf): keep the whole requiredVersion range in mf-manifest.json",
-      "url": "https://github.com/web-infra-dev/rspack/pull/16402"
-    },
-    {
-      "repo": "web-infra-dev/rspack",
-      "date": "2026-11-19",
-      "title": "fix(mf): match short caret and tilde ranges in the consume runtime",
-      "url": "https://github.com/web-infra-dev/rspack/pull/16663"
-    },
-    {
-      "repo": "XD2Sketch/react-oauth-popup",
-      "date": "2020-01-16",
-      "title": "feat(tick): use requestAnimationFrame instead of setInterval",
-      "url": "https://github.com/XD2Sketch/react-oauth-popup/pull/10"
-    },
-    {
-      "repo": "XD2Sketch/react-oauth-popup",
-      "date": "2020-06-18",
-      "title": "test: calls onClose when popup closed",
-      "url": "https://github.com/XD2Sketch/react-oauth-popup/pull/17"
-    }
-  ],
   "lines": {
-    "https://github.com/web-infra-dev/rspack/pull/16402": [
-      87,
-      18
-    ],
     "https://github.com/web-infra-dev/rspack/pull/16663": [
       52,
       9
     ],
-    "https://github.com/module-federation/vite/pull/1579": [
-      45,
-      2
+    "https://github.com/web-infra-dev/rspack/pull/16402": [
+      87,
+      18
     ],
     "https://github.com/ohmyzsh/ohmyzsh/pull/9459": [
       14,
       2
     ],
-    "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356": [
-      12,
-      3
-    ],
     "https://github.com/supasate/connected-react-router/pull/364": [
       0,
       1
+    ],
+    "https://github.com/module-federation/vite/pull/1579": [
+      45,
+      2
+    ],
+    "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356": [
+      12,
+      3
     ],
     "https://github.com/maticzav/graphql-middleware/pull/321": [
       2,

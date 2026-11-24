@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/minify.mjs",
     "preview": "astro preview",
+    "data:refresh": "node scripts/refresh-data.mjs",
     "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview",
     "preview:serve": "astro preview --outDir ../../.preview --port 4330"
   },

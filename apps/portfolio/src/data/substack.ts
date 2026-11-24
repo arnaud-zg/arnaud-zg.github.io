@@ -22,24 +22,23 @@ const decode = (s: string) =>
 const tag = (xml: string, name: string) => decode(xml.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`))?.[1] ?? "");
 const clean = (s: string) => s.replace(/\s+\?$/, "").replace(/\s+([?!:;])/g, "$1");
 
+export async function fetchArticles(): Promise<Article[]> {
+  const res = await fetch(FEED, { headers: { "User-Agent": "portfolio-build" }, signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(String(res.status));
+  const xml = await res.text();
+  const articles = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, it]) => ({
+    title: tag(it, "title"),
+    subtitle: clean(tag(it, "description")),
+    url: tag(it, "link"),
+    date: new Date(tag(it, "pubDate")).toISOString().slice(0, 10),
+    image: it.match(/<enclosure url="([^"]+)"/)?.[1] ?? "",
+  }));
+  if (!articles.length) throw new Error("no articles");
+  return articles;
+}
+
 export async function getArticles(): Promise<Article[]> {
-  let items: Article[];
-  try {
-    const res = await fetch(FEED, { headers: { "User-Agent": "portfolio-build" }, signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(String(res.status));
-    const xml = await res.text();
-    const parsed = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, it]) => ({
-      title: tag(it, "title"),
-      subtitle: clean(tag(it, "description")),
-      url: tag(it, "link"),
-      date: new Date(tag(it, "pubDate")).toISOString().slice(0, 10),
-      image: it.match(/<enclosure url="([^"]+)"/)?.[1] ?? "",
-    }));
-    if (!parsed.length) throw new Error("no articles");
-    items = parsed;
-  } catch (error) {
-    items = fallback<Article[]>("substack", error, saved);
-  }
+  const items = await fetchArticles().catch((error) => fallback<Article[]>("substack", error, saved));
   return items.map((a) => ({ ...a, subtitle: clean(a.subtitle), image: a.image && small(a.image) }));
 }
 

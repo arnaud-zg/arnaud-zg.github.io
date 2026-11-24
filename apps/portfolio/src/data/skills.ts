@@ -15,17 +15,15 @@ const blob = (path: string) => `https://github.com/${repo}/blob/HEAD/${path.repl
 // Rows look like: | Write an Agent Skill and lint it | [`hexagonal-skill-builder`](./plugins/...) |
 const ROW = /^\|\s*(.+?)\s*\|\s*\[`([^`]+)`\]\(([^)]+)\)/;
 
-export async function getSkills(): Promise<Skill[]> {
-  try {
-    const res = await fetch(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`, { signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(String(res.status));
-    const skills = (await res.text()).split("\n").flatMap((line) => {
-      const m = line.match(ROW);
-      return m ? [{ name: m[2], use: m[1], href: m[3].startsWith("http") ? m[3] : blob(m[3]) }] : [];
-    });
-    if (!skills.length) throw new Error("no skills table");
-    return skills;
-  } catch (error) {
-    return fallback<Skill[]>("skills", error, saved);
-  }
+export async function fetchSkills(): Promise<Skill[]> {
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(String(res.status));
+  const skills = (await res.text()).split("\n").flatMap((line) => {
+    const m = line.match(ROW);
+    return m ? [{ name: m[2], use: m[1], href: m[3].startsWith("http") ? m[3] : blob(m[3]) }] : [];
+  });
+  if (!skills.length) throw new Error("no skills table");
+  return skills;
 }
+
+export const getSkills = (): Promise<Skill[]> => fetchSkills().catch((error) => fallback<Skill[]>("skills", error, saved));
