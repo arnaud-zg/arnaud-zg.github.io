@@ -12,6 +12,8 @@
     "./*.astro": "./src/components/*.astro",
     "./styles/*": "./src/styles/*",
     "./site": "./src/site.ts",
+    "./links": "./src/links.ts",
+    "./treemap": "./src/treemap.ts",
     "./photos": "./src/photos.ts"
   },
   "dependencies": {

@@ -1,0 +1,8 @@
+---
+// The facts a reader looks for first, side by side.
+import "../styles/career.css";
+interface Props { items: { label: string; value: string; note?: string }[] }
+---
+<dl class="cv-summary">
+  {Astro.props.items.map((f) => <div><dt>{f.label}</dt><dd>{f.value}{f.note && <span>{f.note}</span>}</dd></div>)}
+</dl>

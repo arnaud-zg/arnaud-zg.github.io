@@ -1,0 +1,15 @@
+---
+// Older work, folded away: quiet cards that are plain links.
+import "../styles/shelf.css";
+import { external } from "../links";
+interface Props { title: string; emoji: string; items: { name: string; line: string; href: string; year: string; label: string }[] }
+const { title, emoji, items } = Astro.props;
+---
+<details class="earlier">
+  <summary><span class="earlier-emoji" aria-hidden="true">{emoji}</span> {title}</summary>
+  <ul class="earlier-grid">
+    {items.map((q) => (
+      <li><a class="earlier-card" href={q.href} aria-label={q.label} {...external}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.year}</span></a></li>
+    ))}
+  </ul>
+</details>

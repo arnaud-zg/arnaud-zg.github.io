@@ -9,12 +9,9 @@
 import config from "../../portfolio.config";
 import { fallback } from "../lib/fallback";
 import saved from "./snapshots/npm.json";
-import { squarify, TREEMAP_BOX as BOX, type Rect } from "../lib/treemap";
+import { squarify, TREEMAP_BOX as BOX, type Group, type Tile, type Tool } from "@arnaud-zg/design/treemap";
 
-// `downloads` covers the last full calendar month, named in `downloadsMonth`.
-export type Quest = { name: string; line: string; href: string; keywords: string[]; releases: number; updated: string; members: number; version?: string; created?: string; downloads?: number; downloadsMonth?: string };
-export type Tile = { quest?: Quest; more?: Quest[]; releases: number; weight: number; recent: boolean; rect: Rect; mrect: Rect };
-export type Group = { name: string; emoji: string; releases: number; rect: Rect; tiles: Tile[] };
+export type Quest = Tool & { keywords: string[]; updated: string; version?: string; created?: string };
 export type SideQuests = { tools: number; releases: number; downloads?: number; downloadsMonth?: string; groups: Group[]; earlier: Quest[] };
 
 const { maintainer, parkedVersion, lines: lineOverrides, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
@@ -135,14 +132,14 @@ function layout(active: Quest[]): Group[] {
     const tooSmall = quests.filter((q) => q.releases / total < minShare);
     const small = tooSmall.length > 1 ? tooSmall : [];
     const shown = quests.filter((q) => !small.includes(q));
-    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ quest: q, releases: q.releases, weight: weigh(q.releases), recent: isRecent(q) }));
+    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ tool: q, releases: q.releases, weight: weigh(q.releases), recent: isRecent(q) }));
     if (small.length) tiles.push({ more: small, releases: sum(small), weight: weigh(sum(small)), recent: small.some(isRecent) });
     const r = outer[gi];
     const values = tiles.map((t) => t.weight);
     const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h, true);
     const phone = squarify(values, PHONE.w, PHONE.h, true);
     const emoji = groupRules.find((g) => g.name === name)?.emoji ?? otherEmoji;
-    return { name, emoji, releases: sum(quests), rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
+    return { name, emoji, rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
   });
 }
 

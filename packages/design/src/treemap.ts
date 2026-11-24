@@ -3,6 +3,18 @@
 // Returns rectangles in percent of the box, in the input order.
 
 export type Rect = { x: number; y: number; w: number; h: number };
+// What a Treemap shows. `downloads` covers one month, named in `downloadsMonth`.
+export type Tool = { name: string; line: string; href: string; releases: number; members: number; downloads?: number; downloadsMonth?: string };
+export type Tile = { tool?: Tool; more?: Tool[]; releases: number; weight: number; recent: boolean; rect: Rect; mrect: Rect };
+export type Group = { name: string; emoji: string; rect: Rect; tiles: Tile[] };
+export type ToolLabels = {
+  releases: string; plugins: string; monthlyDownloads: string; viewOnNpm: string;
+  downloadsTitle: (month: string) => string; showDetails: (name: string) => string; more: (n: number) => string;
+};
+
+// 1234 -> 1.2k, so a figure fits its badge.
+export const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k` : String(n));
+
 // The treemap's box on wide screens, in arbitrary units (16:7). Shared by the build and the hover script.
 export const TREEMAP_BOX = { w: 16, h: 7 };
 

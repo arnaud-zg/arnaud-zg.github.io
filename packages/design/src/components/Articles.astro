@@ -1,0 +1,18 @@
+---
+// Covers in a row, newest first.
+import "../styles/articles.css";
+import { external } from "../links";
+interface Props { items: { title: string; url: string; date: string; dateText: string; image?: string }[] }
+const { items } = Astro.props;
+---
+<ul class="articles">
+  {items.map((a, i) => (
+    <li style={`--a:${i}`}>
+      <a class="article" href={a.url} {...external}>
+        <span class="cover">{a.image && <img src={a.image} alt="" loading="lazy" decoding="async" width="720" height="480" />}</span>
+        <time datetime={a.date}>{a.dateText}</time>
+        <span class="a-title">{a.title}</span>
+      </a>
+    </li>
+  ))}
+</ul>
