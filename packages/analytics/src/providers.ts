@@ -6,5 +6,9 @@ import type { AnalyticsProvider } from "./ports/AnalyticsProvider.ts";
 export const loadProvider = async (s: Settings): Promise<AnalyticsProvider> => {
   if (s.provider === "mock") return (await import("./adapters/mock.provider.ts")).mock();
   const environment = location.hostname === s.host ? "production" : "local";
-  return (await import("./adapters/posthog.provider.ts")).posthog({ key: s.key, region: s.region, environment });
+  return (await import("./adapters/posthog.provider.ts")).posthog({
+    key: s.key,
+    region: s.region,
+    environment,
+  });
 };

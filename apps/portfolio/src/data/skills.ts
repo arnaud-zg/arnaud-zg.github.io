@@ -11,12 +11,13 @@ export type Skill = { name: string; use: string; href: string };
 const { repo } = config.skills;
 const blob = (path: string) => `https://github.com/${repo}/blob/HEAD/${path.replace(/^\.\//, "")}`;
 
-
 // Rows look like: | Write an Agent Skill and lint it | [`hexagonal-skill-builder`](./plugins/...) |
 const ROW = /^\|\s*(.+?)\s*\|\s*\[`([^`]+)`\]\(([^)]+)\)/;
 
 export async function fetchSkills(): Promise<Skill[]> {
-  const res = await fetch(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`, { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`, {
+    signal: AbortSignal.timeout(8000),
+  });
   if (!res.ok) throw new Error(String(res.status));
   const skills = (await res.text()).split("\n").flatMap((line) => {
     const m = line.match(ROW);
@@ -26,4 +27,5 @@ export async function fetchSkills(): Promise<Skill[]> {
   return skills;
 }
 
-export const getSkills = (): Promise<Skill[]> => fetchSkills().catch((error) => fallback<Skill[]>("skills", error, saved));
+export const getSkills = (): Promise<Skill[]> =>
+  fetchSkills().catch((error) => fallback<Skill[]>("skills", error, saved));

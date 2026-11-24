@@ -11,9 +11,7 @@
   "access": "restricted",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "js-packages-site"
-  ],
+  "ignore": ["js-packages-site"],
   "privatePackages": {
     "version": true,
     "tag": false

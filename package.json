@@ -3,27 +3,55 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter portfolio dev",
     "build": "pnpm check && pnpm --filter portfolio build",
+    "changeset": "changeset",
+    "check": "node scripts/check-design.mjs && pnpm test",
+    "data:refresh": "pnpm --filter portfolio data:refresh",
+    "dev": "pnpm --filter portfolio dev",
+    "format": "prettier --write . --cache --cache-location .cache/.prettiercache",
+    "format:check": "prettier --check . --cache --cache-location .cache/.prettiercache",
+    "lint": "eslint . --cache --cache-location .cache/.eslintcache",
+    "lint:fix": "pnpm lint --fix",
+    "lint:md": "remark . --frail --quiet",
+    "prepare": "lefthook install",
     "preview": "pnpm --filter portfolio preview",
     "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve",
-    "check": "node scripts/check-design.mjs && pnpm test",
+    "release": "shiplane",
     "test": "node --test \"packages/*/test/*.test.ts\"",
-    "data:refresh": "pnpm --filter portfolio data:refresh",
-    "changeset": "changeset",
-    "release": "shiplane"
+    "typecheck": "pnpm --filter portfolio --filter js-packages-site exec astro sync && astro-check --root apps/portfolio && astro-check --root packages/design && astro-check --root templates/sub-site && tsc --noEmit -p packages/analytics",
+    "verify": "pnpm typecheck && pnpm lint && pnpm lint:md && pnpm format:check && pnpm check"
   },
-  "packageManager": "pnpm@12.11.2",
-  "engines": {
-    "node": ">=22.23.4"
-  },
+  "prettier": "@arnaud-zg/configs/prettier",
   "devDependencies": {
+    "@arnaud-zg/configs": "0.4.0",
+    "@astrojs/check": "^0.9.12",
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.1",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@eslint/js": "^9.39.5",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@shiplane/changesets": "0.6.0-nightly.11",
     "@shiplane/git": "0.6.0-nightly.11",
     "@shiplane/github": "0.6.0-nightly.11",
     "@shiplane/github-pages": "0.6.0-nightly.11",
-    "shiplane": "0.6.0-nightly.11"
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "lefthook": "^2.2.2",
+    "prettier": "^3.10.1",
+    "prettier-plugin-packagejson": "^3.1.0",
+    "remark-cli": "^12.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-preset-lint-recommended": "^7.0.1",
+    "shiplane": "0.6.0-nightly.11",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.23.4"
   }
 }

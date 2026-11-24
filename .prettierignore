@@ -1,0 +1,11 @@
+# Astro files: Prettier would change the spaces the page shows.
+**/*.astro
+**/public
+**/CHANGELOG.md
+.preview
+.shiplane
+pnpm-lock.yaml
+# Written by pnpm data:refresh.
+apps/portfolio/src/data/snapshots
+# Starlight asides (:::note): Prettier would break them.
+**/src/content/docs

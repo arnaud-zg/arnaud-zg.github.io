@@ -21,16 +21,16 @@
     "@fontsource-variable/m-plus-1-code": "^5.3.1",
     "simple-icons": "^16.38.0"
   },
-  "peerDependencies": {
-    "astro": "^7.4.13",
+  "devDependencies": {
     "@astrojs/starlight": "^0.43.1"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": "^0.43.1",
+    "astro": "^7.4.13"
   },
   "peerDependenciesMeta": {
     "@astrojs/starlight": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "@astrojs/starlight": "^0.43.1"
   }
 }

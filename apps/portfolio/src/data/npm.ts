@@ -5,27 +5,63 @@
 // overstate real use. Releases are honest: each one is a deliberate publish.
 //
 // Grouping, the "Earlier" cut-off and the treemap threshold live in portfolio.config.ts.
+import type { Group, Tile, Tool } from "@arnaud-zg/design/treemap";
+import { TREEMAP_BOX as BOX, squarify } from "@arnaud-zg/design/treemap";
 
 import config from "../../portfolio.config";
 import { fallback } from "../lib/fallback";
 import saved from "./snapshots/npm.json";
-import { squarify, TREEMAP_BOX as BOX, type Group, type Tile, type Tool } from "@arnaud-zg/design/treemap";
 
-export type Quest = Tool & { keywords: string[]; updated: string; version?: string; created?: string };
-export type SideQuests = { tools: number; releases: number; downloads?: number; downloadsMonth?: string; groups: Group[]; earlier: Quest[] };
+export type Quest = Tool & {
+  keywords: string[];
+  updated: string;
+  version?: string;
+  created?: string;
+};
+export type SideQuests = {
+  tools: number;
+  releases: number;
+  downloads?: number;
+  downloadsMonth?: string;
+  groups: Group[];
+  earlier: Quest[];
+};
 
-const { maintainer, parkedVersion, lines: lineOverrides, activeMonths, groups: groupRules, otherGroup, otherEmoji, minShare, minTileShare } = config.npm;
+const {
+  maintainer,
+  parkedVersion,
+  lines: lineOverrides,
+  activeMonths,
+  groups: groupRules,
+  otherGroup,
+  otherEmoji,
+  minShare,
+  minTileShare,
+} = config.npm;
 const SKIP = /^(reserved package name|coming soon)$/i;
 // One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
 
-
-type Hit = { package: { name: string; version?: string; date?: string; description?: string; keywords?: string[]; links?: { npm?: string } } };
+type Hit = {
+  package: {
+    name: string;
+    version?: string;
+    date?: string;
+    description?: string;
+    keywords?: string[];
+    links?: { npm?: string };
+  };
+};
 
 // The first clause of a description: what the tool does, not how.
-const brief = (d: string) => d.split(/:\s|\.\s|\s\(|,\s(?:like|without)\s/)[0].replace(/\.$/, "").trim();
+const brief = (d: string) =>
+  d
+    .split(/:\s|\.\s|\s\(|,\s(?:like|without)\s/)[0]
+    .replace(/\.$/, "")
+    .trim();
 const monthsAgo = (iso: string) => {
-  const d = new Date(iso), now = new Date();
+  const d = new Date(iso),
+    now = new Date();
   return (now.getUTCFullYear() - d.getUTCFullYear()) * 12 + now.getUTCMonth() - d.getUTCMonth();
 };
 
@@ -35,26 +71,37 @@ function lastMonth() {
   const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
   const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0));
   const iso = (d: Date) => d.toISOString().slice(0, 10);
-  return { range: `${iso(start)}:${iso(end)}`, label: start.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }) };
+  return {
+    range: `${iso(start)}:${iso(end)}`,
+    label: start.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }),
+  };
 }
 
 // Last month's downloads for every tool in one call: npm rate-limits one call per tool, which
 // left some figures out. Unscoped names only, which every family's lead is.
 async function downloadsOf(names: string[]): Promise<Map<string, number>> {
   const point = async () => {
-    const res = await fetch(`https://api.npmjs.org/downloads/point/${lastMonth().range}/${names.join(",")}`, { signal: AbortSignal.timeout(8000) });
+    const res = await fetch(
+      `https://api.npmjs.org/downloads/point/${lastMonth().range}/${names.join(",")}`,
+      { signal: AbortSignal.timeout(8000) },
+    );
     if (!res.ok) throw new Error(`${res.status} npm downloads`);
     const body = await res.json();
-    const all: Record<string, { downloads: number } | null> = names.length === 1 ? { [names[0]]: body } : body;
+    const all: Record<string, { downloads: number } | null> =
+      names.length === 1 ? { [names[0]]: body } : body;
     return new Map(Object.entries(all).flatMap(([n, d]) => (d ? [[n, d.downloads] as const] : [])));
   };
   // One retry after a short pause, then the figures are left out.
-  return point().catch(() => new Promise((r) => setTimeout(r, 600)).then(point)).catch((error) => fallback("npm downloads", error, new Map()));
+  return point()
+    .catch(() => new Promise((r) => setTimeout(r, 600)).then(point))
+    .catch((error) => fallback("npm downloads", error, new Map()));
 }
 
 // Release count, latest version and first publish date from the package document.
 async function detailsOf(name: string) {
-  const res = await fetch(`https://registry.npmjs.org/${name}`, { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`https://registry.npmjs.org/${name}`, {
+    signal: AbortSignal.timeout(8000),
+  });
   if (!res.ok) throw new Error(`${res.status} ${name}`);
   const doc = await res.json();
   return {
@@ -65,15 +112,22 @@ async function detailsOf(name: string) {
 }
 
 export async function fetchQuests(): Promise<Quest[]> {
-  const res = await fetch(`https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`, { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(
+    `https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`,
+    { signal: AbortSignal.timeout(8000) },
+  );
   if (!res.ok) throw new Error(String(res.status));
   // Parked packages (latest is a 0.0.0 placeholder) are not tools yet, and do not count as plugins.
-  const hits = ((await res.json()).objects as Hit[]).filter((h) => !SKIP.test(h.package.description ?? "") && !parkedVersion.test(h.package.version ?? ""));
+  const hits = ((await res.json()).objects as Hit[]).filter(
+    (h) => !SKIP.test(h.package.description ?? "") && !parkedVersion.test(h.package.version ?? ""),
+  );
   if (!hits.length) throw new Error("no packages");
 
   const families = new Map<string, { lead?: Hit; updated: string; members: number }>();
   for (const h of hits) {
-    const family = h.package.name.startsWith("@") ? h.package.name.slice(1).split("/")[0] : h.package.name;
+    const family = h.package.name.startsWith("@")
+      ? h.package.name.slice(1).split("/")[0]
+      : h.package.name;
     const f = families.get(family) ?? { updated: "", members: 0 };
     const date = h.package.date?.slice(0, 10) ?? "";
     if (date > f.updated) f.updated = date;
@@ -81,26 +135,34 @@ export async function fetchQuests(): Promise<Quest[]> {
     if (h.package.name === family) f.lead = h;
     families.set(family, f);
   }
-  const leads = [...families].filter(([, f]) => f.lead?.package.description);
-  const downloads = await downloadsOf(leads.map(([name]) => name));
-  const quests = await Promise.all(leads.map(async ([name, f]) => ({
-    name,
-    downloads: downloads.get(name),
-    downloadsMonth: downloads.has(name) ? lastMonth().label : undefined,
-    line: lineOverrides[name] ?? brief(f.lead!.package.description!),
-    href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
-    keywords: f.lead!.package.keywords ?? [],
-    updated: f.updated,
-    members: f.members,
-    ...(await detailsOf(name)),
-  })));
+  const leads = [...families].flatMap(([name, f]) => {
+    const pkg = f.lead?.package;
+    return pkg?.description ? [{ name, f, pkg, about: pkg.description }] : [];
+  });
+  const downloads = await downloadsOf(leads.map(({ name }) => name));
+  const quests = await Promise.all(
+    leads.map(async ({ name, f, pkg, about }) => ({
+      name,
+      downloads: downloads.get(name),
+      downloadsMonth: downloads.has(name) ? lastMonth().label : undefined,
+      line: lineOverrides[name] ?? brief(about),
+      href: pkg.links?.npm ?? `https://www.npmjs.com/package/${name}`,
+      keywords: pkg.keywords ?? [],
+      updated: f.updated,
+      members: f.members,
+      ...(await detailsOf(name)),
+    })),
+  );
   // A stable order, so refreshing the saved data only shows what changed.
   return quests.sort((a, b) => b.releases - a.releases || a.name.localeCompare(b.name));
 }
 
 // A tool joins the first configured group with a matching keyword or name part.
 const groupOf = (q: Quest) => {
-  const words = new Set([...q.keywords.map((k) => k.toLowerCase()), ...q.name.toLowerCase().split("-")]);
+  const words = new Set([
+    ...q.keywords.map((k) => k.toLowerCase()),
+    ...q.name.toLowerCase().split("-"),
+  ]);
   return groupRules.find((g) => g.match.some((m) => words.has(m)))?.name ?? otherGroup;
 };
 const sum = (qs: Quest[]) => qs.reduce((n, q) => n + q.releases, 0);
@@ -112,7 +174,7 @@ function layout(active: Quest[]): Group[] {
   const byGroup = new Map<string, Quest[]>();
   for (const q of [...active].sort((a, b) => b.releases - a.releases)) {
     const g = groupOf(q);
-    (byGroup.get(g) ?? byGroup.set(g, []).get(g)!).push(q);
+    byGroup.set(g, [...(byGroup.get(g) ?? []), q]);
   }
   // Groups keep the order they are listed in portfolio.config.ts; anything unmatched goes last.
   const order = groupRules.map((g) => g.name as string);
@@ -123,23 +185,49 @@ function layout(active: Quest[]): Group[] {
   const weights = entries.map(([, qs]) => {
     const tooSmall = qs.filter((q) => q.releases / total < minShare);
     const merged = tooSmall.length > 1 ? [weigh(sum(tooSmall))] : [];
-    return [...qs.filter((q) => !(tooSmall.length > 1 && tooSmall.includes(q))).map((q) => weigh(q.releases)), ...merged];
+    return [
+      ...qs
+        .filter((q) => !(tooSmall.length > 1 && tooSmall.includes(q)))
+        .map((q) => weigh(q.releases)),
+      ...merged,
+    ];
   });
-  const outer = squarify(weights.map((ws) => ws.reduce((a, b) => a + b, 0)), BOX.w, BOX.h, true);
+  const outer = squarify(
+    weights.map((ws) => ws.reduce((a, b) => a + b, 0)),
+    BOX.w,
+    BOX.h,
+    true,
+  );
 
   return entries.map(([name, quests], gi) => {
     // A lone small tool keeps its own tile; two or more share one "+n more" tile.
     const tooSmall = quests.filter((q) => q.releases / total < minShare);
     const small = tooSmall.length > 1 ? tooSmall : [];
     const shown = quests.filter((q) => !small.includes(q));
-    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({ tool: q, releases: q.releases, weight: weigh(q.releases), recent: isRecent(q) }));
-    if (small.length) tiles.push({ more: small, releases: sum(small), weight: weigh(sum(small)), recent: small.some(isRecent) });
+    const tiles: Omit<Tile, "rect" | "mrect">[] = shown.map((q) => ({
+      tool: q,
+      releases: q.releases,
+      weight: weigh(q.releases),
+      recent: isRecent(q),
+    }));
+    if (small.length)
+      tiles.push({
+        more: small,
+        releases: sum(small),
+        weight: weigh(sum(small)),
+        recent: small.some(isRecent),
+      });
     const r = outer[gi];
     const values = tiles.map((t) => t.weight);
     const inner = squarify(values, (r.w / 100) * BOX.w, (r.h / 100) * BOX.h, true);
     const phone = squarify(values, PHONE.w, PHONE.h, true);
     const emoji = groupRules.find((g) => g.name === name)?.emoji ?? otherEmoji;
-    return { name, emoji, rect: r, tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })) };
+    return {
+      name,
+      emoji,
+      rect: r,
+      tiles: tiles.map((t, i) => ({ ...t, rect: inner[i], mrect: phone[i] })),
+    };
   });
 }
 
@@ -151,17 +239,23 @@ export async function getSideQuests(): Promise<SideQuests> {
     quests = fallback<Quest[]>("npm", error, saved);
   }
   const active = quests.filter((q) => monthsAgo(q.updated) < activeMonths);
-  const earlier = quests.filter((q) => monthsAgo(q.updated) >= activeMonths).sort((a, b) => b.updated.localeCompare(a.updated));
+  const earlier = quests
+    .filter((q) => monthsAgo(q.updated) >= activeMonths)
+    .sort((a, b) => b.updated.localeCompare(a.updated));
   const counted = active.filter((q) => q.downloads !== undefined);
   return {
     tools: active.length,
     releases: sum(active),
     // A total only when no figure is missing: never an understated number.
-    downloads: active.length > 0 && counted.length === active.length ? counted.reduce((n, q) => n + q.downloads!, 0) : undefined,
+    downloads:
+      active.length > 0 && counted.length === active.length
+        ? counted.reduce((n, q) => n + (q.downloads ?? 0), 0)
+        : undefined,
     downloadsMonth: counted[0]?.downloadsMonth,
     groups: layout(active),
     earlier,
   };
 }
 
-export const formatMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+export const formatMonth = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
