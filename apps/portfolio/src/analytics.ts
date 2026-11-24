@@ -9,7 +9,8 @@ export const posthogRegion: string = process.env.POSTHOG_REGION || import.meta.e
 export const analytics = settingsFor({ posthogKey, posthogRegion }, {
   dev: import.meta.env.DEV,
   host: new URL(config.site.url).hostname,
-  mode: process.env.ANALYTICS,
+  // Empty is unset, so a ship can leave it to the settings.
+  mode: process.env.ANALYTICS || undefined,
 });
 
 if (!analytics && process.env.ANALYTICS !== "off") console.warn("[analytics] off: POSTHOG_KEY is not set");

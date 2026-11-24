@@ -1,11 +1,11 @@
 ---
 // Where you are: the brand, always home, then this site.
-import { currentSite, type SiteLinksInfo } from "../site";
+import { currentSite, homePath, type SiteLinksInfo } from "../site";
 interface Props { site: SiteLinksInfo }
 const { site } = Astro.props;
 const here = currentSite(site);
 ---
 <p class="crumbs">
-  <a class="wordmark" href="/">{site.brand}</a>
+  <a class="wordmark" href={homePath(site)}>{site.brand}</a>
   {here && here.id !== "home" && <><span class="crumb-sep" aria-hidden="true">/</span><a class="crumb" href={here.path}>{here.label}</a></>}
 </p>
