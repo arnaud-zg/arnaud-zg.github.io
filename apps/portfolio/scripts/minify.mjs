@@ -28,4 +28,4 @@ for (const file of files.filter((f) => /^_astro.*\.(js|css)$/.test(f))) {
   if (files.includes(`${file}.map`)) problems.push(`${file}.map: a source map`);
 }
 if (problems.length) { console.error([...new Set(problems)].map((p) => `✗ not minified: ${p}`).join("\n")); process.exit(1); }
-console.log("✓ everything published is minified");
+console.info("✓ everything published is minified");

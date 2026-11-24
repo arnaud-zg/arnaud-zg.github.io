@@ -19,6 +19,6 @@ export const startAnalytics = (settings: Settings) => {
   let unwatch: (() => void) | undefined;
   analytics.onStatus((status) => {
     unwatch?.();
-    unwatch = status === "granted" ? watchVisitor(analytics.track) : undefined;
+    unwatch = status === "granted" ? watchVisitor((name, props) => analytics.track(name, props)) : undefined;
   });
 };

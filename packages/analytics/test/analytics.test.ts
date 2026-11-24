@@ -18,7 +18,7 @@ const page = ({ objects = false, saved = undefined as SavedChoice | undefined, b
     store: { read: () => saved, write: (c) => { saved = c; }, onChange: (l) => { changed = l; } },
     signal: { objects: () => objects },
     now: () => at.now,
-    provider: async () => { loads++; return broken ? bad : provider; },
+    provider: () => { loads++; return Promise.resolve(broken ? bad : provider); },
   });
   analytics.start();
   return { analytics, log, at, loads: () => loads, otherTab: (c: SavedChoice) => { saved = c; changed(); } };

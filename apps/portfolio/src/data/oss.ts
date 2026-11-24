@@ -27,7 +27,7 @@ const WEIGHT: Record<string, number> = config.github.weights;
 
 type RawPr = { repo: string; title: string; url: string; date: string };
 type RawRepo = { stars: number; about: string };
-type Saved = { prs: RawPr[]; repos: Record<string, RawRepo>; lines: Record<string, readonly [number, number] | undefined> };
+type Saved = { prs: RawPr[]; repos: Record<string, RawRepo | undefined>; lines: Record<string, readonly [number, number] | undefined> };
 const savedData = saved as unknown as Saved;
 
 
@@ -44,22 +44,25 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const brief = (text: string) =>
   text.replace(/\p{Extended_Pictographic}|\uFE0F|:[a-z_]+:/gu, "").trim().replace(/\s*\([^)]*\)/g, "").split(" | ")[0].split(/(?<=[.!])\s/)[0].replace(/[.!]$/, "").replace(/^A delightful community-driven framework/, "Framework").trim();
 
-function rank(prs: RawPr[], repos: Record<string, RawRepo>): Project[] {
+function rank(prs: RawPr[], repos: Saved["repos"]): Project[] {
   const now = new Date().getFullYear();
   const byRepo = new Map<string, Change[]>();
   for (const pr of prs) {
-    if (EXCLUDE.has(pr.repo.toLowerCase()) || TRIVIAL.test(pr.title) || !repos[pr.repo] || repos[pr.repo].stars < config.github.minStars) continue;
+    const known = repos[pr.repo];
+    if (EXCLUDE.has(pr.repo.toLowerCase()) || TRIVIAL.test(pr.title) || !known || known.stars < config.github.minStars) continue;
     const d = describe(pr.title);
     if (d.kind === "Docs") continue;
-    (byRepo.get(pr.repo) ?? byRepo.set(pr.repo, []).get(pr.repo)!).push({ ...d, year: Number(pr.date.slice(0, 4)), url: pr.url });
+    byRepo.set(pr.repo, [...(byRepo.get(pr.repo) ?? []), { ...d, year: Number(pr.date.slice(0, 4)), url: pr.url }]);
   }
   return [...byRepo]
-    .map(([repo, changes]) => {
+    .flatMap(([repo, changes]) => {
+      const info = repos[repo];
+      if (!info) return [];
       changes.sort((a, b) => WEIGHT[b.kind] - WEIGHT[a.kind] || b.year - a.year);
       const substance = changes.slice(0, 2).reduce((n, c) => n + (WEIGHT[c.kind] ?? 1), 0);
       const latest = Math.max(...changes.map((c) => c.year));
-      const score = substance * Math.log10(repos[repo].stars + 10) + Math.max(0, 4 - (now - latest));
-      return { repo, about: repos[repo].about, stars: repos[repo].stars, changes, score };
+      const score = substance * Math.log10(info.stars + 10) + Math.max(0, 4 - (now - latest));
+      return [{ repo, about: info.about, stars: info.stars, changes, score }];
     })
     .sort((a, b) => b.score - a.score);
 }
@@ -88,7 +91,7 @@ export async function fetchGithub({ fresh = false } = {}): Promise<Saved> {
   const names = [...new Set(prs.map((p) => p.repo))];
   // Only look up projects that have a substantive change: fewer API calls, same ranking.
   const substantive = names.filter((n) => !EXCLUDE.has(n.toLowerCase()) && prs.some((p) => p.repo === n && !TRIVIAL.test(p.title)));
-  const repos: Record<string, RawRepo> = Object.fromEntries(await Promise.all(substantive.map(async (n) => {
+  const repos: Saved["repos"] = Object.fromEntries(await Promise.all(substantive.map(async (n) => {
     if (known.repos[n]) return [n, known.repos[n]];
     const r = await json(`https://api.github.com/repos/${n}`);
     return [n, { stars: r.stargazers_count, about: brief(r.description ?? "") }];
@@ -98,8 +101,8 @@ export async function fetchGithub({ fresh = false } = {}): Promise<Saved> {
   // Lines changed per PR shown. A failed lookup falls back to the snapshot.
   const lines = await Promise.all(flatten(rank(others, repos)).map(async ({ url }) => {
     if (known.lines[url]) return [url, known.lines[url]] as const;
-    const [, repo, n] = url.match(/github\.com\/(.+)\/pull\/(\d+)/)!;
-    try { const pr = await json(`https://api.github.com/repos/${repo}/pulls/${n}`); return [url, [pr.additions, pr.deletions]] as const; }
+    const pull = url.replace("https://github.com/", "").replace("/pull/", "/pulls/");
+    try { const pr = await json(`https://api.github.com/repos/${pull}`); return [url, [pr.additions, pr.deletions]] as const; }
     catch (error) { return [url, fallback("github", error, savedData.lines[url])] as const; }
   }));
   return { prs: others, repos, lines: Object.fromEntries(lines) };
@@ -121,7 +124,7 @@ const flatten = (ranked: Project[]): Row[] =>
 // One entry per repo with its PRs and summed lines; largest total first, ties to the most recent.
 function byRepo(rows: Row[]): RepoChanges[] {
   const map = new Map<string, Row[]>();
-  for (const r of rows) (map.get(r.repo) ?? map.set(r.repo, []).get(r.repo)!).push(r);
+  for (const r of rows) map.set(r.repo, [...(map.get(r.repo) ?? []), r]);
   return [...map].map(([repo, prs]) => {
     prs.sort((a, b) => b.lines - a.lines || b.year - a.year);
     const plural: Record<string, string> = { Fix: "fixes", Feature: "features", Performance: "performance changes", Types: "type updates", Refactor: "refactors", Test: "tests" };

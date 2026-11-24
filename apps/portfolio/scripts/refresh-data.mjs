@@ -18,7 +18,7 @@ try {
   for (const [name, value] of fresh) {
     writeFileSync(new URL(`../src/data/snapshots/${name}.json`, import.meta.url), `${JSON.stringify(value, null, 2)}\n`);
   }
-  console.log("✓ saved data refreshed: review it with git diff, then commit it");
+  console.info("✓ saved data refreshed: review it with git diff, then commit it");
 } catch (error) {
   console.error(`✗ nothing written: ${error.message}`);
   process.exit(1);

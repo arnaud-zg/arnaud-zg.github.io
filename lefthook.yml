@@ -1,0 +1,7 @@
+extends:
+  - node_modules/@arnaud-zg/configs/lefthook/lefthook.yml
+
+pre-push:
+  commands:
+    check:
+      run: pnpm check

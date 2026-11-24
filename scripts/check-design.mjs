@@ -48,4 +48,4 @@ for (const file of walk(src).filter((f) => f.endsWith(".astro") && !f.includes("
 }
 
 if (problems.length) { console.error(problems.map((p) => `✗ ${p}`).join("\n")); process.exit(1); }
-console.log("✓ design package isolated, reused and on show");
+console.info("✓ design package isolated, reused and on show");

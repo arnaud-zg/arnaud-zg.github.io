@@ -81,15 +81,18 @@ export async function fetchQuests(): Promise<Quest[]> {
     if (h.package.name === family) f.lead = h;
     families.set(family, f);
   }
-  const leads = [...families].filter(([, f]) => f.lead?.package.description);
-  const downloads = await downloadsOf(leads.map(([name]) => name));
-  const quests = await Promise.all(leads.map(async ([name, f]) => ({
+  const leads = [...families].flatMap(([name, f]) => {
+    const pkg = f.lead?.package;
+    return pkg?.description ? [{ name, f, pkg, about: pkg.description }] : [];
+  });
+  const downloads = await downloadsOf(leads.map(({ name }) => name));
+  const quests = await Promise.all(leads.map(async ({ name, f, pkg, about }) => ({
     name,
     downloads: downloads.get(name),
     downloadsMonth: downloads.has(name) ? lastMonth().label : undefined,
-    line: lineOverrides[name] ?? brief(f.lead!.package.description!),
-    href: f.lead!.package.links?.npm ?? `https://www.npmjs.com/package/${name}`,
-    keywords: f.lead!.package.keywords ?? [],
+    line: lineOverrides[name] ?? brief(about),
+    href: pkg.links?.npm ?? `https://www.npmjs.com/package/${name}`,
+    keywords: pkg.keywords ?? [],
     updated: f.updated,
     members: f.members,
     ...(await detailsOf(name)),
@@ -112,7 +115,7 @@ function layout(active: Quest[]): Group[] {
   const byGroup = new Map<string, Quest[]>();
   for (const q of [...active].sort((a, b) => b.releases - a.releases)) {
     const g = groupOf(q);
-    (byGroup.get(g) ?? byGroup.set(g, []).get(g)!).push(q);
+    byGroup.set(g, [...(byGroup.get(g) ?? []), q]);
   }
   // Groups keep the order they are listed in portfolio.config.ts; anything unmatched goes last.
   const order = groupRules.map((g) => g.name as string);
@@ -157,7 +160,7 @@ export async function getSideQuests(): Promise<SideQuests> {
     tools: active.length,
     releases: sum(active),
     // A total only when no figure is missing: never an understated number.
-    downloads: active.length > 0 && counted.length === active.length ? counted.reduce((n, q) => n + q.downloads!, 0) : undefined,
+    downloads: active.length > 0 && counted.length === active.length ? counted.reduce((n, q) => n + (q.downloads ?? 0), 0) : undefined,
     downloadsMonth: counted[0]?.downloadsMonth,
     groups: layout(active),
     earlier,

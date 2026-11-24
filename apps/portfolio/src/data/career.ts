@@ -29,7 +29,7 @@ const roles: Role[] = [...fullTime].reverse().map((s: Station) => ({
   company: s.name,
   industry: s.industry,
   // Title progression: the starting title, then each promotion with its year.
-  titles: [{ title: s.role }, ...(s.milestones ?? []).filter((m) => m.title).map((m) => ({ title: m.title!, since: m.at.slice(0, 4) }))],
+  titles: [{ title: s.role }, ...(s.milestones ?? []).flatMap((m) => (m.title ? [{ title: m.title, since: m.at.slice(0, 4) }] : []))],
   dates: `${s.start.slice(0, 4)} → ${s.end ? s.end.slice(0, 4) : "now"}`,
   now: !s.end,
   highlights: s.highlights ?? (s.note ? [s.note] : []),

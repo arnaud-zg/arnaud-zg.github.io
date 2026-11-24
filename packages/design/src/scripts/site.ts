@@ -22,7 +22,7 @@ const still = matchMedia("(prefers-reduced-motion: reduce)");
 // The new sky spreads from the switch; without view transitions the page just changes.
 let skies = 0;
 const spread = (from: HTMLElement, theme: string) => {
-  if (still.matches || !document.startViewTransition) return apply(theme);
+  if (still.matches || !("startViewTransition" in document)) return apply(theme);
   const r = from.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
   root.style.setProperty("--sky-x", `${x}px`);
   root.style.setProperty("--sky-y", `${y}px`);
@@ -133,7 +133,7 @@ for (const a of links) {
 
 // Dialogs: open from their button, close on the close button, Escape or a click outside.
 document.querySelectorAll<HTMLButtonElement>("[data-open-dialog]").forEach((btn) => {
-  const dialog = document.getElementById(btn.dataset.openDialog!) as HTMLDialogElement | null;
+  const dialog = document.getElementById(btn.dataset.openDialog ?? "") as HTMLDialogElement | null;
   if (!dialog) return;
   btn.addEventListener("click", () => dialog.showModal());
   if (dialog.dataset.ready !== undefined) return;
@@ -177,7 +177,7 @@ if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
 
 // Copy buttons next to a command.
 document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
-  btn.addEventListener("click", async () => {
+  const copy = async () => {
     try {
       await navigator.clipboard.writeText(btn.parentElement?.querySelector("[data-copy-text]")?.textContent ?? "");
       btn.textContent = "Copied";
@@ -186,7 +186,8 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
       btn.textContent = "Not copied";
     }
     setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("is-done"); }, 1600);
-  });
+  };
+  btn.addEventListener("click", () => void copy());
 });
 
 export {};
