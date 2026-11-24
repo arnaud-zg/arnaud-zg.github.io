@@ -4,6 +4,7 @@
 import "../styles/index.css";
 import type { SiteLinksInfo } from "../site";
 import HeadInit from "../components/HeadInit.astro";
+import Version from "../components/Version.astro";
 import SiteScript from "../components/SiteScript.astro";
 import Masthead from "../components/Masthead.astro";
 
@@ -27,6 +28,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#f3f5fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#04060f" media="(prefers-color-scheme: dark)" />
     <HeadInit />
+    <Version site={site} />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

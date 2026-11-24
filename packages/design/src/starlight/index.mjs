@@ -6,7 +6,7 @@ const RESOLVED = `\0${VIRTUAL}`;
 const part = (name) => `@arnaud-zg/design/starlight/${name}.astro`;
 
 /**
- * @param {{ site: { id: string, brand: string, sites: readonly { id: string, label: string, path: string, line: string, live: boolean }[] } }} options
+ * @param {{ site: { id: string, brand: string, sites: readonly { id: string, label: string, path: string, line: string, live: boolean }[], version?: string, source?: string } }} options
  *   Who the site is. No photo: sub-sites have no hero.
  * @returns {import("@astrojs/starlight/types").StarlightPlugin}
  */
