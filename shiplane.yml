@@ -10,8 +10,6 @@ flow:
     with:
       line: whatsChanged
       thanks: none
-# GitHub Pages ships from this machine.
-via: local
 # What gets released, in this order. The first app is the repository's Latest release.
 modules:
   - use: web-app
