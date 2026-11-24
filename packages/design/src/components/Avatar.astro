@@ -1,0 +1,6 @@
+---
+// A portrait. `src` is a square picture, at least twice as large as it shows (160px).
+interface Props { src: string; alt: string }
+const { src, alt } = Astro.props;
+---
+<img class="avatar" src={src} alt={alt} width="160" height="160" loading="lazy" decoding="async" />

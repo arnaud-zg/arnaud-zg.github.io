@@ -1,0 +1,7 @@
+---
+// Text with its important words marked **like this**. Two or three per text, no more.
+interface Props { text: string }
+// Odd pieces sit between two markers.
+const pieces = Astro.props.text.split("**");
+---
+{pieces.map((piece, i) => (i % 2 ? <strong class="key">{piece}</strong> : piece))}
