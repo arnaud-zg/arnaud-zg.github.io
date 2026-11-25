@@ -2,4 +2,4 @@
 "portfolio": patch
 ---
 
-Counts stable releases only: no nightlies or release candidates.
+Shows last month's npm releases and downloads for each tool, and counts stable releases only.

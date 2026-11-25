@@ -34,12 +34,16 @@ const npmAnswers = {
   "https://registry.npmjs.org/kit": {
     versions: { "0.9.0": {}, "1.0.0": {} },
     "dist-tags": { latest: "1.0.0" },
-    time: { created: "2024-01-02T10:00:00Z" },
+    time: { created: "2024-01-02T10:00:00Z", "1.0.0": "2025-12-01T10:00:00Z" },
   },
   [`${POINT}/kit,other`]: { kit: { downloads: 7 }, other: null },
   [`${POINT}/kit`]: { downloads: 7 },
 };
-const history = { versions: ["0.9.0", "1.0.0"], created: "2024-01-02" };
+const history = {
+  versions: ["0.9.0", "1.0.0"],
+  dates: { "1.0.0": "2025-12-01" },
+  created: "2024-01-02",
+};
 const registries = {
   memory: memoryRegistry({
     maintainer: "me",

@@ -2,14 +2,16 @@ import { Month } from "../../shared/domain/Month.ts";
 
 export type QuestFacts = {
   readonly name: string;
+  // The month that `downloads` and `monthlyReleases` cover.
+  readonly month: string;
   readonly downloads?: number;
-  readonly downloadsMonth?: string;
   readonly line: string;
   readonly href: string;
   readonly keywords: string[];
   readonly updated: string;
   readonly members: number;
   readonly releases: number;
+  readonly monthlyReleases: number;
   readonly version?: string;
   readonly created?: string;
 };
@@ -29,11 +31,11 @@ export class Quest {
   }
 
   // Stable versions only: a nightly or a release candidate (1.0.0-rc.1) is not a release.
-  static releasesIn({ versions, parked }: { versions: readonly string[]; parked: RegExp }): number {
+  static releasesAmong({ versions, parked }: { versions: readonly string[]; parked: RegExp }) {
     return versions.filter((version) => {
       const [core] = version.split("+");
       return !core.includes("-") && !parked.test(version);
-    }).length;
+    });
   }
 
   isUpdatedWithin({ months, today }: Age): boolean {

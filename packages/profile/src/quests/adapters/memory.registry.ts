@@ -3,6 +3,7 @@ import type { PackageRegistry } from "../ports/PackageRegistry.ts";
 
 export type MemoryPackage = PublishedPackage & {
   readonly versions: readonly string[];
+  readonly dates?: Readonly<Record<string, string>>;
   readonly created?: string;
   readonly downloads?: number;
 };
@@ -31,7 +32,8 @@ export const memoryRegistry = ({
   async historyOf(name) {
     const found = await Promise.resolve(packages.find((one) => one.name === name));
     if (!found) throw new Error(`404 ${name}`);
-    return { versions: [...found.versions], latest: found.version, created: found.created };
+    const { versions, dates = {}, version: latest, created } = found;
+    return { versions: [...versions], dates, latest, created };
   },
 
   downloadsIn({ names }) {

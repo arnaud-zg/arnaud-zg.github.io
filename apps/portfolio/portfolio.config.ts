@@ -140,6 +140,9 @@ export default {
     plugins: "plugins",
     monthlyDownloads: "monthly downloads",
     downloadsIn: (month: string) => `npm downloads in ${month}`,
+    monthlyReleases: "monthly releases",
+    releasesIn: (month: string) => `releases in ${month}`,
+    releasesTitle: (month: string) => `npm releases, ${month}`,
     downloadsTitle: (month: string) => `npm downloads, ${month}`,
     viewOnNpm: "View on npm",
     onNpm: (name: string) => `${name} on npm`,
@@ -358,7 +361,7 @@ export default {
     },
   },
 
-  // Side quests: packages I maintain on npm, with their stable releases and last month's downloads.
+  // Side quests: packages I maintain on npm, with last month's stable releases and downloads.
   npm: {
     maintainer: "arnaud-zg",
     // Versions that only reserve a name (0.0.0, 0.0.0-x): not a release. A package whose latest

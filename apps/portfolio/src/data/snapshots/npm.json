@@ -1,8 +1,8 @@
 [
   {
     "name": "ts-foursquare",
+    "month": "October 2026",
     "downloads": 185,
-    "downloadsMonth": "October 2026",
     "line": "A simple library for Foursquare API",
     "href": "https://www.npmjs.com/package/ts-foursquare",
     "keywords": [
@@ -13,26 +13,28 @@
     "updated": "2020-08-01",
     "members": 1,
     "releases": 88,
+    "monthlyReleases": 0,
     "version": "1.0.12",
     "created": "2019-01-27"
   },
   {
     "name": "react-lightsaber",
+    "month": "October 2026",
     "downloads": 21,
-    "downloadsMonth": "October 2026",
     "line": "Just a simple lightsaber hosted on npmjs",
     "href": "https://www.npmjs.com/package/react-lightsaber",
     "keywords": [],
     "updated": "2020-07-06",
     "members": 1,
     "releases": 50,
+    "monthlyReleases": 0,
     "version": "1.0.0",
     "created": "2019-02-04"
   },
   {
     "name": "http-response-status",
+    "month": "October 2026",
     "downloads": 762,
-    "downloadsMonth": "October 2026",
     "line": "HTTP Status Map",
     "href": "https://www.npmjs.com/package/http-response-status",
     "keywords": [
@@ -45,13 +47,14 @@
     "updated": "2022-12-18",
     "members": 1,
     "releases": 42,
+    "monthlyReleases": 0,
     "version": "1.1.3",
     "created": "2019-08-18"
   },
   {
     "name": "popup-sensor",
+    "month": "October 2026",
     "downloads": 47,
-    "downloadsMonth": "October 2026",
     "line": "Popup window sensor written in typescript",
     "href": "https://www.npmjs.com/package/popup-sensor",
     "keywords": [
@@ -61,13 +64,14 @@
     "updated": "2022-06-24",
     "members": 1,
     "releases": 35,
+    "monthlyReleases": 0,
     "version": "0.6.32",
     "created": "2019-12-10"
   },
   {
     "name": "standalone-store",
+    "month": "October 2026",
     "downloads": 39,
-    "downloadsMonth": "October 2026",
     "line": "Middleware for redux store in standalone mode for nodejs environment",
     "href": "https://www.npmjs.com/package/standalone-store",
     "keywords": [
@@ -79,13 +83,14 @@
     "updated": "2020-05-26",
     "members": 1,
     "releases": 29,
+    "monthlyReleases": 0,
     "version": "1.1.15",
     "created": "2019-10-18"
   },
   {
     "name": "selector",
+    "month": "October 2026",
     "downloads": 173,
-    "downloadsMonth": "October 2026",
     "line": "Generic selector library",
     "href": "https://www.npmjs.com/package/selector",
     "keywords": [
@@ -95,13 +100,14 @@
     "updated": "2022-06-24",
     "members": 1,
     "releases": 26,
+    "monthlyReleases": 0,
     "version": "2.1.1",
     "created": "2013-07-28"
   },
   {
     "name": "blast-shield",
+    "month": "October 2026",
     "downloads": 84,
-    "downloadsMonth": "October 2026",
     "line": "Technical debt protection tool for any codebase",
     "href": "https://www.npmjs.com/package/blast-shield",
     "keywords": [
@@ -114,13 +120,14 @@
     "updated": "2026-04-21",
     "members": 8,
     "releases": 23,
+    "monthlyReleases": 0,
     "version": "0.0.31",
     "created": "2025-05-24"
   },
   {
     "name": "shiplane",
+    "month": "October 2026",
     "downloads": 281,
-    "downloadsMonth": "October 2026",
     "line": "Release and deploy a monorepo in one command",
     "href": "https://www.npmjs.com/package/shiplane",
     "keywords": [
@@ -135,13 +142,14 @@
     "updated": "2026-11-23",
     "members": 9,
     "releases": 9,
+    "monthlyReleases": 0,
     "version": "0.5.2",
     "created": "2026-10-31"
   },
   {
     "name": "eslint-plugin-feature-flags",
+    "month": "October 2026",
     "downloads": 20,
-    "downloadsMonth": "October 2026",
     "line": "Lint rules to enforce feature flag hygiene",
     "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
     "keywords": [
@@ -152,13 +160,14 @@
     "updated": "2025-06-15",
     "members": 4,
     "releases": 7,
+    "monthlyReleases": 0,
     "version": "0.1.2",
     "created": "2025-06-08"
   },
   {
     "name": "lazy-upload",
+    "month": "October 2026",
     "downloads": 8,
-    "downloadsMonth": "October 2026",
     "line": "Simplify the file upload flow",
     "href": "https://www.npmjs.com/package/lazy-upload",
     "keywords": [
@@ -168,13 +177,14 @@
     "updated": "2020-08-26",
     "members": 1,
     "releases": 5,
+    "monthlyReleases": 0,
     "version": "0.2.4",
     "created": "2020-03-03"
   },
   {
     "name": "agent-context-budget",
+    "month": "October 2026",
     "downloads": 291,
-    "downloadsMonth": "October 2026",
     "line": "Scores the markdown files an AI agent loads",
     "href": "https://www.npmjs.com/package/agent-context-budget",
     "keywords": [
@@ -189,13 +199,14 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
+    "monthlyReleases": 1,
     "version": "0.1.3",
     "created": "2026-10-31"
   },
   {
     "name": "expo-native-guard",
+    "month": "October 2026",
     "downloads": 87,
-    "downloadsMonth": "October 2026",
     "line": "Load native-only modules safely in Expo Go",
     "href": "https://www.npmjs.com/package/expo-native-guard",
     "keywords": [
@@ -209,13 +220,14 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
+    "monthlyReleases": 0,
     "version": "0.1.3",
     "created": "2026-09-02"
   },
   {
     "name": "expo-pnpm-catalog",
+    "month": "October 2026",
     "downloads": 76,
-    "downloadsMonth": "October 2026",
     "line": "Checks and syncs Expo SDK versions in pnpm catalogs",
     "href": "https://www.npmjs.com/package/expo-pnpm-catalog",
     "keywords": [
@@ -229,13 +241,14 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
+    "monthlyReleases": 0,
     "version": "0.1.3",
     "created": "2026-09-02"
   },
   {
     "name": "migration-preflight",
+    "month": "October 2026",
     "downloads": 89,
-    "downloadsMonth": "October 2026",
     "line": "Test database migrations before you ship them",
     "href": "https://www.npmjs.com/package/migration-preflight",
     "keywords": [
@@ -251,13 +264,14 @@
     "updated": "2026-11-01",
     "members": 3,
     "releases": 3,
+    "monthlyReleases": 0,
     "version": "0.2.1",
     "created": "2026-07-24"
   },
   {
     "name": "vite-workspace-resolver",
+    "month": "October 2026",
     "downloads": 286,
-    "downloadsMonth": "October 2026",
     "line": "Resolves workspace package imports in Vite and Vitest",
     "href": "https://www.npmjs.com/package/vite-workspace-resolver",
     "keywords": [
@@ -271,13 +285,14 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 3,
+    "monthlyReleases": 1,
     "version": "0.1.2",
     "created": "2026-10-30"
   },
   {
     "name": "immutable-instance",
+    "month": "October 2026",
     "downloads": 12,
-    "downloadsMonth": "October 2026",
     "line": "Makes immutable class instances reactive for front-end application",
     "href": "https://www.npmjs.com/package/immutable-instance",
     "keywords": [
@@ -289,6 +304,7 @@
     "updated": "2025-11-04",
     "members": 1,
     "releases": 2,
+    "monthlyReleases": 0,
     "version": "0.0.9",
     "created": "2025-11-04"
   }

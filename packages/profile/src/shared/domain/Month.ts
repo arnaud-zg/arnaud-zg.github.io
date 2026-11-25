@@ -22,6 +22,10 @@ export class Month {
     return Math.floor(this.#index / 12);
   }
 
+  includes(isoDate: string): boolean {
+    return Month.of(isoDate).#index === this.#index;
+  }
+
   previous(): Month {
     return new Month(this.#index - 1);
   }
