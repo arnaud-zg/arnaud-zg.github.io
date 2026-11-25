@@ -13,7 +13,6 @@ export const Snapshots = z.object({
     z.object({
       name: text,
       downloads: z.number().optional(),
-      downloadsMonth: text.optional(),
       line: text,
       href: text,
       keywords: z.array(text),

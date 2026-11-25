@@ -133,7 +133,7 @@ const profileWith = async (some: Partial<Ports> = {}) => {
 };
 const down = () => Promise.reject(new Error("down"));
 const allDown: Partial<Ports> = {
-  registry: { publishedBy: down, historyOf: down, downloadsIn: down },
+  registry: { publishedBy: down, historyOf: down, downloadsOf: down },
   host: { mergedPullRequests: down, repository: down, linesOf: down },
   feed: { articles: down, coverOf: (image) => image },
   list: { skills: down },
@@ -158,7 +158,7 @@ test("career: experience counts full-time jobs, newest first, with promotions", 
 test("side quests: plugins join their tool, parked ones are left out, old ones move to earlier", async () => {
   const quests = (await profileWith()).sideQuests();
   assert.deepEqual([quests.tools, quests.releases], [3, 10]);
-  assert.deepEqual([quests.downloads, quests.downloadsMonth], [15, "December 2025"]);
+  assert.equal(quests.downloads, 15);
   assert.deepEqual(
     quests.earlier.map(({ name }) => name),
     ["old"],
@@ -174,13 +174,19 @@ test("side quests: plugins join their tool, parked ones are left out, old ones m
   );
 });
 
+test("side quests: nightlies and release candidates are not releases", async () => {
+  const versions = ["0.0.0-stage", "1.0.0", "1.1.0-nightly.0", "1.1.0-rc.1", "1.1.0"];
+  const registry = registryOf([published("a", { versions })]);
+  assert.equal((await profileWith({ registry })).sideQuests().releases, 2);
+});
+
 test("side quests: one missing figure leaves the total out", async () => {
   const registry = registryOf([published("a"), published("b", { downloads: undefined })]);
   assert.equal((await profileWith({ registry })).sideQuests().downloads, undefined);
 });
 
 test("side quests: a refresh without any figure fails", async () => {
-  const registry = { ...registryOf(packages), downloadsIn: down };
+  const registry = { ...registryOf(packages), downloadsOf: down };
   await assert.rejects(profileOn({ registry }, saved).live.npm(), /down/);
 });
 

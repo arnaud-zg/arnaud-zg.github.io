@@ -45,7 +45,7 @@ const framed = [
   { level: "Starlight", lede: "Documentation sites. Search, sidebar and Markdown are Starlight's; the look is this design, through one plugin.", items: starlightFrames.map((f) => ({ ...f, src: `${import.meta.env.BASE_URL}design/starlight/${f.id}/` })) },
 ];
 // One made-up tool per tile, laid out as a site would.
-const tool = (name: string, releases: number, members = 1) => ({ name, releases, members, line: "What the tool does", href: "https://www.npmjs.com", downloads: releases * 100, downloadsMonth: "October 2026" });
+const tool = (name: string, releases: number, members = 1) => ({ name, releases, members, line: "What the tool does", href: "https://www.npmjs.com", downloads: releases * 100 });
 const tiles = [[tool("release-kit", 26, 4), tool("lint-kit", 18)], [tool("test-kit", 20, 2)]];
 const total = (group: { releases: number }[]) => group.reduce((n, t) => n + t.releases, 0);
 const [boxes, ...inner] = [tiles.map(total), ...tiles.map((g) => g.map((t) => t.releases))].map((v) => squarify(v, TREEMAP_BOX.w, TREEMAP_BOX.h, true));

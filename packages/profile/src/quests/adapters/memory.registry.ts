@@ -34,7 +34,7 @@ export const memoryRegistry = ({
     return { versions: [...found.versions], latest: found.version, created: found.created };
   },
 
-  downloadsIn({ names }) {
+  downloadsOf(names) {
     const asked = packages.filter(({ name }) => names.includes(name));
     const figures = asked.flatMap(({ name, downloads }) =>
       downloads === undefined ? [] : [[name, downloads] as const],

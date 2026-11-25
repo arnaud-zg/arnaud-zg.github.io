@@ -64,7 +64,7 @@ const totals = [
 const questKpis = [
   { value: quests.tools, label: labels.tools },
   { value: quests.releases, label: labels.releases },
-  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: labels.downloadsIn(quests.downloadsMonth!) }] : []),
+  ...(quests.downloads !== undefined ? [{ value: compact(quests.downloads), label: labels.allDownloads }] : []),
 ];
 ---
 <Site site={siteInfo} title={site.title} description={site.description} nav={nav} noindex={import.meta.env.BASE_URL !== "/"}>

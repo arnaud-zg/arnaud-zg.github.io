@@ -9,7 +9,6 @@ import { memoryHost } from "../src/contributions/adapters/memory.host.ts";
 import { memoryRegistry } from "../src/quests/adapters/memory.registry.ts";
 import { npmRegistry } from "../src/quests/adapters/npm.registry.ts";
 import { memoryWeb } from "../src/shared/adapters/memory.web.ts";
-import { Month } from "../src/shared/domain/Month.ts";
 import { memorySkills } from "../src/skills/adapters/memory.skills.ts";
 import { readmeSkills } from "../src/skills/adapters/readme.skills.ts";
 
@@ -22,8 +21,7 @@ const kit = {
   href: "https://www.npmjs.com/package/kit",
 };
 const other = { ...kit, name: "other", href: "https://www.npmjs.com/package/other" };
-const month = Month.of("2025-12");
-const POINT = "https://api.npmjs.org/downloads/point/2025-12-01:2025-12-31";
+const POINT = "https://api.npmjs.org/downloads/point/last-month";
 const npmAnswers = {
   "https://registry.npmjs.org/-/v1/search": {
     objects: [
@@ -55,8 +53,8 @@ for (const [name, registry] of Object.entries(registries))
     assert.deepEqual(await registry.publishedBy("me"), [kit, other]);
     assert.deepEqual(await registry.historyOf("kit"), { ...history, latest: "1.0.0" });
     const figures = new Map([["kit", 7]]);
-    assert.deepEqual(await registry.downloadsIn({ month, names: ["kit", "other"] }), figures);
-    assert.deepEqual(await registry.downloadsIn({ month, names: ["kit"] }), figures);
+    assert.deepEqual(await registry.downloadsOf(["kit", "other"]), figures);
+    assert.deepEqual(await registry.downloadsOf(["kit"]), figures);
     await assert.rejects(registry.historyOf("missing"));
   });
 
@@ -140,14 +138,14 @@ test("npm registry: downloads that fail are asked once more", async () => {
       return calls === 1 ? Promise.reject(new Error("429")) : web.json(asked);
     },
   };
-  const figures = await npmRegistry(flaky).downloadsIn({ month, names: ["kit"] });
+  const figures = await npmRegistry(flaky).downloadsOf(["kit"]);
   assert.deepEqual([figures.get("kit"), calls], [7, 2]);
 });
 
 test("an answer of the wrong shape is refused where it enters", async () => {
   const web = { text: () => Promise.resolve("oops"), json: () => Promise.resolve({ oops: 1 }) };
   await assert.rejects(npmRegistry(web).publishedBy("me"));
-  await assert.rejects(npmRegistry(web).downloadsIn({ month, names: ["kit"] }));
+  await assert.rejects(npmRegistry(web).downloadsOf(["kit"]));
   await assert.rejects(githubHost(web).mergedPullRequests({ author: "me", outside: [] }));
   await assert.rejects(githubHost(web).repository("a/b"));
   await assert.rejects(githubHost(web).linesOf(pull.url));
