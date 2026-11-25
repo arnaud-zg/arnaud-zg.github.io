@@ -1,20 +1,18 @@
-import type { PullRequest, Repository } from "./PullRequest.ts";
+import type { PullRequest } from "./PullRequest.ts";
 
 export type ContributionRules = {
   readonly user: string;
   readonly ownOrgs: readonly string[];
   readonly keepOrgs: readonly string[];
   readonly excludeRepos: readonly string[];
-  readonly minStars: number;
   readonly shownKinds: readonly string[];
   readonly trivial: RegExp;
-  readonly weights: Readonly<Record<string, number | undefined>>;
 };
 
 const isOneOf = ({ word, words }: { word: string; words: readonly string[] }) =>
   words.some((other) => other.toLowerCase() === word.toLowerCase());
 
-// What counts as a contribution, and how much.
+// What counts as a contribution.
 export class ContributionPolicy {
   readonly #rules: ContributionRules;
 
@@ -37,15 +35,7 @@ export class ContributionPolicy {
     return !isOneOf({ word: repo, words: excludeRepos }) && !trivial.test(title);
   }
 
-  hasReach({ stars }: Repository): boolean {
-    return stars >= this.#rules.minStars;
-  }
-
   isShown(kind: string): boolean {
     return this.#rules.shownKinds.includes(kind);
-  }
-
-  weightOf(kind: string): number {
-    return this.#rules.weights[kind] ?? 1;
   }
 }

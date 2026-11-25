@@ -7,7 +7,7 @@ its settings and saved data.
 | --------------- | ---------------------------------------------------------------- |
 | `career`        | experience, roles, promotions, early jobs                        |
 | `quests`        | which packages are tools, how they group and how large they show |
-| `contributions` | what counts as a contribution, how projects rank                 |
+| `contributions` | what counts as a contribution, what is shown of it               |
 | `articles`      | what was written                                                 |
 | `skills`        | which agent skills exist                                         |
 

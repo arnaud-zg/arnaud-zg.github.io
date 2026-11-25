@@ -76,7 +76,7 @@ const github = memoryWeb({
       },
     ],
   },
-  "https://api.github.com/repos/a/b": { stargazers_count: 9, description: "B" },
+  "https://api.github.com/repos/a/b": { description: "B" },
   "https://api.github.com/repos/a/b/pulls/1": { additions: 3, deletions: 1 },
 });
 const hosts = {
@@ -85,14 +85,14 @@ const hosts = {
       { ...pull, author: "me", lines: [3, 1] },
       { ...pull, repo: "mine/c", author: "me", lines: [1, 1] },
     ],
-    repositories: { "a/b": { stars: 9, description: "B" } },
+    repositories: { "a/b": { description: "B" } },
   }),
   github: githubHost(github),
 };
 for (const [name, host] of Object.entries(hosts))
   test(`${name} host: pull requests outside, their repository and lines`, async () => {
     assert.deepEqual(await host.mergedPullRequests({ author: "me", outside: ["mine"] }), [pull]);
-    assert.deepEqual(await host.repository("a/b"), { stars: 9, description: "B" });
+    assert.deepEqual(await host.repository("a/b"), { description: "B" });
     assert.deepEqual(await host.linesOf(pull.url), [3, 1]);
     await assert.rejects(host.repository("a/missing"));
     await assert.rejects(host.linesOf("https://github.com/a/b/pull/404"));

@@ -2,7 +2,7 @@ import type { Lines, PullRequest } from "../domain/PullRequest.ts";
 import type { CodeHost } from "../ports/CodeHost.ts";
 
 export type MemoryPullRequest = PullRequest & { readonly author: string; readonly lines: Lines };
-export type MemoryRepository = { stars: number; description: string };
+export type MemoryRepository = { description: string };
 export type MemoryHost = {
   pullRequests: readonly MemoryPullRequest[];
   repositories: Readonly<Record<string, MemoryRepository | undefined>>;

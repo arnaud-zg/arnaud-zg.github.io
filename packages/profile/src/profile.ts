@@ -52,13 +52,11 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
   const { registry, host, feed, list } = ports;
   const { saved } = run;
   const today = Month.at(run.now);
-  const year = today.year();
   const policy = new ContributionPolicy(github);
   const log = new ContributionLog({
     host,
     policy,
     author: github.user,
-    year,
   });
   const catalog = new QuestCatalog({
     registry,
@@ -93,7 +91,7 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         earlier: quests.olderThan(age).asFacts(),
       };
     },
-    contributions: () => new Contributions({ records: saved.github, policy, year }).byRepository(),
+    contributions: () => new Contributions({ records: saved.github, policy }).byRepository(),
     articles: () =>
       saved.substack.map((article) => ({ ...article, image: feed.coverOf(article.image) })),
     skills: () => saved.skills,

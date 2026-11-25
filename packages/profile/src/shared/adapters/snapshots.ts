@@ -6,7 +6,7 @@ const text = z.string();
 export const Snapshots = z.object({
   github: z.object({
     prs: z.array(z.object({ repo: text, title: text, url: text, date: text })),
-    repos: z.record(text, z.object({ stars: z.number(), about: text })),
+    repos: z.record(text, z.object({ about: text })),
     lines: z.record(text, z.tuple([z.number(), z.number()])),
   }),
   npm: z.array(
