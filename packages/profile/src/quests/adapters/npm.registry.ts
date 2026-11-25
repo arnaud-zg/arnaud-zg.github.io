@@ -19,8 +19,7 @@ const Found = z.object({
 });
 const PackageDocument = z.object({
   versions: z.record(z.string(), z.unknown()).default({}),
-  "dist-tags": z.object({ latest: z.string().optional() }).optional(),
-  time: z.object({ created: z.string().optional() }).optional(),
+  time: z.record(z.string(), z.string().optional()).default({}),
 });
 const Point = z.object({ downloads: z.number() });
 const Points = z.record(z.string(), Point.nullable());
@@ -39,13 +38,10 @@ export const npmRegistry = (web: Web): PackageRegistry => ({
     }));
   },
 
-  async historyOf(name) {
+  async versionsOf(name) {
     const found = PackageDocument.parse(await web.json(`https://registry.npmjs.org/${name}`));
-    return {
-      versions: Object.keys(found.versions),
-      latest: found["dist-tags"]?.latest,
-      created: found.time?.created?.slice(0, 10),
-    };
+    const versions = Object.keys(found.versions);
+    return Object.fromEntries(versions.map((one) => [one, (found.time[one] ?? "").slice(0, 10)]));
   },
 
   // One call for every name, and one retry: npm rate-limits, which left some figures out.

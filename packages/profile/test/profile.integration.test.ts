@@ -46,6 +46,8 @@ const settings = {
   substack: { feed: "https://me.substack.com/feed" },
 };
 
+const undated = (...versions: string[]): Record<string, string> =>
+  Object.fromEntries(versions.map((one) => [one, ""]));
 const published = (name: string, more = {}) => ({
   name,
   version: "1.0.0",
@@ -53,12 +55,12 @@ const published = (name: string, more = {}) => ({
   description: `${name}: how`,
   keywords: [],
   href: "",
-  versions: ["0.0.0", "1.0.0"],
+  versions: undated("0.0.0", "1.0.0"),
   downloads: 5,
   ...more,
 });
 const packages = [
-  published("release-kit", { versions: ["0.0.0", ..."12345678"] }),
+  published("release-kit", { versions: undated("0.0.0", ..."12345678") }),
   published("@release-kit/plugin"),
   published("x"),
   published("y"),
@@ -133,7 +135,7 @@ const profileWith = async (some: Partial<Ports> = {}) => {
 };
 const down = () => Promise.reject(new Error("down"));
 const allDown: Partial<Ports> = {
-  registry: { publishedBy: down, historyOf: down, downloadsIn: down },
+  registry: { publishedBy: down, versionsOf: down, downloadsIn: down },
   host: { mergedPullRequests: down, repository: down, linesOf: down },
   feed: { articles: down, coverOf: (image) => image },
   list: { skills: down },
@@ -158,7 +160,7 @@ test("career: experience counts full-time jobs, newest first, with promotions", 
 test("side quests: plugins join their tool, parked ones are left out, old ones move to earlier", async () => {
   const quests = (await profileWith()).sideQuests();
   assert.deepEqual([quests.tools, quests.releases], [3, 10]);
-  assert.deepEqual([quests.downloads, quests.downloadsMonth], [15, "December 2025"]);
+  assert.deepEqual([quests.downloads, quests.month], [15, "December 2025"]);
   assert.deepEqual(
     quests.earlier.map(({ name }) => name),
     ["old"],
@@ -172,6 +174,25 @@ test("side quests: plugins join their tool, parked ones are left out, old ones m
     [shared.more?.map(({ name }) => name), shared.releases, shared.weight],
     [["x", "y"], 2, 3],
   );
+});
+
+test("side quests: nightlies and release candidates are not releases", async () => {
+  const versions = undated("0.0.0-stage", "1.0.0", "1.1.0-nightly.0", "1.1.0-rc.1", "1.1.0");
+  const registry = registryOf([published("a", { versions })]);
+  assert.equal((await profileWith({ registry })).sideQuests().releases, 2);
+});
+
+test("side quests: monthly releases are the stable ones of the last full month", async () => {
+  const versions = {
+    "1.0.0": "2025-11-30",
+    "1.1.0": "2025-12-01",
+    "1.2.0": "2025-12-31",
+    "1.3.0-rc.1": "2025-12-31",
+    "1.3.0": "2026-01-01",
+  };
+  const registry = registryOf([published("a", { versions })]);
+  const quests = (await profileWith({ registry })).sideQuests();
+  assert.deepEqual([quests.monthlyReleases, quests.releases], [2, 4]);
 });
 
 test("side quests: one missing figure leaves the total out", async () => {

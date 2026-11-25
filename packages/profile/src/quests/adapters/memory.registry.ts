@@ -1,9 +1,8 @@
 import type { PublishedPackage } from "../domain/PublishedPackage.ts";
-import type { PackageRegistry } from "../ports/PackageRegistry.ts";
+import type { PackageRegistry, Versions } from "../ports/PackageRegistry.ts";
 
 export type MemoryPackage = PublishedPackage & {
-  readonly versions: readonly string[];
-  readonly created?: string;
+  readonly versions: Versions;
   readonly downloads?: number;
 };
 
@@ -28,10 +27,10 @@ export const memoryRegistry = ({
         : [],
     ),
 
-  async historyOf(name) {
+  async versionsOf(name) {
     const found = await Promise.resolve(packages.find((one) => one.name === name));
     if (!found) throw new Error(`404 ${name}`);
-    return { versions: [...found.versions], latest: found.version, created: found.created };
+    return found.versions;
   },
 
   downloadsIn({ names }) {

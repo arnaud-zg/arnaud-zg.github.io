@@ -5,8 +5,8 @@ import { compact, type Tool, type ToolLabels } from "../treemap";
 interface Props { tool: Tool; labels: ToolLabels; class: "tm-stats" | "sq-stats" }
 const { tool, labels, class: name } = Astro.props;
 ---
-<span class={name}>
-  {tool.downloads !== undefined && <span class="stat" title={labels.downloadsTitle(tool.downloadsMonth!)}><b><i aria-hidden="true">⬇️</i>{compact(tool.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
-  <span class="stat"><b><i aria-hidden="true">🚀</i>{tool.releases}</b><small>{labels.releases}</small></span>
+<span class={name} title={tool.month}>
+  {tool.downloads !== undefined && <span class="stat"><b><i aria-hidden="true">⬇️</i>{compact(tool.downloads)}</b><small>{labels.monthlyDownloads}</small></span>}
+  <span class="stat"><b><i aria-hidden="true">🚀</i>{tool.monthlyReleases}</b><small>{labels.monthlyReleases}</small></span>
   {tool.members > 1 && <span class="stat"><b><i aria-hidden="true">🧩</i>{tool.members - 1}</b><small>{labels.plugins}</small></span>}
 </span>

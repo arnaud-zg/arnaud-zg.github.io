@@ -12,16 +12,15 @@ export const Snapshots = z.object({
   npm: z.array(
     z.object({
       name: text,
+      month: text,
       downloads: z.number().optional(),
-      downloadsMonth: text.optional(),
       line: text,
       href: text,
       keywords: z.array(text),
       updated: text,
       members: z.number(),
       releases: z.number(),
-      version: text.optional(),
-      created: text.optional(),
+      monthlyReleases: z.number(),
     }),
   ),
   skills: z.array(z.object({ name: text, use: text, href: text })),

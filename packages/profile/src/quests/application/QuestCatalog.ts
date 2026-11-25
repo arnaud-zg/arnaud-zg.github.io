@@ -32,19 +32,20 @@ export class QuestCatalog {
   async #questOf({ lead, updated, members, downloads }: Lead & { downloads: Map<string, number> }) {
     const { registry, parked, lines, today } = this.#needs;
     const { name, href, keywords, description } = lead;
-    const { versions, latest, created } = await registry.historyOf(name);
+    const versions = await registry.versionsOf(name);
+    const releases = Object.keys(versions).filter((one) => Quest.isRelease(one, parked));
+    const month = today.previous();
     return {
       name,
+      month: month.label(),
       downloads: downloads.get(name),
-      downloadsMonth: downloads.has(name) ? today.previous().label() : undefined,
       line: lines[name] ?? Quest.lineFrom(description),
       href,
       keywords: [...keywords],
       updated,
       members,
-      releases: versions.filter((version) => !parked.test(version)).length,
-      version: latest,
-      created,
+      releases: releases.length,
+      monthlyReleases: releases.filter((one) => month.includes(versions[one])).length,
     };
   }
 

@@ -83,12 +83,12 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
       const quests = Quests.of(saved.npm);
       const age = { months: npm.activeMonths, today };
       const active = quests.updatedWithin(age);
-      const counted = active.asFacts().find(({ downloads }) => downloads !== undefined);
       return {
         tools: active.count(),
         releases: active.releases(),
+        monthlyReleases: active.monthlyReleases(),
         downloads: active.downloads(),
-        downloadsMonth: counted?.downloadsMonth,
+        month: active.asFacts().at(0)?.month,
         groups: new QuestMap({ rules: npm, today }).groupsOf(active),
         earlier: quests.olderThan(age).asFacts(),
       };
