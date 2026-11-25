@@ -1,5 +1,11 @@
 # portfolio
 
+## 0.2.2
+
+### Patch Changes
+
+* Shows its version in the console, and in the page head. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/450
+
 ## 0.2.1
 
 ### Patch Changes
