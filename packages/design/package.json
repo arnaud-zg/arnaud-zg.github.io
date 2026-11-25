@@ -16,6 +16,9 @@
     "./treemap": "./src/treemap.ts",
     "./photos": "./src/photos.ts"
   },
+  "scripts": {
+    "typecheck": "astro-check"
+  },
   "dependencies": {
     "@fontsource-variable/m-plus-1": "^5.3.1",
     "@fontsource-variable/m-plus-1-code": "^5.3.1",

@@ -9,11 +9,13 @@
     "dev": "astro dev",
     "preview": "astro preview",
     "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview",
-    "preview:serve": "astro preview --outDir ../../.preview --port 4330"
+    "preview:serve": "astro preview --outDir ../../.preview --port 4330",
+    "typecheck": "astro sync && astro-check"
   },
   "dependencies": {
     "@arnaud-zg/analytics": "workspace:*",
     "@arnaud-zg/design": "workspace:*",
+    "@arnaud-zg/profile": "workspace:*",
     "@astrojs/sitemap": "^3.7.6",
     "@astrojs/starlight": "^0.43.1",
     "astro": "^7.4.13"

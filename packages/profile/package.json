@@ -1,0 +1,17 @@
+{
+  "name": "@arnaud-zg/profile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "What a profile says and how it is worked out: career, side quests, contributions, writing, skills.",
+  "type": "module",
+  "exports": {
+    ".": "./src/composition.ts"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

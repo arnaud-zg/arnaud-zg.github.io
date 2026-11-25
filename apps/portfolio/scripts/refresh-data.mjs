@@ -4,20 +4,14 @@ import { writeFileSync } from "node:fs";
 import { runnerImport } from "vite";
 
 process.env.STRICT_DATA = "1";
-const load = async (name) =>
-  (await runnerImport(`./src/data/${name}.ts`, { configFile: false, logLevel: "error" })).module;
 
 try {
-  const [oss, npm, skills, substack] = await Promise.all(
-    ["oss", "npm", "skills", "substack"].map(load),
-  );
-  const data = Object.entries({
-    github: oss.fetchGithub({ fresh: true }),
-    npm: npm.fetchQuests(),
-    skills: skills.fetchSkills(),
-    substack: substack.fetchArticles(),
+  const { module } = await runnerImport("./src/profile.ts", {
+    configFile: false,
+    logLevel: "error",
   });
-  const fresh = await Promise.all(data.map(async ([name, live]) => [name, await live]));
+  const sources = Object.entries(module.profile.live);
+  const fresh = await Promise.all(sources.map(async ([name, read]) => [name, await read()]));
   for (const [name, value] of fresh) {
     writeFileSync(
       new URL(`../src/data/snapshots/${name}.json`, import.meta.url),
