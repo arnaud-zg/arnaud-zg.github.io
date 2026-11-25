@@ -10,6 +10,7 @@
     "./settings": "./src/domain/settings.ts"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.ts\""
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
   }
 }

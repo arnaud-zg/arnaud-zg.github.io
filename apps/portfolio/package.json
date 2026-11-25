@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "preview": "astro preview",
     "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview",
-    "preview:serve": "astro preview --outDir ../../.preview --port 4330"
+    "preview:serve": "astro preview --outDir ../../.preview --port 4330",
+    "typecheck": "astro sync && astro-check"
   },
   "dependencies": {
     "@arnaud-zg/analytics": "workspace:*",

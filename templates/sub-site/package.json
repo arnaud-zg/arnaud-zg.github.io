@@ -5,7 +5,8 @@
   "scripts": {
     "build": "astro build",
     "dev": "astro dev",
-    "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview/js-packages"
+    "preview:build": "PREVIEW_SITES=1 astro build --outDir ../../.preview/js-packages",
+    "typecheck": "astro sync && astro-check"
   },
   "dependencies": {
     "@arnaud-zg/design": "workspace:*",
