@@ -191,17 +191,17 @@ importers:
         specifier: ^4.7.1
         version: 4.7.1(prettier@3.10.1)(supports-color@9.4.0)
       '@shiplane/changesets':
-        specifier: 0.6.0-nightly.11
-        version: 0.6.0-nightly.11(shiplane@0.6.0-nightly.11)
+        specifier: 0.6.0-nightly.12
+        version: 0.6.0-nightly.12(shiplane@0.6.0-nightly.12)
       '@shiplane/git':
-        specifier: 0.6.0-nightly.11
-        version: 0.6.0-nightly.11(shiplane@0.6.0-nightly.11)
+        specifier: 0.6.0-nightly.12
+        version: 0.6.0-nightly.12(shiplane@0.6.0-nightly.12)
       '@shiplane/github':
-        specifier: 0.6.0-nightly.11
-        version: 0.6.0-nightly.11(shiplane@0.6.0-nightly.11)
+        specifier: 0.6.0-nightly.12
+        version: 0.6.0-nightly.12(shiplane@0.6.0-nightly.12)
       '@shiplane/github-pages':
-        specifier: 0.6.0-nightly.11
-        version: 0.6.0-nightly.11(shiplane@0.6.0-nightly.11)
+        specifier: 0.6.0-nightly.12
+        version: 0.6.0-nightly.12(shiplane@0.6.0-nightly.12)
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -236,8 +236,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(supports-color@9.4.0)
       shiplane:
-        specifier: 0.6.0-nightly.11
-        version: 0.6.0-nightly.11
+        specifier: 0.6.0-nightly.12
+        version: 0.6.0-nightly.12
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -1509,25 +1509,25 @@ packages:
   '@shikijs/vscode-textmate@10.1.0':
     resolution: {integrity: sha512-cVBuhDQjBZaNMTwBquYfPydrUP+E3hE6oYGasx8h6ZrODIM7/r+gxLDXdd66oszbrggZHEntdE6j+5gYIVyMWQ==}
 
-  '@shiplane/changesets@0.6.0-nightly.11':
-    resolution: {integrity: sha512-dNheBJ5CYfY/zLXxFiHgbcW4/8fqJZ+YXgdqLlSYhcHOe9uLava68jjQBaiBESytoeJ45WZnh90AxhnBOofh6g==}
+  '@shiplane/changesets@0.6.0-nightly.12':
+    resolution: {integrity: sha512-U4Oi/pkRctUTmpnx+xvvXNIcoUEGdgD65X3HrVfUWl07hrSwZDkCbq7nruZqHRlf5pia+wISOCcVDiWXyb4vgQ==}
     peerDependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/git@0.6.0-nightly.11':
-    resolution: {integrity: sha512-vqH8m+UFit7FWsyujXBc9yFk3o/f6l5WfWuTGuE0wuPuLPeadpmaxPA/SFRkhynO3hEShdV6fT4tTYVlUqqYMA==}
+  '@shiplane/git@0.6.0-nightly.12':
+    resolution: {integrity: sha512-cpumacj5g9MRmdTp55QoA5KJLU1iCbPYuVk8sdQK8JYFBpfBVTlnARpu3nIOBdeaNNxqIb1GE167Iy0yWwp09A==}
     peerDependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/github-pages@0.6.0-nightly.11':
-    resolution: {integrity: sha512-7hZKzZqTLhJSQBQLVvoMo165THezpRPMTYZWeWp8BjABicRxBWXTrGH141/fC+clUDwX/6Y21+LSSX/sKkpsiA==}
+  '@shiplane/github-pages@0.6.0-nightly.12':
+    resolution: {integrity: sha512-cSXbtWSEek38OWpWhoX47mW3MlBsOF/j13Gr66gGdynSXNjvVB497QKU1Fq7YFUFkWawZKyc2J0GqEfktIbHww==}
     peerDependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/github@0.6.0-nightly.11':
-    resolution: {integrity: sha512-xfKwZS10/7FOXne1OKdOL4yDJEaAi4iFbN9mzMTAPdvxeKU73XO65scU0uXoelqCoWJqsnY0h4ninSOqTs67VQ==}
+  '@shiplane/github@0.6.0-nightly.12':
+    resolution: {integrity: sha512-hqwb8CHPxjjab5b2aAWbpBl89wAICwSVHUKYPCbae6TKArxicNZ3wr+T8jE2ixomS05pAll74y5i/gpiJ3VPfg==}
     peerDependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
   '@simple-libs/child-process-utils@2.0.0':
     resolution: {integrity: sha512-dvNoRKLijXnD0XoJAz94pbNuB5GQgDr55UhpSPhffDkTT0Cmcqh9jSCOtwfT2d4H6MI9E7c4SgtMuJXZ6F3c6A==}
@@ -3224,8 +3224,8 @@ packages:
     resolution: {integrity: sha512-imjLsVHgPuWhvpU3P+zOekvMYqnel7QmKsFC4Sn0fCuAvaaalBsxwKEsrU8Ko5BdFnZA6Go/8a0RzahS634UgA==}
     engines: {node: '>=20'}
 
-  shiplane@0.6.0-nightly.11:
-    resolution: {integrity: sha512-vVm1XnPFC+g8aS1KZOz+32JigibxKq06OyIxvgTI2Ws0x4IvB9nQKlW4vVfKjTGRpmQDK7k6h1VGwEKKHIWDyw==}
+  shiplane@0.6.0-nightly.12:
+    resolution: {integrity: sha512-B3UvS7qNgHXq9UQiuLc6rs6OHB2gSvJUTSIPuKIQI8mUbC8LyIeUBQzkEk9qUZE++OiCYvTpbrFkDsb9TQMj0g==}
     hasBin: true
 
   signal-exit@4.1.0:
@@ -4941,22 +4941,22 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.1.0': {}
 
-  '@shiplane/changesets@0.6.0-nightly.11(shiplane@0.6.0-nightly.11)':
+  '@shiplane/changesets@0.6.0-nightly.12(shiplane@0.6.0-nightly.12)':
     dependencies:
       '@changesets/config': 4.0.1
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/git@0.6.0-nightly.11(shiplane@0.6.0-nightly.11)':
+  '@shiplane/git@0.6.0-nightly.12(shiplane@0.6.0-nightly.12)':
     dependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/github-pages@0.6.0-nightly.11(shiplane@0.6.0-nightly.11)':
+  '@shiplane/github-pages@0.6.0-nightly.12(shiplane@0.6.0-nightly.12)':
     dependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
-  '@shiplane/github@0.6.0-nightly.11(shiplane@0.6.0-nightly.11)':
+  '@shiplane/github@0.6.0-nightly.12(shiplane@0.6.0-nightly.12)':
     dependencies:
-      shiplane: 0.6.0-nightly.11
+      shiplane: 0.6.0-nightly.12
 
   '@simple-libs/child-process-utils@2.0.0':
     dependencies:
@@ -7128,7 +7128,7 @@ snapshots:
       '@shikijs/vscode-textmate': 10.1.0
       '@types/hast': 3.0.5
 
-  shiplane@0.6.0-nightly.11:
+  shiplane@0.6.0-nightly.12:
     dependencies:
       '@clack/prompts': 1.9.0
       jiti: 2.7.0

@@ -21,14 +21,16 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write
   deployments: write
   actions: read
+  pages: write
 
 jobs:
   ship:
-    uses: arnaud-zg/js-packages/.github/workflows/shiplane-ship.yml@ede6b417aea65050d41f10418753f9c93d70f80d # shiplane@0.6.0-nightly.11
+    uses: arnaud-zg/js-packages/.github/workflows/shiplane-ship.yml@be28b956c2ec7a925523ff4d69dafba6c537cd42 # shiplane@0.6.0-nightly.12
     with:
       units: ${{ inputs.units }}
       environment: ${{ inputs.environment }}
       ref: ${{ inputs.ref }}
+      variables: POSTHOG_KEY POSTHOG_REGION

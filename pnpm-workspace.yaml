@@ -3,11 +3,11 @@ packages:
   - packages/*
   - templates/*
 minimumReleaseAgeExclude:
-  - "@shiplane/changesets@0.6.0-nightly.11"
-  - "@shiplane/git@0.6.0-nightly.11"
-  - "@shiplane/github-pages@0.6.0-nightly.11"
-  - "@shiplane/github@0.6.0-nightly.11"
-  - shiplane@0.6.0-nightly.11
+  - "@shiplane/changesets@0.6.0-nightly.12"
+  - "@shiplane/git@0.6.0-nightly.12"
+  - "@shiplane/github-pages@0.6.0-nightly.12"
+  - "@shiplane/github@0.6.0-nightly.12"
+  - shiplane@0.6.0-nightly.12
 
 allowBuilds:
   # Its install script only adds the git hooks, which `pnpm install` does through `prepare`.

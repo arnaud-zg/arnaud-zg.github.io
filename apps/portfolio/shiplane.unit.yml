@@ -10,3 +10,5 @@ env:
   ANALYTICS:
     preview: "off"
     production: ""
+# Analytics. From the shell or .env on this machine, from the repository's variables on GitHub.
+variables: [POSTHOG_KEY, POSTHOG_REGION]
