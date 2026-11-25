@@ -1,5 +1,11 @@
 # portfolio
 
+## 0.2.3
+
+### Patch Changes
+
+* Refreshes the articles and profile data with each release. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/458
+
 ## 0.2.2
 
 ### Patch Changes

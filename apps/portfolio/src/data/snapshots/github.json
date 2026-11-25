@@ -231,11 +231,11 @@
   ],
   "repos": {
     "web-infra-dev/rspack": {
-      "stars": 12994,
+      "stars": 12997,
       "about": "Fast Rust-based bundler for the web with a modernized webpack API"
     },
     "module-federation/vite": {
-      "stars": 896,
+      "stars": 898,
       "about": "Vite Plugin for Module Federation"
     },
     "maticzav/graphql-middleware": {
@@ -243,7 +243,7 @@
       "about": "Split up your GraphQL resolvers in middleware functions"
     },
     "ohmyzsh/ohmyzsh": {
-      "stars": 190822,
+      "stars": 190856,
       "about": "Framework for managing your zsh configuration"
     },
     "XD2Sketch/react-oauth-popup": {
@@ -259,7 +259,7 @@
       "about": ""
     },
     "DefinitelyTyped/DefinitelyTyped": {
-      "stars": 51490,
+      "stars": 51491,
       "about": "The repository for high quality TypeScript type definitions"
     },
     "diezcami/arctic-fox-theme": {

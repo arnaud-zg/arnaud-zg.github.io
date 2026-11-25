@@ -18,7 +18,7 @@
   },
   {
     "name": "react-lightsaber",
-    "downloads": 20,
+    "downloads": 21,
     "downloadsMonth": "October 2026",
     "line": "Just a simple lightsaber hosted on npmjs",
     "href": "https://www.npmjs.com/package/react-lightsaber",
@@ -31,7 +31,7 @@
   },
   {
     "name": "http-response-status",
-    "downloads": 744,
+    "downloads": 762,
     "downloadsMonth": "October 2026",
     "line": "HTTP Status Map",
     "href": "https://www.npmjs.com/package/http-response-status",
@@ -65,6 +65,27 @@
     "created": "2019-12-10"
   },
   {
+    "name": "shiplane",
+    "downloads": 281,
+    "downloadsMonth": "October 2026",
+    "line": "Release and deploy a monorepo in one command",
+    "href": "https://www.npmjs.com/package/shiplane",
+    "keywords": [
+      "release",
+      "deploy",
+      "monorepo",
+      "changesets",
+      "github-actions",
+      "ci-cd",
+      "cli"
+    ],
+    "updated": "2026-11-23",
+    "members": 9,
+    "releases": 29,
+    "version": "0.5.2",
+    "created": "2026-10-31"
+  },
+  {
     "name": "standalone-store",
     "downloads": 39,
     "downloadsMonth": "October 2026",
@@ -84,7 +105,7 @@
   },
   {
     "name": "selector",
-    "downloads": 168,
+    "downloads": 173,
     "downloadsMonth": "October 2026",
     "line": "Generic selector library",
     "href": "https://www.npmjs.com/package/selector",
@@ -97,27 +118,6 @@
     "releases": 28,
     "version": "2.1.1",
     "created": "2013-07-28"
-  },
-  {
-    "name": "shiplane",
-    "downloads": 281,
-    "downloadsMonth": "October 2026",
-    "line": "Release and deploy a monorepo in one command",
-    "href": "https://www.npmjs.com/package/shiplane",
-    "keywords": [
-      "release",
-      "deploy",
-      "monorepo",
-      "changesets",
-      "github-actions",
-      "ci-cd",
-      "cli"
-    ],
-    "updated": "2026-11-23",
-    "members": 9,
-    "releases": 28,
-    "version": "0.5.2",
-    "created": "2026-10-31"
   },
   {
     "name": "blast-shield",
@@ -178,7 +178,7 @@
   },
   {
     "name": "expo-native-guard",
-    "downloads": 84,
+    "downloads": 87,
     "downloadsMonth": "October 2026",
     "line": "Load native-only modules safely in Expo Go",
     "href": "https://www.npmjs.com/package/expo-native-guard",
@@ -198,7 +198,7 @@
   },
   {
     "name": "expo-pnpm-catalog",
-    "downloads": 71,
+    "downloads": 76,
     "downloadsMonth": "October 2026",
     "line": "Checks and syncs Expo SDK versions in pnpm catalogs",
     "href": "https://www.npmjs.com/package/expo-pnpm-catalog",
@@ -254,7 +254,7 @@
   },
   {
     "name": "migration-preflight",
-    "downloads": 86,
+    "downloads": 89,
     "downloadsMonth": "October 2026",
     "line": "Test database migrations before you ship them",
     "href": "https://www.npmjs.com/package/migration-preflight",
@@ -276,7 +276,7 @@
   },
   {
     "name": "immutable-instance",
-    "downloads": 11,
+    "downloads": 12,
     "downloadsMonth": "October 2026",
     "line": "Makes immutable class instances reactive for front-end application",
     "href": "https://www.npmjs.com/package/immutable-instance",
