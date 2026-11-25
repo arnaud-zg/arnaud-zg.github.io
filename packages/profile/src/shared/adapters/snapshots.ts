@@ -21,8 +21,6 @@ export const Snapshots = z.object({
       members: z.number(),
       releases: z.number(),
       monthlyReleases: z.number(),
-      version: text.optional(),
-      created: text.optional(),
     }),
   ),
   skills: z.array(z.object({ name: text, use: text, href: text })),

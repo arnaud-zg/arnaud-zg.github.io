@@ -142,8 +142,6 @@ export default {
     downloadsIn: (month: string) => `npm downloads in ${month}`,
     monthlyReleases: "monthly releases",
     releasesIn: (month: string) => `releases in ${month}`,
-    releasesTitle: (month: string) => `npm releases, ${month}`,
-    downloadsTitle: (month: string) => `npm downloads, ${month}`,
     viewOnNpm: "View on npm",
     onNpm: (name: string) => `${name} on npm`,
     showDetails: (name: string) => `${name}: show details`,

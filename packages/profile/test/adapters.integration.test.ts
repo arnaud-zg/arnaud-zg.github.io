@@ -33,35 +33,30 @@ const npmAnswers = {
   },
   "https://registry.npmjs.org/kit": {
     versions: { "0.9.0": {}, "1.0.0": {} },
-    "dist-tags": { latest: "1.0.0" },
-    time: { created: "2024-01-02T10:00:00Z", "1.0.0": "2025-12-01T10:00:00Z" },
+    time: { "0.9.0": "2025-11-01T10:00:00Z", "1.0.0": "2025-12-01T10:00:00Z" },
   },
   [`${POINT}/kit,other`]: { kit: { downloads: 7 }, other: null },
   [`${POINT}/kit`]: { downloads: 7 },
 };
-const history = {
-  versions: ["0.9.0", "1.0.0"],
-  dates: { "1.0.0": "2025-12-01" },
-  created: "2024-01-02",
-};
+const versions = { "0.9.0": "2025-11-01", "1.0.0": "2025-12-01" };
 const registries = {
   memory: memoryRegistry({
     maintainer: "me",
     packages: [
-      { ...kit, ...history, downloads: 7 },
-      { ...other, ...history },
+      { ...kit, versions, downloads: 7 },
+      { ...other, versions },
     ],
   }),
   npm: npmRegistry(memoryWeb(npmAnswers)),
 };
 for (const [name, registry] of Object.entries(registries))
-  test(`${name} registry: packages, their history and the downloads it knows`, async () => {
+  test(`${name} registry: packages, their versions and the downloads it knows`, async () => {
     assert.deepEqual(await registry.publishedBy("me"), [kit, other]);
-    assert.deepEqual(await registry.historyOf("kit"), { ...history, latest: "1.0.0" });
+    assert.deepEqual(await registry.versionsOf("kit"), versions);
     const figures = new Map([["kit", 7]]);
     assert.deepEqual(await registry.downloadsIn({ month, names: ["kit", "other"] }), figures);
     assert.deepEqual(await registry.downloadsIn({ month, names: ["kit"] }), figures);
-    await assert.rejects(registry.historyOf("missing"));
+    await assert.rejects(registry.versionsOf("missing"));
   });
 
 const pull = { repo: "a/b", title: "fix: it", url: "https://github.com/a/b/pull/1", date: "2025" };

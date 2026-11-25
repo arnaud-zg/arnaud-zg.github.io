@@ -28,8 +28,6 @@ export type ToolLabels = {
   plugins: string;
   monthlyDownloads: string;
   viewOnNpm: string;
-  downloadsTitle: (month: string) => string;
-  releasesTitle: (month: string) => string;
   showDetails: (name: string) => string;
   more: (n: number) => string;
 };

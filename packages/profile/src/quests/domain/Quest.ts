@@ -12,8 +12,6 @@ export type QuestFacts = {
   readonly members: number;
   readonly releases: number;
   readonly monthlyReleases: number;
-  readonly version?: string;
-  readonly created?: string;
 };
 export type Age = { months: number; today: Month };
 
@@ -31,11 +29,8 @@ export class Quest {
   }
 
   // Stable versions only: a nightly or a release candidate (1.0.0-rc.1) is not a release.
-  static releasesAmong({ versions, parked }: { versions: readonly string[]; parked: RegExp }) {
-    return versions.filter((version) => {
-      const [core] = version.split("+");
-      return !core.includes("-") && !parked.test(version);
-    });
+  static isRelease(version: string, parked: RegExp): boolean {
+    return !version.includes("-") && !parked.test(version);
   }
 
   isUpdatedWithin({ months, today }: Age): boolean {
