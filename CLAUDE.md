@@ -20,3 +20,14 @@ The design system is `packages/design` (`@arnaud-zg/design`), isolated so every 
 - The portfolio has no styles of its own; only the workshop does (`workshop.css`). Pages pass data
   to components.
 - Run `pnpm check` after a UI change. It checks isolation, restyling and the workshop.
+
+## Releases: changesets, not commits
+
+Shiplane versions from `.changeset/*.md` only. Commit types (`feat`, `fix`) release nothing.
+
+- A pull request that changes what visitors get (UI, content, behaviour, speed) adds a changeset in
+  the same pull request, even when the code is in `packages/`.
+- Name `portfolio` in it: it is the app that ships. Write one sentence, for a visitor; it becomes
+  the changelog line.
+- No changeset for refactors, tests, docs, CI or tooling that visitors don't notice.
+- Never edit a `CHANGELOG.md` or a version by hand: the release pull request does it.
