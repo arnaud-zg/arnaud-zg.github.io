@@ -65,8 +65,8 @@ both together.
 
 ## Analytics
 
-Opt-in, mocked in development, off until configured: see
-[`packages/analytics`](./packages/analytics).
+Visitors opt in. Mocked in development, off on the preview, on in production when `POSTHOG_KEY` is
+set: see [`packages/analytics`](./packages/analytics).
 
 ## Release
 
