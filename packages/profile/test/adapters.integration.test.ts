@@ -8,6 +8,7 @@ import { githubHost } from "../src/contributions/adapters/github.host.ts";
 import { memoryHost } from "../src/contributions/adapters/memory.host.ts";
 import { memoryRegistry } from "../src/quests/adapters/memory.registry.ts";
 import { npmRegistry } from "../src/quests/adapters/npm.registry.ts";
+import { fetchWeb } from "../src/shared/adapters/fetch.web.ts";
 import { memoryWeb } from "../src/shared/adapters/memory.web.ts";
 import { Month } from "../src/shared/domain/Month.ts";
 import { memorySkills } from "../src/skills/adapters/memory.skills.ts";
@@ -152,4 +153,25 @@ test("an answer of the wrong shape is refused where it enters", async () => {
   await assert.rejects(githubHost(web).linesOf(pull.url));
   await assert.rejects(substackFeed({ web, url }).articles(), /no articles/);
   await assert.rejects(readmeSkills({ web, repo: "me/skills" }).skills(), /no skills table/);
+});
+
+for (const status of [403, 429])
+  test(`fetch web: a ${status} at the rate limit says so, and until when`, async (t) => {
+    const headers = {
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "0",
+      "x-ratelimit-reset": "1795611279",
+    };
+    t.mock.method(globalThis, "fetch", () =>
+      Promise.resolve(new Response("", { status, headers })),
+    );
+    await assert.rejects(
+      fetchWeb().json("https://api.github.com/repos/a/b"),
+      /rate limit of api\.github\.com is reached \(60 requests\), try again after/,
+    );
+  });
+
+test("fetch web: any other failure keeps its status and address", async (t) => {
+  t.mock.method(globalThis, "fetch", () => Promise.resolve(new Response("", { status: 403 })));
+  await assert.rejects(fetchWeb().text("https://me.dev/x"), { message: "403 https://me.dev/x" });
 });
