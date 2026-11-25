@@ -1,4 +1,4 @@
-// The profile, from its settings and the ports it reads.
+// The profile: shown from its saved data, which `live` renews through the ports.
 import type { Article } from "./articles/domain/Article.ts";
 import type { Feed } from "./articles/ports/Feed.ts";
 import type { CareerFacts } from "./career/domain/Career.ts";
@@ -8,7 +8,6 @@ import type { CodeHost } from "./contributions/ports/CodeHost.ts";
 import type { QuestFacts } from "./quests/domain/Quest.ts";
 import type { QuestMapRules } from "./quests/domain/QuestMap.ts";
 import type { PackageRegistry } from "./quests/ports/PackageRegistry.ts";
-import type { Notices } from "./shared/ports/Notices.ts";
 import type { Skill } from "./skills/domain/Skill.ts";
 import type { SkillList } from "./skills/ports/SkillList.ts";
 import { Career } from "./career/domain/Career.ts";
@@ -18,7 +17,6 @@ import { Contributions } from "./contributions/domain/Contributions.ts";
 import { QuestCatalog } from "./quests/application/QuestCatalog.ts";
 import { QuestMap } from "./quests/domain/QuestMap.ts";
 import { Quests } from "./quests/domain/Quests.ts";
-import { SavedData } from "./shared/application/SavedData.ts";
 import { Month } from "./shared/domain/Month.ts";
 
 export type ProfileSettings = {
@@ -38,37 +36,32 @@ export type Ports = {
   readonly host: CodeHost;
   readonly feed: Feed;
   readonly list: SkillList;
-  readonly notices: Notices;
 };
-// What each source last said, for when it is down.
+// What each source said at the last refresh: all a build reads.
 export type Saved = {
   readonly github: Records;
   readonly npm: QuestFacts[];
   readonly skills: Skill[];
   readonly substack: Article[];
 };
-export type Run = { readonly strict: boolean; readonly now: Date; readonly saved: Saved };
+export type Run = { readonly now: Date; readonly saved: Saved };
 export type Profile = { settings: ProfileSettings; ports: Ports; run: Run };
 
 export const profileOf = ({ settings, ports, run }: Profile) => {
   const { github, npm } = settings;
-  const { registry, host, feed, list, notices } = ports;
+  const { registry, host, feed, list } = ports;
   const { saved } = run;
-  const savedData = new SavedData({ strict: run.strict, notices });
   const today = Month.at(run.now);
   const year = today.year();
   const policy = new ContributionPolicy(github);
   const log = new ContributionLog({
     host,
-    savedData,
     policy,
     author: github.user,
     year,
-    saved: saved.github,
   });
   const catalog = new QuestCatalog({
     registry,
-    savedData,
     today,
     maintainer: npm.maintainer,
     parked: npm.parkedVersion,
@@ -86,10 +79,8 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         longestYears: career.longestYearsAt(today),
       };
     },
-    async sideQuests() {
-      const quests = Quests.of(
-        await catalog.read().catch(savedData.insteadOf({ source: "npm", saved: saved.npm })),
-      );
+    sideQuests() {
+      const quests = Quests.of(saved.npm);
       const age = { months: npm.activeMonths, today };
       const active = quests.updatedWithin(age);
       const counted = active.asFacts().find(({ downloads }) => downloads !== undefined);
@@ -102,24 +93,13 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         earlier: quests.olderThan(age).asFacts(),
       };
     },
-    async contributions() {
-      const records = await log
-        .read()
-        .catch(savedData.insteadOf({ source: "github", saved: saved.github }));
-      return new Contributions({ records, policy, year }).byRepository();
-    },
-    async articles() {
-      // Optional: Substack can refuse a build server (403), and its last articles stay true.
-      const articles = await feed
-        .articles()
-        .catch(savedData.insteadOf({ source: "substack", saved: saved.substack, optional: true }));
-      return articles.map((article) => ({ ...article, image: feed.coverOf(article.image) }));
-    },
-    skills: () =>
-      list.skills().catch(savedData.insteadOf({ source: "skills", saved: saved.skills })),
+    contributions: () => new Contributions({ records: saved.github, policy, year }).byRepository(),
+    articles: () =>
+      saved.substack.map((article) => ({ ...article, image: feed.coverOf(article.image) })),
+    skills: () => saved.skills,
     // What `data:refresh` saves.
     live: {
-      github: () => log.read({ fresh: true }),
+      github: () => log.read(),
       npm: () => catalog.read(),
       skills: () => list.skills(),
       substack: () => feed.articles(),

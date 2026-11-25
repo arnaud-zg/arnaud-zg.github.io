@@ -5,6 +5,7 @@
   "scripts": {
     "build": "pnpm check && pnpm --filter portfolio build",
     "changeset": "changeset",
+    "changeset:version": "pnpm data:refresh && changeset version",
     "check": "node scripts/check-design.mjs && node scripts/check-domain.mjs && pnpm test",
     "data:refresh": "pnpm --filter portfolio data:refresh",
     "dev": "pnpm --filter portfolio dev",

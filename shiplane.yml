@@ -8,6 +8,8 @@ flow:
   versioning:
     use: changesets
     with:
+      # Refreshes the saved data too: the release PR commits it, and the tag holds it.
+      version: [pnpm, -s, "changeset:version"]
       line: whatsChanged
       thanks: none
 # What gets released, in this order. The first app is the repository's Latest release.

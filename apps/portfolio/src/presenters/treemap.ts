@@ -4,7 +4,7 @@ import { TREEMAP_BOX as BOX, squarify } from "@arnaud-zg/design/treemap";
 
 import type { profile } from "../profile";
 
-type QuestGroups = Awaited<ReturnType<typeof profile.sideQuests>>["groups"];
+type QuestGroups = ReturnType<typeof profile.sideQuests>["groups"];
 
 // One group's box on phones, in arbitrary units.
 const PHONE = { w: 16, h: 10 };
