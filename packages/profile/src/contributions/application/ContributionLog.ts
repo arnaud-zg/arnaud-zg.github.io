@@ -18,7 +18,7 @@ export class ContributionLog {
     this.#needs = needs;
   }
 
-  // GitHub allows 60 requests an hour; this makes about 20.
+  // About 20 requests of GitHub's 5,000 an hour.
   async read(): Promise<Records> {
     const { host, policy, author, year } = this.#needs;
     const found = await host.mergedPullRequests({ author, outside: policy.owners() });

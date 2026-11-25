@@ -1,6 +1,10 @@
 // One contract per port: the in-memory adapter and the live one, on a web in memory, must agree.
 import assert from "node:assert/strict";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
+import type { TestContext } from "node:test";
 
 import { memoryFeed } from "../src/articles/adapters/memory.feed.ts";
 import { substackFeed } from "../src/articles/adapters/substack.feed.ts";
@@ -8,7 +12,7 @@ import { githubHost } from "../src/contributions/adapters/github.host.ts";
 import { memoryHost } from "../src/contributions/adapters/memory.host.ts";
 import { memoryRegistry } from "../src/quests/adapters/memory.registry.ts";
 import { npmRegistry } from "../src/quests/adapters/npm.registry.ts";
-import { fetchWeb } from "../src/shared/adapters/fetch.web.ts";
+import { ghWeb } from "../src/shared/adapters/gh.web.ts";
 import { memoryWeb } from "../src/shared/adapters/memory.web.ts";
 import { Month } from "../src/shared/domain/Month.ts";
 import { memorySkills } from "../src/skills/adapters/memory.skills.ts";
@@ -155,23 +159,37 @@ test("an answer of the wrong shape is refused where it enters", async () => {
   await assert.rejects(readmeSkills({ web, repo: "me/skills" }).skills(), /no skills table/);
 });
 
-for (const status of [403, 429])
-  test(`fetch web: a ${status} at the rate limit says so, and until when`, async (t) => {
-    const headers = {
-      "x-ratelimit-limit": "60",
-      "x-ratelimit-remaining": "0",
-      "x-ratelimit-reset": "1795611279",
-    };
-    t.mock.method(globalThis, "fetch", () =>
-      Promise.resolve(new Response("", { status, headers })),
-    );
-    await assert.rejects(
-      fetchWeb().json("https://api.github.com/repos/a/b"),
-      /rate limit of api\.github\.com is reached \(60 requests\), try again after/,
-    );
-  });
+// Stands in for gh: an executable that answers one address and refuses the rest.
+const fakeGh = (t: TestContext) => {
+  const dir = mkdtempSync(join(tmpdir(), "gh-"));
+  t.after(() => rmSync(dir, { recursive: true }));
+  const file = join(dir, "gh");
+  writeFileSync(
+    file,
+    `#!/bin/sh
+if [ "$1 $2" = "api https://api.github.com/ok" ]; then echo '{"stars":9}'; exit 0; fi
+echo "gh: API rate limit exceeded (HTTP 403)" >&2
+exit 1
+`,
+  );
+  chmodSync(file, 0o755);
+  return file;
+};
 
-test("fetch web: any other failure keeps its status and address", async (t) => {
-  t.mock.method(globalThis, "fetch", () => Promise.resolve(new Response("", { status: 403 })));
-  await assert.rejects(fetchWeb().text("https://me.dev/x"), { message: "403 https://me.dev/x" });
+test("gh web: what gh answers, as text and as JSON", async (t) => {
+  const web = ghWeb(fakeGh(t));
+  assert.deepEqual(await web.json("https://api.github.com/ok"), { stars: 9 });
+  assert.equal(await web.text("https://api.github.com/ok"), '{"stars":9}\n');
+});
+
+test("gh web: a refusal gives gh's own reason", async (t) => {
+  await assert.rejects(ghWeb(fakeGh(t)).json("https://api.github.com/no"), {
+    message: "gh: API rate limit exceeded (HTTP 403): https://api.github.com/no",
+  });
+});
+
+test("gh web: a missing gh says so", async () => {
+  await assert.rejects(ghWeb("/missing/gh").json("https://api.github.com/ok"), {
+    message: "gh is not installed: https://cli.github.com",
+  });
 });
