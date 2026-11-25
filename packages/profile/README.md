@@ -13,8 +13,8 @@ its settings and saved data.
 
 `adapters → application → ports → domain`, checked by `pnpm check`. Contexts share only `shared`;
 `src/profile.ts` joins them through their ports, and `src/composition.ts` wires the live adapters.
-Each port has an in-memory adapter, held to the same contract as the live one. Where the saved data
-replaces a source that is down is decided in one place: `SavedData`.
+Each port has an in-memory adapter, held to the same contract as the live one. A build reads the
+saved data alone; `live` reads the sources, to renew it.
 
-No event sourcing here: nothing is written, everything is read again at each build. The visitor's
+No event sourcing here: nothing is written, everything is read again at each refresh. The visitor's
 consent, in `packages/analytics`, is the only thing decided over time.

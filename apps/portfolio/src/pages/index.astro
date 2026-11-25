@@ -34,10 +34,10 @@ const { name, role, links, site, sections, labels } = config;
 const { glance: words, about } = sections;
 const { education } = config.career;
 const career = profile.career();
-const quests = await profile.sideQuests();
-const prRepos = await profile.contributions();
-const articles = await profile.articles();
-const skills = await profile.skills();
+const quests = profile.sideQuests();
+const prRepos = profile.contributions();
+const articles = profile.articles();
+const skills = profile.skills();
 
 const numbers = [
   { value: career.years, unit: labels.years, label: words.years },

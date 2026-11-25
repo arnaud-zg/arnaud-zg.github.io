@@ -1,4 +1,3 @@
-import type { SavedData } from "../../shared/application/SavedData.ts";
 import type { Month } from "../../shared/domain/Month.ts";
 import type { Lead } from "../domain/PackageFamilies.ts";
 import type { QuestFacts } from "../domain/Quest.ts";
@@ -8,7 +7,6 @@ import { Quest } from "../domain/Quest.ts";
 
 export type QuestCatalogNeeds = {
   registry: PackageRegistry;
-  savedData: SavedData;
   today: Month;
   maintainer: string;
   parked: RegExp;
@@ -51,8 +49,7 @@ export class QuestCatalog {
   }
 
   #downloadsOf(names: string[]): Promise<Map<string, number>> {
-    const { registry, savedData, today } = this.#needs;
-    const none = savedData.insteadOf({ source: "npm downloads", saved: new Map<string, number>() });
-    return registry.downloadsIn({ month: today.previous(), names }).catch(none);
+    const { registry, today } = this.#needs;
+    return registry.downloadsIn({ month: today.previous(), names });
   }
 }

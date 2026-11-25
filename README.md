@@ -8,9 +8,9 @@ Shanghai from Suzhou Creek.
 
 ## Data
 
-Everything on the page that can change is fetched when the site is built, from public sources, with
-no token. Star counts and project descriptions are the exception: they are saved, and
-`pnpm data:refresh` updates them. Each deploy refreshes the rest:
+Everything on the page that can change is saved in `apps/portfolio/src/data/snapshots`, and a build
+reads only that. Each release refreshes it on this machine, from public sources with no token, and
+the release PR carries it:
 
 | Section     | Source                                                        |
 | ----------- | ------------------------------------------------------------- |
@@ -18,9 +18,9 @@ no token. Star counts and project descriptions are the exception: they are saved
 | Open source | GitHub, merged pull requests in repositories I do not own     |
 | Writing     | Substack RSS feed                                             |
 
-If a source cannot be reached, a local build falls back to the saved data in
-`apps/portfolio/src/data/snapshots`. The deploy sets `STRICT_DATA=1` and fails instead, so the site
-online never goes back to old numbers.
+A source that cannot be reached stops the release before its PR opens. GitHub Actions fetches none
+of them: Substack refuses its servers. New content alone, such as an article, needs a changeset to
+be released.
 
 ```sh
 pnpm data:refresh   # rewrites the saved data from the live sources; all of it, or nothing
@@ -77,13 +77,12 @@ the repository's variables.
 
 ```sh
 pnpm changeset   # in your pull request: what changed
-pnpm release     # on main: opens the release PR; once merged, ships the preview
+pnpm release     # on main: refreshes the data, opens the release PR; once merged, ships the preview
 pnpm release promote   # ships the preview to production
 ```
 
 The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it.
-See what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that
-is down stops the ship.
+See what would run with `pnpm shiplane ship --dry-run`.
 
 ## Credits
 
