@@ -25,9 +25,10 @@ The design system is `packages/design` (`@arnaud-zg/design`), isolated so every 
 
 Shiplane versions from `.changeset/*.md` only. Commit types (`feat`, `fix`) release nothing.
 
-- A pull request that changes what visitors get (UI, content, behaviour, speed) adds a changeset in
-  the same pull request, even when the code is in `packages/`.
+- A pull request that changes the app's final build adds a changeset in the same pull request:
+  refactors and saved data included, even when the code is in `packages/`.
+- No changeset for what stays out of that build: tests, repository docs, CI, tooling, scripts.
 - Name `portfolio` in it: it is the app that ships. Write one sentence, for a visitor; it becomes
   the changelog line.
-- No changeset for refactors, tests, docs, CI or tooling that visitors don't notice.
+- When visitors see no difference, the sentence says so.
 - Never edit a `CHANGELOG.md` or a version by hand: the release pull request does it.
