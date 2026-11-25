@@ -12,8 +12,9 @@ its settings and saved data.
 | `skills`        | which agent skills exist                                         |
 
 `adapters → application → ports → domain`, checked by `pnpm check`. Contexts share only `shared`;
-`src/composition.ts` wires them. Where the saved data replaces a source that is down is decided in
-one place: `SavedData`.
+`src/profile.ts` joins them through their ports, and `src/composition.ts` wires the live adapters.
+Each port has an in-memory adapter, held to the same contract as the live one. Where the saved data
+replaces a source that is down is decided in one place: `SavedData`.
 
 No event sourcing here: nothing is written, everything is read again at each build. The visitor's
 consent, in `packages/analytics`, is the only thing decided over time.

@@ -2,71 +2,41 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import type { SavedChoice } from "../src/domain/consent.ts";
-import type { AnalyticsProvider } from "../src/ports/AnalyticsProvider.ts";
+import { memoryConsent } from "../src/adapters/memory.consent.ts";
+import { memoryProvider } from "../src/adapters/memory.provider.ts";
+import { memorySignal } from "../src/adapters/memory.signal.ts";
 import { posthog } from "../src/adapters/posthog.provider.ts";
 import { createAnalytics } from "../src/application/analytics.ts";
 import { CHOICE_LASTS_MS } from "../src/domain/consent.ts";
 import { PLAN_VERSION } from "../src/domain/plan.ts";
 
 const settle = () => new Promise((r) => setTimeout(r));
+const fail = () => {
+  throw new Error();
+};
 const page = ({
   objects = false,
   saved = undefined as SavedChoice | undefined,
   broken = false,
 } = {}) => {
-  const log: string[] = [];
-  let loads = 0,
-    changed = () => {};
-  const at = { now: 1000 };
-  const provider: AnalyticsProvider = {
-    start: () => {
-      log.push("start");
-    },
-    track: (e) => {
-      log.push(e.name);
-    },
-    stop: () => {
-      log.push("stop");
-    },
-  };
-  const bad: AnalyticsProvider = {
-    start() {
-      throw new Error();
-    },
-    track() {
-      throw new Error();
-    },
-    stop() {
-      throw new Error();
-    },
-  };
+  const store = memoryConsent(saved);
+  const provider = memoryProvider();
+  let loads = 0;
   const analytics = createAnalytics({
-    store: {
-      read: () => saved,
-      write: (c) => {
-        saved = c;
-      },
-      onChange: (l) => {
-        changed = l;
-      },
-    },
-    signal: { objects: () => objects },
-    now: () => at.now,
+    store,
+    signal: memorySignal(objects),
+    now: () => 1000,
     provider: () => {
       loads++;
-      return Promise.resolve(broken ? bad : provider);
+      return Promise.resolve(broken ? { start: fail, track: fail, stop: fail } : provider);
     },
   });
   analytics.start();
   return {
     analytics,
-    log,
-    at,
+    log: provider.log,
     loads: () => loads,
-    otherTab: (c: SavedChoice) => {
-      saved = c;
-      changed();
-    },
+    otherTab: (choice: SavedChoice) => store.changeElsewhere(choice),
   };
 };
 const open = { section: "quests", seconds: 3 };

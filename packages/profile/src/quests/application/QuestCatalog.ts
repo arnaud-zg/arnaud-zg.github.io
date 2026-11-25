@@ -15,9 +15,6 @@ export type QuestCatalogNeeds = {
   lines: Readonly<Record<string, string | undefined>>;
 };
 
-const RETRY_AFTER_MS = 600;
-const pause = () => new Promise((resume) => setTimeout(resume, RETRY_AFTER_MS));
-
 export class QuestCatalog {
   readonly #needs: QuestCatalogNeeds;
 
@@ -53,13 +50,9 @@ export class QuestCatalog {
     };
   }
 
-  // One retry after a short pause, then the figures are left out.
-  async #downloadsOf(names: string[]): Promise<Map<string, number>> {
+  #downloadsOf(names: string[]): Promise<Map<string, number>> {
     const { registry, savedData, today } = this.#needs;
-    const ask = () => registry.downloadsIn({ month: today.previous(), names });
-    const saved = new Map<string, number>();
-    return ask()
-      .catch(() => pause().then(ask))
-      .catch(savedData.insteadOf({ source: "npm downloads", saved }));
+    const none = savedData.insteadOf({ source: "npm downloads", saved: new Map<string, number>() });
+    return registry.downloadsIn({ month: today.previous(), names }).catch(none);
   }
 }

@@ -24,13 +24,15 @@ const articleFrom = (item: string): Article => ({
 });
 
 // The image hosts make a small cover of a multi-megabyte original.
-export const smallCover = (url: string) =>
+const smallCover = (url: string) =>
   url
     .replace(/&amp;/g, "&")
     .replace(/(substackcdn\.com\/image\/fetch\/(?:\$s_![^/]*?!,)?)/, "$1w_720,h_480,c_fill,")
     .replace(/([?&])w=\d+/, "$1w=720&h=480&fit=crop");
 
 export const substackFeed = ({ web, url }: { web: Web; url: string }): Feed => ({
+  coverOf: smallCover,
+
   async articles() {
     const xml = await web.text(url);
     const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
