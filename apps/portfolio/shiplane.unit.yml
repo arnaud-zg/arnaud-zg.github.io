@@ -5,6 +5,7 @@ module: web-app
 url: https://arnaud-zg.github.io/
 env:
   # A source that is down stops the ship: the site online keeps its numbers.
+  # Not Substack, which can refuse GitHub's servers: its saved articles are used.
   STRICT_DATA: "1"
   # Visits to the preview are not counted.
   ANALYTICS:

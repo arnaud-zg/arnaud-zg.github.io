@@ -20,7 +20,8 @@ no token. Star counts and project descriptions are the exception: they are saved
 
 If a source cannot be reached, a local build falls back to the saved data in
 `apps/portfolio/src/data/snapshots`. The deploy sets `STRICT_DATA=1` and fails instead, so the site
-online never goes back to old numbers.
+online never goes back to old numbers. Only Substack, which can refuse GitHub's servers, still falls
+back.
 
 ```sh
 pnpm data:refresh   # rewrites the saved data from the live sources; all of it, or nothing
@@ -83,7 +84,8 @@ pnpm release promote   # ships the preview to production
 
 The preview is at [/preview/](https://arnaud-zg.github.io/preview/), and production ships after it.
 See what would run with `pnpm shiplane ship --dry-run`. The site fetches live data, so a source that
-is down stops the ship.
+is down stops the ship, except Substack: its saved articles are used, and `pnpm data:refresh` renews
+them.
 
 ## Credits
 

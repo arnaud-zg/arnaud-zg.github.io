@@ -109,9 +109,10 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
       return new Contributions({ records, policy, year }).byRepository();
     },
     async articles() {
+      // Optional: Substack can refuse a build server (403), and its last articles stay true.
       const articles = await feed
         .articles()
-        .catch(savedData.insteadOf({ source: "substack", saved: saved.substack }));
+        .catch(savedData.insteadOf({ source: "substack", saved: saved.substack, optional: true }));
       return articles.map((article) => ({ ...article, image: feed.coverOf(article.image) }));
     },
     skills: () =>

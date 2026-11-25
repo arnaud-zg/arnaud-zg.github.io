@@ -107,7 +107,7 @@ const saved: Saved = {
   },
   npm: [],
   skills: [{ name: "saved", use: "", href: "" }],
-  substack: [],
+  substack: [{ title: "Saved", subtitle: "", url: "s", date: "2025-01-01", image: "" }],
 };
 const registryOf = (some: typeof packages) => memoryRegistry({ packages: some, maintainer: "me" });
 
@@ -209,7 +209,7 @@ test("a source that is down gives its saved data, and says so", async () => {
     { repo: "a/saved", about: "Saved", added: 3, removed: 4, kinds: "1 fix" },
   ]);
   assert.equal((await profile.skills())[0].name, "saved");
-  assert.deepEqual(await profile.articles(), []);
+  assert.deepEqual(await profile.articles(), saved.substack);
   assert.equal((await profile.sideQuests()).tools, 0);
   assert.equal(profile.said.length, 4);
 });
@@ -218,8 +218,18 @@ test("a source that is down stops a strict run", async () => {
   const profile = profileWith(allDown, true);
   await assert.rejects(profile.contributions(), /no live data/);
   await assert.rejects(profile.skills(), /no live data/);
-  await assert.rejects(profile.articles(), /no live data/);
   await assert.rejects(profile.sideQuests(), /no live data/);
+});
+
+test("articles that are down do not stop a strict run", async () => {
+  const profile = profileWith({ feed: allDown.feed }, true);
+  assert.deepEqual(await profile.articles(), saved.substack);
+  assert.deepEqual(profile.said, ["[substack] using saved data: down"]);
+});
+
+test("a refresh of articles that are down fails, rather than saving old ones", async () => {
+  const profile = profileWith({ feed: allDown.feed }, true);
+  await assert.rejects(profile.live.substack(), /down/);
 });
 
 test("a refresh asks again for what is saved", async () => {
