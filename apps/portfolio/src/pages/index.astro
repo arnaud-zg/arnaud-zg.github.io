@@ -20,6 +20,7 @@ import Articles from "@arnaud-zg/design/Articles.astro";
 import Diffstat from "@arnaud-zg/design/Diffstat.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
+import { Schema } from "astro-seo-schema";
 import { external } from "@arnaud-zg/design/links";
 import { compact } from "@arnaud-zg/design/treemap";
 import Analytics from "../components/Analytics.astro";
@@ -28,6 +29,7 @@ import config from "../../portfolio.config";
 import { portrait, siteInfo } from "../site";
 import { profile } from "../profile";
 import { formatDate } from "../presenters/date";
+import { profilePageOf } from "../presenters/structured-data";
 import { treemapOf } from "../presenters/treemap";
 
 const { name, role, links, site, sections, labels } = config;
@@ -68,6 +70,7 @@ const questKpis = [
 ];
 ---
 <Site site={siteInfo} title={site.title} description={site.description} nav={nav} noindex={import.meta.env.BASE_URL !== "/"}>
+  <Schema slot="head" item={profilePageOf(career.current, portrait.src)} />
   <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} next="#glance">
     <p class="role">{role.text} <strong>{role.company}</strong></p>
     <ul class="socials" aria-label="Profiles">

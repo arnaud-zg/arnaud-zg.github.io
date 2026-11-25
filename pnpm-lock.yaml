@@ -265,6 +265,12 @@ importers:
       astro:
         specifier: ^7.4.13
         version: 7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
+      astro-seo-schema:
+        specifier: ^7.0.2
+        version: 7.0.2(astro@7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(schema-dts@1.1.5)
+      schema-dts:
+        specifier: ^1.1.5
+        version: 1.1.5
     devDependencies:
       '@types/node':
         specifier: ^24.19.2
@@ -1771,6 +1777,12 @@ packages:
     peerDependencies:
       astro: ^4.0.0-beta || ^5.0.0-beta || ^3.3.0 || ^6.0.0-beta || ^7.0.0
 
+  astro-seo-schema@7.0.2:
+    resolution: {integrity: sha512-Y33A+HnrVgftHXRKgM0LM56N0ckBEhf6eerF/Lj3isNReJDezLreibMMHuBjlzDkZOTMJgBJrC1TMMxH5mhUCA==}
+    peerDependencies:
+      astro: ^7.0.0
+      schema-dts: ^1.1.0
+
   astro@7.4.13:
     resolution: {integrity: sha512-tcpMXEB9jypYzbnzT/g6yxL0jRkFlj3WsvxcWgsxRjPBUE6r81qLo/7kN5GMWz6hC7spzrg6fvCeL2HG0Bl68g==}
     engines: {node: '>=22.23.4', npm: '>=9.6.5', pnpm: '>=7.1.0'}
@@ -3202,6 +3214,9 @@ packages:
   sax@1.6.1:
     resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
     engines: {node: '>=11.0.0'}
+
+  schema-dts@1.1.5:
+    resolution: {integrity: sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg==}
 
   semver@7.8.6:
     resolution: {integrity: sha512-9lpSSU4Mly3mrtruwLs1eLK6+gzbzqeBFwRNjIjE+9LuDpWdYctrQlQ3ej1Ilgi7gknpsTRnPoLP8DpCHqHIJw==}
@@ -5234,6 +5249,11 @@ snapshots:
       rehype-expressive-code: 0.44.4
       url-extras: 0.1.0
 
+  astro-seo-schema@7.0.2(astro@7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(schema-dts@1.1.5):
+    dependencies:
+      astro: 7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
+      schema-dts: 1.1.5
+
   astro@7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1):
     dependencies:
       '@astrojs/compiler-rs': 0.5.3
@@ -7081,6 +7101,8 @@ snapshots:
       '@bruits/satteri-win32-x64-msvc': 0.11.7
 
   sax@1.6.1: {}
+
+  schema-dts@1.1.5: {}
 
   semver@7.8.6: {}
 
