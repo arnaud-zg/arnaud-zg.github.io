@@ -61,8 +61,7 @@ export class ContributionLog {
 
   #askLines(url: string): Promise<Lines | undefined> {
     const { host, saved, savedData } = this.#needs;
-    const fallback = (error: unknown) =>
-      savedData.insteadOf({ source: "github", error, saved: saved.lines[url] });
-    return host.linesOf(url).catch(fallback);
+    const lines = savedData.insteadOf({ source: "github", saved: saved.lines[url] });
+    return host.linesOf(url).catch(lines);
   }
 }

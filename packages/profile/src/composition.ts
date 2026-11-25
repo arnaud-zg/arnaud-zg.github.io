@@ -33,12 +33,11 @@ export type ProfileSettings = {
 export type Run = { strict: boolean; now: Date; snapshots: unknown };
 
 const AGENT = { "User-Agent": "portfolio-build" };
-const pause = () => new Promise((resume) => setTimeout(resume, 600));
 
 export const createProfile = ({ settings, run }: { settings: ProfileSettings; run: Run }) => {
   const { github, npm, skills, substack } = settings;
   const snapshots = Snapshots.parse(run.snapshots);
-  const savedData = new SavedData({ strict: run.strict, warn: (said) => console.warn(said) });
+  const savedData = new SavedData({ strict: run.strict });
   const today = Month.at(run.now);
   const year = today.year();
   const web = fetchWeb(AGENT);
@@ -58,14 +57,9 @@ export const createProfile = ({ settings, run }: { settings: ProfileSettings; ru
     maintainer: npm.maintainer,
     parked: npm.parkedVersion,
     lines: npm.lines,
-    pause,
   });
   const feed = substackFeed({ web, url: substack.feed });
   const list = readmeSkills({ web, repo: skills.repo });
-  const orSaved =
-    <T>(source: string, saved: T) =>
-    (error: unknown) =>
-      savedData.insteadOf({ source, error, saved });
 
   return {
     career() {
@@ -79,7 +73,9 @@ export const createProfile = ({ settings, run }: { settings: ProfileSettings; ru
       };
     },
     async sideQuests() {
-      const quests = Quests.of(await catalog.read().catch(orSaved("npm", snapshots.npm)));
+      const quests = Quests.of(
+        await catalog.read().catch(savedData.insteadOf({ source: "npm", saved: snapshots.npm })),
+      );
       const age = { months: npm.activeMonths, today };
       const active = quests.updatedWithin(age);
       const counted = active.asFacts().find(({ downloads }) => downloads !== undefined);
@@ -93,14 +89,19 @@ export const createProfile = ({ settings, run }: { settings: ProfileSettings; ru
       };
     },
     async contributions() {
-      const records = await log.read().catch(orSaved("github", snapshots.github));
+      const records = await log
+        .read()
+        .catch(savedData.insteadOf({ source: "github", saved: snapshots.github }));
       return new Contributions({ records, policy, year }).byRepository();
     },
     async articles() {
-      const articles = await feed.articles().catch(orSaved("substack", snapshots.substack));
+      const articles = await feed
+        .articles()
+        .catch(savedData.insteadOf({ source: "substack", saved: snapshots.substack }));
       return articles.map((article) => ({ ...article, image: smallCover(article.image) }));
     },
-    skills: () => list.skills().catch(orSaved("skills", snapshots.skills)),
+    skills: () =>
+      list.skills().catch(savedData.insteadOf({ source: "skills", saved: snapshots.skills })),
     // What `data:refresh` saves.
     live: {
       github: () => log.read({ fresh: true }),
