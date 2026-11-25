@@ -25,6 +25,9 @@ const PackageDocument = z.object({
 const Point = z.object({ downloads: z.number() });
 const Points = z.record(z.string(), Point.nullable());
 
+const RETRY_AFTER_MS = 600;
+const pause = () => new Promise((resume) => setTimeout(resume, RETRY_AFTER_MS));
+
 export const npmRegistry = (web: Web): PackageRegistry => ({
   async publishedBy(maintainer) {
     const url = `https://registry.npmjs.org/-/v1/search?text=maintainer:${maintainer}&size=250`;
@@ -45,12 +48,11 @@ export const npmRegistry = (web: Web): PackageRegistry => ({
     };
   },
 
-  // One call for every name: npm rate-limits one call per tool, which left some figures out.
+  // One call for every name, and one retry: npm rate-limits, which left some figures out.
   async downloadsIn({ month, names }) {
     const range = `${month.firstDay()}:${month.lastDay()}`;
-    const body = await web.json(
-      `https://api.npmjs.org/downloads/point/${range}/${names.join(",")}`,
-    );
+    const ask = () => web.json(`https://api.npmjs.org/downloads/point/${range}/${names.join(",")}`);
+    const body = await ask().catch(() => pause().then(ask));
     const points = names.length === 1 ? { [names[0]]: Point.parse(body) } : Points.parse(body);
     const figures = Object.entries(points).flatMap(([name, point]) =>
       point ? [[name, point.downloads] as const] : [],
