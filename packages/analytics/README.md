@@ -21,7 +21,22 @@ the built page. A wrong value stops the build and says what to write.
 | `ANALYTICS=off`         | No analytics code and no question, in `dev` or `build`          |
 | `pnpm build`            | PostHog when `POSTHOG_KEY` is set, else nothing, and it says so |
 
-Events are `environment: production` only on the live address, so a local preview never counts.
+Events are `environment: production` only on the live address, so a build served locally never
+counts.
+
+## Shipped
+
+On by default: a build has analytics when `POSTHOG_KEY` is set, unless `ANALYTICS` is `off`.
+
+| Where      | `ANALYTICS` | What happens                                   |
+| ---------- | ----------- | ---------------------------------------------- |
+| Preview    | `off`       | No analytics code and no question              |
+| Production | empty       | PostHog when `POSTHOG_KEY` is set, after a yes |
+
+Empty is the same as unset. The preview is off because it shares production's address: its visits
+would count as production. `ANALYTICS` is set per environment in
+[`shiplane.unit.yml`](../../apps/portfolio/shiplane.unit.yml); the key and region are the
+repository's variables on GitHub.
 
 ## Read
 
