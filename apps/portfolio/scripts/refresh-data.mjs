@@ -1,31 +1,29 @@
 // Rewrites the saved data, all a build reads, from the live sources. Each release runs it.
 // All four or none: one source down, or one figure missing, and nothing is written.
-// With --check, only asks whether GitHub would answer, which does not count against its limit.
+import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { runnerImport } from "vite";
 
-const checkGitHub = async () => {
-  const response = await fetch("https://api.github.com/rate_limit", {
-    headers: { "User-Agent": "portfolio-build" },
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!response.ok) throw new Error(`${response.status} ${response.url}`);
-  const { core, search } = (await response.json()).resources;
-  const spent = [core, search].filter(({ remaining }) => remaining === 0);
-  if (spent.length === 0) return;
-  const { limit, reset } = spent.reduce((a, b) => (a.reset > b.reset ? a : b));
-  const time = new Date(reset * 1000).toLocaleTimeString();
-  throw new Error(
-    `the rate limit of api.github.com is reached (${limit} requests), try again after ${time}`,
+// GitHub is read through gh: asked first, so a missing sign-in is named before anything is read.
+const checkGh = () => {
+  const { error, status, stderr } = spawnSync(
+    "gh",
+    ["auth", "status", "--active", "--hostname", "github.com"],
+    { encoding: "utf8", timeout: 15_000 },
   );
+  if (error?.code === "ENOENT") {
+    throw new Error("gh is not installed. Install it from https://cli.github.com");
+  }
+  if (error) throw new Error(`gh could not check its sign-in: ${error.message}`);
+  if (status !== 0) {
+    throw new Error(
+      `gh is not signed in to GitHub, or could not check it. Run: gh auth login\n${stderr.trim()}`,
+    );
+  }
 };
 
 try {
-  await checkGitHub();
-  if (process.argv.includes("--check")) {
-    console.info("✓ GitHub can be read");
-    process.exit(0);
-  }
+  checkGh();
   const { module } = await runnerImport("./src/profile.ts", {
     configFile: false,
     logLevel: "error",

@@ -9,8 +9,9 @@ Shanghai from Suzhou Creek.
 ## Data
 
 Everything on the page that can change is saved in `apps/portfolio/src/data/snapshots`, and a build
-reads only that. Each release refreshes it on this machine, from public sources with no token, and
-the release PR carries it:
+reads only that. Each release refreshes it on this machine, from public sources, and the release PR
+carries it. GitHub is read through `gh`, which must be signed in (`gh auth login`); a build needs no
+sign-in:
 
 | Section     | Source                                                        |
 | ----------- | ------------------------------------------------------------- |

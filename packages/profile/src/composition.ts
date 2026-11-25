@@ -5,6 +5,7 @@ import { githubHost } from "./contributions/adapters/github.host.ts";
 import { profileOf } from "./profile.ts";
 import { npmRegistry } from "./quests/adapters/npm.registry.ts";
 import { fetchWeb } from "./shared/adapters/fetch.web.ts";
+import { ghWeb } from "./shared/adapters/gh.web.ts";
 import { Snapshots } from "./shared/adapters/snapshots.ts";
 import { readmeSkills } from "./skills/adapters/readme.skills.ts";
 
@@ -16,7 +17,7 @@ const livePorts = ({ skills, substack }: ProfileSettings): Ports => {
   const web = fetchWeb(AGENT);
   return {
     registry: npmRegistry(web),
-    host: githubHost(fetchWeb({ ...AGENT, Accept: "application/vnd.github+json" })),
+    host: githubHost(ghWeb()),
     feed: substackFeed({ web, url: substack.feed }),
     list: readmeSkills({ web, repo: skills.repo }),
   };
