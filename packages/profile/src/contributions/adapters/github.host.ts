@@ -14,7 +14,7 @@ const Found = z.object({
     }),
   ),
 });
-const Repository = z.object({ stargazers_count: z.number(), description: z.string().nullish() });
+const Repository = z.object({ description: z.string().nullable() });
 const Pull = z.object({ additions: z.number(), deletions: z.number() });
 
 export const githubHost = (web: Web): CodeHost => ({
@@ -32,7 +32,7 @@ export const githubHost = (web: Web): CodeHost => ({
 
   async repository(name) {
     const found = Repository.parse(await web.json(`${API}/repos/${name}`));
-    return { stars: found.stargazers_count, description: found.description ?? "" };
+    return { description: found.description ?? "" };
   },
 
   async linesOf(url) {

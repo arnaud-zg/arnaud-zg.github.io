@@ -26,10 +26,8 @@ const settings = {
     ownOrgs: ["mine", "Employer"],
     keepOrgs: ["employer"],
     excludeRepos: ["a/sandbox"],
-    minStars: 50,
     shownKinds: ["Fix", "Feature"],
     trivial: /typo/i,
-    weights: { Fix: 3, Feature: 3 },
   },
   npm: {
     maintainer: "me",
@@ -80,18 +78,16 @@ const pullRequests = [
   pull("a/small", "fix(core): one", [1, 1]),
   pull("a/big", "fix: two"),
   pull("a/big", "feat: three"),
-  pull("a/big", "fix: a typo"),
+  pull("a/big", "fix: one more typo"),
   pull("a/big", "docs: a page"),
-  pull("a/unknown", "fix: it"),
   pull("a/sandbox", "fix: it"),
   pull("mine/own", "fix: it"),
   pull("employer/app", "feat: nine", [5, 0]),
 ];
-const tool = { stars: 100, description: "🚀 A tool (fast). More" };
+const tool = { description: "🚀 A tool (fast). More" };
 const repositories = {
   "a/small": tool,
   "a/big": tool,
-  "a/unknown": { ...tool, stars: 1 },
   "mine/own": tool,
   "employer/app": tool,
 };
@@ -101,8 +97,8 @@ const saved: Saved = {
   github: {
     prs: [{ repo: "a/saved", title: "fix: it", url: "u", date: "2025-01-01" }],
     repos: {
-      "a/saved": { stars: 90, about: "Saved" },
-      "a/big": { stars: 60, about: "A tool" },
+      "a/saved": { about: "Saved" },
+      "a/big": { about: "A tool" },
     },
     lines: { u: [3, 4] },
   },
@@ -205,7 +201,7 @@ test("side quests: a refresh without any figure fails", async () => {
   await assert.rejects(profileOn({ registry }, saved).live.npm(), /down/);
 });
 
-test("contributions: other people's projects with reach, largest first", async () => {
+test("contributions: other people's projects, largest first", async () => {
   const about = "A tool";
   assert.deepEqual((await profileWith()).contributions(), [
     { repo: "a/big", about, added: 20, removed: 4, kinds: "1 fix · 1 feature" },
@@ -247,7 +243,21 @@ test("a refresh fails when a source is down", async () => {
 
 test("a refresh asks again for what is saved", async () => {
   const { repos } = await profileOn({}, saved).live.github();
-  assert.deepEqual(repos["a/big"], { stars: 100, about: "A tool" });
+  assert.deepEqual(repos["a/big"], { about: "A tool" });
+});
+
+test("contributions: only what is shown is saved", async () => {
+  const { prs, repos, lines } = await profileOn({}, saved).live.github();
+  const shown = ["a/small", "a/big", "a/big", "employer/app"];
+  assert.deepEqual(
+    prs.map(({ repo }) => repo),
+    shown,
+  );
+  assert.deepEqual(Object.keys(repos), [...new Set(shown)]);
+  assert.deepEqual(
+    Object.keys(lines),
+    prs.map(({ url }) => url),
+  );
 });
 
 test("saved data of the wrong shape stops the build", () => {

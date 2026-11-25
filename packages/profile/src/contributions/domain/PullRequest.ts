@@ -4,7 +4,7 @@ export type PullRequest = {
   readonly url: string;
   readonly date: string;
 };
-export type Repository = { readonly stars: number; readonly about: string };
+export type Repository = { readonly about: string };
 export type Repositories = Readonly<Record<string, Repository | undefined>>;
 export type Lines = readonly [added: number, removed: number];
 export type LinesByUrl = Readonly<Record<string, Lines | undefined>>;

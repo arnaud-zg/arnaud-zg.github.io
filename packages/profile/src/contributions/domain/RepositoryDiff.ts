@@ -1,14 +1,16 @@
-import type { Projects } from "./Projects.ts";
 import type { LinesByUrl } from "./PullRequest.ts";
+import type { ShownChange } from "./ShownChanges.ts";
 import { summaryOf } from "./kinds.ts";
 
-type Row = ReturnType<Projects["shown"]>[number];
+type Facts = { rows: readonly ShownChange[]; lines: LinesByUrl; about: string };
 
 export class RepositoryDiff {
-  readonly #rows: readonly Row[];
+  readonly #rows: readonly ShownChange[];
   readonly #lines: LinesByUrl;
+  readonly #about: string;
 
-  constructor({ rows, lines }: { rows: readonly Row[]; lines: LinesByUrl }) {
+  constructor({ rows, lines, about }: Facts) {
+    this.#about = about;
     this.#lines = lines;
     this.#rows = [...rows].sort((a, b) => this.#sizeOf(b) - this.#sizeOf(a) || b.year - a.year);
   }
@@ -19,12 +21,12 @@ export class RepositoryDiff {
   }
 
   asChanges() {
-    const [{ repo, about }] = this.#rows;
+    const [{ repo }] = this.#rows;
     const kinds = summaryOf(this.#rows.map(({ kind }) => kind));
-    return { repo, about, added: this.#total(0), removed: this.#total(1), kinds };
+    return { repo, about: this.#about, added: this.#total(0), removed: this.#total(1), kinds };
   }
 
-  #sizeOf({ url }: Row): number {
+  #sizeOf({ url }: ShownChange): number {
     const [added, removed] = this.#lines[url] ?? [0, 0];
     return added + removed;
   }

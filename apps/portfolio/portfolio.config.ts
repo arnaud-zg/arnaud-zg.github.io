@@ -340,23 +340,10 @@ export default {
     excludeRepos: ["Orlands/snake-tj", "pqvst/cafeandcowork", "muan/hello-world"],
     // How many repos (largest total change first) show on the page; the rest open in a dialog.
     top: 5,
-    // Projects with fewer stars than this are left out.
-    minStars: 50,
     // Only changes that say something about the work: no chores, docs or bare "Update X".
     shownKinds: ["Feature", "Fix", "Performance", "Types", "Refactor", "Test"],
     trivial:
       /typo|console log|optimi[sz]e images|readme|faq|^docs\b|hello-world|update \S+\.json|add ".*" on/i,
-    // How much each kind of change counts when projects are ranked.
-    weights: {
-      Feature: 3,
-      Fix: 3,
-      Performance: 3,
-      Types: 2.5,
-      Refactor: 2,
-      Change: 1.5,
-      Test: 1.5,
-      Docs: 0.5,
-    },
   },
 
   // Side quests: packages I maintain on npm, with last month's stable releases and downloads.

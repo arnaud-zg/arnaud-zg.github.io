@@ -1,14 +1,13 @@
 import type { ContributionPolicy } from "../domain/ContributionPolicy.ts";
-import type { PullRequest, Records, Repository } from "../domain/PullRequest.ts";
+import type { Records, Repository } from "../domain/PullRequest.ts";
 import type { CodeHost } from "../ports/CodeHost.ts";
 import { aboutFrom } from "../domain/about.ts";
-import { Projects } from "../domain/Projects.ts";
+import { shownChanges } from "../domain/ShownChanges.ts";
 
 export type ContributionLogNeeds = {
   host: CodeHost;
   policy: ContributionPolicy;
   author: string;
-  year: number;
 };
 
 export class ContributionLog {
@@ -18,23 +17,21 @@ export class ContributionLog {
     this.#needs = needs;
   }
 
-  // About 20 requests of GitHub's 5,000 an hour.
+  // Only what the page shows is asked for and saved: about 20 requests of GitHub's 5,000 an hour.
   async read(): Promise<Records> {
-    const { host, policy, author, year } = this.#needs;
+    const { host, policy, author } = this.#needs;
     const found = await host.mergedPullRequests({ author, outside: policy.owners() });
     if (!found.length) throw new Error("no pull requests");
-    const repos = await this.#repositoriesOf(found);
-    const prs = found.filter((pullRequest) => !policy.isOwn(pullRequest));
-    const shown = new Projects({ prs, repos, policy, year }).shown();
-    const lines = await this.#linesOf(shown.map(({ url }) => url));
-    return { prs, repos, lines };
+    const outside = found.filter((pullRequest) => !policy.isOwn(pullRequest));
+    const shown = shownChanges({ prs: outside, policy });
+    const urls = new Set(shown.map(({ url }) => url));
+    const prs = outside.filter(({ url }) => urls.has(url));
+    const repos = await this.#repositoriesOf(new Set(shown.map(({ repo }) => repo)));
+    return { prs, repos, lines: await this.#linesOf([...urls]) };
   }
 
-  async #repositoriesOf(found: PullRequest[]) {
-    const { policy } = this.#needs;
-    const substantive = found.filter((pullRequest) => policy.isSubstantive(pullRequest));
-    const asked = new Set(substantive.map(({ repo }) => repo));
-    const entries = [...asked].map(
+  async #repositoriesOf(names: ReadonlySet<string>) {
+    const entries = [...names].map(
       async (name) => [name, await this.#askRepository(name)] as const,
     );
     return Object.fromEntries(await Promise.all(entries));
@@ -47,7 +44,7 @@ export class ContributionLog {
   }
 
   async #askRepository(name: string): Promise<Repository> {
-    const { stars, description } = await this.#needs.host.repository(name);
-    return { stars, about: aboutFrom(description) };
+    const { description } = await this.#needs.host.repository(name);
+    return { about: aboutFrom(description) };
   }
 }
