@@ -1,6 +1,6 @@
 ---
 // The page shell of every site. `solid` is for pages that do not open on a Hero; `bare` leaves
-// the header out, for previews of a single part.
+// the header out, for previews of a single part. The `head` slot takes what a site adds to its head.
 import "../styles/index.css";
 import type { SiteLinksInfo } from "../site";
 import HeadInit from "../components/HeadInit.astro";
@@ -29,6 +29,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#04060f" media="(prefers-color-scheme: dark)" />
     <HeadInit />
     <Version site={site} />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
