@@ -1,5 +1,11 @@
 # portfolio
 
+## 0.2.5
+
+### Patch Changes
+
+* Counts open-source contributions to projects of any size, without a minimum number of stars. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/467
+
 ## 0.2.4
 
 ### Patch Changes
