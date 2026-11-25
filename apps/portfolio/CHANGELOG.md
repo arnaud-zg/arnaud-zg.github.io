@@ -1,5 +1,13 @@
 # portfolio
 
+## 0.2.4
+
+### Patch Changes
+
+* Shows last month's npm releases and downloads for each tool, and counts stable releases only. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/461
+
+* Describes who it is about to search engines, with structured data. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/462
+
 ## 0.2.3
 
 ### Patch Changes
