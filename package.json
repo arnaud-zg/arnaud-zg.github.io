@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm check && pnpm --filter portfolio build",
     "changeset": "changeset",
-    "check": "node scripts/check-design.mjs && pnpm test",
+    "check": "node scripts/check-design.mjs && node scripts/check-domain.mjs && pnpm test",
     "data:refresh": "pnpm --filter portfolio data:refresh",
     "dev": "pnpm --filter portfolio dev",
     "format": "prettier --write . --cache --cache-location .cache/.prettiercache",
@@ -18,7 +18,7 @@
     "preview:sites": "pnpm --filter portfolio preview:build && pnpm --filter js-packages-site preview:build && pnpm --filter portfolio preview:serve",
     "release": "shiplane",
     "test": "node --test \"packages/*/test/*.test.ts\"",
-    "typecheck": "pnpm --filter portfolio --filter js-packages-site exec astro sync && astro-check --root apps/portfolio && astro-check --root packages/design && astro-check --root templates/sub-site && tsc --noEmit -p packages/analytics",
+    "typecheck": "pnpm --filter portfolio --filter js-packages-site exec astro sync && astro-check --root apps/portfolio && astro-check --root packages/design && astro-check --root templates/sub-site && tsc --noEmit -p packages/analytics && tsc --noEmit -p packages/profile",
     "verify": "pnpm typecheck && pnpm lint && pnpm lint:md && pnpm format:check && pnpm check"
   },
   "prettier": "@arnaud-zg/configs/prettier",

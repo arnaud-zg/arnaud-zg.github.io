@@ -49,12 +49,13 @@ as `type(scope): subject`. Switching branch pulls it.
 
 ## Layout
 
-| Folder               | Holds                             |
-| -------------------- | --------------------------------- |
-| `apps/portfolio`     | this site                         |
-| `packages/design`    | the shared design                 |
-| `packages/analytics` | consent, tracking plan, providers |
-| `templates/sub-site` | starts a new sub-site             |
+| Folder               | Holds                                 |
+| -------------------- | ------------------------------------- |
+| `apps/portfolio`     | this site                             |
+| `packages/design`    | the shared design                     |
+| `packages/analytics` | consent, tracking plan, providers     |
+| `packages/profile`   | career, tools, contributions, writing |
+| `templates/sub-site` | starts a new sub-site                 |
 
 ## Shared design
 

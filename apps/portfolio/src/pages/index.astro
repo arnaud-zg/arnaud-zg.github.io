@@ -26,18 +26,18 @@ import Analytics from "../components/Analytics.astro";
 import { analytics } from "../analytics";
 import config from "../../portfolio.config";
 import { portrait, siteInfo } from "../site";
-import { career } from "../data/career";
-import { getSideQuests } from "../data/npm";
-import { getContributions } from "../data/oss";
-import { getArticles, formatDate } from "../data/substack";
-import { getSkills } from "../data/skills";
+import { profile } from "../profile";
+import { formatDate } from "../presenters/date";
+import { treemapOf } from "../presenters/treemap";
 
 const { name, role, links, site, sections, labels } = config;
 const { glance: words, about } = sections;
-const quests = await getSideQuests();
-const { repos: prRepos } = await getContributions();
-const articles = await getArticles();
-const skills = await getSkills();
+const { education } = config.career;
+const career = profile.career();
+const quests = await profile.sideQuests();
+const prRepos = await profile.contributions();
+const articles = await profile.articles();
+const skills = await profile.skills();
 
 const numbers = [
   { value: career.years, unit: labels.years, label: words.years },
@@ -47,9 +47,9 @@ const numbers = [
 // Header nav: every shown section that has a nav label, in page order.
 const ids: Record<string, string> = { about: "about", journey: "journey", quests: "quests", skills: "skills", writing: "writing", openSource: "open-source" };
 const nav = Object.entries(sections).flatMap(([key, sec]) => (sec.show && "nav" in sec && ids[key] ? [{ href: `${import.meta.env.BASE_URL}#${ids[key]}`, label: sec.nav as string }] : []));
-const [school, ...studied] = career.summary.education?.split(", ") ?? [];
+const [school, ...studied] = education.find((e) => e.short)?.short?.split(", ") ?? [];
 const facts = [
-  { label: labels.now, value: career.summary.role, note: `${labels.at} ${career.summary.company}` },
+  { label: labels.now, value: career.current.role, note: `${labels.at} ${career.current.company}` },
   { label: labels.experience, value: `${career.years} ${labels.years}` },
   ...(school ? [{ label: labels.education, value: school, note: studied.join(", ") }] : []),
 ];
@@ -95,7 +95,7 @@ const questKpis = [
       <Facts items={facts} />
       <Roles roles={career.roles} labels={labels} />
       <Stints {...career.early} />
-      <Education title={sections.journey.educationTitle} items={career.education} labels={{ skills: labels.skillsTaught }} />
+      <Education title={sections.journey.educationTitle} items={education} labels={{ skills: labels.skillsTaught }} />
     </section>
     )}
 
@@ -104,7 +104,7 @@ const questKpis = [
       <SectionHead id="quests-title" title={sections.quests.title} lede={sections.quests.lede}>
         <Kpis items={questKpis} />
       </SectionHead>
-      <Treemap groups={quests.groups} labels={labels} />
+      <Treemap groups={treemapOf(quests.groups)} labels={labels} />
       {earlier.length > 0 && <Shelf emoji="🗃️" title={labels.earlier(earlier.length, earlier[earlier.length - 1].year, earlier[0].year)} items={earlier} />}
     </section>
     )}

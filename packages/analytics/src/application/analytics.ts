@@ -3,8 +3,11 @@ import type { Props } from "../domain/plan.ts";
 import type { AnalyticsProvider } from "../ports/AnalyticsProvider.ts";
 import type { ConsentStore } from "../ports/ConsentStore.ts";
 import type { PrivacySignal } from "../ports/PrivacySignal.ts";
-import { choose, statusOf } from "../domain/consent.ts";
+import type { StatusListener } from "./StatusListeners.ts";
+import { Consent } from "../domain/consent.ts";
 import { toEvent } from "../domain/plan.ts";
+import { ProviderSession } from "./ProviderSession.ts";
+import { StatusListeners } from "./StatusListeners.ts";
 
 export type Needs = {
   store: ConsentStore;
@@ -14,69 +17,56 @@ export type Needs = {
   provider: () => Promise<AnalyticsProvider>;
 };
 
-type Session = { running: Promise<AnalyticsProvider | undefined>; over: boolean };
+export class Analytics {
+  readonly #needs: Needs;
+  readonly #listeners = new StatusListeners();
+  #status: Status = "unasked";
+  #session: ProviderSession | undefined;
 
-export const createAnalytics = ({ store, signal, now, provider }: Needs) => {
-  let status: Status = "unasked";
-  // A new session on each yes. A provider that finishes loading after a no finds its session over.
-  let session: Session | undefined;
-  const listeners: ((status: Status) => void)[] = [];
-  // A provider that fails never breaks the page.
-  const quietly = (act: () => void) => {
-    try {
-      act();
-    } catch {
-      /* analytics is never worth an error */
-    }
-  };
+  constructor(needs: Needs) {
+    this.#needs = needs;
+  }
 
-  const follow = () => {
-    const next = statusOf(store.read(), now(), signal.objects());
-    if (next === "granted" && !session) {
-      const mine: Session = { running: Promise.resolve(undefined), over: false };
-      session = mine;
-      mine.running = provider()
-        .then((p) => {
-          if (mine.over) return;
-          quietly(() => p.start());
-          return p;
-        })
-        .catch(() => undefined);
-    }
-    if (next !== "granted" && session) {
-      const old = session;
-      session = undefined;
-      old.over = true;
-      void old.running.then((p) => quietly(() => p?.stop()));
-    }
-    const changed = next !== status;
-    status = next;
-    if (changed) for (const l of listeners) l(status);
-  };
+  start(): void {
+    this.#needs.store.onChange(() => this.#follow(this.#consent()));
+    this.#follow(this.#consent());
+  }
 
-  return {
-    start() {
-      store.onChange(follow);
-      follow();
-    },
-    status: () => status,
-    choose(choice: Choice) {
-      store.write(choose(choice, now()));
-      follow();
-    },
-    // Called at once with the current status, then on every change.
-    onStatus(listener: (status: Status) => void) {
-      listeners.push(listener);
-      listener(status);
-    },
-    track(name: string, props: Props) {
-      const event = toEvent(name, props),
-        mine = session;
-      if (event && mine)
-        void mine.running.then((p) => {
-          if (!mine.over) quietly(() => p?.track(event));
-        });
-    },
-  };
-};
-export type Analytics = ReturnType<typeof createAnalytics>;
+  status(): Status {
+    return this.#status;
+  }
+
+  choose(choice: Choice): void {
+    const consent = this.#consent();
+    const event = consent.decide({ choice, now: this.#needs.now() });
+    this.#needs.store.write(event);
+    this.#follow(consent.evolve(event));
+  }
+
+  // Called at once with the current status, then on every change.
+  onStatus(listener: StatusListener): void {
+    this.#listeners.add(listener);
+    listener(this.#status);
+  }
+
+  track(name: string, props: Props): void {
+    const event = toEvent(name, props);
+    if (event) this.#session?.track(event);
+  }
+
+  #consent(): Consent {
+    return Consent.from(this.#needs.store.read());
+  }
+
+  #follow(consent: Consent): void {
+    const { now, signal, provider } = this.#needs;
+    const next = consent.statusAt({ now: now(), objects: signal.objects() });
+    if (next === "granted") this.#session ??= new ProviderSession(provider);
+    if (next !== "granted") this.#session = this.#session?.end();
+    if (next === this.#status) return;
+    this.#status = next;
+    this.#listeners.tell(next);
+  }
+}
+
+export const createAnalytics = (needs: Needs) => new Analytics(needs);

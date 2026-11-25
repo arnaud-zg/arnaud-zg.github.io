@@ -14,6 +14,7 @@
   "dependencies": {
     "@arnaud-zg/analytics": "workspace:*",
     "@arnaud-zg/design": "workspace:*",
+    "@arnaud-zg/profile": "workspace:*",
     "@astrojs/sitemap": "^3.7.6",
     "@astrojs/starlight": "^0.43.1",
     "astro": "^7.4.13"
