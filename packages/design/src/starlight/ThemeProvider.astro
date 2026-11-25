@@ -1,4 +1,7 @@
 ---
+import { site } from "virtual:design/site";
 import HeadInit from "../components/HeadInit.astro";
+import Version from "../components/Version.astro";
 ---
 <HeadInit />
+<Version site={site} />

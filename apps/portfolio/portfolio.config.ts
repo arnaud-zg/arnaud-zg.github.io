@@ -28,6 +28,8 @@ export default {
   site: {
     id: "home",
     url: "https://arnaud-zg.github.io",
+    // Where the code lives, printed in the console with the version.
+    source: "https://github.com/arnaud-zg/arnaud-zg.github.io",
     // Shown top left on every page.
     brand: "arnaud-zg",
     // One of the photos of @arnaud-zg/design, with its credit.

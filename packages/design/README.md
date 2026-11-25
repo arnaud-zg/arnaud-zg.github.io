@@ -26,6 +26,11 @@ starlight({ title: "my-site", plugins: [design({ site: info })] });
 A site's own `components` overrides win over the plugin's. Search works in a build, not in
 `astro dev`.
 
+## Version
+
+Give the site info a `version`, and optionally a `source` address. It never shows on the page: it is
+in `<meta name="version">`, and in the console with a few birds.
+
 ## Custom pages
 
 For pages that are not documentation:

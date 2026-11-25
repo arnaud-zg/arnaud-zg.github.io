@@ -3,6 +3,7 @@ import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 
+import pkg from "./package.json" with { type: "json" };
 import config from "./portfolio.config.ts";
 
 export default defineConfig({
@@ -23,7 +24,15 @@ export default defineConfig({
       head: [{ tag: "meta", attrs: { name: "robots", content: "noindex" } }],
       sidebar: [{ label: "Packages", items: ["design/starlight/page"] }],
       plugins: [
-        design({ site: { id: "js-packages", brand: config.site.brand, sites: config.sites } }),
+        design({
+          site: {
+            id: "js-packages",
+            brand: config.site.brand,
+            sites: config.sites,
+            version: pkg.version,
+            source: config.site.source,
+          },
+        }),
       ],
     }),
   ],

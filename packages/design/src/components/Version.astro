@@ -1,0 +1,7 @@
+---
+// The site's version, for whoever looks: in the head here, and in the console by scripts/site.ts.
+import type { SiteLinksInfo } from "../site";
+interface Props { site: SiteLinksInfo }
+const { brand, version, source } = Astro.props.site;
+---
+{version && <meta name="version" content={version} data-brand={brand} data-source={source} />}

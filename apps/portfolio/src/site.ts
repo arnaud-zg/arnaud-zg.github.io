@@ -3,6 +3,7 @@ import type { SiteInfo } from "@arnaud-zg/design/site";
 import { photos } from "@arnaud-zg/design/photos";
 import { getImage } from "astro:assets";
 
+import { version } from "../package.json";
 import config from "../portfolio.config";
 import profile from "./assets/profile.jpeg";
 
@@ -10,6 +11,8 @@ export const siteInfo: SiteInfo = {
   id: config.site.id,
   brand: config.site.brand,
   sites: config.sites,
+  version,
+  source: config.site.source,
   photo: photos[config.site.photo],
 };
 

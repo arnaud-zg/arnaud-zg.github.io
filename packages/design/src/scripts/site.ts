@@ -267,4 +267,19 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((btn) => {
   btn.addEventListener("click", () => void copy());
 });
 
+// The version, for whoever opens the console: two birds of the hero's flock. Not in framed previews.
+const about = document.querySelector<HTMLMetaElement>("meta[name='version']");
+if (about && window === window.top) {
+  const { brand, source } = about.dataset;
+  const art = [
+    "          __   __",
+    "            \\_/        __   __",
+    "                          \\_/",
+    "",
+    `  ${brand} v${about.content}`,
+    ...(source ? [`  ${source}`] : []),
+  ];
+  console.info(`%c${art.join("\n")}`, "font-family: monospace");
+}
+
 export {};

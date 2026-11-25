@@ -13,6 +13,9 @@ export type SiteLinksInfo = {
   readonly id: string;
   readonly brand: string;
   readonly sites: readonly SiteEntry[];
+  // Never on the page: in the head and the console. `source` is where the code lives.
+  readonly version?: string;
+  readonly source?: string;
 };
 // With the photo, for a page that opens on a Hero.
 export type SiteInfo = SiteLinksInfo & { readonly photo: Photo };
