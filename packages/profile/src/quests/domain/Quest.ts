@@ -3,6 +3,7 @@ import { Month } from "../../shared/domain/Month.ts";
 export type QuestFacts = {
   readonly name: string;
   readonly downloads?: number;
+  readonly downloadsMonth?: string;
   readonly line: string;
   readonly href: string;
   readonly keywords: string[];

@@ -1,3 +1,4 @@
+import type { Month } from "../../shared/domain/Month.ts";
 import type { PublishedPackage } from "../domain/PublishedPackage.ts";
 
 export type PackageHistory = { versions: string[]; latest?: string; created?: string };
@@ -5,6 +6,5 @@ export type PackageHistory = { versions: string[]; latest?: string; created?: st
 export interface PackageRegistry {
   publishedBy(maintainer: string): Promise<PublishedPackage[]>;
   historyOf(name: string): Promise<PackageHistory>;
-  // Over the last 30 days.
-  downloadsOf(names: string[]): Promise<Map<string, number>>;
+  downloadsIn(asked: { month: Month; names: string[] }): Promise<Map<string, number>>;
 }

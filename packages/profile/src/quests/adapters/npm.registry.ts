@@ -48,11 +48,10 @@ export const npmRegistry = (web: Web): PackageRegistry => ({
     };
   },
 
-  // "last-month" is npm's last 30 days. One call for every name, and one retry: npm rate-limits,
-  // which left some figures out.
-  async downloadsOf(names) {
-    const ask = () =>
-      web.json(`https://api.npmjs.org/downloads/point/last-month/${names.join(",")}`);
+  // One call for every name, and one retry: npm rate-limits, which left some figures out.
+  async downloadsIn({ month, names }) {
+    const range = `${month.firstDay()}:${month.lastDay()}`;
+    const ask = () => web.json(`https://api.npmjs.org/downloads/point/${range}/${names.join(",")}`);
     const body = await ask().catch(() => pause().then(ask));
     const points = names.length === 1 ? { [names[0]]: Point.parse(body) } : Points.parse(body);
     const figures = Object.entries(points).flatMap(([name, point]) =>

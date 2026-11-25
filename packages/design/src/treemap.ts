@@ -3,7 +3,7 @@
 // Returns rectangles in percent of the box, in the input order.
 
 export type Rect = { x: number; y: number; w: number; h: number };
-// What a Treemap shows. `downloads` covers the period its labels name.
+// What a Treemap shows. `downloads` covers one month, named in `downloadsMonth`.
 export type Tool = {
   name: string;
   line: string;
@@ -11,6 +11,7 @@ export type Tool = {
   releases: number;
   members: number;
   downloads?: number;
+  downloadsMonth?: string;
 };
 export type Tile = {
   tool?: Tool;
@@ -25,8 +26,9 @@ export type Group = { name: string; emoji: string; rect: Rect; tiles: Tile[] };
 export type ToolLabels = {
   releases: string;
   plugins: string;
-  downloads: string;
+  monthlyDownloads: string;
   viewOnNpm: string;
+  downloadsTitle: (month: string) => string;
   showDetails: (name: string) => string;
   more: (n: number) => string;
 };

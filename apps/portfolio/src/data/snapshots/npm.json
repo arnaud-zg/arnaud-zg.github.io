@@ -1,7 +1,8 @@
 [
   {
     "name": "ts-foursquare",
-    "downloads": 180,
+    "downloads": 185,
+    "downloadsMonth": "October 2026",
     "line": "A simple library for Foursquare API",
     "href": "https://www.npmjs.com/package/ts-foursquare",
     "keywords": [
@@ -17,7 +18,8 @@
   },
   {
     "name": "react-lightsaber",
-    "downloads": 80,
+    "downloads": 21,
+    "downloadsMonth": "October 2026",
     "line": "Just a simple lightsaber hosted on npmjs",
     "href": "https://www.npmjs.com/package/react-lightsaber",
     "keywords": [],
@@ -29,7 +31,8 @@
   },
   {
     "name": "http-response-status",
-    "downloads": 724,
+    "downloads": 762,
+    "downloadsMonth": "October 2026",
     "line": "HTTP Status Map",
     "href": "https://www.npmjs.com/package/http-response-status",
     "keywords": [
@@ -47,7 +50,8 @@
   },
   {
     "name": "popup-sensor",
-    "downloads": 90,
+    "downloads": 47,
+    "downloadsMonth": "October 2026",
     "line": "Popup window sensor written in typescript",
     "href": "https://www.npmjs.com/package/popup-sensor",
     "keywords": [
@@ -62,7 +66,8 @@
   },
   {
     "name": "standalone-store",
-    "downloads": 77,
+    "downloads": 39,
+    "downloadsMonth": "October 2026",
     "line": "Middleware for redux store in standalone mode for nodejs environment",
     "href": "https://www.npmjs.com/package/standalone-store",
     "keywords": [
@@ -79,7 +84,8 @@
   },
   {
     "name": "selector",
-    "downloads": 231,
+    "downloads": 173,
+    "downloadsMonth": "October 2026",
     "line": "Generic selector library",
     "href": "https://www.npmjs.com/package/selector",
     "keywords": [
@@ -94,7 +100,8 @@
   },
   {
     "name": "blast-shield",
-    "downloads": 399,
+    "downloads": 84,
+    "downloadsMonth": "October 2026",
     "line": "Technical debt protection tool for any codebase",
     "href": "https://www.npmjs.com/package/blast-shield",
     "keywords": [
@@ -112,7 +119,8 @@
   },
   {
     "name": "shiplane",
-    "downloads": 6223,
+    "downloads": 281,
+    "downloadsMonth": "October 2026",
     "line": "Release and deploy a monorepo in one command",
     "href": "https://www.npmjs.com/package/shiplane",
     "keywords": [
@@ -132,7 +140,8 @@
   },
   {
     "name": "eslint-plugin-feature-flags",
-    "downloads": 31,
+    "downloads": 20,
+    "downloadsMonth": "October 2026",
     "line": "Lint rules to enforce feature flag hygiene",
     "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
     "keywords": [
@@ -148,7 +157,8 @@
   },
   {
     "name": "lazy-upload",
-    "downloads": 36,
+    "downloads": 8,
+    "downloadsMonth": "October 2026",
     "line": "Simplify the file upload flow",
     "href": "https://www.npmjs.com/package/lazy-upload",
     "keywords": [
@@ -163,7 +173,8 @@
   },
   {
     "name": "agent-context-budget",
-    "downloads": 1531,
+    "downloads": 291,
+    "downloadsMonth": "October 2026",
     "line": "Scores the markdown files an AI agent loads",
     "href": "https://www.npmjs.com/package/agent-context-budget",
     "keywords": [
@@ -183,7 +194,8 @@
   },
   {
     "name": "expo-native-guard",
-    "downloads": 1017,
+    "downloads": 87,
+    "downloadsMonth": "October 2026",
     "line": "Load native-only modules safely in Expo Go",
     "href": "https://www.npmjs.com/package/expo-native-guard",
     "keywords": [
@@ -202,7 +214,8 @@
   },
   {
     "name": "expo-pnpm-catalog",
-    "downloads": 997,
+    "downloads": 76,
+    "downloadsMonth": "October 2026",
     "line": "Checks and syncs Expo SDK versions in pnpm catalogs",
     "href": "https://www.npmjs.com/package/expo-pnpm-catalog",
     "keywords": [
@@ -221,7 +234,8 @@
   },
   {
     "name": "migration-preflight",
-    "downloads": 651,
+    "downloads": 89,
+    "downloadsMonth": "October 2026",
     "line": "Test database migrations before you ship them",
     "href": "https://www.npmjs.com/package/migration-preflight",
     "keywords": [
@@ -242,7 +256,8 @@
   },
   {
     "name": "vite-workspace-resolver",
-    "downloads": 1355,
+    "downloads": 286,
+    "downloadsMonth": "October 2026",
     "line": "Resolves workspace package imports in Vite and Vitest",
     "href": "https://www.npmjs.com/package/vite-workspace-resolver",
     "keywords": [
@@ -261,7 +276,8 @@
   },
   {
     "name": "immutable-instance",
-    "downloads": 21,
+    "downloads": 12,
+    "downloadsMonth": "October 2026",
     "line": "Makes immutable class instances reactive for front-end application",
     "href": "https://www.npmjs.com/package/immutable-instance",
     "keywords": [

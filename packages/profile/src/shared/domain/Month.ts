@@ -21,4 +21,26 @@ export class Month {
   year(): number {
     return Math.floor(this.#index / 12);
   }
+
+  previous(): Month {
+    return new Month(this.#index - 1);
+  }
+
+  firstDay(): string {
+    return this.#start().toISOString().slice(0, 10);
+  }
+
+  lastDay(): string {
+    const end = new Date(Date.UTC(this.year(), (this.#index % 12) + 1, 0));
+    return end.toISOString().slice(0, 10);
+  }
+
+  label(): string {
+    const format = { month: "long", year: "numeric", timeZone: "UTC" } as const;
+    return this.#start().toLocaleDateString("en-GB", format);
+  }
+
+  #start(): Date {
+    return new Date(Date.UTC(this.year(), this.#index % 12, 1));
+  }
 }

@@ -62,6 +62,7 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
   });
   const catalog = new QuestCatalog({
     registry,
+    today,
     maintainer: npm.maintainer,
     parked: npm.parkedVersion,
     lines: npm.lines,
@@ -82,10 +83,12 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
       const quests = Quests.of(saved.npm);
       const age = { months: npm.activeMonths, today };
       const active = quests.updatedWithin(age);
+      const counted = active.asFacts().find(({ downloads }) => downloads !== undefined);
       return {
         tools: active.count(),
         releases: active.releases(),
         downloads: active.downloads(),
+        downloadsMonth: counted?.downloadsMonth,
         groups: new QuestMap({ rules: npm, today }).groupsOf(active),
         earlier: quests.olderThan(age).asFacts(),
       };
