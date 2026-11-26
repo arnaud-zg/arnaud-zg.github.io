@@ -10,9 +10,12 @@ const changeOf = ({ repo, title, date, url }: PullRequest): ShownChange => {
   return { repo, kind, year: Number(date.slice(0, 4)), url };
 };
 
-// The pull requests that count, and whose kind is shown.
+// A pull request that counts, and whose kind is shown.
+export const isShownWork = ({ pr, policy }: { pr: PullRequest; policy: ContributionPolicy }) =>
+  policy.isSubstantive(pr) && policy.isShown(new PullRequestTitle(pr.title).describe().kind);
+
+export const shownPullRequests = ({ prs, policy }: Work): PullRequest[] =>
+  prs.filter((pr) => isShownWork({ pr, policy }));
+
 export const shownChanges = ({ prs, policy }: Work): ShownChange[] =>
-  prs
-    .filter((pullRequest) => policy.isSubstantive(pullRequest))
-    .map(changeOf)
-    .filter(({ kind }) => policy.isShown(kind));
+  shownPullRequests({ prs, policy }).map(changeOf);

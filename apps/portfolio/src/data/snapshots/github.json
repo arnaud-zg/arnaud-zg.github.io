@@ -61,6 +61,46 @@
       "date": "2019-09-27T16:17:54Z"
     }
   ],
+  "open": [
+    {
+      "repo": "web-infra-dev/rspack",
+      "title": "fix(mf): provide a shared package that declares no version",
+      "url": "https://github.com/web-infra-dev/rspack/pull/16900",
+      "date": "2026-11-26T20:57:24Z"
+    },
+    {
+      "repo": "web-infra-dev/rspack",
+      "title": "fix(mf): skip internal entries when numbering remote fallbacks",
+      "url": "https://github.com/web-infra-dev/rspack/pull/16822",
+      "date": "2026-11-23T07:25:37Z"
+    },
+    {
+      "repo": "web-infra-dev/rspack",
+      "title": "fix(mf): keep expose aliases in mf-manifest",
+      "url": "https://github.com/web-infra-dev/rspack/pull/16754",
+      "date": "2026-11-19T16:19:31Z"
+    },
+    {
+      "repo": "iamkun/dayjs",
+      "title": "fix(parse): reject strings whose day, month or hour does not exist",
+      "url": "https://github.com/iamkun/dayjs/pull/3369",
+      "date": "2026-11-17T10:01:44Z"
+    },
+    {
+      "repo": "software-mansion-labs/react-native-streamdown",
+      "title": "feat: add forceJsThread to run remend on the JS thread",
+      "url": "https://github.com/software-mansion-labs/react-native-streamdown/pull/37",
+      "date": "2026-09-18T16:51:38Z"
+    }
+  ],
+  "closes": {
+    "https://github.com/web-infra-dev/rspack/pull/16663": [
+      "https://github.com/web-infra-dev/rspack/issues/16662"
+    ],
+    "https://github.com/web-infra-dev/rspack/pull/16754": [
+      "https://github.com/web-infra-dev/rspack/issues/16753"
+    ]
+  },
   "repos": {
     "web-infra-dev/rspack": {
       "about": "Fast Rust-based bundler for the web with a modernized webpack API"
@@ -85,6 +125,12 @@
     },
     "DefinitelyTyped/DefinitelyTyped": {
       "about": "The repository for high quality TypeScript type definitions"
+    },
+    "iamkun/dayjs": {
+      "about": "Day.js 2kB immutable date-time library alternative to Moment.js with the same modern API"
+    },
+    "software-mansion-labs/react-native-streamdown": {
+      "about": "Markdown streaming for React Native"
     }
   },
   "lines": {

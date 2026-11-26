@@ -1,7 +1,7 @@
 // The whole portfolio, configured in one place.
 //
 // Data is fetched when the site builds, from four sources, each with a saved snapshot if it is
-// down: GitHub (merged pull requests), npm (tools, releases, downloads), the skills repo README
+// down: GitHub (pull requests merged or in review), npm (tools, releases, downloads), the skills repo README
 // (agent skills) and Substack (articles). This file holds everything else: who I am, the words
 // on the page, which sections show, and how fetched data is filtered and grouped.
 //
@@ -114,8 +114,8 @@ export default {
       show: true,
       nav: "Open source",
       title: "Open source",
-      moreTitle: "More projects",
-      lede: "Fixes and features merged upstream, in tools other teams rely on. Largest first.",
+      lede: "Fixes and features I send upstream, to tools other teams rely on. Most recent first.",
+      earlierTitle: "Earlier contributions",
     },
     // The last words on the page, above the profile links.
     ending: {
@@ -152,12 +152,15 @@ export default {
     skills: "skills",
     install: "Install, any agent",
     readArticles: "Read them on Substack",
-    linesAdded: "lines added",
-    linesRemoved: "lines removed",
     added: "added",
     removed: "removed",
-    total: "Across every project",
-    moreProjects: (n: number) => `${n} more ${n === 1 ? "project" : "projects"}`,
+    merged: "merged",
+    inReview: "in review",
+    reportedFixed: "reported and fixed",
+    recently: (months: number) => `In the last ${months} months`,
+    reportedFirst: (n: string) => `reported it first (#${n})`,
+    earlierWork: (merged: number, projects: number, from?: number, to?: number) =>
+      `${merged} merged in ${projects} ${projects === 1 ? "project" : "projects"}${from === undefined ? "" : from === to ? `, ${from}` : `, ${from}–${to}`}`,
   },
 
   // ─── Analytics ─────────────────────────────────────────────────────────────────────────────
@@ -331,7 +334,9 @@ export default {
   },
 
   // ─── Data sources ──────────────────────────────────────────────────────────────────────────
-  // Open source: merged pull requests in other people's public repos.
+  // Open source: pull requests in other people's public repos. Recent ones, merged or in review,
+  // lead by repository; older merged ones are the record, behind a button. Comments, pull
+  // requests closed without merging and open ones older than the window are left out.
   github: {
     user: "arnaud-zg",
     // Organisations I run. Work on their repos never counts as an open-source contribution.
@@ -349,8 +354,8 @@ export default {
     keepOrgs: ["doctolib"],
     // Repos that are not contributions: school group projects, data-file edits, sandboxes.
     excludeRepos: ["Orlands/snake-tj", "pqvst/cafeandcowork", "muan/hello-world"],
-    // How many repos (largest total change first) show on the page; the rest open in a dialog.
-    top: 5,
+    // How many months back counts as current activity.
+    recentMonths: 6,
     // Only changes that say something about the work: no chores, docs or bare "Update X".
     shownKinds: ["Feature", "Fix", "Performance", "Types", "Refactor", "Test"],
     trivial:

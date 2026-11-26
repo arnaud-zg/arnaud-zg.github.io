@@ -1,4 +1,4 @@
-import type { PullRequest } from "./PullRequest.ts";
+import type { Issue, PullRequest } from "./PullRequest.ts";
 
 export type ContributionRules = {
   readonly user: string;
@@ -7,6 +7,8 @@ export type ContributionRules = {
   readonly excludeRepos: readonly string[];
   readonly shownKinds: readonly string[];
   readonly trivial: RegExp;
+  // Work this recent is current activity; older merged work is the record.
+  readonly recentMonths: number;
 };
 
 const isOneOf = ({ word, words }: { word: string; words: readonly string[] }) =>
@@ -37,5 +39,19 @@ export class ContributionPolicy {
 
   isShown(kind: string): boolean {
     return this.#rules.shownKinds.includes(kind);
+  }
+
+  // An issue one reported oneself.
+  isReportedByUser({ author }: Issue): boolean {
+    return isOneOf({ word: author, words: [this.#rules.user] });
+  }
+
+  // The first day of the recent window, as an ISO date: dates compare as text.
+  since(now: Date): string {
+    const months = this.#rules.recentMonths;
+    const start = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - months, now.getUTCDate()),
+    );
+    return start.toISOString().slice(0, 10);
   }
 }
