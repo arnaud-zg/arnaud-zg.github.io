@@ -1,7 +1,7 @@
 {
   "portfolio:/design/": {
-    "raw": 52883,
-    "gzip": 12807
+    "raw": 53890,
+    "gzip": 12967
   },
   "portfolio:/design/preview/ending/": {
     "raw": 28625,
@@ -41,7 +41,7 @@
   },
   "portfolio:/": {
     "raw": 52864,
-    "gzip": 12848
+    "gzip": 12847
   },
   "sub-site:/404.html": {
     "raw": 83423,

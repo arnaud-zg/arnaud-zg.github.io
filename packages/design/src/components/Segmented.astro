@@ -1,0 +1,45 @@
+---
+// One choice among a few, side by side. Pressing one presses it alone and tells the group, with a
+// `segmented` event whose detail is `{ name, value }`.
+interface Props { label: string; name: string; options: readonly (string | { value: string; label: string })[]; value: string }
+const { label, name, options, value } = Astro.props;
+const items = options.map((o) => (typeof o === "string" ? { value: o, label: o } : o));
+---
+<div class="segmented" role="group" aria-label={label} data-segmented={name}>
+  {items.map((o) => <button type="button" data-value={o.value} aria-pressed={o.value === value ? "true" : "false"}>{o.label}</button>)}
+</div>
+<script>
+  document.addEventListener("click", (event) => {
+    const button = event.target instanceof Element ? event.target.closest<HTMLButtonElement>("[data-segmented] > button") : null;
+    if (!button) return;
+    const group = button.parentElement!;
+    group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+    group.dispatchEvent(new CustomEvent("segmented", { bubbles: true, detail: { name: group.dataset.segmented, value: button.dataset.value } }));
+  });
+</script>
+
+<style is:global>
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--fs-small);
+}
+.segmented button {
+  padding: 5px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-lo);
+  font: inherit;
+  cursor: pointer;
+  transition: color 200ms var(--ease-out), border-color 200ms var(--ease-out);
+}
+.segmented button:hover {
+  color: var(--ink);
+}
+.segmented button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+</style>

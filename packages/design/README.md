@@ -63,6 +63,14 @@ and `Content` instead.
 - Unhashed on purpose: hashed scoped styles added about 9% to the CSS and 9% to the HTML of the home
   page. Isolation is checked instead.
 
+## Variants
+
+A component's variants are written once, beside it (`Hero.variants.ts`), with `defineVariants` from
+`@arnaud-zg/design/variants`. The component takes them as typed props and puts them on its root as
+data attributes; its styles select them (`.hero[data-size="banner"]`). In `/design/`, a story given
+the spec shows a control per axis, every combination in a grid, the matching code, and a link that
+keeps the choice (`/design/#pill?look=quiet`). `pnpm check` fails if a spec has no story.
+
 ## Preview every site together
 
 `pnpm preview:sites` builds the portfolio and the starter under one origin, on port 4330. Firefox

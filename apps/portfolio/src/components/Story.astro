@@ -1,10 +1,91 @@
 ---
+// One part on show. With `variants`, the slot is a function of a choice: every combination is
+// rendered once, controls pick the one shown, the code follows (`{variants}` in `code` takes the
+// chosen props), the grid below lists them all, and the hash keeps the choice (`#pill?look=quiet`).
+// `theme` shows the stage in either theme, whatever the page's. Framed parts keep their own.
 import Copy from "@arnaud-zg/design/Copy.astro";
-interface Props { name: string; use: string; code: string }
-const { name, use, code } = Astro.props;
+import Segmented from "@arnaud-zg/design/Segmented.astro";
+import type { Axes, Choice, Variants } from "@arnaud-zg/design/variants";
+interface Props { name: string; use: string; code: string; variants?: Variants<Axes>; framed?: boolean }
+const { name, use, code, variants, framed = false } = Astro.props;
+const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const key = (c: Choice<Axes>) => Object.entries(c).map(([k, v]) => `${k}=${v}`).join("&");
+const label = (c: Choice<Axes>) => Object.entries(c).map(([k, v]) => `${k}: ${v}`).join(" · ");
+const props = (c: Choice<Axes>) =>
+  Object.entries(c)
+    .filter(([k, v]) => v !== variants?.defaults[k])
+    .map(([k, v]) => ` ${k}="${v}"`)
+    .join("");
+const combos = variants?.all() ?? [];
+const shown = variants ? await Promise.all(combos.map((c) => Astro.slots.render("default", [c]))) : [];
 ---
-<section class="story" aria-label={name}>
+<section class="story" id={slug} aria-label={name} data-story={variants ? JSON.stringify(variants.defaults) : undefined}>
   <header class="story-head"><h3>{name}</h3><p>{use}</p></header>
-  <div class="story-stage"><slot /></div>
-  <div class="story-code"><code data-copy-text>{code}</code><Copy label={`Copy the code of ${name}`} /></div>
+  {!framed && (
+    <div class="story-bar">
+      {variants && Object.entries(variants.axes).map(([axis, values]) => <span class="story-axis"><span class="label">{axis}</span><Segmented label={`${name}: ${axis}`} name={axis} options={values} value={variants.defaults[axis]} /></span>)}
+      <Segmented label={`${name}: theme`} name="theme" options={[{ value: "page", label: "Page theme" }, { value: "light", label: "Day" }, { value: "dark", label: "Night" }]} value="page" />
+    </div>
+  )}
+  <div class="story-stage" data-stage>
+    {variants ? combos.map((c, i) => <div data-combo={key(c)} hidden={i > 0} set:html={shown[i]} />) : <slot />}
+  </div>
+  {variants && (
+    <details class="story-all">
+      <summary>All {combos.length} variants</summary>
+      <ul class="story-grid">
+        {combos.map((c, i) => <li><p class="label">{label(c)}{i === 0 && " · default"}</p><div class="story-cell" set:html={shown[i]} /></li>)}
+      </ul>
+    </details>
+  )}
+  <div class="story-code"><code data-copy-text data-code={code}>{code.replace("{variants}", "")}</code><Copy label={`Copy the code of ${name}`} /></div>
 </section>
+
+<script>
+  // Each story with variants: the choice shows its combination, its code and its link.
+  document.querySelectorAll<HTMLElement>("[data-story]").forEach((story) => {
+    const choice: Record<string, string> = JSON.parse(story.dataset.story!);
+    const defaults = { ...choice };
+    const code = story.querySelector<HTMLElement>("[data-code]")!;
+    const apply = (push: boolean) => {
+      const key = Object.entries(choice).map(([k, v]) => `${k}=${v}`).join("&");
+      story.querySelectorAll<HTMLElement>("[data-combo]").forEach((c) => (c.hidden = c.dataset.combo !== key));
+      const props = Object.entries(choice).filter(([k, v]) => v !== defaults[k]).map(([k, v]) => ` ${k}="${v}"`).join("");
+      code.textContent = code.dataset.code!.replace("{variants}", props);
+      story.querySelectorAll<HTMLElement>("[data-segmented]").forEach((g) => {
+        const value = choice[g.dataset.segmented!];
+        if (value) g.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.value === value)));
+      });
+      if (push) history.replaceState(null, "", `#${story.id}${props ? `?${new URLSearchParams(Object.fromEntries(Object.entries(choice).filter(([k, v]) => v !== defaults[k])))}` : ""}`);
+    };
+    story.addEventListener("segmented", (e) => {
+      const { name, value } = (e as CustomEvent<{ name: string; value: string }>).detail;
+      if (name in choice) {
+        choice[name] = value;
+        apply(true);
+      }
+    });
+    // A link to a choice (`#pill?look=quiet`), on arrival or later on the page.
+    const follow = () => {
+      const [id, query = ""] = location.hash.slice(1).split("?");
+      if (id !== story.id) return;
+      Object.assign(choice, defaults);
+      new URLSearchParams(query).forEach((v, k) => {
+        if (k in choice) choice[k] = v;
+      });
+      apply(false);
+      story.scrollIntoView();
+    };
+    follow();
+    addEventListener("hashchange", follow);
+  });
+  // Any story: its stage in day or night, whatever the page.
+  document.addEventListener("segmented", (e) => {
+    const { name, value } = (e as CustomEvent<{ name: string; value: string }>).detail;
+    if (name !== "theme") return;
+    const stage = (e.target as HTMLElement).closest(".story")?.querySelector<HTMLElement>("[data-stage]");
+    if (!stage) return;
+    if (value === "page") delete stage.dataset.theme;
+    else stage.dataset.theme = value;
+  });
+</script>
