@@ -38,10 +38,11 @@ For pages that are not documentation:
 ```astro
 ---
 import Page from "@arnaud-zg/design/Page.astro";
+import Section from "@arnaud-zg/design/Section.astro";
 import { info } from "../site"; // id, brand and sites: see src/site.ts in this package
 ---
 <Page site={info} title="…" description="…" nav={[]} heading="js-packages" tagline="…">
-  <section class="section section--first">…</section>
+  <Section space="tight">…</Section>
 </Page>
 ```
 
