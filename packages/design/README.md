@@ -38,10 +38,11 @@ For pages that are not documentation:
 ```astro
 ---
 import Page from "@arnaud-zg/design/Page.astro";
+import Section from "@arnaud-zg/design/Section.astro";
 import { info } from "../site"; // id, brand and sites: see src/site.ts in this package
 ---
 <Page site={info} title="…" description="…" nav={[]} heading="js-packages" tagline="…">
-  <section class="section section--first">…</section>
+  <Section space="tight">…</Section>
 </Page>
 ```
 
@@ -62,6 +63,14 @@ and `Content` instead.
   `styles/`: tokens, fonts, the reset, text primitives (`.label`, `.inline`), view transitions.
 - Unhashed on purpose: hashed scoped styles added about 9% to the CSS and 9% to the HTML of the home
   page. Isolation is checked instead.
+
+## Variants
+
+A component's variants are written once, beside it (`Hero.variants.ts`), with `defineVariants` from
+`@arnaud-zg/design/variants`. The component takes them as typed props and puts them on its root as
+data attributes; its styles select them (`.hero[data-size="banner"]`). In `/design/`, a story given
+the spec shows a control per axis, every combination in a grid, the matching code, and a link that
+keeps the choice (`/design/#pill?look=quiet`). `pnpm check` fails if a spec has no story.
 
 ## Preview every site together
 

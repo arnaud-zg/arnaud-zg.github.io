@@ -91,6 +91,13 @@ for (const file of walk(src).filter((f) => f.endsWith(".astro") && !f.includes("
     problems.push(`${name} is not shown in /design/`);
 }
 
+// A component with variants shows them all: a story in /design/ takes its spec.
+for (const file of walk(join(src, "components")).filter((f) => f.endsWith(".variants.ts"))) {
+  const spec = readFileSync(file, "utf8").match(/export const (\w+)\s*=/)?.[1];
+  if (spec && !new RegExp(`\\b${spec}\\b`).test(shown))
+    problems.push(`${relative(".", file)}: no story in /design/ uses ${spec}`);
+}
+
 // 4. Styles are isolated by rule, not by hashes: each part styles what it renders, nothing else.
 //    A component's <style is:global> and the parts it imports style only classes it renders; no
 //    two components style the same class; the global sheets reach a component's class only under
