@@ -46,6 +46,12 @@ export class Position {
     return { start: yearOf(start), end: end && yearOf(end) };
   }
 
+  // The first and last month as written, the last left out while it lasts.
+  span(): { since: string; until?: string } {
+    const { start, end } = this.#facts;
+    return { since: start, until: end };
+  }
+
   describe() {
     const { name, industry, emoji, role, note, highlights, stack } = this.#facts;
     return { name, industry, emoji, role, note, highlights, stack: stack.split(", ") };

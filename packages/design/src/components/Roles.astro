@@ -1,9 +1,9 @@
 ---
 // One card per job, newest first. A title earned later carries its year.
-// With an emoji, pressing the company name sends it flying across the card to land on the name.
+// With an emoji, pressing the company name sends it gliding from the dates to the name, slower for a longer stay.
 import "../styles/career.css";
 import Tags from "./Tags.astro";
-export type Role = { company: string; industry?: string; emoji?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
+export type Role = { company: string; industry?: string; emoji?: string; since?: string; until?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
 interface Props { roles: Role[]; labels: { then: string; stack: string } }
 const { roles, labels } = Astro.props;
 ---
@@ -11,8 +11,8 @@ const { roles, labels } = Astro.props;
   {roles.map((r) => (
     <li class:list={["cv-role", r.now && "cv-role--now"]} data-egg-row={r.emoji ? "perch" : undefined}>
       <div class="cv-head">
-        <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
-        <p class="cv-dates">{r.dates}</p>
+        <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji} data-egg-kind="work" data-egg-since={r.since} data-egg-until={r.until}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+        <p class="cv-dates" data-egg-from={r.emoji ? "" : undefined}>{r.dates}</p>
       </div>
       <p class="cv-titles">
         {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}

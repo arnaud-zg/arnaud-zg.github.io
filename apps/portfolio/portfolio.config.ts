@@ -198,6 +198,7 @@ export default {
     education: [
       {
         school: "Epitech",
+        emoji: "🎓",
         degree: "Master-level, Computer Software Engineering",
         start: "2012",
         end: "2017",
@@ -210,6 +211,7 @@ export default {
       },
       {
         school: "Tongji University",
+        emoji: "🌏",
         degree: "Master's programme, Software Engineering",
         start: "2015",
         end: "2017",
@@ -218,6 +220,8 @@ export default {
       },
     ] as {
       school: string;
+      // Climbs to the name when it is pressed, one step per year.
+      emoji?: string;
       degree: string;
       start: string;
       end: string;

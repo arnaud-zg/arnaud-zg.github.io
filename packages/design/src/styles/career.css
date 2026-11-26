@@ -138,6 +138,7 @@
   gap: 12px;
 }
 .cv-edu-card {
+  position: relative;
   display: grid;
   align-content: start;
   gap: 8px;
@@ -246,18 +247,35 @@
   left: 0;
   font-size: 1.3rem;
   line-height: 1;
-  will-change: transform;
+  will-change: transform, opacity;
 }
 .cv-early .cv-fly {
   font-size: 1.05rem;
 }
-.cv-fly-arc,
-.cv-fly-glyph {
-  display: block;
+.cv-edu-card .cv-fly {
+  font-size: 1.15rem;
+}
+/* A year the climb rested on (study), and the ring the landing sends out. */
+.cv-fly-mark,
+.cv-fly-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  opacity: 0; /* seen only while animated */
   will-change: transform, opacity;
 }
-.cv-fly-glyph {
-  transform-origin: 50% 100%;
+.cv-fly-mark {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+}
+.cv-fly-ring {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1.5px solid var(--accent);
 }
 
 @media (prefers-reduced-motion: no-preference) {

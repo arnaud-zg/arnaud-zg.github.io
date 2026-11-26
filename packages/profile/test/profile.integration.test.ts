@@ -192,6 +192,16 @@ test("career: each job brings its emoji to its row, early ones too", () => {
   assert.equal(career.early.stints[0].emoji, "L");
 });
 
+test("career: each job carries its months, the current one left open", () => {
+  const career = profileOn({}, saved).career();
+  assert.deepEqual(career.roles[0].since, "2023-01");
+  assert.equal(career.roles[0].until, undefined);
+  assert.deepEqual(
+    [career.early.stints[0].since, career.early.stints[0].until],
+    ["2015-01", "2015-06"],
+  );
+});
+
 test("side quests: plugins join their tool, parked ones are left out, old ones move to earlier", async () => {
   const quests = (await profileWith()).sideQuests();
   assert.deepEqual([quests.tools, quests.releases], [3, 10]);
