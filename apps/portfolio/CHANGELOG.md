@@ -1,5 +1,19 @@
 # portfolio
 
+## 0.4.0
+
+### Minor Changes
+
+* In the career section, a job's emoji now glides from its dates to the company name, and a school's emoji climbs to the school name one step per year, slower for a longer stay. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/474
+
+### Patch Changes
+
+* Nothing changes on the page; each page now loads only the styles of the parts it shows. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/476
+
+* Nothing changes on the page; the hero, sections and pills now take typed variants. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/477
+
+* The design workshop lets you try each variant of a part, in day or night, and link to it. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/478
+
 ## 0.3.0
 
 ### Minor Changes
