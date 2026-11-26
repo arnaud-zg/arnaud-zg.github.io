@@ -24,6 +24,7 @@ import Treemap from "@arnaud-zg/design/Treemap.astro";
 import Shelf from "@arnaud-zg/design/Shelf.astro";
 import Articles from "@arnaud-zg/design/Articles.astro";
 import Diffstat from "@arnaud-zg/design/Diffstat.astro";
+import Activity from "@arnaud-zg/design/Activity.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
 import { squarify, TREEMAP_BOX } from "@arnaud-zg/design/treemap";
 import { portrait, siteInfo } from "../../site";
@@ -51,6 +52,11 @@ const total = (group: { releases: number }[]) => group.reduce((n, t) => n + t.re
 const [boxes, ...inner] = [tiles.map(total), ...tiles.map((g) => g.map((t) => t.releases))].map((v) => squarify(v, TREEMAP_BOX.w, TREEMAP_BOX.h, true));
 const groups = tiles.map((g, gi) => ({ name: ["Shipping", "Testing"][gi], emoji: ["🚢", "🧪"][gi], rect: boxes[gi], tiles: g.map((t, ti) => ({ tool: t, releases: t.releases, weight: t.releases, recent: ti === 0, rect: inner[gi][ti], mrect: inner[gi][ti] })) }));
 const diffs = [["acme/bundler", 420, 80], ["acme/cli", 120, 60], ["acme/docs", 20, 5]].map(([repo, added, removed]) => ({ repo: String(repo), about: "What the project is", kinds: "2 fixes", added: Number(added), removed: Number(removed), href: "https://github.com" }));
+const thread = (status: "merged" | "review", title: string, reported?: string) => ({ status, title, href: "https://github.com", reported: reported ? [{ number: reported, href: "https://github.com" }] : undefined });
+const activity = [
+  { repo: "acme/bundler", about: "What the project is", href: "https://github.com", threads: [thread("review", "Keep the whole range"), thread("merged", "Match short ranges at runtime", "120")] },
+  { repo: "acme/dates", about: "What the project is", href: "https://github.com", threads: [thread("review", "Reject dates that do not exist")] },
+];
 const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] as const;
 ---
 <Site site={siteInfo} title={`Design workshop · ${config.site.brand}`} description="The parts this site and its sub-sites are built from." nav={nav} noindex>
@@ -119,6 +125,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
           <Story name="Education" use="Compact cards, newest first." code={'<Education title="Education" items={items} labels={{ skills: "Skills" }} />'}><Education title="Education" labels={{ skills: "Skills" }} items={[{ school: "A school", degree: "A degree", start: "2013", end: "2016", highlights: ["What it was about"], skills: ["Algorithms"] }]} /></Story>
           <Story name="Treemap" use="Tools by group, sized by weight. Open one: the rest reflows. A list on small screens." code={'<Treemap groups={groups} labels={labels} />'}><Treemap groups={groups} labels={config.labels} /></Story>
           <Story name="Articles" use="Covers in a row, newest first." code={'<Articles items={articles} />'}><Articles items={[2, 1].map((n) => ({ title: `Article ${n}`, url: config.links[0].href, date: `2026-0${n}-01`, dateText: `0${n}/2026`, image: portrait.src }))} /></Story>
+          <Story name="Activity" use="Current work by repository, latest first: a status per pull request, an issue reported first folded into it. Older work opens in a dialog." code={'<Activity items={repos} labels={labels} earlier={earlier} />'}><Activity items={activity} labels={{ merged: "merged", review: "in review", reported: (n) => `reported it first (#${n})` }} earlier={{ id: "ws-earlier", label: "2 merged in 2 projects, 2019–2021", title: "Earlier contributions", items: diffs.slice(1), added: "added", removed: "removed" }} /></Story>
           <Story name="Diffstat" use="Contributions by repository, largest first. The rest open in a dialog." code={'<Diffstat id="more" items={repos} top={2} labels={labels} />'}><Diffstat id="ws-diff" items={diffs} top={2} labels={{ added: "added", removed: "removed", more: (n) => `${n} more`, moreTitle: "More projects" }} /></Story>
         </section>
 

@@ -1,0 +1,51 @@
+---
+// Current work by repository, the latest activity first: one line per pull request, with its
+// status. An issue reported first folds into the pull request that closes it, as a note.
+// `earlier` puts older work behind a button, as a diffstat in a dialog.
+import "../styles/diffstat.css";
+import "../styles/activity.css";
+import { external } from "../links";
+import Dialog from "./Dialog.astro";
+import DiffRows, { type DiffRepo } from "./DiffRows.astro";
+import Pill from "./Pill.astro";
+export type ActivityStatus = "merged" | "review";
+export type ActivityThread = { status: ActivityStatus; title: string; href: string; reported?: { number: string; href: string }[] };
+export type ActivityRepo = { repo: string; about: string; href: string; threads: ActivityThread[] };
+type Earlier = { id: string; label: string; title: string; items: DiffRepo[]; added: string; removed: string };
+interface Props { items: ActivityRepo[]; labels: Record<ActivityStatus, string> & { reported: (n: string) => string }; earlier?: Earlier }
+const { items, labels, earlier } = Astro.props;
+const max = Math.max(1, ...(earlier?.items ?? []).map((r) => r.added + r.removed));
+const more = earlier && earlier.items.length > 0 ? earlier : undefined;
+---
+<div class="activity">
+  {items.length > 0 && (
+    <ul class="act-list">
+      {items.map((r) => (
+        <li class="act-repo">
+          <div class="act-head">
+            <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+            {r.about && <p class="act-about">{r.about}</p>}
+          </div>
+          <ul class="act-threads">
+            {r.threads.map((t) => (
+              <li class={`act-thread is-${t.status}`}>
+                <span class="act-status">{labels[t.status]}</span>
+                <span class="act-what">
+                  <a class="act-title" href={t.href} {...external}>{t.title}</a>
+                  {t.reported?.map((i) => <a class="act-note" href={i.href} {...external}>{labels.reported(i.number)}</a>)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  )}
+  {more && <div class="act-foot"><Pill opens={more.id}>{more.label}</Pill></div>}
+</div>
+{more && (
+  <Dialog id={more.id} title={more.title}>
+    <DiffRows items={more.items} max={max} />
+    <p class="ds-key act-key"><b></b> {more.added} <i></i> {more.removed}</p>
+  </Dialog>
+)}

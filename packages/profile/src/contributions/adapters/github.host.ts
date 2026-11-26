@@ -10,34 +10,78 @@ const Found = z.object({
       repository_url: z.string(),
       title: z.string(),
       html_url: z.string(),
-      closed_at: z.string(),
+      created_at: z.string(),
+      closed_at: z.string().nullable(),
     }),
   ),
 });
 const Repository = z.object({ description: z.string().nullable() });
 const Pull = z.object({ additions: z.number(), deletions: z.number() });
+const Closing = z.object({
+  data: z.record(
+    z.string(),
+    z
+      .object({
+        closingIssuesReferences: z.object({
+          nodes: z.array(
+            z.object({ url: z.string(), author: z.object({ login: z.string() }).nullable() }),
+          ),
+        }),
+      })
+      .nullable(),
+  ),
+});
 
-export const githubHost = (web: Web): CodeHost => ({
-  async mergedPullRequests({ author, outside }) {
+type State = "merged" | "open";
+
+export const githubHost = (web: Web): CodeHost => {
+  const pullRequests = async (
+    state: State,
+    { author, outside }: { author: string; outside: string[] },
+  ) => {
     const excluded = outside.map((owner) => `-user:${owner}`).join(" ");
-    const query = encodeURIComponent(`author:${author} type:pr is:merged is:public ${excluded}`);
+    const query = encodeURIComponent(`author:${author} type:pr is:${state} is:public ${excluded}`);
     const found = await web.json(`${API}/search/issues?q=${query}&per_page=100`);
     return Found.parse(found).items.map((item) => ({
       repo: item.repository_url.replace(`${API}/repos/`, ""),
       title: item.title,
       url: item.html_url,
-      date: item.closed_at,
+      date: (state === "merged" ? item.closed_at : null) ?? item.created_at,
     }));
-  },
+  };
 
-  async repository(name) {
-    const found = Repository.parse(await web.json(`${API}/repos/${name}`));
-    return { description: found.description ?? "" };
-  },
+  return {
+    mergedPullRequests: (asked) => pullRequests("merged", asked),
+    openPullRequests: (asked) => pullRequests("open", asked),
 
-  async linesOf(url) {
-    const path = url.replace("https://github.com/", "").replace("/pull/", "/pulls/");
-    const { additions, deletions } = Pull.parse(await web.json(`${API}/repos/${path}`));
-    return [additions, deletions];
-  },
-});
+    // REST does not say which issues a pull request closes: GraphQL does, all in one query.
+    async issuesClosedBy(urls) {
+      if (!urls.length) return {};
+      const asked = urls.map(
+        (url, at) =>
+          `p${at}: resource(url: ${JSON.stringify(url)}) { ... on PullRequest {
+            closingIssuesReferences(first: 10) { nodes { url author { login } } } } }`,
+      );
+      const { data } = Closing.parse(
+        await web.json(`${API}/graphql`, { query: `query { ${asked.join("\n")} }` }),
+      );
+      const issuesOf = (at: number) =>
+        (data[`p${at}`]?.closingIssuesReferences.nodes ?? []).map(({ url, author }) => ({
+          url,
+          author: author?.login ?? "",
+        }));
+      return Object.fromEntries(urls.map((url, at) => [url, issuesOf(at)]));
+    },
+
+    async repository(name) {
+      const found = Repository.parse(await web.json(`${API}/repos/${name}`));
+      return { description: found.description ?? "" };
+    },
+
+    async linesOf(url) {
+      const path = url.replace("https://github.com/", "").replace("/pull/", "/pulls/");
+      const { additions, deletions } = Pull.parse(await web.json(`${API}/repos/${path}`));
+      return [additions, deletions];
+    },
+  };
+};

@@ -18,14 +18,20 @@ const reasonOf = (error: unknown, url: string) => {
 };
 
 // GitHub through gh's sign-in: 5,000 requests an hour, where anonymous ones get 60.
+// A body's fields make gh post them, as GitHub's GraphQL wants.
 export const ghWeb = (gh = "gh"): Web => {
-  const text = async (url: string) => {
+  const ask = async (url: string, body: Readonly<Record<string, string>> = {}) => {
+    const fields = Object.entries(body).flatMap(([key, value]) => ["-f", `${key}=${value}`]);
     try {
-      const { stdout } = await run(gh, ["api", url], { timeout: 15_000, maxBuffer: 10_000_000 });
+      const options = { timeout: 15_000, maxBuffer: 10_000_000 };
+      const { stdout } = await run(gh, ["api", url, ...fields], options);
       return stdout;
     } catch (error) {
       throw new Error(reasonOf(error, url), { cause: error });
     }
   };
-  return { text, json: async (url) => JSON.parse(await text(url)) as unknown };
+  return {
+    text: (url) => ask(url),
+    json: async (url, body) => JSON.parse(await ask(url, body)) as unknown,
+  };
 };

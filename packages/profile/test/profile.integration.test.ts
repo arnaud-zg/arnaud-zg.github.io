@@ -28,6 +28,7 @@ const settings = {
     excludeRepos: ["a/sandbox"],
     shownKinds: ["Fix", "Feature"],
     trivial: /typo/i,
+    recentMonths: 6,
   },
   npm: {
     maintainer: "me",
@@ -84,12 +85,33 @@ const pullRequests = [
   pull("mine/own", "fix: it"),
   pull("employer/app", "feat: nine", [5, 0]),
 ];
+// Within the six months before 2026-01-15.
+const recent = (repo: string, n: number, title: string, more = {}) => ({
+  ...pull(repo, title),
+  url: `https://github.com/${repo}/pull/${n}`,
+  date: "2025-12-01",
+  ...more,
+});
+const mine = (n: number) => ({ url: `https://github.com/a/new/issues/${n}`, author: "Me" });
+const recentPullRequests = [
+  recent("a/big", 90, "fix(core): keep the range"),
+  recent("a/big", 91, "feat: share it", { open: true, date: "2025-11-01" }),
+  recent("a/new", 92, "feat: add it", { open: true, date: "2026-01-10", closes: [mine(5)] }),
+  recent("a/new", 93, "fix: parse", {
+    open: true,
+    closes: [{ url: "https://github.com/a/new/issues/6", author: "someone" }],
+  }),
+  recent("a/old", 94, "fix: stale", { open: true, date: "2025-01-01" }),
+  recent("a/big", 95, "fix: a typo", { open: true }),
+  recent("mine/own", 96, "fix: it", { open: true }),
+];
 const tool = { description: "🚀 A tool (fast). More" };
 const repositories = {
   "a/small": tool,
   "a/big": tool,
   "mine/own": tool,
   "employer/app": tool,
+  "a/new": { description: "New" },
 };
 const article = { title: "T", subtitle: "S", url: "u", date: "2025-11-05", image: "i" };
 const skill = { name: "do-it", use: "Do it", href: "h" };
@@ -100,6 +122,8 @@ const saved: Saved = {
       "a/saved": { about: "Saved" },
       "a/big": { about: "A tool" },
     },
+    open: [],
+    closes: {},
     lines: { u: [3, 4] },
   },
   npm: [],
@@ -132,7 +156,13 @@ const profileWith = async (some: Partial<Ports> = {}) => {
 const down = () => Promise.reject(new Error("down"));
 const allDown: Partial<Ports> = {
   registry: { publishedBy: down, versionsOf: down, downloadsIn: down },
-  host: { mergedPullRequests: down, repository: down, linesOf: down },
+  host: {
+    mergedPullRequests: down,
+    openPullRequests: down,
+    issuesClosedBy: down,
+    repository: down,
+    linesOf: down,
+  },
   feed: { articles: down, coverOf: (image) => image },
   list: { skills: down },
 };
@@ -201,23 +231,52 @@ test("side quests: a refresh without any figure fails", async () => {
   await assert.rejects(profileOn({ registry }, saved).live.npm(), /down/);
 });
 
-test("contributions: other people's projects, largest first", async () => {
+test("contributions: merged work from before the window is the record, largest first", async () => {
   const about = "A tool";
-  assert.deepEqual((await profileWith()).contributions(), [
+  const { earlier } = (await profileWith()).contributions();
+  assert.deepEqual(earlier.repos, [
     { repo: "a/big", about, added: 20, removed: 4, kinds: "1 fix · 1 feature" },
     { repo: "employer/app", about, added: 5, removed: 0, kinds: "1 feature" },
     { repo: "a/small", about, added: 1, removed: 1, kinds: "1 fix" },
   ]);
+  assert.deepEqual(
+    { merged: earlier.merged, projects: earlier.projects, from: earlier.from, to: earlier.to },
+    { merged: 4, projects: 3, from: 2025, to: 2025 },
+  );
+});
+
+test("contributions: recent work by repository, the latest activity first", async () => {
+  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const { repos } = (await profileWith({ host })).contributions();
+  const threads = repos.map(({ repo, about, threads }) => [
+    repo,
+    about,
+    threads.map(({ status, title }) => `${status}: ${title}`),
+  ]);
+  assert.deepEqual(threads, [
+    ["a/new", "New", ["review: Add it", "review: Parse"]],
+    ["a/big", "A tool", ["merged: Keep the range", "review: Share it"]],
+  ]);
+});
+
+test("contributions: an issue one reported folds into the pull request that closes it", async () => {
+  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const { repos, figures } = (await profileWith({ host })).contributions();
+  const [added, parsed] = repos[0].threads;
+  assert.deepEqual(added.reported, [{ number: "5", url: "https://github.com/a/new/issues/5" }]);
+  assert.deepEqual(parsed.reported, []);
+  assert.deepEqual(figures, { merged: 1, review: 3, reported: 1 });
 });
 
 test("contributions: own work is left out even when the host returns it", async () => {
-  const host = memoryHost({ pullRequests, repositories });
+  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
   const careless = {
     ...host,
     mergedPullRequests: () => host.mergedPullRequests({ author: "me", outside: [] }),
+    openPullRequests: () => host.openPullRequests({ author: "me", outside: [] }),
   };
-  const found = (await profileWith({ host: careless })).contributions();
-  assert.equal(found.length, 3);
+  const { repos, earlier } = (await profileWith({ host: careless })).contributions();
+  assert.deepEqual([earlier.projects, repos.length], [3, 2]);
 });
 
 test("articles and skills are given as they are", async () => {
@@ -228,7 +287,7 @@ test("articles and skills are given as they are", async () => {
 
 test("a build shows the saved data, even with every source down", () => {
   const profile = profileOn(allDown, saved);
-  assert.deepEqual(profile.contributions(), [
+  assert.deepEqual(profile.contributions().earlier.repos, [
     { repo: "a/saved", about: "Saved", added: 3, removed: 4, kinds: "1 fix" },
   ]);
   assert.equal(profile.skills()[0].name, "saved");
@@ -258,6 +317,16 @@ test("contributions: only what is shown is saved", async () => {
     Object.keys(lines),
     prs.map(({ url }) => url),
   );
+});
+
+test("contributions: stale pull requests and other people's issues are not saved", async () => {
+  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const { open, closes } = await profileOn({ host }, saved).live.github();
+  assert.deepEqual(
+    open.map(({ url }) => url.split("/").at(-1)),
+    ["91", "92", "93"],
+  );
+  assert.deepEqual(closes, { "https://github.com/a/new/pull/92": [mine(5).url] });
 });
 
 test("saved data of the wrong shape stops the build", () => {

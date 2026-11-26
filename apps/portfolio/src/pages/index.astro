@@ -17,7 +17,7 @@ import Education from "@arnaud-zg/design/Education.astro";
 import Treemap from "@arnaud-zg/design/Treemap.astro";
 import Shelf from "@arnaud-zg/design/Shelf.astro";
 import Articles from "@arnaud-zg/design/Articles.astro";
-import Diffstat from "@arnaud-zg/design/Diffstat.astro";
+import Activity from "@arnaud-zg/design/Activity.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
 import { Schema } from "astro-seo-schema";
@@ -37,7 +37,7 @@ const { glance: words, about } = sections;
 const { education } = config.career;
 const career = profile.career();
 const quests = profile.sideQuests();
-const prRepos = profile.contributions();
+const openSource = profile.contributions();
 const articles = profile.articles();
 const skills = profile.skills();
 
@@ -56,13 +56,23 @@ const facts = [
   ...(school ? [{ label: labels.education, value: school, note: studied.join(", ") }] : []),
 ];
 const earlier = quests.earlier.map((q) => ({ ...q, year: q.updated.slice(0, 4), label: labels.onNpm(q.name) }));
-const repos = prRepos.map((r) => ({ ...r, href: `https://github.com/${r.repo}/pulls?q=${encodeURIComponent(`is:pr is:merged author:${config.github.user}`)}` }));
-// Totals cover every project, the ones in the dialog included.
-const sumOf = (key: "added" | "removed") => prRepos.reduce((n, r) => n + r[key], 0);
-const totals = [
-  { value: `+${sumOf("added").toLocaleString("en-US")}`, label: labels.linesAdded, tone: "added" as const },
-  { value: `−${sumOf("removed").toLocaleString("en-US")}`, label: labels.linesRemoved, tone: "removed" as const },
+// Now, then the record: recent pull requests by repository, older merged work in a dialog.
+const pullsOf = (repo: string, state = "") => `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr ${state}author:${config.github.user}`)}`;
+const activity = openSource.repos.map((r) => ({ ...r, href: pullsOf(r.repo), threads: r.threads.map((t) => ({ ...t, href: t.url, reported: t.reported.map((i) => ({ ...i, href: i.url })) })) }));
+const { earlier: record, figures } = openSource;
+const recentKpis = [
+  { value: figures.merged, label: labels.merged, tone: "added" as const },
+  { value: figures.review, label: labels.inReview },
+  ...(figures.reported ? [{ value: figures.reported, label: labels.reportedFixed }] : []),
 ];
+const earlierWork = {
+  id: "earlier-prs",
+  label: labels.earlierWork(record.merged, record.projects, record.from, record.to),
+  title: sections.openSource.earlierTitle,
+  items: record.repos.map((r) => ({ ...r, href: pullsOf(r.repo, "is:merged ") })),
+  added: labels.added,
+  removed: labels.removed,
+};
 const questKpis = [
   { value: quests.tools, label: labels.tools },
   ...(quests.month ? [{ value: quests.monthlyReleases, label: labels.releasesIn(quests.month) }] : []),
@@ -136,9 +146,9 @@ const questKpis = [
     {sections.openSource.show && (
     <section id="open-source" class="section oss" aria-labelledby="oss-title">
       <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
-        <Kpis items={totals} label={labels.total} />
+        <Kpis items={recentKpis} label={labels.recently(config.github.recentMonths)} />
       </SectionHead>
-      <Diffstat id="more-prs" items={repos} top={config.github.top} labels={{ added: labels.added, removed: labels.removed, more: labels.moreProjects, moreTitle: sections.openSource.moreTitle }} />
+      <Activity items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst }} earlier={earlierWork} />
     </section>
     )}
 

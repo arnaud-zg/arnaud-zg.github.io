@@ -14,6 +14,7 @@ import { Career } from "./career/domain/Career.ts";
 import { ContributionLog } from "./contributions/application/ContributionLog.ts";
 import { ContributionPolicy } from "./contributions/domain/ContributionPolicy.ts";
 import { Contributions } from "./contributions/domain/Contributions.ts";
+import { RecentWork } from "./contributions/domain/RecentWork.ts";
 import { QuestCatalog } from "./quests/application/QuestCatalog.ts";
 import { QuestMap } from "./quests/domain/QuestMap.ts";
 import { Quests } from "./quests/domain/Quests.ts";
@@ -53,11 +54,8 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
   const { saved } = run;
   const today = Month.at(run.now);
   const policy = new ContributionPolicy(github);
-  const log = new ContributionLog({
-    host,
-    policy,
-    author: github.user,
-  });
+  const log = new ContributionLog({ host, policy, author: github.user, now: run.now });
+  const since = policy.since(run.now);
   const catalog = new QuestCatalog({
     registry,
     today,
@@ -91,7 +89,18 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         earlier: quests.olderThan(age).asFacts(),
       };
     },
-    contributions: () => new Contributions({ records: saved.github, policy }).byRepository(),
+    // Now, then the record: recent work by repository, and merged work from before the window.
+    contributions() {
+      const records = saved.github;
+      const recent = new RecentWork({ records, policy, since });
+      const prs = records.prs.filter(({ date }) => date < since);
+      const earlier = new Contributions({ records: { ...records, prs }, policy });
+      return {
+        figures: recent.figures(),
+        repos: recent.byRepository(),
+        earlier: { ...earlier.summary(), repos: earlier.byRepository() },
+      };
+    },
     articles: () =>
       saved.substack.map((article) => ({ ...article, image: feed.coverOf(article.image) })),
     skills: () => saved.skills,

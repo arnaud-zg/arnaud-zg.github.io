@@ -1,11 +1,14 @@
 import { z } from "zod";
 
 const text = z.string();
+const pullRequests = z.array(z.object({ repo: text, title: text, url: text, date: text }));
 
 // The saved data of every source. A snapshot that does not match stops the build.
 export const Snapshots = z.object({
   github: z.object({
-    prs: z.array(z.object({ repo: text, title: text, url: text, date: text })),
+    prs: pullRequests,
+    open: pullRequests,
+    closes: z.record(text, z.array(text)),
     repos: z.record(text, z.object({ about: text })),
     lines: z.record(text, z.tuple([z.number(), z.number()])),
   }),
