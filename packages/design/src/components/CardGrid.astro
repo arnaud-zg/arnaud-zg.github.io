@@ -1,0 +1,22 @@
+---
+// Cards in a grid that fills its width. Each child is one `<li>`.
+---
+<ul class="card-grid"><slot /></ul>
+
+<style is:global>
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.card-grid li:nth-child(3n + 2) {
+      --row: 1;
+    }
+.card-grid li:nth-child(3n) {
+      --row: 2;
+    }
+}
+}
+</style>

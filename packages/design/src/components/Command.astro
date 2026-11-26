@@ -1,9 +1,30 @@
 ---
+import Copy from "./Copy.astro";
 interface Props { label: string; command: string }
 const { label, command } = Astro.props;
 ---
 <div class="command">
   <span class="label">{label}</span>
   <code data-copy-text>{command}</code>
-  <button class="copy" type="button" data-copy aria-label={`Copy: ${command}`}>Copy</button>
+  <Copy label={`Copy: ${command}`} />
 </div>
+
+<style is:global>
+.command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 22px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--line);
+}
+.command code {
+  flex: 1 1 320px;
+  min-width: 0;
+  font: 400 0.85rem/1.5 var(--mono);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+</style>

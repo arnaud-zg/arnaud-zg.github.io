@@ -26,6 +26,8 @@ import Articles from "@arnaud-zg/design/Articles.astro";
 import Diffstat from "@arnaud-zg/design/Diffstat.astro";
 import Activity from "@arnaud-zg/design/Activity.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
+import Pills from "@arnaud-zg/design/Pills.astro";
+import CardGrid from "@arnaud-zg/design/CardGrid.astro";
 import { squarify, TREEMAP_BOX } from "@arnaud-zg/design/treemap";
 import { portrait, siteInfo } from "../../site";
 import Story from "../../components/Story.astro";
@@ -95,7 +97,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
           <Story name="ThemeSwitch" use="Remembers the choice for every site on this origin." code="<ThemeSwitch />"><div class="ws-on-photo"><ThemeSwitch /></div></Story>
           <Story name="Avatar" use="A portrait, square with the shared corner." code={'<Avatar src={photo} alt="…" />'}><Avatar {...portrait} /></Story>
           <Story name="Tags" use="Short facts, read together." code={'<Tags items={["TypeScript", "Astro"]} label="Stack" />'}><Tags items={["TypeScript", "Astro"]} label="Stack" /></Story>
-          <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><div class="pills"><Pill opens="ws-dialog">Open the dialog</Pill><Pill plain aria-pressed="true">Chosen</Pill><Pill plain aria-pressed="false">Not chosen</Pill><Pill quiet opens="ws-dialog">Quiet</Pill></div></Story>
+          <Story name="Pill" use="A quiet action." code={'<Pill opens="my-dialog">3 more projects</Pill>'}><Pills><Pill opens="ws-dialog">Open the dialog</Pill><Pill plain aria-pressed="true">Chosen</Pill><Pill plain aria-pressed="false">Not chosen</Pill><Pill quiet opens="ws-dialog">Quiet</Pill></Pills></Story>
           <Story name="Rich" use="Marks the words that matter. Two or three per text." code={'<Rich text="Now I build **tools**." />'}><p><Rich text="Now I build **tools other engineers rely on**." /></p></Story>
           <Story name="Version" use="Never on the page: in the head, and in the console. Open it to see." code={'<Version site={site} />'}><p class="label">v{siteInfo.version}</p></Story>
           <Story name="Link and label" use="Links in running text, labels on data." code={'<a class="inline" href="…">…</a>  <span class="label">…</span>'}><p class="ws-row"><a class="inline" href="#atoms">An inline link</a><span class="label">A label</span></p></Story>
@@ -104,7 +106,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
         <section id="molecules" class="ws-level">
           <SectionHead title="Molecules" lede="Atoms that do one job together." />
           <Story name="LinkCard" use="A card that is one link. Leaving the origin opens a new tab." code={'<LinkCard href="/js-packages/shiplane/" name="shiplane" text="…" />'}>
-            <ul class="card-grid"><li><LinkCard href="#molecules" name="shiplane" text="Stays on this site: the page transition runs" /></li><li><LinkCard href={config.links[0].href} name={config.links[0].label} text="Leaves this site: a new tab opens" /></li></ul>
+            <CardGrid><li><LinkCard href="#molecules" name="shiplane" text="Stays on this site: the page transition runs" /></li><li><LinkCard href={config.links[0].href} name={config.links[0].label} text="Leaves this site: a new tab opens" /></li></CardGrid>
           </Story>
           <Story name="SectionHead" use="Title, lede, then figures." code={'<SectionHead title="Packages" lede="…" />'}><SectionHead title="Packages" lede="Each card opens its own page." /></Story>
           <Story name="Intro" use="Who is speaking, then what they say. The portrait is optional." code={'<Intro title="Hi" lede="…" portrait={{ src, alt }} />'}><Intro title={config.sections.about.title} lede={config.sections.about.lede} portrait={portrait} /></Story>

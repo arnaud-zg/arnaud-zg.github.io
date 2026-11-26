@@ -2,7 +2,6 @@
    styles in cascade layers, so only the parts below are added, unlayered, on top. */
 @import "./fonts.css";
 @import "./tokens.css";
-@import "./masthead.css";
 @import "./motion.css";
 @import "./transitions.css";
 

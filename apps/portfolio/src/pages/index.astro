@@ -5,9 +5,11 @@ import Content from "@arnaud-zg/design/Content.astro";
 import LinkCard from "@arnaud-zg/design/LinkCard.astro";
 import Command from "@arnaud-zg/design/Command.astro";
 import Ending from "@arnaud-zg/design/Ending.astro";
-import Icon from "@arnaud-zg/design/Icon.astro";
 import Intro from "@arnaud-zg/design/Intro.astro";
+import Section from "@arnaud-zg/design/Section.astro";
 import SectionHead from "@arnaud-zg/design/SectionHead.astro";
+import CardGrid from "@arnaud-zg/design/CardGrid.astro";
+import Socials from "@arnaud-zg/design/Socials.astro";
 import Kpis from "@arnaud-zg/design/Kpis.astro";
 import Numbers from "@arnaud-zg/design/Numbers.astro";
 import Facts from "@arnaud-zg/design/Facts.astro";
@@ -81,75 +83,72 @@ const questKpis = [
 ---
 <Site site={siteInfo} title={site.title} description={site.description} nav={nav} noindex={import.meta.env.BASE_URL !== "/"}>
   <Schema slot="head" item={profilePageOf(career.current, portrait.src)} />
-  <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} next="#glance">
-    <p class="role">{role.text} <strong>{role.company}</strong></p>
-    <ul class="socials" aria-label="Profiles">
-      {links.map((l) => <li><a href={l.href} aria-label={l.label} {...external}><Icon name={l.icon} size={20} /></a></li>)}
-    </ul>
+  <Hero site={siteInfo} size="full" title={name} tagline={config.tagline} role={role} next="#glance">
+    <Socials label="Profiles" links={links} />
   </Hero>
 
   <Content>
     {sections.glance.show && (
-    <section id="glance" class="glance" aria-label={labels.glance}>
+    <Section id="glance" kind="glance" label={labels.glance}>
       <Numbers items={numbers} />
-    </section>
+    </Section>
     )}
 
     {sections.about.show && (
-    <section id="about" class="section" aria-labelledby="about-title">
+    <Section id="about" labelledby="about-title">
       <Intro id="about-title" title={about.title} lede={about.lede} portrait={portrait} />
-    </section>
+    </Section>
     )}
 
     {sections.journey.show && (
-    <section id="journey" class="section journey" aria-labelledby="journey-title">
+    <Section id="journey" labelledby="journey-title">
       <SectionHead id="journey-title" title={sections.journey.title} lede={sections.journey.lede} />
 
       <Facts items={facts} />
       <Roles roles={career.roles} labels={labels} />
       <Stints {...career.early} />
       <Education title={sections.journey.educationTitle} items={education} labels={{ skills: labels.skillsTaught }} />
-    </section>
+    </Section>
     )}
 
     {sections.quests.show && (
-    <section id="quests" class="section quests" aria-labelledby="quests-title">
+    <Section id="quests" labelledby="quests-title">
       <SectionHead id="quests-title" title={sections.quests.title} lede={sections.quests.lede}>
         <Kpis items={questKpis} />
       </SectionHead>
       <Treemap groups={treemapOf(quests.groups)} labels={labels} />
       {earlier.length > 0 && <Shelf emoji="🗃️" title={labels.earlier(earlier.length, earlier[earlier.length - 1].year, earlier[0].year)} items={earlier} />}
-    </section>
+    </Section>
     )}
 
     {sections.skills.show && (
-    <section id="skills" class="section skills" aria-labelledby="skills-title">
+    <Section id="skills" labelledby="skills-title">
       <SectionHead id="skills-title" title={sections.skills.title} lede={sections.skills.lede}>
         <Kpis items={[{ value: skills.length, label: labels.skills }]} />
       </SectionHead>
-      <ul class="card-grid">
+      <CardGrid>
         {skills.map((k) => <li><LinkCard href={k.href} name={`/${k.name}`} text={k.use} /></li>)}
-      </ul>
+      </CardGrid>
       <Command label={labels.install} command={config.skills.install} />
-    </section>
+    </Section>
     )}
 
     {sections.writing.show && (
-    <section id="writing" class="section writing" aria-labelledby="writing-title">
+    <Section id="writing" labelledby="writing-title">
       <SectionHead id="writing-title" title={sections.writing.title} lede={`${sections.writing.lede} `}>
         <a slot="lede" class="inline" href={links.find((l) => l.icon === "substack")?.href} {...external}>{labels.readArticles} ↗</a>
       </SectionHead>
       <Articles items={articles.map((a) => ({ ...a, dateText: formatDate(a.date) }))} />
-    </section>
+    </Section>
     )}
 
     {sections.openSource.show && (
-    <section id="open-source" class="section oss" aria-labelledby="oss-title">
+    <Section id="open-source" labelledby="oss-title">
       <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
         <Kpis items={recentKpis} label={labels.recently(config.github.recentMonths)} />
       </SectionHead>
       <Activity items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst }} earlier={earlierWork} />
-    </section>
+    </Section>
     )}
 
     {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}>{analytics && <Pill quiet opens="privacy">{config.analytics.words.link}</Pill>}<SecretBird href={`${import.meta.env.BASE_URL}design/`} label="Design workshop" /></Ending>}

@@ -1,0 +1,12 @@
+---
+// Pills side by side, wrapping.
+---
+<div class="pills"><slot /></div>
+
+<style is:global>
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+</style>

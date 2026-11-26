@@ -3,3 +3,19 @@ interface Props { items: readonly string[]; label: string }
 const { items, label } = Astro.props;
 ---
 <ul class="tags" aria-label={label}>{items.map((t) => <li>{t}</li>)}</ul>
+
+<style is:global>
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tags li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font: 400 0.66rem/1.6 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
+}
+</style>

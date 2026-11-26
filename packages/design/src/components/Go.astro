@@ -1,0 +1,36 @@
+---
+// The corner arrow of a card that is a link: ↗ when it leaves the site, → when it stays.
+interface Props { leaves?: boolean }
+---
+<span class="go" aria-hidden="true">{Astro.props.leaves ? "↗" : "→"}</span>
+
+<style is:global>
+.go {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  opacity: 0;
+  translate: -4px 4px;
+  transition:
+    opacity 220ms var(--ease-out),
+    translate 220ms var(--ease-out);
+}
+.link-card:hover .go,
+.link-card:focus-visible .go {
+  opacity: 1;
+  translate: 0 0;
+}
+.earlier-card:hover .go,
+.earlier-card:focus-visible .go {
+  opacity: 1;
+  translate: 0 0;
+}
+</style>

@@ -54,7 +54,15 @@ const classes = (css) =>
     ].map((m) => m[1]),
   );
 const shared = new Set(
-  walk(join(src, "styles")).flatMap((f) => [...classes(readFileSync(f, "utf8"))]),
+  walk(src)
+    .filter((f) => /\.(css|astro)$/.test(f))
+    .flatMap((f) => {
+      const text = readFileSync(f, "utf8");
+      const css = f.endsWith(".css")
+        ? text
+        : [...text.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
+      return [...classes(css)];
+    }),
 );
 for (const root of ["apps/portfolio/src", "templates/sub-site/src"])
   for (const file of walk(root)) {
@@ -82,6 +90,70 @@ for (const file of walk(src).filter((f) => f.endsWith(".astro") && !f.includes("
   if (!nested && !new RegExp(`<${name}[\\s/>]`).test(shown))
     problems.push(`${name} is not shown in /design/`);
 }
+
+// 4. Styles are isolated by rule, not by hashes: each part styles what it renders, nothing else.
+//    A component's <style is:global> and the parts it imports style only classes it renders; no
+//    two components style the same class; the global sheets reach a component's class only under
+//    a document-wide state (theme, transition, Starlight's page).
+const DOCUMENT = /^(html|:root|\.theming|\.arrived[\w-]*|\.page|\[data-theme[^\]]*\])$/;
+const bare = (s) => s.replace(/\([^()]*\)/g, "()").replace(/\([^()]*\)/g, "()");
+const rulesOf = (css) =>
+  [...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{};]+)\{/g)]
+    .map((m) => m[1].trim())
+    .filter((s) => !s.startsWith("@") && !/^(from|to|[\d.]+%)(\s*,\s*(from|to|[\d.]+%))*$/.test(s))
+    .flatMap((s) => bare(s).split(","))
+    .map((s) =>
+      s
+        .trim()
+        .split(/\s*[\s>+~]\s*/)
+        .filter(Boolean),
+    );
+const classesIn = (compound) =>
+  [...compound.matchAll(/\.([a-z][\w-]*)/g)].map((m) => m[1]).filter((c) => !c.startsWith("is-"));
+const styleBlocks = (text) =>
+  [...text.matchAll(/<style is:global>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join("\n");
+const components = walk(join(src, "components")).filter((f) => f.endsWith(".astro"));
+const owner = new Map(); // class → the component that styles it
+for (const file of components) {
+  const text = readFileSync(file, "utf8");
+  const name = relative(".", file);
+  const rendered = text.replace(/<style[\s\S]*?<\/style>/g, "");
+  const partFiles = [...text.matchAll(/import "\.\/(parts\/[\w-]+\.css)";/g)].map((m) =>
+    join(dirname(file), m[1]),
+  );
+  for (const [css, from] of [
+    [styleBlocks(text), name],
+    ...partFiles.map((p) => [readFileSync(p, "utf8"), relative(".", p)]),
+  ])
+    for (const sel of rulesOf(css))
+      for (const c of classesIn(sel.at(-1))) {
+        const shared = from !== name;
+        const built = /-\d+$/.test(c) && rendered.includes(`${c.replace(/\d+$/, "")}\${`);
+        if (!shared && !built && !new RegExp(`[^\\w-]${c}(?![\\w-])`).test(rendered))
+          problems.push(`${name} styles .${c}, which it does not render`);
+        // Only a plain selector claims a class; `.page-head .lede` styles it in its own context.
+        if (sel.length > 1) continue;
+        const key = shared ? from : name;
+        if (owner.has(c) && owner.get(c) !== key && !(shared && owner.get(c) === from))
+          problems.push(
+            `.${c} is styled by both ${owner.get(c)} and ${key}: one part owns a class`,
+          );
+        else owner.set(c, key);
+      }
+}
+for (const file of walk(join(src, "styles")).filter((f) => f.endsWith(".css")))
+  for (const sel of rulesOf(readFileSync(file, "utf8")))
+    for (const c of classesIn(sel.at(-1)))
+      if (
+        owner.has(c) &&
+        !sel.slice(0, -1).some((a) => DOCUMENT.test(a.replace(/::?[\w-]+(\(\))?/g, "")))
+      )
+        problems.push(`${relative(".", file)} styles .${c}, which ${owner.get(c)} owns`);
+// Sites bring no styles of their own, outside the workshop's stylesheet.
+for (const root of ["apps/portfolio/src", "templates/sub-site/src"])
+  for (const file of walk(root).filter((f) => f.endsWith(".astro")))
+    if (/<style(?! is:inline)/.test(readFileSync(file, "utf8")))
+      problems.push(`${file} has a <style>: style it in the package`);
 
 if (problems.length) {
   console.error(problems.map((p) => `✗ ${p}`).join("\n"));

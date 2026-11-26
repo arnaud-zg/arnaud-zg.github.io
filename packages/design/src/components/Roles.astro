@@ -1,11 +1,12 @@
 ---
 // One card per job, newest first. A title earned later carries its year.
 // With an emoji, pressing the company name sends it gliding from the dates to the name, slower for a longer stay.
-import "../styles/career.css";
 import Tags from "./Tags.astro";
+import Highlights from "./Highlights.astro";
 export type Role = { company: string; industry?: string; emoji?: string; since?: string; until?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
 interface Props { roles: Role[]; labels: { then: string; stack: string } }
 const { roles, labels } = Astro.props;
+import "./parts/career-card.css";
 ---
 <ol class="cv-roles">
   {roles.map((r) => (
@@ -17,7 +18,7 @@ const { roles, labels } = Astro.props;
       <p class="cv-titles">
         {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
       </p>
-      <ul class="cv-highlights">{r.highlights.map((h) => <li>{h}</li>)}</ul>
+      <Highlights items={r.highlights} />
       <Tags items={r.stack} label={labels.stack} />
     </li>
   ))}
@@ -25,3 +26,71 @@ const { roles, labels } = Astro.props;
 <script>
   import "../flight";
 </script>
+
+<style is:global>
+.cv-roles {
+  display: grid;
+  gap: 12px;
+}
+.cv-role {
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.cv-role--now {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background:
+    radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%), var(--surface);
+}
+.cv-company {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  font-size: var(--fs-h3);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.cv-industry {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.cv-titles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: var(--fs-small);
+}
+.cv-since {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  font: 500 0.62rem/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.cv-arrow {
+  color: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.cv-role {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+@media (max-width: 960px) {
+.cv-role {
+    padding: 18px;
+  }
+}
+</style>

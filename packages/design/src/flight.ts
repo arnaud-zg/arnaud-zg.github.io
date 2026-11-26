@@ -17,6 +17,8 @@
 // Every pose is computed per frame and handed to the Web Animations API as linear keyframes:
 // transform and opacity only, on an absolutely placed layer, so nothing else moves.
 
+import "./styles/flight.css";
+
 const still = matchMedia("(prefers-reduced-motion: reduce)");
 const live = new WeakMap<HTMLElement, HTMLElement>();
 

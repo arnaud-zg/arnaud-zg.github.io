@@ -2,8 +2,30 @@
 // The top of a page without the photo: title and tagline on the page itself.
 interface Props { title: string; tagline?: string; transitionName?: string }
 const { title, tagline, transitionName } = Astro.props;
+import "./parts/title.css";
+import "./parts/lede.css";
 ---
 <header class="page-head">
   <h1><span class="hero-title" style={transitionName && `view-transition-name:${transitionName}`}>{title}</span></h1>
   {tagline && <p class="lede">{tagline}</p>}
 </header>
+
+<style is:global>
+.page-head {
+  display: grid;
+  gap: 14px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(120px, 16vh, 176px) var(--edge) 0;
+}
+.page-head h1 {
+  font-weight: 200;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+.page-head .lede {
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+}
+</style>

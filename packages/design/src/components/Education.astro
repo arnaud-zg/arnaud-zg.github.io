@@ -1,10 +1,11 @@
 ---
 // Compact cards in a row, newest first, under their own small title.
 // With an emoji, pressing the school climbs it from the years to the name, one step per year.
-import "../styles/career.css";
 import Tags from "./Tags.astro";
+import Highlights from "./Highlights.astro";
 interface Props { title: string; items: { school: string; emoji?: string; degree: string; start: string; end: string; highlights: string[]; skills?: string[] }[]; labels: { skills: string } }
 const { title, items, labels } = Astro.props;
+import "./parts/career-card.css";
 ---
 <h3 class="cv-subhead">{title}</h3>
 <ol class="cv-edu">
@@ -15,7 +16,7 @@ const { title, items, labels } = Astro.props;
         <p class="cv-dates" data-egg-from={e.emoji ? "" : undefined}>{e.start} → {e.end}</p>
       </div>
       <p class="cv-title">{e.degree}</p>
-      <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
+      <Highlights items={e.highlights} />
       {e.skills && <Tags items={e.skills} label={labels.skills} />}
     </li>
   ))}
@@ -23,3 +24,44 @@ const { title, items, labels } = Astro.props;
 <script>
   import "../flight";
 </script>
+
+<style is:global>
+.cv-subhead {
+  margin: clamp(28px, 4vw, 40px) 0 12px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.cv-edu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.cv-edu-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.cv-school {
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+.cv-edu-card .cv-title {
+  font-size: var(--fs-small);
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.cv-edu-card {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+</style>

@@ -1,0 +1,9 @@
+/* Shared by SectionHead and PageHead: each imports it, and a page loads it once. */
+.lede {
+  max-width: 52ch;
+  color: var(--ink-lo);
+}
+.lede em {
+  font-style: normal;
+  color: var(--accent);
+}

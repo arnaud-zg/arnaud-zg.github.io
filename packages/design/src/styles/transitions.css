@@ -3,12 +3,6 @@
    banner, the rest crossfades. Browsers without
    cross-document view transitions fade the new page in. The opt-in itself is inlined by Site.astro. */
 @media (prefers-reduced-motion: no-preference) {
-  .masthead {
-    view-transition-name: masthead;
-  }
-  .hero {
-    view-transition-name: hero;
-  }
   ::view-transition-group(*) {
     animation-duration: 420ms;
     animation-timing-function: var(--ease-move);
@@ -29,7 +23,6 @@
   ::view-transition-group(hero) {
     overflow: clip;
   }
-  /* Browsers that cannot: the new page fades in, its header stays. */
   .arrived-plain :is(body > main, .main-frame) {
     animation: page-in 380ms var(--ease-out);
   }
@@ -37,9 +30,5 @@
     from {
       opacity: 0;
     }
-  }
-  /* Arriving through a transition, the hero is already on screen: no second entrance. */
-  .arrived :is(.scene img, .ch, .tagline, .role, .socials) {
-    animation: none;
   }
 }

@@ -1,0 +1,39 @@
+---
+// Copies the text of the `data-copy-text` element beside it.
+interface Props { label: string }
+import "./parts/press.css";
+---
+<button class="copy" type="button" data-copy aria-label={Astro.props.label}>Copy</button>
+
+<style is:global>
+.copy {
+  position: relative;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+.copy::after {
+  content: "";
+  position: absolute;
+  inset: -6px -2px;
+}
+.copy:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+.copy.is-done {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+</style>

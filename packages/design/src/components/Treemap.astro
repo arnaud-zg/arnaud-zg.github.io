@@ -1,7 +1,6 @@
 ---
 // Tools by group. A tile's area is its weight; opening one grows it and reflows the rest. On small
 // screens, a plain list of cards. The open tool lives in the URL, as ?tool=name.
-import "../styles/treemap.css";
 import { external } from "../links";
 import type { Group, Rect, ToolLabels } from "../treemap";
 import ToolStats from "./ToolStats.astro";
@@ -250,3 +249,338 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
     }
   }
 </script>
+
+<style is:global>
+.treemap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  min-height: 460px;
+}
+.tm-group {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
+  padding: 4px;
+  container-type: size;
+}
+.tm-head {
+  position: absolute;
+  inset: 4px 4px auto 4px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 0;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+  z-index: 1;
+  pointer-events: none;
+}
+.tm-head > span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tm-group.is-focus {
+  z-index: 6;
+}
+.tm-tiles {
+  position: absolute;
+  inset: 40px 4px 4px 4px;
+}
+.tm-tile {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: var(--h);
+  padding: 3px;
+  container-type: size;
+}
+.tm-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  padding: clamp(10px, 1.4vw, 18px);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color 300ms var(--ease-out),
+    background-color 300ms var(--ease-out);
+}
+.tm-tile--recent .tm-link {
+  background:
+    radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 70%), var(--surface-hi);
+}
+.tm-name {
+  font-size: clamp(0.8rem, min(7cqi, 17cqb), var(--fs-h3));
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  transition: color 300ms var(--ease-out);
+}
+.tm-line {
+  color: var(--ink-lo);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+.tm-more {
+  background: none;
+  border-style: dashed;
+}
+.tm-line {
+  font-size: clamp(0.74rem, min(5.2cqi, 13cqb), var(--fs-small));
+  line-height: 1.4;
+}
+.tm-more .tm-line {
+  display: block;
+}
+.tm-line[style*="--lines"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines);
+  overflow: hidden;
+}
+.tm-tile.is-focus .tm-link {
+  border-color: var(--accent);
+}
+.tm-open {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--bg);
+  cursor: pointer;
+}
+.tm-open:focus-visible {
+  outline-offset: -2px;
+}
+.tm-link:has(.tm-open:not([aria-expanded="true"]):hover) {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.tm-link:has(.tm-open:not([aria-expanded="true"]):hover) .tm-name {
+  color: var(--accent);
+}
+.tm-open[aria-expanded="true"] {
+  inset: 12px 12px auto auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.tm-open[aria-expanded="true"] span::before {
+  content: "✕";
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.tm-open[aria-expanded="true"]:hover {
+  filter: brightness(1.15);
+}
+.tm-link {
+  position: relative;
+}
+.tm-go {
+  display: none;
+  align-self: flex-start;
+  margin-top: 14px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.tm-go:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.tm-tile.is-focus .tm-go {
+  display: inline-block;
+}
+.tm-tile.is-focus .tm-tile.is-focus .tm-link {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.tm-tile.is-focus .tm-name {
+  flex: none;
+  padding-right: 34px;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+.tm-emoji {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+.tm-tile.is-focus {
+  z-index: 5;
+}
+.tm-tile.is-focus::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.tm-tile.is-focus .tm-link {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: max-content;
+  min-width: min(max(calc(100% - 6px), 320px), var(--max-w, 100%));
+  max-width: var(--max-w, 100%);
+  height: auto;
+  background: var(--surface-hi);
+  box-shadow:
+    0 28px 70px -20px rgba(4, 6, 15, 0.7),
+    0 2px 10px rgba(4, 6, 15, 0.25);
+  translate: var(--dx, 0) var(--dy, 0);
+  transform-origin: top left;
+}
+[data-theme="dark"] .tm-tile.is-focus .tm-link {
+  background: color-mix(in srgb, var(--bg) 82%, var(--accent) 18%);
+}
+.tm-tile.is-focus .tm-line {
+  display: block !important;
+  -webkit-line-clamp: none;
+  max-width: 40ch;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.sq-list {
+  display: none;
+}
+.sq-group {
+  display: grid;
+  gap: 10px;
+}
+.sq-group ul {
+  display: grid;
+  gap: 10px;
+}
+.sq-head {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.sq-card {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.sq-card:active {
+  border-color: var(--accent);
+}
+.sq-card.is-target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.sq-name {
+  overflow-wrap: anywhere;
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+.sq-line {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ink-lo);
+}
+@container (max-width: 150px) {
+.tm-head {
+    padding: 10px 6px 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+  }
+.tm-head .tm-emoji {
+    font-size: 0.8rem;
+  }
+.tm-link {
+    padding: 12px;
+  }
+}
+@container (max-height: 120px) {
+.tm-link {
+    gap: 2px;
+    padding: 9px 14px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+.tm-plain .tm-tile.is-focus .tm-link {
+    animation: card-in var(--dur-enter) var(--ease-out) both;
+  }
+@supports (animation-timeline: view()) {
+.tm-group {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+@media (max-width: 960px) {
+.treemap {
+    display: none;
+  }
+.sq-list {
+    display: grid;
+    gap: 26px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+html.tm-moving::view-transition-old(root),
+html.tm-moving::view-transition-new(root) {
+    animation: none;
+  }
+::view-transition-group(.tm-piece) {
+    overflow: clip;
+    border-radius: 12px;
+    animation-duration: var(--dur-move);
+    animation-timing-function: var(--ease-move);
+  }
+::view-transition-old(.tm-piece),
+::view-transition-new(.tm-piece) {
+    height: 100%;
+    object-fit: none;
+    object-position: left top;
+    animation-duration: var(--dur-move);
+  }
+::view-transition-new(tm-card) {
+    transform-origin: top left;
+    animation: card-in var(--dur-enter) var(--ease-out) calc(var(--dur-move) * 0.4) both;
+  }
+::view-transition-old(tm-card-out) {
+    transform-origin: top left;
+    animation: card-out var(--dur-leave) var(--ease-in) both;
+  }
+@keyframes card-in {
+    from {
+      opacity: 0;
+      scale: 0.96;
+      translate: var(--dx, 0px) calc(var(--dy, 0px) + 8px);
+    }
+  }
+@keyframes card-out {
+    to {
+      opacity: 0;
+      scale: 0.97;
+      translate: 0 4px;
+    }
+  }
+}
+</style>

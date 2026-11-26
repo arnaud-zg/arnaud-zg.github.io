@@ -2,8 +2,6 @@
 // Current work by repository, the latest activity first: one line per pull request, with its
 // status. An issue reported first folds into the pull request that closes it, as a note.
 // `earlier` puts older work behind a button, as a diffstat in a dialog.
-import "../styles/diffstat.css";
-import "../styles/activity.css";
 import { external } from "../links";
 import Dialog from "./Dialog.astro";
 import DiffRows, { type DiffRepo } from "./DiffRows.astro";
@@ -16,6 +14,8 @@ interface Props { items: ActivityRepo[]; labels: Record<ActivityStatus, string> 
 const { items, labels, earlier } = Astro.props;
 const max = Math.max(1, ...(earlier?.items ?? []).map((r) => r.added + r.removed));
 const more = earlier && earlier.items.length > 0 ? earlier : undefined;
+import "./parts/repo-owner.css";
+import "./parts/diff-key.css";
 ---
 <div class="activity">
   {items.length > 0 && (
@@ -49,3 +49,128 @@ const more = earlier && earlier.items.length > 0 ? earlier : undefined;
     <p class="ds-key act-key"><b></b> {more.added} <i></i> {more.removed}</p>
   </Dialog>
 )}
+
+<style is:global>
+.activity {
+  display: grid;
+  gap: 22px;
+}
+.act-list {
+  border-top: 1px solid var(--line);
+}
+.act-repo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  gap: 10px clamp(12px, 1.8vw, 24px);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.act-head {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+.act-name {
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+}
+.act-name .owner {
+  display: block;
+  line-height: 1.2;
+}
+.act-about {
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--ink-lo);
+}
+.act-threads {
+  display: grid;
+  gap: 10px;
+}
+.act-thread {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: baseline;
+}
+.act-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-lo);
+}
+.act-status::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
+.is-merged .act-status {
+  color: var(--added);
+}
+.is-merged .act-status::before {
+  background: currentColor;
+}
+.act-what {
+  display: grid;
+  gap: 2px;
+}
+.act-title {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  overflow-wrap: break-word;
+}
+.is-review .act-title {
+  color: var(--ink-lo);
+}
+.act-note {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--ink-lo);
+}
+.act-name:hover,
+.act-title:hover,
+.act-note:hover {
+  color: var(--accent);
+}
+.act-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+.act-key {
+  margin-top: 16px;
+}
+@media (prefers-reduced-motion: no-preference) {
+.act-name,
+.act-title,
+.act-note {
+    transition: color 300ms var(--ease-out);
+  }
+@supports (animation-timeline: view()) {
+.act-repo {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+@media (max-width: 960px) {
+.act-repo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+.act-threads {
+    gap: 14px;
+  }
+.act-thread {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+</style>

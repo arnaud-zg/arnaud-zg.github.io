@@ -1,7 +1,7 @@
 ---
 // Older work, folded away: quiet cards that are plain links.
-import "../styles/shelf.css";
 import { external } from "../links";
+import Go from "./Go.astro";
 interface Props { title: string; emoji: string; items: { name: string; line: string; href: string; year: string; label: string }[] }
 const { title, emoji, items } = Astro.props;
 ---
@@ -9,7 +9,96 @@ const { title, emoji, items } = Astro.props;
   <summary><span class="earlier-emoji" aria-hidden="true">{emoji}</span> {title}</summary>
   <ul class="earlier-grid">
     {items.map((q) => (
-      <li><a class="earlier-card" href={q.href} aria-label={q.label} {...external}><span class="go" aria-hidden="true">↗</span><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.year}</span></a></li>
+      <li><a class="earlier-card" href={q.href} aria-label={q.label} {...external}><Go leaves /><span class="ec-name">{q.name}</span><span class="ec-line">{q.line}</span><span class="ec-year">{q.year}</span></a></li>
     ))}
   </ul>
 </details>
+
+<style is:global>
+.earlier {
+  margin-top: 36px;
+}
+.earlier summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+  transition:
+    color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out);
+}
+.earlier summary::-webkit-details-marker {
+  display: none;
+}
+.earlier-emoji {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+}
+.earlier summary:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.earlier[open] summary {
+  margin-bottom: 14px;
+}
+.earlier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.earlier-card {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 4px;
+  height: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  opacity: 0.85;
+  transition:
+    border-color 260ms var(--ease-out),
+    opacity 260ms var(--ease-out),
+    translate 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out);
+}
+.earlier-card {
+  position: relative;
+}
+.earlier-card:hover,
+.earlier-card:focus-visible {
+  border-color: var(--accent);
+  opacity: 1;
+  translate: 0 -2px;
+  box-shadow: var(--shadow-lift);
+}
+.ec-name {
+  padding-right: 28px;
+}
+.ec-name {
+  font-size: var(--fs-small);
+  color: var(--ink);
+}
+.earlier-card:hover .ec-name {
+  color: var(--accent);
+}
+.ec-line {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-lo);
+}
+.ec-year {
+  font: 400 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--ink-lo);
+}
+</style>

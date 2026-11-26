@@ -1,4 +1,12 @@
-/* Long-form pages: guides, references, rendered Markdown. */
+---
+// Running text: headings, lists, links, code and tables, from Markdown or plain HTML.
+---
+<div class="prose"><slot /></div>
+
+<style is:global>
+.dialog-body > .prose {
+  padding-block: 22px 14px;
+}
 .prose {
   max-width: 72ch;
 }
@@ -84,3 +92,4 @@
   max-width: 100%;
   border-radius: var(--radius);
 }
+</style>

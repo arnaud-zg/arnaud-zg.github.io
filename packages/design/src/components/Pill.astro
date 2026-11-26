@@ -4,5 +4,52 @@
 import Icon from "./Icon.astro";
 interface Props { opens?: string; plain?: boolean; quiet?: boolean; "aria-pressed"?: "true" | "false"; [data: `data-${string}`]: string | boolean | undefined }
 const { opens, plain = false, quiet = false, ...rest } = Astro.props;
+import "./parts/press.css";
 ---
 <button class={quiet ? "quiet" : "pill"} type="button" data-open-dialog={opens} aria-haspopup={opens ? "dialog" : undefined} {...rest}><slot />{!plain && !quiet && <> <Icon name="arrow" size={16} /></>}</button>
+
+<style is:global>
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+  transition:
+    border-color 300ms var(--ease-out),
+    color 300ms var(--ease-out);
+}
+.pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pill:hover .arrow {
+  translate: 4px 0;
+}
+.pill[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.quiet {
+  padding: 10px 12px;
+  border: 0;
+  background: none;
+  color: var(--ink-lo);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+  transition: color 300ms var(--ease-out);
+}
+.quiet:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+</style>

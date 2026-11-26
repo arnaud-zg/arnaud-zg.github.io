@@ -10,3 +10,68 @@ interface Props { items: { value: number; unit: string; label: string }[] }
     </li>
   ))}
 </ul>
+
+<style is:global>
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+}
+.numbers li {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: clamp(22px, 3vw, 34px) clamp(12px, 2vw, 28px);
+}
+.numbers li + li {
+  border-left: 1px solid var(--line);
+}
+.count-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.count {
+  font-weight: 200;
+  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.unit {
+  font-size: var(--fs-h3);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--ink-lo);
+}
+.n-label {
+  max-width: 30ch;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+@media (max-width: 960px) {
+.numbers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+.numbers li + li {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.numbers li {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry calc(5% + var(--row, 0) * 7%) cover calc(20% + var(--row, 0) * 3%);
+    }
+.numbers li:nth-child(3n + 2) {
+      --row: 1;
+    }
+.numbers li:nth-child(3n) {
+      --row: 2;
+    }
+}
+}
+</style>

@@ -4,3 +4,37 @@ interface Props { src: string; alt: string }
 const { src, alt } = Astro.props;
 ---
 <img class="avatar" src={src} alt={alt} width="160" height="160" loading="lazy" decoding="async" />
+
+<style is:global>
+.avatar {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--surface-hi);
+}
+@media (max-width: 960px) {
+.intro .avatar {
+    width: 112px;
+    height: 112px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.avatar {
+      animation: portrait-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+@keyframes portrait-in {
+      from {
+        clip-path: inset(100% 0 0 0 round var(--radius));
+      }
+      to {
+        clip-path: inset(0 round var(--radius));
+      }
+    }
+}
+}
+</style>

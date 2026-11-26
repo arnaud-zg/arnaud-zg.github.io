@@ -12,3 +12,53 @@ const { id, title, lede, portrait } = Astro.props;
   </div>
   <p class="intro-lede"><Rich text={lede} /></p>
 </div>
+
+<style is:global>
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+  gap: clamp(24px, 6vw, 96px);
+  align-items: center;
+}
+.intro-who {
+  display: grid;
+  gap: 24px;
+}
+.intro h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+}
+.intro-lede {
+  max-width: 46ch;
+  font-size: clamp(1.15rem, 1.7vw, 1.45rem);
+  font-weight: 300;
+  line-height: 1.6;
+}
+@media (max-width: 960px) {
+.intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+.intro-who {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+.intro-who h2:only-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.intro h2 {
+      animation: heading-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 25%;
+    }
+.intro-lede {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+</style>

@@ -11,3 +11,76 @@ const { title, text, more, ...data } = Astro.props;
   <p class="ask-text">{text}{more && <> <button class="inline" type="button" data-open-dialog={more.opens} aria-haspopup="dialog">{more.label}</button></>}</p>
   <div class="ask-actions"><slot /></div>
 </aside>
+
+<style is:global>
+.ask {
+  position: fixed;
+  right: clamp(16px, 2.5vw, 32px);
+  bottom: max(clamp(16px, 2.5vw, 32px), env(safe-area-inset-bottom));
+  z-index: 15;
+  display: grid;
+  gap: 6px;
+  width: min(330px, calc(100vw - 32px));
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--ink);
+  box-shadow: var(--shadow-lift);
+}
+.ask[hidden] {
+  display: none;
+}
+.ask-bird {
+  position: absolute;
+  top: -19px;
+  right: 24px;
+  color: var(--accent);
+  line-height: 0;
+}
+.ask-title {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.ask-text {
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink-lo);
+}
+.ask .inline {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.ask-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+@media (prefers-reduced-motion: no-preference) {
+.ask {
+    animation: ask-in 700ms var(--ease-out) both;
+  }
+.ask-bird {
+    animation: bird-in 1100ms var(--ease-out) 250ms both;
+  }
+@keyframes ask-in {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
+  }
+@keyframes bird-in {
+    from {
+      opacity: 0;
+      translate: -46px -40px;
+      rotate: -16deg;
+    }
+  }
+}
+</style>

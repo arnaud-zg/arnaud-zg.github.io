@@ -55,12 +55,20 @@ and `Content` instead.
 - Links between sites open in the same tab; links that leave the origin open a new one.
 - Use tokens, never raw colours. Text on the photo uses `--on-photo-*`.
 - Morph one element into another by giving both the same `transitionName`, unique on each page.
-- A site has no styles of its own: a component brings its stylesheet, loaded only where it is used.
+- A site has no styles of its own: a component brings its styles, loaded only on pages that render
+  it.
+- A component's styles sit in its own `<style is:global>` and style only the classes it renders. A
+  class two components share lives in `components/parts/`, imported by both. What stays global is
+  `styles/`: tokens, fonts, the reset, text primitives (`.label`, `.inline`), view transitions.
+- Unhashed on purpose: hashed scoped styles added about 9% to the CSS and 9% to the HTML of the home
+  page. Isolation is checked instead.
 
 ## Preview every site together
 
 `pnpm preview:sites` builds the portfolio and the starter under one origin, on port 4330. Firefox
 and older browsers navigate without the transition.
 
-`pnpm check` fails when this package reaches outside itself, when a site restyles its classes, or
-when a component is missing from `/design/`.
+`pnpm check` fails when this package reaches outside itself, when a site restyles its classes or has
+a `<style>`, when a component styles a class it does not render or one another component styles, or
+when a component is missing from `/design/`. `pnpm build` then fails if a page ships more CSS than
+`css-budget.json` allows.

@@ -1,0 +1,70 @@
+---
+// Round links to the profiles, on the photo.
+import Icon from "./Icon.astro";
+import { external } from "../links";
+interface Props { label: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
+const { label, links } = Astro.props;
+import "./parts/press.css";
+---
+<ul class="socials" aria-label={label}>
+  {links.map((l) => <li><a href={l.href} aria-label={l.label} {...external}><Icon name={l.icon} size={20} /></a></li>)}
+</ul>
+
+<style is:global>
+.socials {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.socials a {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--on-photo-line);
+  background: var(--on-photo-fill);
+  color: var(--on-photo);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 260ms var(--ease-out),
+    border-color 260ms var(--ease-out);
+}
+.socials a::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--on-photo);
+  scale: 0;
+  transition: scale 320ms var(--ease-out);
+}
+.socials a:hover,
+.socials a:focus-visible {
+  color: #121a2e;
+  border-color: var(--on-photo);
+}
+.socials a:hover::before,
+.socials a:focus-visible::before {
+  scale: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+.socials {
+    animation: settle 900ms var(--ease-out) both;
+  }
+.socials {
+    animation-delay: 1300ms;
+  }
+.arrived .socials {
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+.socials a::before {
+    transition-duration: 0s;
+  }
+}
+</style>

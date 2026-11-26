@@ -5,3 +5,26 @@ interface Props { text: string }
 const pieces = Astro.props.text.split("**");
 ---
 {pieces.map((piece, i) => (i % 2 ? <strong class="key">{piece}</strong> : piece))}
+
+<style is:global>
+.key {
+  font-weight: 600;
+  color: var(--ink);
+}
+.hero .key {
+  color: inherit;
+}
+@media (prefers-reduced-motion: no-preference) {
+.hero .key {
+    animation: key-in 800ms var(--ease-out) 1500ms both;
+  }
+.arrived .hero .key {
+    animation: none;
+  }
+@keyframes key-in {
+    from {
+      opacity: 0.45;
+    }
+  }
+}
+</style>

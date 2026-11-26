@@ -5,6 +5,7 @@ import SiteLinks from "./SiteLinks.astro";
 import type { SiteLinksInfo } from "../site";
 interface Props { site: SiteLinksInfo; title: string; line: string; links: readonly { label: string; href: string; icon: "github" | "linkedin" | "substack" }[] }
 const { site, title, line, links } = Astro.props;
+import "./parts/press.css";
 ---
 <footer id="contact" class="ending">
   <h2 class="tbc">{title}</h2>
@@ -15,3 +16,67 @@ const { site, title, line, links } = Astro.props;
   <SiteLinks site={site} />
   <slot />
 </footer>
+
+<style is:global>
+.ending {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--section) var(--edge) 0;
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  text-align: center;
+}
+.tbc {
+  font-size: var(--fs-h2);
+  letter-spacing: 0.14em;
+  margin-right: -0.14em;
+}
+.ending-line {
+  margin-top: -12px;
+  color: var(--ink-lo);
+}
+.end-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.end-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: var(--fs-small);
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out);
+}
+.end-links a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent);
+  translate: -101% 0;
+  transition: translate 420ms var(--ease-out);
+}
+.end-links a:hover {
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.end-links a:hover::before {
+  translate: 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+.end-links a::before {
+    transition-duration: 0s;
+  }
+}
+</style>
