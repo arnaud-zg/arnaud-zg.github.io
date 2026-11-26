@@ -15,15 +15,15 @@ const { settings } = Astro.props;
 const { words } = config.analytics;
 ---
 <Ask title={words.ask} text={words.askText} more={{ label: words.more, opens: "privacy" }} data-analytics-ask>
-  <Pill plain data-analytics-choice="granted">{words.yes}</Pill>
-  <Pill plain data-analytics-choice="refused">{words.no}</Pill>
+  <Pill look="plain" data-analytics-choice="granted">{words.yes}</Pill>
+  <Pill look="plain" data-analytics-choice="refused">{words.no}</Pill>
 </Ask>
 <Dialog id="privacy" title={words.title}>
   <Prose>
     <p>{words.state}</p>
     <Pills>
-      <Pill plain data-analytics-choice="granted" aria-pressed="false">{words.yes}</Pill>
-      <Pill plain data-analytics-choice="refused" aria-pressed="false">{words.no}</Pill>
+      <Pill look="plain" data-analytics-choice="granted" aria-pressed="false">{words.yes}</Pill>
+      <Pill look="plain" data-analytics-choice="refused" aria-pressed="false">{words.no}</Pill>
     </Pills>
     <h3>{words.listTitle}</h3>
     <ul>{Object.values(plan).map((e) => <li>{e.shown}</li>)}</ul>

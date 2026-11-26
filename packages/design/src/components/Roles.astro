@@ -10,7 +10,7 @@ import "./parts/career-card.css";
 ---
 <ol class="cv-roles">
   {roles.map((r) => (
-    <li class:list={["cv-role", r.now && "cv-role--now"]} data-egg-row={r.emoji ? "perch" : undefined}>
+    <li class="cv-role" data-now={r.now || undefined} data-egg-row={r.emoji ? "perch" : undefined}>
       <div class="cv-head">
         <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji} data-egg-kind="work" data-egg-since={r.since} data-egg-until={r.until}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
         <p class="cv-dates" data-egg-from={r.emoji ? "" : undefined}>{r.dates}</p>
@@ -40,7 +40,7 @@ import "./parts/career-card.css";
   border: 1px solid var(--line);
   background: var(--surface);
 }
-.cv-role--now {
+.cv-role[data-now] {
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
   background:
     radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%), var(--surface);

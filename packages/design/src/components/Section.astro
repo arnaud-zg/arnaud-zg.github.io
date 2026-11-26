@@ -1,22 +1,19 @@
 ---
-// A band of the page, as wide as the content. `glance` sits closer to what is above it, for a
-// strip of figures; `first` is the first section under a banner.
-interface Props { id?: string; label?: string; labelledby?: string; as?: "section" | "article"; kind?: "section" | "glance"; first?: boolean }
-const { id, label, labelledby, as: Tag = "section", kind = "section", first = false } = Astro.props;
+// A band of the page, as wide as the content. `space="tight"` sits closer to what is above it.
+import type { Choice } from "../variants";
+import { sectionVariants } from "./Section.variants";
+interface Props extends Partial<Choice<typeof sectionVariants.axes>> { id?: string; label?: string; labelledby?: string; as?: "section" | "article" }
+const { id, label, labelledby, as: Tag = "section", space } = Astro.props;
 ---
-<Tag id={id} class:list={[kind, first && "section--first"]} aria-label={label} aria-labelledby={labelledby}><slot /></Tag>
+<Tag id={id} class="section" {...sectionVariants.attrs({ space })} aria-label={label} aria-labelledby={labelledby}><slot /></Tag>
 
 <style is:global>
-.section,
-.glance {
+.section {
   max-width: 1240px;
   margin: 0 auto;
   padding: var(--section) var(--edge) 0;
 }
-.glance {
-  padding-top: clamp(48px, 6vw, 80px);
-}
-.section--first {
+.section[data-space="tight"] {
   padding-top: clamp(48px, 6vw, 80px);
 }
 </style>

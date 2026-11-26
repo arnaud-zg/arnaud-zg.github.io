@@ -14,7 +14,7 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
       <h3 class="tm-head"><span><span class="tm-emoji" aria-hidden="true">{g.emoji}</span> {g.name}</span></h3>
       <ul class="tm-tiles">
         {g.tiles.map((t) => (
-          <li class:list={["tm-tile", t.recent && "tm-tile--recent"]} data-v={t.weight} data-tool={t.tool?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
+          <li class="tm-tile" data-recent={t.recent || undefined} data-v={t.weight} data-tool={t.tool?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
             {t.tool ? (
               <div class="tm-link">
                 <span class="tm-name">{t.tool.name}</span>
@@ -315,7 +315,7 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
     border-color 300ms var(--ease-out),
     background-color 300ms var(--ease-out);
 }
-.tm-tile--recent .tm-link {
+.tm-tile[data-recent] .tm-link {
   background:
     radial-gradient(120% 120% at 0% 0%, var(--accent-soft), transparent 70%), var(--surface-hi);
 }

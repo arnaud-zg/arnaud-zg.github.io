@@ -29,14 +29,14 @@ const shell = { site: sub, title: `${Astro.props.name} · Design workshop`, desc
 {isTemplate ? (
   <Page {...shell} heading={kind === "home" ? "js-packages" : "shiplane"} tagline={line}>
     {kind === "home" ? (
-      <Section id="packages" first>
+      <Section id="packages" space="tight">
         <SectionHead title="Packages" lede="Each card opens its own page." />
         <CardGrid>
           {[["shiplane", "Release and deploy a monorepo in one command"], ["expo-native-guard", "Load native-only modules safely in Expo Go"], ["agent-context-budget", "Scores the markdown files an AI agent loads"]].map(([n, t]) => <li><LinkCard href="#packages" name={n} text={t} /></li>)}
         </CardGrid>
       </Section>
     ) : (
-      <Section as="article" first>
+      <Section as="article" space="tight">
         <Command label="Install" command="pnpm add -D shiplane" />
         <Prose><h2>When you need it</h2><p>Releasing several apps from one repo is a pile of scripts.</p><h2>What it does</h2><ul><li>Finds what changed</li><li>Versions and tags it</li><li>Ships each app through plugins</li></ul></Prose>
       </Section>
