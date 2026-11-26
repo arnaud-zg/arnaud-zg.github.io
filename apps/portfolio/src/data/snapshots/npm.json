@@ -2,7 +2,7 @@
   {
     "name": "ts-foursquare",
     "month": "October 2026",
-    "downloads": 185,
+    "downloads": 186,
     "line": "A simple library for Foursquare API",
     "href": "https://www.npmjs.com/package/ts-foursquare",
     "keywords": [
@@ -30,7 +30,7 @@
   {
     "name": "http-response-status",
     "month": "October 2026",
-    "downloads": 762,
+    "downloads": 783,
     "line": "HTTP Status Map",
     "href": "https://www.npmjs.com/package/http-response-status",
     "keywords": [
@@ -48,7 +48,7 @@
   {
     "name": "popup-sensor",
     "month": "October 2026",
-    "downloads": 47,
+    "downloads": 48,
     "line": "Popup window sensor written in typescript",
     "href": "https://www.npmjs.com/package/popup-sensor",
     "keywords": [
@@ -63,7 +63,7 @@
   {
     "name": "standalone-store",
     "month": "October 2026",
-    "downloads": 39,
+    "downloads": 40,
     "line": "Middleware for redux store in standalone mode for nodejs environment",
     "href": "https://www.npmjs.com/package/standalone-store",
     "keywords": [
@@ -80,7 +80,7 @@
   {
     "name": "selector",
     "month": "October 2026",
-    "downloads": 173,
+    "downloads": 177,
     "line": "Generic selector library",
     "href": "https://www.npmjs.com/package/selector",
     "keywords": [
@@ -105,9 +105,28 @@
       "technical-debt",
       "code-quality"
     ],
-    "updated": "2026-04-21",
-    "members": 8,
-    "releases": 23,
+    "updated": "2026-11-26",
+    "members": 1,
+    "releases": 24,
+    "monthlyReleases": 0
+  },
+  {
+    "name": "eslint-plugin-feature-flags",
+    "month": "October 2026",
+    "downloads": 20,
+    "line": "ESLint rules for feature flag hygiene",
+    "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
+    "keywords": [
+      "eslint",
+      "eslintplugin",
+      "eslint-plugin",
+      "feature-flags",
+      "feature-toggles",
+      "technical-debt"
+    ],
+    "updated": "2026-11-26",
+    "members": 2,
+    "releases": 9,
     "monthlyReleases": 0
   },
   {
@@ -128,22 +147,6 @@
     "updated": "2026-11-23",
     "members": 9,
     "releases": 9,
-    "monthlyReleases": 0
-  },
-  {
-    "name": "eslint-plugin-feature-flags",
-    "month": "October 2026",
-    "downloads": 20,
-    "line": "Lint rules to enforce feature flag hygiene",
-    "href": "https://www.npmjs.com/package/eslint-plugin-feature-flags",
-    "keywords": [
-      "eslint",
-      "eslint-plugin",
-      "feature-flags"
-    ],
-    "updated": "2025-06-15",
-    "members": 4,
-    "releases": 7,
     "monthlyReleases": 0
   },
   {
@@ -226,18 +229,17 @@
     "line": "Test database migrations before you ship them",
     "href": "https://www.npmjs.com/package/migration-preflight",
     "keywords": [
-      "migration",
       "database",
-      "sql",
+      "migration",
       "testing",
-      "preflight",
+      "sql",
       "drizzle",
       "prisma",
       "data-safety"
     ],
-    "updated": "2026-11-01",
+    "updated": "2026-11-26",
     "members": 3,
-    "releases": 3,
+    "releases": 4,
     "monthlyReleases": 0
   },
   {

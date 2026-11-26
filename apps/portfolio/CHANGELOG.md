@@ -1,5 +1,17 @@
 # portfolio
 
+## 0.3.0
+
+### Minor Changes
+
+* The open source section now shows what I am working on: pull requests merged or in review over the last six months, by project, with older contributions one click away. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/471
+
+### Patch Changes
+
+* In the career section, tap a company name to send a small emoji flying to it. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/470
+
+* Opening a side quest now shows its whole card, figures included, at every screen size, and cards, dialogs and menus open and close more smoothly. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/472
+
 ## 0.2.5
 
 ### Patch Changes
