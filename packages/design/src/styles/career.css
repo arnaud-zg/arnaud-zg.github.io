@@ -213,6 +213,53 @@
   color: var(--ink-lo);
 }
 
+/* Easter egg: a company name that sends its emoji flying (see flight.ts). */
+[data-egg-row] {
+  position: relative;
+}
+.cv-egg {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: color 200ms var(--ease-out);
+}
+.cv-egg:hover {
+  color: var(--accent);
+}
+.cv-fly-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.cv-fly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 1.3rem;
+  line-height: 1;
+  will-change: transform;
+}
+.cv-early .cv-fly {
+  font-size: 1.05rem;
+}
+.cv-fly-arc,
+.cv-fly-glyph {
+  display: block;
+  will-change: transform, opacity;
+}
+.cv-fly-glyph {
+  transform-origin: 50% 100%;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .cv-role,

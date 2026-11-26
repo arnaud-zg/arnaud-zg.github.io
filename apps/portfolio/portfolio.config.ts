@@ -13,6 +13,8 @@
 export type Station = {
   name: string;
   industry?: string;
+  // Flies to the name when it is pressed: a small easter egg.
+  emoji?: string;
   role: string;
   start: string;
   end?: string;
@@ -223,6 +225,7 @@ export default {
     stations: [
       {
         name: "Adveris",
+        emoji: "🛒",
         role: "Full-stack developer",
         start: "2013-07",
         end: "2013-12",
@@ -232,6 +235,7 @@ export default {
       },
       {
         name: "Testapic",
+        emoji: "🧪",
         role: "Full-stack developer",
         start: "2014-09",
         end: "2015-02",
@@ -241,6 +245,7 @@ export default {
       },
       {
         name: "Valeo",
+        emoji: "💡",
         role: "R&D project developer",
         start: "2015-03",
         end: "2015-08",
@@ -250,6 +255,7 @@ export default {
       },
       {
         name: "ASC",
+        emoji: "🏮",
         role: "Full-stack developer",
         start: "2016-01",
         end: "2016-06",
@@ -259,6 +265,7 @@ export default {
       },
       {
         name: "Solive",
+        emoji: "⚽",
         role: "Full-stack developer",
         start: "2016-09",
         end: "2017-02",
@@ -268,6 +275,7 @@ export default {
       },
       {
         name: "Veepee",
+        emoji: "🎟️",
         industry: "E-commerce, ticketing",
         role: "Front-end Developer",
         start: "2017-03",
@@ -281,6 +289,7 @@ export default {
       },
       {
         name: "Onepark",
+        emoji: "🚗",
         industry: "Mobility",
         role: "Mobile Software Engineer",
         start: "2019-06",
@@ -294,6 +303,7 @@ export default {
       },
       {
         name: "PayFit",
+        emoji: "💸",
         industry: "HR & payroll SaaS",
         role: "Software Engineer",
         start: "2020-01",
@@ -309,6 +319,7 @@ export default {
       },
       {
         name: "Doctolib",
+        emoji: "🩺",
         industry: "Health tech",
         role: "Software Engineer, Platform",
         start: "2026-01",

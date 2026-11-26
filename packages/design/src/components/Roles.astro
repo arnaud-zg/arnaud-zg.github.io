@@ -1,16 +1,17 @@
 ---
 // One card per job, newest first. A title earned later carries its year.
+// With an emoji, pressing the company name sends it flying across the card to land on the name.
 import "../styles/career.css";
 import Tags from "./Tags.astro";
-export type Role = { company: string; industry?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
+export type Role = { company: string; industry?: string; emoji?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
 interface Props { roles: Role[]; labels: { then: string; stack: string } }
 const { roles, labels } = Astro.props;
 ---
 <ol class="cv-roles">
   {roles.map((r) => (
-    <li class:list={["cv-role", r.now && "cv-role--now"]}>
+    <li class:list={["cv-role", r.now && "cv-role--now"]} data-egg-row={r.emoji ? "perch" : undefined}>
       <div class="cv-head">
-        <h3 class="cv-company">{r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+        <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
         <p class="cv-dates">{r.dates}</p>
       </div>
       <p class="cv-titles">
@@ -21,3 +22,6 @@ const { roles, labels } = Astro.props;
     </li>
   ))}
 </ol>
+<script>
+  import "../flight";
+</script>

@@ -16,9 +16,9 @@ const settings = {
   career: {
     school: { name: "School", role: "Intern" },
     stations: [
-      { ...job, name: "Lab", start: "2015-01", end: "2015-06", fullTime: false },
+      { ...job, name: "Lab", emoji: "L", start: "2015-01", end: "2015-06", fullTime: false },
       { ...job, name: "Acme", start: "2018-01", end: "2022-12", milestones: [promotion] },
-      { ...job, name: "Now Inc", start: "2023-01" },
+      { ...job, name: "Now Inc", emoji: "N", start: "2023-01" },
     ],
   },
   github: {
@@ -151,6 +151,15 @@ test("career: experience counts full-time jobs, newest first, with promotions", 
   const started = { title: "Engineer" };
   assert.deepEqual(career.roles[1].titles, [started, { title: "Senior engineer", since: "2020" }]);
   assert.equal(career.early.years, "2015–2015");
+});
+
+test("career: each job brings its emoji to its row, early ones too", () => {
+  const career = profileOn({}, saved).career();
+  assert.deepEqual(
+    career.roles.map(({ emoji }) => emoji),
+    ["N", undefined],
+  );
+  assert.equal(career.early.stints[0].emoji, "L");
 });
 
 test("side quests: plugins join their tool, parked ones are left out, old ones move to earlier", async () => {
