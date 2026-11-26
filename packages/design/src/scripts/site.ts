@@ -69,10 +69,12 @@ const leave = (el: HTMLElement, close: () => void) => {
   if (el.classList.contains("is-leaving")) return;
   if (still.matches) return close();
   el.classList.add("is-leaving");
+  // As long as the leave transition (--dur-leave), so the fade ends just as it closes.
+  const ms = parseFloat(getComputedStyle(root).getPropertyValue("--dur-leave")) || 200;
   setTimeout(() => {
     close();
     el.classList.remove("is-leaving");
-  }, 220);
+  }, ms);
 };
 
 // Menu: the button toggles it; a link, a click outside or Escape closes it.

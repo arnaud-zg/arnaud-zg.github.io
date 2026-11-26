@@ -65,7 +65,7 @@
   /* Pressed controls give a little. */
   :is(.link-card, .pill, .copy, .dialog-close, .menu-button, .socials a, .end-links a) {
     transition-property: border-color, background-color, color, box-shadow, translate, scale;
-    transition-duration: 260ms;
+    transition-duration: var(--dur-enter);
     transition-timing-function: var(--ease-out);
   }
   :is(.link-card, .pill, .copy, .end-links a):active {
@@ -79,17 +79,18 @@
   .dialog[open],
   .menu:popover-open {
     transition:
-      opacity 320ms var(--ease-out),
-      translate 320ms var(--ease-out),
-      scale 320ms var(--ease-out);
+      opacity var(--dur-enter) var(--ease-out),
+      translate var(--dur-enter) var(--ease-out),
+      scale var(--dur-enter) var(--ease-out);
   }
   .dialog::backdrop {
-    transition: opacity 320ms ease;
+    transition: opacity var(--dur-enter) ease;
   }
   .dialog.is-leaving,
   .menu.is-leaving {
     opacity: 0;
-    transition-duration: 220ms;
+    transition-duration: var(--dur-leave);
+    transition-timing-function: var(--ease-in);
   }
   .dialog.is-leaving {
     translate: 0 14px;
@@ -100,7 +101,7 @@
   }
   .dialog.is-leaving::backdrop {
     opacity: 0;
-    transition-duration: 220ms;
+    transition-duration: var(--dur-leave);
   }
   @starting-style {
     .dialog[open] {
@@ -145,9 +146,9 @@
       opacity: 0;
       overflow: clip;
       transition:
-        height 420ms var(--ease-out),
-        opacity 300ms ease,
-        content-visibility 420ms allow-discrete;
+        height var(--dur-move) var(--ease-out),
+        opacity var(--dur-enter) ease,
+        content-visibility var(--dur-move) allow-discrete;
     }
     details[open]::details-content {
       height: auto;
@@ -215,5 +216,23 @@
       animation-timeline: view();
       animation-range: entry 10% cover 25%;
     }
+  }
+}
+
+/* Reduced motion: nothing glides, slides or twinkles; colours still fade. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .twinkle {
+    animation: none;
+  }
+  .ts-thumb,
+  .ts-sun,
+  .ts-moon,
+  .socials a::before,
+  .nav-wide a::after,
+  .end-links a::before {
+    transition-duration: 0s;
   }
 }

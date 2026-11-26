@@ -122,6 +122,13 @@
 .tm-more .tm-line {
   display: block;
 }
+/* Set by the script when a description is longer than its tile. */
+.tm-line[style*="--lines"] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines);
+  overflow: hidden;
+}
 .tm-tile.is-focus .tm-link {
   border-color: var(--accent);
 }
@@ -133,6 +140,16 @@
   padding-top: 14px;
   border-top: 1px solid var(--line);
 }
+/* A row of figures wraps when it runs out of room, and never runs past its card. Every figure
+   draws its hairline on the left; the row is pulled left by one figure's gutter and clipped, so
+   the figure that starts a line shows none. */
+.tm-stats,
+.sq-stats {
+  flex-wrap: wrap;
+  row-gap: 12px;
+  margin-left: -19px;
+  clip-path: inset(-1em 0 -1em 19px);
+}
 .stat[hidden] {
   display: none;
 }
@@ -142,10 +159,6 @@
   align-content: start;
   padding: 0 18px;
   border-left: 1px solid var(--line);
-}
-.stat:first-child {
-  padding-left: 0;
-  border-left: 0;
 }
 .stat b {
   display: flex;
@@ -242,7 +255,9 @@
   padding: 18px 20px;
   border-radius: 16px;
   border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  animation: card-in 300ms var(--ease-out) both;
+}
+.tm-tile.is-focus .tm-stats {
+  margin-top: 10px;
 }
 .tm-tile.is-focus .tm-name {
   flex: none;
@@ -250,30 +265,32 @@
   font-size: 1.1rem;
   color: var(--accent);
 }
-@keyframes card-in {
-  from {
-    opacity: 0;
-    scale: 0.96;
-    translate: var(--dx, 0) calc(var(--dy, 0px) + 6px);
-  }
-}
 .tm-emoji {
   font-size: 0.95rem;
   letter-spacing: 0;
 }
-/* On a focused tile the numbers come first: the description gives way when room is short. */
-/* A focused tile always shows name, description and stats. When the tile is too small, its
-   card grows past it as a raised card, kept inside the treemap by the script. */
+/* A focused tile lifts its card out: as wide and as tall as its content (name, description,
+   figures), at least as wide as the tile, never wider than the treemap (--max-w, set by the
+   script, which also keeps it inside). The empty tile stays below it. */
 .tm-tile.is-focus {
   z-index: 5;
+}
+.tm-tile.is-focus::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
 }
 .tm-tile.is-focus .tm-link {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: max(calc(100% - 6px), 320px, var(--min-w, 0px));
+  width: max-content;
+  min-width: min(max(calc(100% - 6px), 320px), var(--max-w, 100%));
+  max-width: var(--max-w, 100%);
   height: auto;
-  min-height: max(calc(100% - 6px), var(--min-h, 0px));
   background: var(--surface-hi);
   box-shadow:
     0 28px 70px -20px rgba(4, 6, 15, 0.7),
@@ -286,28 +303,56 @@
 }
 .tm-tile.is-focus .tm-line {
   display: block !important;
+  -webkit-line-clamp: none;
   max-width: 40ch;
   font-size: 0.88rem;
   line-height: 1.5;
 }
-@media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
-  /* Tiles glide on an ease-in-out curve; their text stays visible and scales with them. */
-  .tm-group,
-  .tm-tile {
-    transition:
-      left 460ms var(--ease-move),
-      top 460ms var(--ease-move),
-      width 460ms var(--ease-move),
-      height 460ms var(--ease-move);
-    will-change: left, top, width, height;
+@media (prefers-reduced-motion: no-preference) {
+  /* Opening and closing a card is a view transition: the browser moves pictures of the tiles,
+     so nothing is laid out again while they glide, and their text keeps its size. The card
+     rises out of its tile, and sinks back faster than it came. */
+  html.tm-moving::view-transition-old(root),
+  html.tm-moving::view-transition-new(root) {
+    animation: none;
   }
-  .tm-tile.is-leaving .tm-link {
-    animation: card-out 170ms ease-in forwards;
+  ::view-transition-group(.tm-piece) {
+    overflow: clip;
+    border-radius: 12px;
+    animation-duration: var(--dur-move);
+    animation-timing-function: var(--ease-move);
+  }
+  ::view-transition-old(.tm-piece),
+  ::view-transition-new(.tm-piece) {
+    height: 100%;
+    object-fit: none;
+    object-position: left top;
+    animation-duration: var(--dur-move);
+  }
+  ::view-transition-new(tm-card) {
+    transform-origin: top left;
+    animation: card-in var(--dur-enter) var(--ease-out) calc(var(--dur-move) * 0.4) both;
+  }
+  ::view-transition-old(tm-card-out) {
+    transform-origin: top left;
+    animation: card-out var(--dur-leave) var(--ease-in) both;
+  }
+  /* Browsers without view transitions: the card still rises in. */
+  .tm-plain .tm-tile.is-focus .tm-link {
+    animation: card-in var(--dur-enter) var(--ease-out) both;
+  }
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      scale: 0.96;
+      translate: var(--dx, 0px) calc(var(--dy, 0px) + 8px);
+    }
   }
   @keyframes card-out {
     to {
       opacity: 0;
       scale: 0.97;
+      translate: 0 4px;
     }
   }
 }
@@ -344,6 +389,7 @@
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .sq-name {
+  overflow-wrap: anywhere;
   font-size: 1.08rem;
   color: var(--ink);
 }

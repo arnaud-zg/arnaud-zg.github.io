@@ -190,6 +190,7 @@
   overflow-wrap: anywhere;
 }
 .copy {
+  position: relative;
   padding: 6px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -202,6 +203,16 @@
   transition:
     border-color 200ms var(--ease-out),
     color 200ms var(--ease-out);
+}
+/* Small controls keep their look and get a 44px tap target. */
+.copy::after,
+.dialog-close::after {
+  content: "";
+  position: absolute;
+  inset: -6px -2px;
+}
+.dialog-close::after {
+  inset: -4px;
 }
 .copy:hover {
   border-color: var(--accent);
@@ -252,6 +263,7 @@
   letter-spacing: 0.04em;
 }
 .dialog-close {
+  position: relative;
   display: grid;
   place-items: center;
   width: 36px;

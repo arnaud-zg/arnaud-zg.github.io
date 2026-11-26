@@ -76,8 +76,8 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
           <Story name="Space and shape" use="One rhythm, fluid with the screen." code="padding-inline: var(--edge);">
             <ul class="ws-spaces">{spaces.map(([t, l]) => <li><span style={`width:var(${t})`}></span><b>{l}</b><code>{t}</code></li>)}</ul>
           </Story>
-          <Story name="Motion" use="Out for what appears, move for what travels. Point at the lane." code="transition: translate 600ms var(--ease-out);">
-            <ul class="ws-motion">{["--ease-out", "--ease-move"].map((t) => <li tabindex="0"><span style={`transition-timing-function:var(${t})`}></span><code>{t}</code></li>)}</ul>
+          <Story name="Motion" use="Out for what appears, in for what leaves, move for what travels; each with its duration. Point at the lane." code="transition: opacity var(--dur-enter) var(--ease-out);">
+            <ul class="ws-motion">{[["--ease-out", "--dur-enter"], ["--ease-in", "--dur-leave"], ["--ease-move", "--dur-move"]].map(([e, d]) => <li tabindex="0"><span style={`transition-timing-function:var(${e});transition-duration:var(${d})`}></span><code>{e} · {d}</code></li>)}</ul>
           </Story>
         </section>
 
@@ -117,7 +117,7 @@ const icons = ["github", "linkedin", "substack", "star", "arrow", "pr", "bird"] 
           <SectionHead title="Sections" lede="Whole sections of a page. Give them data; they bring their styles and behaviour." />
           <Story name="Roles" use="One card per job, newest first." code={'<Roles roles={roles} labels={{ then: "then", stack: "Stack" }} />'}><Roles labels={{ then: "then", stack: "Stack" }} roles={[{ company: "Acme", industry: "Tools", titles: [{ title: "Engineer" }, { title: "Senior engineer", since: "2024" }], dates: "2022 → now", now: true, highlights: ["Something shipped, plain and specific"], stack: ["TypeScript"] }]} /></Story>
           <Story name="Education" use="Compact cards, newest first." code={'<Education title="Education" items={items} labels={{ skills: "Skills" }} />'}><Education title="Education" labels={{ skills: "Skills" }} items={[{ school: "A school", degree: "A degree", start: "2013", end: "2016", highlights: ["What it was about"], skills: ["Algorithms"] }]} /></Story>
-          <Story name="Treemap" use="Tools by group, sized by weight. Open one: the rest reflows. A list on small screens." code={'<Treemap groups={groups} labels={labels} />'}><Treemap groups={groups} labels={config.labels} /></Story>
+          <Story name="Treemap" use="Tools by group, sized by weight. Open one: the rest glides aside and its card rises, sized to its figures. A list on small screens." code={'<Treemap groups={groups} labels={labels} />'}><Treemap groups={groups} labels={config.labels} /></Story>
           <Story name="Articles" use="Covers in a row, newest first." code={'<Articles items={articles} />'}><Articles items={[2, 1].map((n) => ({ title: `Article ${n}`, url: config.links[0].href, date: `2026-0${n}-01`, dateText: `0${n}/2026`, image: portrait.src }))} /></Story>
           <Story name="Diffstat" use="Contributions by repository, largest first. The rest open in a dialog." code={'<Diffstat id="more" items={repos} top={2} labels={labels} />'}><Diffstat id="ws-diff" items={diffs} top={2} labels={{ added: "added", removed: "removed", more: (n) => `${n} more`, moreTitle: "More projects" }} /></Story>
         </section>
