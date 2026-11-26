@@ -1,0 +1,74 @@
+{
+  "portfolio:/design/": {
+    "raw": 54932,
+    "gzip": 13402
+  },
+  "portfolio:/design/preview/ending/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/hero-banner/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/hero-full/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/home/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/masthead/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/page/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/preview/page-head/": {
+    "raw": 33125,
+    "gzip": 9445
+  },
+  "portfolio:/design/starlight/home/": {
+    "raw": 89093,
+    "gzip": 18248
+  },
+  "portfolio:/design/starlight/page/": {
+    "raw": 105327,
+    "gzip": 21404
+  },
+  "portfolio:/": {
+    "raw": 51615,
+    "gzip": 12788
+  },
+  "sub-site:/404.html": {
+    "raw": 87749,
+    "gzip": 17818
+  },
+  "sub-site:/agent-context-budget/": {
+    "raw": 105376,
+    "gzip": 21249
+  },
+  "sub-site:/expo-native-guard/": {
+    "raw": 105376,
+    "gzip": 21249
+  },
+  "sub-site:/expo-pnpm-catalog/": {
+    "raw": 105376,
+    "gzip": 21249
+  },
+  "sub-site:/": {
+    "raw": 89142,
+    "gzip": 18089
+  },
+  "sub-site:/shiplane/": {
+    "raw": 105376,
+    "gzip": 21249
+  },
+  "sub-site:/vite-workspace-resolver/": {
+    "raw": 105376,
+    "gzip": 21249
+  }
+}

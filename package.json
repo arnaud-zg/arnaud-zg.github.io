@@ -3,10 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "pnpm check && pnpm --filter portfolio build",
+    "build": "pnpm check && pnpm --filter portfolio build && pnpm css:budget",
     "changeset": "changeset",
     "changeset:version": "pnpm data:refresh && changeset version",
     "check": "node scripts/check-design.mjs && node scripts/check-domain.mjs && pnpm test",
+    "css:budget": "node scripts/css-budget.mjs",
     "data:refresh": "pnpm --filter portfolio data:refresh",
     "dev": "pnpm --filter portfolio dev",
     "format": "prettier --write . --cache --cache-location .cache/.prettiercache",
