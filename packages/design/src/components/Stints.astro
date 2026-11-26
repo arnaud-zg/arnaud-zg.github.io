@@ -1,14 +1,17 @@
 ---
-// Short jobs folded into one line.
+// Short jobs folded into one line. With an emoji, pressing a company sends it from the year to the name.
 import "../styles/career.css";
-interface Props { title: string; years: string; role: string; stints: { company: string; year: string; note: string }[] }
+interface Props { title: string; years: string; role: string; stints: { company: string; year: string; note: string; emoji?: string }[] }
 const { title, years, role, stints } = Astro.props;
 ---
 <details class="cv-early">
   <summary><span class="cv-early-title">{title}</span> · {years} · {role}</summary>
   <ul>
     {stints.map((st) => (
-      <li><b>{st.company}</b><span class="cv-early-year">{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+      <li data-egg-row={st.emoji ? "" : undefined}><b>{st.emoji ? <button type="button" class="cv-egg" data-egg={st.emoji}>{st.company}</button> : st.company}</b><span class="cv-early-year" data-egg-from={st.emoji ? "" : undefined}>{st.year}</span><span class="cv-early-note">{st.note}</span></li>
     ))}
   </ul>
 </details>
+<script>
+  import "../flight";
+</script>
