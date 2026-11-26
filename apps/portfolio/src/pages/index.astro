@@ -89,7 +89,7 @@ const questKpis = [
 
   <Content>
     {sections.glance.show && (
-    <Section id="glance" kind="glance" label={labels.glance}>
+    <Section id="glance" space="tight" label={labels.glance}>
       <Numbers items={numbers} />
     </Section>
     )}
@@ -151,7 +151,7 @@ const questKpis = [
     </Section>
     )}
 
-    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}>{analytics && <Pill quiet opens="privacy">{config.analytics.words.link}</Pill>}<SecretBird href={`${import.meta.env.BASE_URL}design/`} label="Design workshop" /></Ending>}
+    {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}>{analytics && <Pill look="quiet" opens="privacy">{config.analytics.words.link}</Pill>}<SecretBird href={`${import.meta.env.BASE_URL}design/`} label="Design workshop" /></Ending>}
   </Content>
   {analytics && <Analytics settings={analytics} />}
 </Site>

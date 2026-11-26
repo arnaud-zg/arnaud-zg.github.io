@@ -10,11 +10,13 @@
     "./starlight": "./src/starlight/index.mjs",
     "./starlight/*": "./src/starlight/*",
     "./*.astro": "./src/components/*.astro",
+    "./*.variants": "./src/components/*.variants.ts",
     "./styles/*": "./src/styles/*",
     "./site": "./src/site.ts",
     "./links": "./src/links.ts",
     "./treemap": "./src/treemap.ts",
-    "./photos": "./src/photos.ts"
+    "./photos": "./src/photos.ts",
+    "./variants": "./src/variants.ts"
   },
   "scripts": {
     "typecheck": "astro-check"
