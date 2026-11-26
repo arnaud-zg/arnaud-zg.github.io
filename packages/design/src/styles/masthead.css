@@ -49,6 +49,8 @@
   letter-spacing: 0.04em;
 }
 .wordmark {
+  /* Inline padding: a 44px tap target without moving the line. */
+  padding-block: 8px;
   font-weight: 500;
   letter-spacing: 0.08em;
 }
@@ -60,6 +62,9 @@
 }
 .nav-wide a {
   position: relative;
+  /* A 44px tap target; the negative margin keeps the header's height. */
+  padding-block: 10px;
+  margin-block: -10px;
   color: var(--on-photo-lo);
   transition: color 200ms var(--ease-out);
 }
@@ -68,7 +73,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -4px;
+  bottom: 6px;
   height: 1px;
   background: var(--accent);
   scale: 0 1;
@@ -92,6 +97,12 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: border-color 300ms var(--ease-out);
+}
+/* The switch stays slim; its tap target is 44px tall. */
+.theme-switch::after {
+  content: "";
+  position: absolute;
+  inset: -8px -2px;
 }
 .theme-switch:hover {
   border-color: #fff;

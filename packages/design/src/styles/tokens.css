@@ -54,4 +54,9 @@
   --radius: 16px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  /* Durations: a leave is quicker than an arrival; a move between places is the slowest. */
+  --dur-leave: 200ms;
+  --dur-enter: 320ms;
+  --dur-move: 460ms;
 }
