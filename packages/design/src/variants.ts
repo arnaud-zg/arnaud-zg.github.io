@@ -22,7 +22,7 @@ export const defineVariants = <const A extends Axes>(
   attrs: (choice = {}) =>
     Object.fromEntries(
       Object.keys(axes).map((axis) => [`data-${axis}`, String(choice[axis] ?? defaults[axis])]),
-    ) as Record<`data-${string}`, string>,
+    ),
   all: () =>
     Object.entries(axes).reduce<Choice<A>[]>(
       (combos, [axis, values]) =>
