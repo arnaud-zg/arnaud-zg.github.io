@@ -1,8 +1,59 @@
 ---
 // The facts a reader looks for first, side by side.
-import "../styles/career.css";
 interface Props { items: { label: string; value: string; note?: string }[] }
 ---
 <dl class="cv-summary">
   {Astro.props.items.map((f) => <div><dt>{f.label}</dt><dd>{f.value}{f.note && <span>{f.note}</span>}</dd></div>)}
 </dl>
+
+<style is:global>
+.cv-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 0 clamp(28px, 4vw, 44px);
+  border-block: 1px solid var(--line);
+}
+.cv-summary > div {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 18px 22px;
+}
+.cv-summary > div + div {
+  border-left: 1px solid var(--line);
+}
+.cv-summary > div:first-child {
+  padding-left: 0;
+}
+.cv-summary dt {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.cv-summary dd {
+  display: grid;
+  gap: 2px;
+  font-size: 1.12rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.cv-summary dd span {
+  font-size: var(--fs-small);
+  color: var(--ink-lo);
+}
+@media (max-width: 960px) {
+.cv-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+.cv-summary > div {
+    padding: 14px 0;
+    border-left: 0 !important;
+    border-top: 1px solid var(--line);
+  }
+.cv-summary > div:first-child {
+    border-top: 0;
+  }
+}
+</style>

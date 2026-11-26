@@ -1,9 +1,10 @@
 ---
+import Copy from "@arnaud-zg/design/Copy.astro";
 interface Props { name: string; use: string; code: string }
 const { name, use, code } = Astro.props;
 ---
 <section class="story" aria-label={name}>
   <header class="story-head"><h3>{name}</h3><p>{use}</p></header>
   <div class="story-stage"><slot /></div>
-  <div class="story-code"><code data-copy-text>{code}</code><button class="copy" type="button" data-copy aria-label={`Copy the code of ${name}`}>Copy</button></div>
+  <div class="story-code"><code data-copy-text>{code}</code><Copy label={`Copy the code of ${name}`} /></div>
 </section>

@@ -1,0 +1,4 @@
+/* Shared by Hero and PageHead: each imports it, and a page loads it once. */
+.hero-title {
+  width: fit-content;
+}

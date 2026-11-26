@@ -2,9 +2,32 @@
 // The head of a section. The slot sits under the lede: figures.
 interface Props { id?: string; title: string; lede?: string }
 const { id, title, lede } = Astro.props;
+import "./parts/lede.css";
 ---
 <header class="section-head">
   <h2 id={id}>{title}</h2>
   {lede && <p class="lede">{lede}<slot name="lede" /></p>}
   <slot />
 </header>
+
+<style is:global>
+.section-head {
+  display: grid;
+  gap: 14px;
+  margin-bottom: var(--head);
+}
+.section-head h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+}
+@media (prefers-reduced-motion: no-preference) {
+@supports (animation-timeline: view()) {
+.section-head h2 {
+      animation: heading-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 25%;
+    }
+}
+}
+</style>

@@ -9,3 +9,15 @@ const others = otherSites(site);
     {others.map((s) => <li><a class="inline" href={s.path}>{s.label}</a> <span>{s.line}</span></li>)}
   </ul>
 )}
+
+<style is:global>
+.end-sites {
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-small);
+  color: var(--ink-lo);
+}
+.end-sites span {
+  margin-left: 8px;
+}
+</style>

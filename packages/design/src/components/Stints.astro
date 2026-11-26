@@ -1,6 +1,5 @@
 ---
 // Short jobs folded into one line. With an emoji, pressing a company sends it gliding from the year to the name.
-import "../styles/career.css";
 interface Props { title: string; years: string; role: string; stints: { company: string; year: string; note: string; emoji?: string; since?: string; until?: string }[] }
 const { title, years, role, stints } = Astro.props;
 ---
@@ -15,3 +14,71 @@ const { title, years, role, stints } = Astro.props;
 <script>
   import "../flight";
 </script>
+
+<style is:global>
+.cv-early {
+  margin-top: 12px;
+}
+.cv-early summary {
+  width: fit-content;
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-small);
+  color: var(--ink-lo);
+  transition:
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+.cv-early summary::-webkit-details-marker {
+  display: none;
+}
+.cv-early summary::before {
+  content: "▸ ";
+  color: var(--accent);
+}
+.cv-early[open] summary::before {
+  content: "▾ ";
+}
+.cv-early summary:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.cv-early-title {
+  color: var(--ink);
+}
+.cv-early ul {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-left: 6px;
+}
+.cv-early li {
+  display: grid;
+  grid-template-columns: 7rem 3.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--fs-small);
+}
+.cv-early b {
+  font-weight: 400;
+  color: var(--ink);
+}
+.cv-early-year {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  color: var(--ink-lo);
+}
+.cv-early-note {
+  color: var(--ink-lo);
+}
+@media (max-width: 960px) {
+.cv-early li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+.cv-early-note {
+    grid-column: 1 / -1;
+  }
+}
+</style>

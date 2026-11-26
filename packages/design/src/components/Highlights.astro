@@ -1,0 +1,25 @@
+---
+// What a job or a school was about, one line each.
+interface Props { items: readonly string[] }
+---
+<ul class="cv-highlights">{Astro.props.items.map((h) => <li>{h}</li>)}</ul>
+
+<style is:global>
+.cv-highlights {
+  display: grid;
+  gap: 4px;
+}
+.cv-highlights li {
+  position: relative;
+  padding-left: 18px;
+  font-size: var(--fs-small);
+  line-height: 1.55;
+  color: var(--ink-lo);
+}
+.cv-highlights li::before {
+  content: "›";
+  position: absolute;
+  left: 2px;
+  color: var(--accent);
+}
+</style>

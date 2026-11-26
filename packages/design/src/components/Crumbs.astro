@@ -9,3 +9,26 @@ const here = currentSite(site);
   <a class="wordmark" href={homePath(site)}>{site.brand}</a>
   {here && here.id !== "home" && <><span class="crumb-sep" aria-hidden="true">/</span><a class="crumb" href={here.path}>{here.label}</a></>}
 </p>
+
+<style is:global>
+.crumbs {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-right: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+.crumb-sep {
+  opacity: 0.5;
+}
+.crumb {
+  letter-spacing: 0.04em;
+}
+.wordmark {
+  /* Inline padding: a 44px tap target without moving the line. */
+  padding-block: 8px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+</style>

@@ -1,0 +1,19 @@
+/* Shared by Roles and Education: each imports it, and a page loads it once. */
+.cv-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 20px;
+}
+.cv-dates {
+  display: flex;
+  gap: 10px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.cv-title {
+  color: var(--ink);
+}

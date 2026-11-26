@@ -14,7 +14,7 @@ export const frames = [
     name: "Hero, full",
     use: "The front door of the portfolio. One per origin.",
     height: 700,
-    code: '<Hero site={site} size="full" title="…" tagline="…" next="#glance" />',
+    code: '<Hero site={site} size="full" title="…" tagline="…" role={{ text, company }} next="#glance"><Socials label="Profiles" links={links} /></Hero>',
   },
   {
     id: "hero-banner",

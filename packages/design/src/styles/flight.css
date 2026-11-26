@@ -1,0 +1,62 @@
+/* The journey easter egg (see flight.ts): the name to press, and the emoji it sends. */
+[data-egg-row] {
+  position: relative;
+}
+.cv-egg {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: color 200ms var(--ease-out);
+}
+.cv-egg:hover {
+  color: var(--accent);
+}
+.cv-fly-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.cv-fly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 1.3rem;
+  line-height: 1;
+  will-change: transform, opacity;
+}
+.cv-early .cv-fly {
+  font-size: 1.05rem;
+}
+.cv-edu-card .cv-fly {
+  font-size: 1.15rem;
+}
+.cv-fly-mark,
+.cv-fly-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  opacity: 0; /* seen only while animated */
+  will-change: transform, opacity;
+}
+.cv-fly-mark {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--accent);
+}
+.cv-fly-ring {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1.5px solid var(--accent);
+}

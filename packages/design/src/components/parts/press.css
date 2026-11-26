@@ -1,0 +1,14 @@
+/* Shared by LinkCard and Pill and Copy and Dialog and Masthead and Socials and Ending: each imports it, and a page loads it once. */
+@media (prefers-reduced-motion: no-preference) {
+  html :is(.link-card, .pill, .copy, .dialog-close, .menu-button, .socials a, .end-links a) {
+    transition-property: border-color, background-color, color, box-shadow, translate, scale;
+    transition-duration: var(--dur-enter);
+    transition-timing-function: var(--ease-out);
+  }
+  html :is(.link-card, .pill, .copy, .end-links a):active {
+    scale: 0.98;
+  }
+  html :is(.dialog-close, .menu-button, .socials a):active {
+    scale: 0.92;
+  }
+}

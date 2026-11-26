@@ -19,6 +19,8 @@ The design system is `packages/design` (`@arnaud-zg/design`), isolated so every 
   package into it.
 - The portfolio has no styles of its own; only the workshop does (`workshop.css`). Pages pass data
   to components.
+- A component's styles live in its own `<style is:global>` and style only what it renders; a class
+  two components share goes in `components/parts/`. Never hashed scoped `<style>`: it costs bytes.
 - Run `pnpm check` after a UI change. It checks isolation, restyling and the workshop.
 
 ## Releases: changesets, not commits

@@ -1,0 +1,28 @@
+/* Shared by Diffstat and Activity: each imports it, and a page loads it once. */
+.ds-key b {
+  font-weight: 400;
+  color: var(--added);
+}
+.ds-key i {
+  font-style: normal;
+  color: var(--removed);
+}
+.ds-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--ink-lo);
+}
+.ds-key b,
+.ds-key i {
+  display: inline-block;
+  width: 18px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+.ds-key i {
+  margin-left: 10px;
+}

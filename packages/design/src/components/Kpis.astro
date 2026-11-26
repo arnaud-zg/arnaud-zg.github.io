@@ -7,3 +7,28 @@ const { items, label } = Astro.props;
 <ul class="kpis" aria-label={label}>
   {items.map((k) => <li>{k.value !== undefined && <b class={k.tone}>{k.value}</b>} {k.label}</li>)}
 </ul>
+
+<style is:global>
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+}
+.kpis b {
+  margin-right: 6px;
+  font: 300 1.6rem/1 var(--font);
+  letter-spacing: 0;
+  color: var(--ink);
+  vertical-align: -0.2em;
+}
+.kpis .added {
+  color: var(--added);
+}
+.kpis .removed {
+  color: var(--removed);
+}
+</style>

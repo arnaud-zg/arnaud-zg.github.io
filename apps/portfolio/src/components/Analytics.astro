@@ -5,6 +5,8 @@ import type { Settings } from "@arnaud-zg/analytics/settings";
 import Ask from "@arnaud-zg/design/Ask.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
+import Pills from "@arnaud-zg/design/Pills.astro";
+import Prose from "@arnaud-zg/design/Prose.astro";
 import config from "../../portfolio.config";
 import { posthogRegion } from "../analytics";
 
@@ -17,18 +19,18 @@ const { words } = config.analytics;
   <Pill plain data-analytics-choice="refused">{words.no}</Pill>
 </Ask>
 <Dialog id="privacy" title={words.title}>
-  <div class="prose">
+  <Prose>
     <p>{words.state}</p>
-    <div class="pills">
+    <Pills>
       <Pill plain data-analytics-choice="granted" aria-pressed="false">{words.yes}</Pill>
       <Pill plain data-analytics-choice="refused" aria-pressed="false">{words.no}</Pill>
-    </div>
+    </Pills>
     <h3>{words.listTitle}</h3>
     <ul>{Object.values(plan).map((e) => <li>{e.shown}</li>)}</ul>
     <p>{words.limits}</p>
     <p>{words.who(posthogRegion)}</p>
     <p>{words.rights} <a href={config.links.find((l) => l.icon === "linkedin")?.href} target="_blank" rel="noopener noreferrer">{words.contact}</a></p>
-  </div>
+  </Prose>
 </Dialog>
 <script type="application/json" id="analytics-settings" is:inline set:html={JSON.stringify(settings).replaceAll("<", "\\u003c")} />
 <script>
