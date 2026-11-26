@@ -7,6 +7,7 @@ export const roleOf = (position: Position) => {
     company: name,
     industry,
     emoji,
+    ...position.span(),
     titles: position.titles(),
     dates: `${start} → ${end ?? "now"}`,
     now: position.isCurrent(),
@@ -17,5 +18,5 @@ export const roleOf = (position: Position) => {
 
 export const stintOf = (position: Position) => {
   const { name, role, emoji, note = "" } = position.describe();
-  return { company: name, role, emoji, year: position.years().start, note };
+  return { company: name, role, emoji, ...position.span(), year: position.years().start, note };
 };

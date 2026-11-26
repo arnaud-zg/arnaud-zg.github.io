@@ -1,17 +1,18 @@
 ---
 // Compact cards in a row, newest first, under their own small title.
+// With an emoji, pressing the school climbs it from the years to the name, one step per year.
 import "../styles/career.css";
 import Tags from "./Tags.astro";
-interface Props { title: string; items: { school: string; degree: string; start: string; end: string; highlights: string[]; skills?: string[] }[]; labels: { skills: string } }
+interface Props { title: string; items: { school: string; emoji?: string; degree: string; start: string; end: string; highlights: string[]; skills?: string[] }[]; labels: { skills: string } }
 const { title, items, labels } = Astro.props;
 ---
 <h3 class="cv-subhead">{title}</h3>
 <ol class="cv-edu">
   {items.map((e) => (
-    <li class="cv-edu-card">
+    <li class="cv-edu-card" data-egg-row={e.emoji ? "perch" : undefined}>
       <div class="cv-head">
-        <p class="cv-school">{e.school}</p>
-        <p class="cv-dates">{e.start} → {e.end}</p>
+        <p class="cv-school">{e.emoji ? <button type="button" class="cv-egg" data-egg={e.emoji} data-egg-kind="study" data-egg-since={e.start} data-egg-until={e.end}>{e.school}</button> : e.school}</p>
+        <p class="cv-dates" data-egg-from={e.emoji ? "" : undefined}>{e.start} → {e.end}</p>
       </div>
       <p class="cv-title">{e.degree}</p>
       <ul class="cv-highlights">{e.highlights.map((h) => <li>{h}</li>)}</ul>
@@ -19,3 +20,6 @@ const { title, items, labels } = Astro.props;
     </li>
   ))}
 </ol>
+<script>
+  import "../flight";
+</script>
