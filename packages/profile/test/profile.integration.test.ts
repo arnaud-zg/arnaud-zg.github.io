@@ -16,9 +16,17 @@ const settings = {
   career: {
     school: { name: "School", role: "Intern" },
     stations: [
-      { ...job, name: "Lab", emoji: "L", start: "2015-01", end: "2015-06", fullTime: false },
+      {
+        ...job,
+        name: "Lab",
+        emoji: "L",
+        motion: "fizz",
+        start: "2015-01",
+        end: "2015-06",
+        fullTime: false,
+      },
       { ...job, name: "Acme", start: "2018-01", end: "2022-12", milestones: [promotion] },
-      { ...job, name: "Now Inc", emoji: "N", start: "2023-01" },
+      { ...job, name: "Now Inc", emoji: "N", motion: "pulse", start: "2023-01" },
     ],
   },
   github: {
@@ -183,13 +191,16 @@ test("career: experience counts full-time jobs, newest first, with promotions", 
   assert.equal(career.early.years, "2015–2015");
 });
 
-test("career: each job brings its emoji to its row, early ones too", () => {
+test("career: each job brings its emoji and its motion to its row, early ones too", () => {
   const career = profileOn({}, saved).career();
   assert.deepEqual(
-    career.roles.map(({ emoji }) => emoji),
-    ["N", undefined],
+    career.roles.map(({ emoji, motion }) => [emoji, motion]),
+    [
+      ["N", "pulse"],
+      [undefined, undefined],
+    ],
   );
-  assert.equal(career.early.stints[0].emoji, "L");
+  assert.deepEqual([career.early.stints[0].emoji, career.early.stints[0].motion], ["L", "fizz"]);
 });
 
 test("career: each job carries its months, the current one left open", () => {

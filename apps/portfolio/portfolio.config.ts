@@ -10,11 +10,15 @@
 
 // `highlights` are what a recruiter reads first: two or three things shipped, plain and specific.
 // A milestone can carry a new title (a promotion), shown as the title progression.
+import type { EggMotion } from "@arnaud-zg/design/flight";
+
 export type Station = {
   name: string;
   industry?: string;
-  // Flies to the name when it is pressed: a small easter egg.
+  // Travels from the name to the dates when it is pressed: a small easter egg.
   emoji?: string;
+  // How it travels, after the domain: see @arnaud-zg/design/flight.
+  motion?: EggMotion;
   role: string;
   start: string;
   end?: string;
@@ -199,6 +203,7 @@ export default {
       {
         school: "Epitech",
         emoji: "🎓",
+        motion: "climb",
         degree: "Master-level, Computer Software Engineering",
         start: "2012",
         end: "2017",
@@ -212,6 +217,7 @@ export default {
       {
         school: "Tongji University",
         emoji: "🌏",
+        motion: "voyage",
         degree: "Master's programme, Software Engineering",
         start: "2015",
         end: "2017",
@@ -220,8 +226,9 @@ export default {
       },
     ] as {
       school: string;
-      // Climbs to the name when it is pressed, one step per year.
+      // Travels from the name to the years when it is pressed, in its own motion.
       emoji?: string;
+      motion?: EggMotion;
       degree: string;
       start: string;
       end: string;
@@ -233,6 +240,7 @@ export default {
       {
         name: "Adveris",
         emoji: "🛒",
+        motion: "roll",
         role: "Full-stack developer",
         start: "2013-07",
         end: "2013-12",
@@ -243,6 +251,7 @@ export default {
       {
         name: "Testapic",
         emoji: "🧪",
+        motion: "fizz",
         role: "Full-stack developer",
         start: "2014-09",
         end: "2015-02",
@@ -253,6 +262,7 @@ export default {
       {
         name: "Valeo",
         emoji: "💡",
+        motion: "beam",
         role: "R&D project developer",
         start: "2015-03",
         end: "2015-08",
@@ -263,6 +273,7 @@ export default {
       {
         name: "ASC",
         emoji: "🏮",
+        motion: "float",
         role: "Full-stack developer",
         start: "2016-01",
         end: "2016-06",
@@ -273,6 +284,7 @@ export default {
       {
         name: "Solive",
         emoji: "⚽",
+        motion: "bounce",
         role: "Full-stack developer",
         start: "2016-09",
         end: "2017-02",
@@ -283,6 +295,7 @@ export default {
       {
         name: "Veepee",
         emoji: "🎟️",
+        motion: "ticket",
         industry: "E-commerce, ticketing",
         role: "Front-end Developer",
         start: "2017-03",
@@ -297,6 +310,7 @@ export default {
       {
         name: "Onepark",
         emoji: "🚗",
+        motion: "drive",
         industry: "Mobility",
         role: "Mobile Software Engineer",
         start: "2019-06",
@@ -311,6 +325,7 @@ export default {
       {
         name: "PayFit",
         emoji: "💸",
+        motion: "pay",
         industry: "HR & payroll SaaS",
         role: "Software Engineer",
         start: "2020-01",
@@ -327,6 +342,7 @@ export default {
       {
         name: "Doctolib",
         emoji: "🩺",
+        motion: "pulse",
         industry: "Health tech",
         role: "Software Engineer, Platform",
         start: "2026-01",

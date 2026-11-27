@@ -16,7 +16,8 @@
     "./links": "./src/links.ts",
     "./treemap": "./src/treemap.ts",
     "./photos": "./src/photos.ts",
-    "./variants": "./src/variants.ts"
+    "./variants": "./src/variants.ts",
+    "./flight": "./src/flight.ts"
   },
   "scripts": {
     "typecheck": "astro-check"

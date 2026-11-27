@@ -60,3 +60,36 @@
   margin: -15px 0 0 -15px;
   border: 1.5px solid var(--accent);
 }
+.cv-fly-mark[data-kind="trail"] {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+}
+.cv-fly-mark[data-kind="bubble"] {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border: 1.5px solid var(--accent);
+  background: none;
+}
+.cv-fly-mark[data-kind="puff"] {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: var(--ink-lo);
+}
+.cv-fly-trace {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cv-fly-trace[data-kind="beam"] {
+  stroke-width: 6;
+  stroke-opacity: 0.3;
+}

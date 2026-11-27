@@ -4,6 +4,7 @@ export type PositionFacts = {
   readonly name: string;
   readonly industry?: string;
   readonly emoji?: string;
+  readonly motion?: string;
   readonly role: string;
   readonly start: string;
   readonly end?: string;
@@ -53,8 +54,8 @@ export class Position {
   }
 
   describe() {
-    const { name, industry, emoji, role, note, highlights, stack } = this.#facts;
-    return { name, industry, emoji, role, note, highlights, stack: stack.split(", ") };
+    const { name, industry, emoji, motion, role, note, highlights, stack } = this.#facts;
+    return { name, industry, emoji, motion, role, note, highlights, stack: stack.split(", ") };
   }
 
   // The starting title, then each promotion with its year.

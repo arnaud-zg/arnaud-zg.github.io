@@ -1,9 +1,10 @@
 ---
 // Compact cards in a row, newest first, under their own small title.
-// With an emoji, pressing the school climbs it from the years to the name, one step per year.
+// With an emoji, pressing the school sends it from the name to the years, in the motion given by
+// `motion` (see flight.ts), slower for a longer stay.
 import Tags from "./Tags.astro";
 import Highlights from "./Highlights.astro";
-interface Props { title: string; items: { school: string; emoji?: string; degree: string; start: string; end: string; highlights: string[]; skills?: string[] }[]; labels: { skills: string } }
+interface Props { title: string; items: { school: string; emoji?: string; motion?: string; degree: string; start: string; end: string; highlights: string[]; skills?: string[] }[]; labels: { skills: string } }
 const { title, items, labels } = Astro.props;
 import "./parts/career-card.css";
 ---
@@ -12,8 +13,8 @@ import "./parts/career-card.css";
   {items.map((e) => (
     <li class="cv-edu-card" data-egg-row={e.emoji ? "perch" : undefined}>
       <div class="cv-head">
-        <p class="cv-school">{e.emoji ? <button type="button" class="cv-egg" data-egg={e.emoji} data-egg-kind="study" data-egg-since={e.start} data-egg-until={e.end}>{e.school}</button> : e.school}</p>
-        <p class="cv-dates" data-egg-from={e.emoji ? "" : undefined}>{e.start} → {e.end}</p>
+        <p class="cv-school">{e.emoji ? <button type="button" class="cv-egg" data-egg={e.emoji} data-egg-motion={e.motion} data-egg-since={e.start} data-egg-until={e.end}>{e.school}</button> : e.school}</p>
+        <p class="cv-dates" data-egg-to={e.emoji ? "" : undefined}>{e.start} → {e.end}</p>
       </div>
       <p class="cv-title">{e.degree}</p>
       <Highlights items={e.highlights} />
