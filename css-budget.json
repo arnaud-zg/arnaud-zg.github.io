@@ -1,35 +1,35 @@
 {
   "portfolio:/design/": {
-    "raw": 58496,
-    "gzip": 13869
+    "raw": 59348,
+    "gzip": 14078
   },
   "portfolio:/design/preview/ending/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/hero-banner/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/hero-full/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/home/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/masthead/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/page/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/preview/page-head/": {
-    "raw": 29009,
-    "gzip": 8534
+    "raw": 29057,
+    "gzip": 8544
   },
   "portfolio:/design/starlight/home/": {
     "raw": 84769,
@@ -40,8 +40,8 @@
     "gzip": 20464
   },
   "portfolio:/": {
-    "raw": 54626,
-    "gzip": 13197
+    "raw": 55478,
+    "gzip": 13386
   },
   "sub-site:/404.html": {
     "raw": 83423,

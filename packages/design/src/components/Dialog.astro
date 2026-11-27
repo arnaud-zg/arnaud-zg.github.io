@@ -107,8 +107,7 @@ import "./parts/press.css";
 .dialog[open] {
     transition:
       opacity var(--dur-enter) var(--ease-out),
-      translate var(--dur-enter) var(--ease-out),
-      scale var(--dur-enter) var(--ease-out);
+      translate var(--dur-enter) var(--ease-out);
   }
 .dialog::backdrop {
     transition: opacity var(--dur-enter) ease;
@@ -116,7 +115,6 @@ import "./parts/press.css";
 .dialog.is-leaving {
     opacity: 0;
     translate: 0 14px;
-    scale: 0.98;
     transition-duration: var(--dur-leave);
     transition-timing-function: var(--ease-in);
   }
@@ -128,7 +126,6 @@ import "./parts/press.css";
 .dialog[open] {
       opacity: 0;
       translate: 0 14px;
-      scale: 0.98;
     }
 .dialog[open]::backdrop {
       opacity: 0;

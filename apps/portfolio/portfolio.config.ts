@@ -158,6 +158,10 @@ export default {
     skills: "skills",
     install: "Install, any agent",
     skillDetails: (name: string) => `${name}: why it works`,
+    allSkills: (n: number) => `See all ${n} skills`,
+    allSkillsTitle: "All agent skills",
+    diagramFit: "See it whole",
+    diagramActual: "Back to full size",
     skillOnGitHub: (name: string) => `${name} on GitHub`,
     openSkill: "Open the skill on GitHub",
     readArticles: "Read them on Substack",
@@ -429,6 +433,8 @@ export default {
   skills: {
     repo: "arnaud-zg/skills",
     install: "npx skills add arnaud-zg/skills",
+    // Cards on the page; past this, the button opens them all in a dialog.
+    shown: 12,
   },
 
   // Writing: the latest articles from the RSS feed.
