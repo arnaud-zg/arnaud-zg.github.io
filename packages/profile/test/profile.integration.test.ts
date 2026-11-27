@@ -114,6 +114,7 @@ const recentPullRequests = [
   recent("mine/own", 96, "fix: it", { open: true }),
 ];
 const tool = { description: "🚀 A tool (fast). More" };
+const calendar = { 2025: 1234, 2026: 5 };
 const repositories = {
   "a/small": tool,
   "a/big": tool,
@@ -133,6 +134,7 @@ const saved: Saved = {
     open: [],
     closes: {},
     lines: { u: [3, 4] },
+    contributions: { year: 2024, total: 900 },
   },
   npm: [],
   skills: [{ name: "saved", use: "", href: "" }],
@@ -143,7 +145,7 @@ const registryOf = (some: typeof packages) => memoryRegistry({ packages: some, m
 const profileOn = (some: Partial<Ports>, data: Saved) => {
   const ports = {
     registry: registryOf(packages),
-    host: memoryHost({ pullRequests, repositories }),
+    host: memoryHost({ pullRequests, repositories, calendar }),
     feed: memoryFeed([article]),
     list: memorySkills([skill]),
     ...some,
@@ -170,6 +172,7 @@ const allDown: Partial<Ports> = {
     issuesClosedBy: down,
     repository: down,
     linesOf: down,
+    contributionsIn: down,
   },
   feed: { articles: down, coverOf: (image) => image },
   list: { skills: down },
@@ -272,7 +275,11 @@ test("side quests: a refresh without any figure fails", async () => {
 });
 
 test("contributions: every repository with the lines merged there and the years it spans", async () => {
-  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const host = memoryHost({
+    pullRequests: [...pullRequests, ...recentPullRequests],
+    repositories,
+    calendar,
+  });
   const { repos, figures } = (await profileWith({ host })).contributions();
   const rows = repos.map(({ repo, from, to, merged, review, added, removed }) => ({
     repo,
@@ -290,7 +297,11 @@ test("contributions: every repository with the lines merged there and the years 
 });
 
 test("contributions: recent work by repository, the latest activity first", async () => {
-  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const host = memoryHost({
+    pullRequests: [...pullRequests, ...recentPullRequests],
+    repositories,
+    calendar,
+  });
   const { repos } = (await profileWith({ host })).contributions();
   const threads = repos.map(({ repo, about, threads }) => [
     repo,
@@ -306,7 +317,11 @@ test("contributions: recent work by repository, the latest activity first", asyn
 });
 
 test("contributions: an issue one reported folds into the pull request that closes it", async () => {
-  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const host = memoryHost({
+    pullRequests: [...pullRequests, ...recentPullRequests],
+    repositories,
+    calendar,
+  });
   const { repos } = (await profileWith({ host })).contributions();
   const [added, parsed] = repos[0].threads;
   assert.deepEqual(added.reported, [{ number: "5", url: "https://github.com/a/new/issues/5" }]);
@@ -314,7 +329,11 @@ test("contributions: an issue one reported folds into the pull request that clos
 });
 
 test("contributions: own work is left out even when the host returns it", async () => {
-  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const host = memoryHost({
+    pullRequests: [...pullRequests, ...recentPullRequests],
+    repositories,
+    calendar,
+  });
   const careless = {
     ...host,
     mergedPullRequests: () => host.mergedPullRequests({ author: "me", outside: [] }),
@@ -327,6 +346,12 @@ test("contributions: own work is left out even when the host returns it", async 
     "a/small",
     "employer/app",
   ]);
+});
+
+test("contributions: the calendar's total is the last full year's", async () => {
+  const { calendar: year } = (await profileWith()).contributions();
+  assert.deepEqual(year, { year: 2025, total: 1234 });
+  assert.deepEqual(profileOn(allDown, saved).contributions().calendar, { year: 2024, total: 900 });
 });
 
 test("articles and skills are given as they are", async () => {
@@ -372,7 +397,11 @@ test("contributions: only what is shown is saved", async () => {
 });
 
 test("contributions: stale pull requests and other people's issues are not saved", async () => {
-  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const host = memoryHost({
+    pullRequests: [...pullRequests, ...recentPullRequests],
+    repositories,
+    calendar,
+  });
   const { open, closes } = await profileOn({ host }, saved).live.github();
   assert.deepEqual(
     open.map(({ url }) => url.split("/").at(-1)),

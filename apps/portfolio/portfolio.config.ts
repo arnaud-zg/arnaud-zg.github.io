@@ -1,7 +1,7 @@
 // The whole portfolio, configured in one place.
 //
 // Data is fetched when the site builds, from four sources, each with a saved snapshot if it is
-// down: GitHub (pull requests merged or in review), npm (tools, releases, downloads), the skills repo README
+// down: GitHub (pull requests merged or in review, last year's contributions), npm (tools, releases, downloads), the skills repo README
 // (agent skills) and Substack (articles). This file holds everything else: who I am, the words
 // on the page, which sections show, and how fetched data is filtered and grouped.
 //
@@ -80,10 +80,11 @@ export default {
   // ─── Sections, in page order ───────────────────────────────────────────────────────────────
   // `show: false` hides a section and its nav link. `nav` is the label in the header.
   sections: {
-    // Figures under the hero, computed from the career and npm; only the words live here.
+    // Figures under the hero, computed from GitHub, the career and npm; only the words live here.
+    // Years of experience are in the journey, so the strip shows the work in the open instead.
     glance: {
       show: true,
-      years: "full-time, across startups and large companies",
+      contributions: (year: number) => `on GitHub in ${year}, public and private`,
       stay: "in one company, promoted to Senior",
       releases: "of open-source tools I build and maintain",
     },
@@ -133,6 +134,7 @@ export default {
   labels: {
     glance: "At a glance",
     years: "years",
+    contributions: "contributions",
     tools: "tools",
     now: "Now",
     at: "at",

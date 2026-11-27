@@ -37,12 +37,15 @@ export class ContributionLog {
     const open = shownPullRequests({ prs: opened.filter(isOutside), policy }).filter(isRecent);
     const recent = [...prs.filter(isRecent), ...open].map(({ url }) => url);
     const names = new Set([...prs, ...open].map(({ repo }) => repo));
-    const [closes, repos, lines] = await Promise.all([
+    // The last full calendar year, as a year is counted on a profile.
+    const year = now.getUTCFullYear() - 1;
+    const [closes, repos, lines, total] = await Promise.all([
       this.#reportsClosedBy(recent),
       this.#repositoriesOf(names),
       this.#linesOf([...urls]),
+      host.contributionsIn({ user: author, year }),
     ]);
-    return { prs, open, closes, repos, lines };
+    return { prs, open, closes, repos, lines, contributions: { year, total } };
   }
 
   // Only issues one reported oneself: fixing someone else's report is the pull request alone.

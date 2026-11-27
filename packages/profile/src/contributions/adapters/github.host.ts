@@ -32,6 +32,16 @@ const Closing = z.object({
   ),
 });
 
+const Calendar = z.object({
+  data: z.object({
+    user: z.object({
+      contributionsCollection: z.object({
+        contributionCalendar: z.object({ totalContributions: z.number() }),
+      }),
+    }),
+  }),
+});
+
 type State = "merged" | "open";
 
 export const githubHost = (web: Web): CodeHost => {
@@ -82,6 +92,15 @@ export const githubHost = (web: Web): CodeHost => {
       const path = url.replace("https://github.com/", "").replace("/pull/", "/pulls/");
       const { additions, deletions } = Pull.parse(await web.json(`${API}/repos/${path}`));
       return [additions, deletions];
+    },
+
+    // What the profile's calendar shows for the year: public, and private if the profile says so.
+    async contributionsIn({ user, year }) {
+      const span = `from: "${year}-01-01T00:00:00Z", to: "${year}-12-31T23:59:59Z"`;
+      const query = `query { user(login: ${JSON.stringify(user)}) { contributionsCollection(${span}) {
+        contributionCalendar { totalContributions } } } }`;
+      const { data } = Calendar.parse(await web.json(`${API}/graphql`, { query }));
+      return data.user.contributionsCollection.contributionCalendar.totalContributions;
     },
   };
 };
