@@ -3,7 +3,8 @@ import { PackageFamily } from "./PackageFamily.ts";
 
 const RESERVED = /^(reserved package name|coming soon)$/i;
 
-export type Lead = { lead: PublishedPackage; updated: string; members: number };
+// `names`: every package of the family, the lead too. Their releases all count for the tool.
+export type Lead = { lead: PublishedPackage; updated: string; members: number; names: string[] };
 
 export class PackageFamilies {
   readonly #families: readonly PackageFamily[];

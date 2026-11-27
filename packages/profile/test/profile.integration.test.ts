@@ -213,9 +213,9 @@ test("career: each job carries its months, the current one left open", () => {
   );
 });
 
-test("side quests: plugins join their tool, parked ones are left out, old ones move to earlier", async () => {
+test("side quests: plugins join their tool and count its releases, parked ones are left out, old ones move to earlier", async () => {
   const quests = (await profileWith()).sideQuests();
-  assert.deepEqual([quests.tools, quests.releases], [3, 10]);
+  assert.deepEqual([quests.tools, quests.releases], [3, 11]);
   assert.deepEqual([quests.downloads, quests.month], [15, "December 2025"]);
   assert.deepEqual(
     quests.earlier.map(({ name }) => name),
@@ -228,7 +228,7 @@ test("side quests: plugins join their tool, parked ones are left out, old ones m
   assert.equal(more.length, 0);
   assert.deepEqual(
     [shared.more?.map(({ name }) => name), shared.releases, shared.weight],
-    [["x", "y"], 2, 3],
+    [["x", "y"], 2, 3.3],
   );
 });
 
@@ -249,6 +249,16 @@ test("side quests: monthly releases are the stable ones of the last full month",
   const registry = registryOf([published("a", { versions })]);
   const quests = (await profileWith({ registry })).sideQuests();
   assert.deepEqual([quests.monthlyReleases, quests.releases], [2, 4]);
+});
+
+test("side quests: a plugin's releases count for its tool", async () => {
+  const versions = { "1.0.0": "2025-12-02", "1.1.0": "2025-12-20" };
+  const registry = registryOf([
+    published("kit", { versions }),
+    published("@kit/plugin", { versions: { "1.0.0": "2025-12-10" } }),
+  ]);
+  const quests = (await profileWith({ registry })).sideQuests();
+  assert.deepEqual([quests.tools, quests.monthlyReleases, quests.releases], [1, 3, 3]);
 });
 
 test("side quests: one missing figure leaves the total out", async () => {
