@@ -1,7 +1,9 @@
 // An easter egg: press a name marked `data-egg="🎟️"` and its emoji pops out of it, travels left to
 // right to the element marked `data-egg-to` in its `data-egg-row` (the dates), lands there and
 // the dates answer. A row marked `data-egg-row="perch"` has room above: the emoji travels and
-// lands on top of the text; otherwise it lands on the year itself, which dims under it.
+// lands on top of the text. A row marked `data-egg-row="beside"` is tight: it stops just in
+// front of the dates, never crossing them, so they stay readable. Otherwise it lands on the
+// year itself, which dims under it.
 //
 // The journey has three acts, as Disney's animators taught (Thomas & Johnston, "The Illusion of
 // Life"): anticipation (the name gives, the emoji pops out and leans back), action (the motion
@@ -592,6 +594,8 @@ const fly = (trigger: HTMLElement) => {
   // Dates wrapped under the name have no room above them: it lands beside them instead.
   const perch = row.dataset.eggRow === "perch";
   const perchTo = perch && !!dates && dates.top < name.bottom - 2;
+  // A tight row: it stops in front of the dates, never on them.
+  const beside = row.dataset.eggRow === "beside";
   // Centres, in the row's own coordinates.
   const from = perch
     ? { x: name.right - box.left - half.x * 0.4, y: name.top - box.top - half.y + 6 }
@@ -602,7 +606,9 @@ const fly = (trigger: HTMLElement) => {
       ? { x: dates.left + dates.width / 2 - box.left, y: dates.top - box.top - half.y + 1 }
       : perch
         ? { x: dates.right - box.left + 6 + half.x, y: middle(dates) }
-        : { x: dates.left + dates.width / 2 - box.left, y: middle(dates) };
+        : beside
+          ? { x: Math.max(dates.left - box.left - 4 - half.x, from.x + 8), y: middle(dates) }
+          : { x: dates.left + dates.width / 2 - box.left, y: middle(dates) };
   const distance = Math.hypot(from.x - to.x, from.y - to.y);
 
   // Cleans up once landed, unless a newer press has already replaced this flight.
@@ -761,7 +767,7 @@ const fly = (trigger: HTMLElement) => {
   );
   if (target) {
     const accent = getComputedStyle(row).getPropertyValue("--accent").trim();
-    if (perchTo || perch) {
+    if (perchTo || perch || beside) {
       target.animate(
         [
           { transform: "scale(1)" },

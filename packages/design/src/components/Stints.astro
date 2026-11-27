@@ -1,6 +1,6 @@
 ---
-// Short jobs folded into one line. With an emoji, pressing a company sends it from the name to the year,
-// in the motion given by `motion` (see flight.ts).
+// Short jobs folded into one line. With an emoji, pressing a company sends it from the name to just
+// in front of the year, which stays readable, in the motion given by `motion` (see flight.ts).
 interface Props { title: string; years: string; role: string; stints: { company: string; year: string; note: string; emoji?: string; motion?: string; since?: string; until?: string }[] }
 const { title, years, role, stints } = Astro.props;
 ---
@@ -8,7 +8,7 @@ const { title, years, role, stints } = Astro.props;
   <summary><span class="cv-early-title">{title}</span> · {years} · {role}</summary>
   <ul>
     {stints.map((st) => (
-      <li data-egg-row={st.emoji ? "" : undefined}><b>{st.emoji ? <button type="button" class="cv-egg" data-egg={st.emoji} data-egg-motion={st.motion} data-egg-since={st.since} data-egg-until={st.until}>{st.company}</button> : st.company}</b><span class="cv-early-year" data-egg-to={st.emoji ? "" : undefined}>{st.year}</span><span class="cv-early-note">{st.note}</span></li>
+      <li data-egg-row={st.emoji ? "beside" : undefined}><b>{st.emoji ? <button type="button" class="cv-egg" data-egg={st.emoji} data-egg-motion={st.motion} data-egg-since={st.since} data-egg-until={st.until}>{st.company}</button> : st.company}</b><span class="cv-early-year" data-egg-to={st.emoji ? "" : undefined}>{st.year}</span><span class="cv-early-note">{st.note}</span></li>
     ))}
   </ul>
 </details>
