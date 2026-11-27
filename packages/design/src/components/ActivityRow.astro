@@ -1,0 +1,134 @@
+---
+// One repository of the record: its name and what it is, the years and pull requests, the lines
+// merged as a bar against `max`, and its `preview` latest pull requests. With `opens`, a button
+// opens the dialog that lists them all. `compact` stacks it in one column, for a dialog.
+import { external } from "../links";
+import type { ActivityLabels, ActivityRepo } from "./Activity.astro";
+import ActivityThreads from "./ActivityThreads.astro";
+import "./parts/repo-owner.css";
+import "./parts/diff-bar.css";
+interface Props { repo: ActivityRepo; max: number; preview: number; opens?: string; compact?: boolean; labels: ActivityLabels }
+const { repo: r, max, preview, opens, compact = false, labels } = Astro.props;
+const size = r.added + r.removed;
+const pct = (n: number) => `--w:${(n / max) * 100}%`;
+const [owner, name] = r.repo.split("/");
+---
+<li class:list={["act-repo", { "is-compact": compact }]} data-repo={r.repo}>
+  <div class="act-head">
+    <a class="act-name" href={r.href} {...external}><span class="owner">{owner}/</span>{name}</a>
+    {r.about && <p class="act-about">{r.about}</p>}
+  </div>
+  <div class="act-body">
+    <div class="act-stats">
+      <span class="act-meta">{r.years} · {r.prs}</span>
+      {size > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
+      {size > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+    </div>
+    {r.threads.length > 0 && <ActivityThreads items={r.threads.slice(0, preview)} labels={labels} />}
+    {opens && <button class="act-open" type="button" data-open-dialog={opens} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
+  </div>
+</li>
+
+<style is:global>
+.act-repo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  gap: 10px clamp(12px, 1.8vw, 24px);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.act-repo.is-compact {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.act-repo.is-compact:last-child {
+  border-bottom: 0;
+}
+.act-head {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+.act-name {
+  font-size: 1.12rem;
+  letter-spacing: 0.01em;
+  overflow-wrap: break-word;
+}
+.act-name .owner {
+  display: block;
+  line-height: 1.2;
+}
+.act-name:hover {
+  color: var(--accent);
+}
+.act-about {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--ink-lo);
+}
+.act-body {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.act-stats {
+  display: grid;
+  grid-template-columns: 9.5rem 7rem minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: center;
+}
+.act-repo.is-compact .act-stats {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+.act-meta {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink-lo);
+}
+.act-open {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  cursor: pointer;
+}
+.act-open:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+@media (prefers-reduced-motion: no-preference) {
+.act-name {
+    transition: color 300ms var(--ease-out);
+  }
+@supports (animation-timeline: view()) {
+.act-repo:not(.is-compact) {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 25%;
+    }
+}
+}
+@media (max-width: 960px) {
+.act-repo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+.act-stats,
+.act-repo.is-compact .act-stats {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
+  }
+.act-bar {
+    grid-column: 1 / -1;
+  }
+}
+</style>

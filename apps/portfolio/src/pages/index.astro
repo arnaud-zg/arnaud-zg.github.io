@@ -70,12 +70,12 @@ const openSourceKpis = [
   { value: `+${figures.added.toLocaleString("en-GB")}`, label: labels.added, tone: "added" as const },
   { value: `−${figures.removed.toLocaleString("en-GB")}`, label: labels.removed, tone: "removed" as const },
   { value: figures.projects, label: labels.projects(figures.projects) },
-  ...(figures.from === undefined || figures.to === undefined ? [] : [{ value: span(figures.from, figures.to), label: labels.contributing }]),
 ];
 const questKpis = [
   { value: quests.tools, label: labels.tools },
-  ...(quests.month ? [{ value: quests.monthlyReleases, label: labels.releasesIn(quests.month) }] : []),
-  ...(quests.downloads !== undefined && quests.month ? [{ value: compact(quests.downloads), label: labels.downloadsIn(quests.month) }] : []),
+  // The month's figures share one caption: the month is named once.
+  ...(quests.month ? [{ label: labels.inMonth(quests.month), caption: true }, { value: quests.monthlyReleases, label: labels.releases }] : []),
+  ...(quests.downloads !== undefined && quests.month ? [{ value: compact(quests.downloads), label: labels.npmDownloads }] : []),
 ];
 ---
 <Site site={siteInfo} title={site.title} description={site.description} nav={nav} noindex={import.meta.env.BASE_URL !== "/"}>

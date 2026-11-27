@@ -1,9 +1,11 @@
 ---
 // The whole record by repository, the largest first: the years it spans, how many pull requests,
 // and the lines they added and removed once merged, as a bar against the largest. The first `top`
-// are listed, each with its latest pull requests; the rest open in a dialog. A repository with
-// more pull requests than its row shows opens them all in its own dialog.
+// are listed; the rest open in a dialog, as the same rows. Every row shows its latest pull
+// requests, the same few in each so the rows keep one height; a repository with more opens them
+// all in its own dialog, from the list or from the dialog of the rest.
 import { external } from "../links";
+import ActivityRow from "./ActivityRow.astro";
 import ActivityThreads from "./ActivityThreads.astro";
 import Dialog from "./Dialog.astro";
 import Pill from "./Pill.astro";
@@ -29,33 +31,25 @@ const rest = ranked.slice(top);
 const max = Math.max(1, ...items.map(size));
 const pct = (n: number) => `--w:${(n / max) * 100}%`;
 const dialogOf = (i: number) => `${id}-${i}`;
-import "./parts/repo-owner.css";
+const opens = (i: number) => (ranked[i].threads.length > PREVIEW ? dialogOf(i) : undefined);
 import "./parts/diff-bar.css";
 ---
 <div class="activity">
   <ul class="act-list">
-    {shown.map((r, i) => (
-      <li class="act-repo">
-        <div class="act-head">
-          <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
-          {r.about && <p class="act-about">{r.about}</p>}
-        </div>
-        <div class="act-body">
-          <div class="act-stats">
-            <span class="act-meta">{r.years} · {r.prs}</span>
-            {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
-            {size(r) > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
-          </div>
-          {r.threads.length > 0 && <ActivityThreads items={r.threads.slice(0, PREVIEW)} labels={labels} />}
-          {r.threads.length > PREVIEW && <button class="act-open" type="button" data-open-dialog={dialogOf(i)} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
-        </div>
-      </li>
-    ))}
+    {shown.map((r, i) => <ActivityRow repo={r} max={max} preview={PREVIEW} opens={opens(i)} labels={labels} />)}
   </ul>
   {rest.length > 0 && <div class="act-foot"><Pill opens={`${id}-more`}>{labels.more(rest.length)}</Pill></div>}
 </div>
 
-{shown.map((r, i) => r.threads.length > PREVIEW && (
+{rest.length > 0 && (
+  <Dialog id={`${id}-more`} title={labels.moreTitle} size="narrow">
+    <ul class="act-small">
+      {rest.map((r, i) => <ActivityRow repo={r} max={max} preview={PREVIEW} opens={opens(top + i)} compact labels={labels} />)}
+    </ul>
+  </Dialog>
+)}
+
+{ranked.map((r, i) => opens(i) && (
   <Dialog id={dialogOf(i)} title={r.repo} size="narrow">
     <div class="act-sheet">
       {r.about && <p class="act-about">{r.about}</p>}
@@ -70,24 +64,6 @@ import "./parts/diff-bar.css";
   </Dialog>
 ))}
 
-{rest.length > 0 && (
-  <Dialog id={`${id}-more`} title={labels.moreTitle} size="narrow">
-    <ul class="act-small">
-      {rest.map((r) => (
-        <li class="act-row">
-          <div class="act-row-head">
-            <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
-            {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
-          </div>
-          {r.about && <p class="act-about">{r.about}</p>}
-          <span class="act-meta">{r.years} · {r.prs}</span>
-          {r.threads.length > 0 && <ActivityThreads items={r.threads} labels={labels} />}
-        </li>
-      ))}
-    </ul>
-  </Dialog>
-)}
-
 <style is:global>
 .activity {
   display: grid;
@@ -96,74 +72,13 @@ import "./parts/diff-bar.css";
 .act-list {
   border-top: 1px solid var(--line);
 }
-.act-repo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
-  gap: 10px clamp(12px, 1.8vw, 24px);
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-}
-.act-head {
-  display: grid;
-  gap: 4px;
-  align-content: start;
-}
-.act-name {
-  font-size: 1.12rem;
-  letter-spacing: 0.01em;
-  overflow-wrap: break-word;
-}
-.act-name .owner {
-  display: block;
-  line-height: 1.2;
-}
-.act-about {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  font-size: var(--fs-small);
-  line-height: 1.45;
-  color: var(--ink-lo);
-}
-.act-body {
-  display: grid;
-  gap: 12px;
-  align-content: start;
-}
-.act-stats {
-  display: grid;
-  grid-template-columns: 9.5rem 7rem minmax(0, 1fr);
-  gap: 0 16px;
-  align-items: center;
-}
-.act-meta {
-  font: 400 var(--fs-label)/1.6 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--ink-lo);
-}
-.act-open,
-.act-cta {
-  justify-self: start;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: 400 var(--fs-label)/1.6 var(--mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--accent);
-  cursor: pointer;
-}
-.act-open:hover,
-.act-cta:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
-}
 .act-foot {
   display: flex;
   justify-content: flex-start;
+}
+.act-small {
+  display: grid;
+  padding-top: 4px;
 }
 .act-sheet {
   display: grid;
@@ -176,50 +91,21 @@ import "./parts/diff-bar.css";
 .act-sheet .act-stats {
   grid-template-columns: auto auto minmax(0, 1fr);
 }
-.act-small {
-  display: grid;
-}
-.act-row {
-  display: grid;
-  gap: 8px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line);
-}
-.act-row:last-child {
-  border-bottom: 0;
-}
-.act-row-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 16px;
-}
-.act-name:hover {
+.act-cta {
+  justify-self: start;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--accent);
 }
-@media (prefers-reduced-motion: no-preference) {
-.act-name {
-    transition: color 300ms var(--ease-out);
-  }
-@supports (animation-timeline: view()) {
-.act-repo {
-      animation: rise linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 25%;
-    }
-}
+.act-cta:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
 }
 @media (max-width: 960px) {
-.act-repo {
-    grid-template-columns: minmax(0, 1fr);
-  }
-.act-stats,
 .act-sheet .act-stats {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 6px 16px;
-  }
-.act-bar {
-    grid-column: 1 / -1;
   }
 }
 </style>
