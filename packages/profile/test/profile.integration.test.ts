@@ -271,18 +271,22 @@ test("side quests: a refresh without any figure fails", async () => {
   await assert.rejects(profileOn({ registry }, saved).live.npm(), /down/);
 });
 
-test("contributions: merged work from before the window is the record, largest first", async () => {
-  const about = "A tool";
-  const { earlier } = (await profileWith()).contributions();
-  assert.deepEqual(earlier.repos, [
-    { repo: "a/big", about, added: 20, removed: 4, kinds: "1 fix · 1 feature" },
-    { repo: "employer/app", about, added: 5, removed: 0, kinds: "1 feature" },
-    { repo: "a/small", about, added: 1, removed: 1, kinds: "1 fix" },
+test("contributions: every repository with the lines merged there and the years it spans", async () => {
+  const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
+  const { repos, figures } = (await profileWith({ host })).contributions();
+  const rows = repos.map(({ repo, from, to, merged, review, added, removed }) => ({
+    repo,
+    years: `${from}–${to}`,
+    prs: [merged, review],
+    lines: [added, removed],
+  }));
+  assert.deepEqual(rows, [
+    { repo: "a/new", years: "2025–2026", prs: [0, 2], lines: [0, 0] },
+    { repo: "a/big", years: "2025–2025", prs: [3, 1], lines: [30, 6] },
+    { repo: "a/small", years: "2025–2025", prs: [1, 0], lines: [1, 1] },
+    { repo: "employer/app", years: "2025–2025", prs: [1, 0], lines: [5, 0] },
   ]);
-  assert.deepEqual(
-    { merged: earlier.merged, projects: earlier.projects, from: earlier.from, to: earlier.to },
-    { merged: 4, projects: 3, from: 2025, to: 2025 },
-  );
+  assert.deepEqual(figures, { added: 36, removed: 7, projects: 4, from: 2025, to: 2026 });
 });
 
 test("contributions: recent work by repository, the latest activity first", async () => {
@@ -296,16 +300,17 @@ test("contributions: recent work by repository, the latest activity first", asyn
   assert.deepEqual(threads, [
     ["a/new", "New", ["review: Add it", "review: Parse"]],
     ["a/big", "A tool", ["merged: Keep the range", "review: Share it"]],
+    ["a/small", "A tool", []],
+    ["employer/app", "A tool", []],
   ]);
 });
 
 test("contributions: an issue one reported folds into the pull request that closes it", async () => {
   const host = memoryHost({ pullRequests: [...pullRequests, ...recentPullRequests], repositories });
-  const { repos, figures } = (await profileWith({ host })).contributions();
+  const { repos } = (await profileWith({ host })).contributions();
   const [added, parsed] = repos[0].threads;
   assert.deepEqual(added.reported, [{ number: "5", url: "https://github.com/a/new/issues/5" }]);
   assert.deepEqual(parsed.reported, []);
-  assert.deepEqual(figures, { merged: 1, review: 3, reported: 1 });
 });
 
 test("contributions: own work is left out even when the host returns it", async () => {
@@ -315,8 +320,13 @@ test("contributions: own work is left out even when the host returns it", async 
     mergedPullRequests: () => host.mergedPullRequests({ author: "me", outside: [] }),
     openPullRequests: () => host.openPullRequests({ author: "me", outside: [] }),
   };
-  const { repos, earlier } = (await profileWith({ host: careless })).contributions();
-  assert.deepEqual([earlier.projects, repos.length], [3, 2]);
+  const { repos } = (await profileWith({ host: careless })).contributions();
+  assert.deepEqual(repos.map(({ repo }) => repo).sort(), [
+    "a/big",
+    "a/new",
+    "a/small",
+    "employer/app",
+  ]);
 });
 
 test("articles and skills are given as they are", async () => {
@@ -327,9 +337,11 @@ test("articles and skills are given as they are", async () => {
 
 test("a build shows the saved data, even with every source down", () => {
   const profile = profileOn(allDown, saved);
-  assert.deepEqual(profile.contributions().earlier.repos, [
-    { repo: "a/saved", about: "Saved", added: 3, removed: 4, kinds: "1 fix" },
-  ]);
+  const [kept] = profile.contributions().repos;
+  assert.deepEqual(
+    [kept.repo, kept.about, kept.added, kept.removed, kept.from],
+    ["a/saved", "Saved", 3, 4, 2025],
+  );
   assert.equal(profile.skills()[0].name, "saved");
   assert.deepEqual(profile.articles(), []);
   assert.equal(profile.sideQuests().tools, 0);

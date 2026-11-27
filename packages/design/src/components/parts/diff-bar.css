@@ -1,0 +1,44 @@
+/* Shared by DiffRows and Activity: lines added and removed, as text and as a bar. Each imports it,
+   and a page loads it once. The bar's halves take their length from --w. */
+.diff {
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  white-space: nowrap;
+  text-align: right;
+}
+.diff b,
+.ds-bar b {
+  font-weight: 400;
+  color: var(--added);
+}
+.diff i,
+.ds-bar i {
+  font-style: normal;
+  color: var(--removed);
+}
+.ds-bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+}
+.ds-bar b,
+.ds-bar i {
+  width: var(--w);
+  min-width: 2px;
+  border-radius: 2px;
+  background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .ds-bar {
+      animation: draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+      transform-origin: left;
+    }
+    @keyframes draw {
+      from {
+        scale: 0 1;
+      }
+    }
+  }
+}

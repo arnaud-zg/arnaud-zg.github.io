@@ -1,35 +1,37 @@
 ---
-// Current work by repository, the latest activity first: one line per pull request, with its
-// status. An issue reported first folds into the pull request that closes it, as a note.
-// `earlier` puts older work behind a button, as a diffstat in a dialog.
+// The whole record by repository, the latest activity first: the years it spans, how many pull
+// requests, and the lines they added and removed once merged, as a bar against the largest. Under
+// it, the pull requests of the last months, each with a dot for its status (filled: merged,
+// hollow: in review). An issue reported first folds into the pull request that closes it.
 import { external } from "../links";
-import Dialog from "./Dialog.astro";
-import DiffRows, { type DiffRepo } from "./DiffRows.astro";
-import Pill from "./Pill.astro";
 export type ActivityStatus = "merged" | "review";
 export type ActivityThread = { status: ActivityStatus; title: string; href: string; reported?: { number: string; href: string }[] };
-export type ActivityRepo = { repo: string; about: string; href: string; threads: ActivityThread[] };
-type Earlier = { id: string; label: string; title: string; items: DiffRepo[]; added: string; removed: string };
-interface Props { items: ActivityRepo[]; labels: Record<ActivityStatus, string> & { reported: (n: string) => string }; earlier?: Earlier }
-const { items, labels, earlier } = Astro.props;
-const max = Math.max(1, ...(earlier?.items ?? []).map((r) => r.added + r.removed));
-const more = earlier && earlier.items.length > 0 ? earlier : undefined;
+export type ActivityRepo = { repo: string; about: string; href: string; years: string; prs: string; added: number; removed: number; threads: ActivityThread[] };
+interface Props { items: ActivityRepo[]; labels: Record<ActivityStatus, string> & { reported: (n: string) => string } }
+const { items, labels } = Astro.props;
+const max = Math.max(1, ...items.map((r) => r.added + r.removed));
+const pct = (n: number) => `--w:${(n / max) * 100}%`;
 import "./parts/repo-owner.css";
-import "./parts/diff-key.css";
+import "./parts/diff-bar.css";
 ---
-<div class="activity">
-  {items.length > 0 && (
-    <ul class="act-list">
-      {items.map((r) => (
-        <li class="act-repo">
-          <div class="act-head">
-            <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
-            {r.about && <p class="act-about">{r.about}</p>}
-          </div>
+<ul class="act-list">
+  {items.map((r) => (
+    <li class="act-repo">
+      <div class="act-head">
+        <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+        {r.about && <p class="act-about">{r.about}</p>}
+      </div>
+      <div class="act-body">
+        <div class="act-stats">
+          <span class="act-meta">{r.years} · {r.prs}</span>
+          {r.added + r.removed > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
+          {r.added + r.removed > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+        </div>
+        {r.threads.length > 0 && (
           <ul class="act-threads">
             {r.threads.map((t) => (
               <li class={`act-thread is-${t.status}`}>
-                <span class="act-status">{labels[t.status]}</span>
+                <span class="act-dot" role="img" aria-label={labels[t.status]} title={labels[t.status]}></span>
                 <span class="act-what">
                   <a class="act-title" href={t.href} {...external}>{t.title}</a>
                   {t.reported?.map((i) => <a class="act-note" href={i.href} {...external}>{labels.reported(i.number)}</a>)}
@@ -37,24 +39,13 @@ import "./parts/diff-key.css";
               </li>
             ))}
           </ul>
-        </li>
-      ))}
-    </ul>
-  )}
-  {more && <div class="act-foot"><Pill opens={more.id}>{more.label}</Pill></div>}
-</div>
-{more && (
-  <Dialog id={more.id} title={more.title}>
-    <DiffRows items={more.items} max={max} />
-    <p class="ds-key act-key"><b></b> {more.added} <i></i> {more.removed}</p>
-  </Dialog>
-)}
+        )}
+      </div>
+    </li>
+  ))}
+</ul>
 
 <style is:global>
-.activity {
-  display: grid;
-  gap: 22px;
-}
 .act-list {
   border-top: 1px solid var(--line);
 }
@@ -84,46 +75,50 @@ import "./parts/diff-key.css";
   line-height: 1.45;
   color: var(--ink-lo);
 }
-.act-threads {
+.act-body {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  align-content: start;
 }
-.act-thread {
+.act-stats {
   display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
+  grid-template-columns: 9.5rem 7rem minmax(0, 1fr);
   gap: 0 16px;
-  align-items: baseline;
-}
-.act-status {
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
+}
+.act-meta {
   font: 400 var(--fs-label)/1.6 var(--mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
   color: var(--ink-lo);
 }
-.act-status::before {
-  content: "";
-  flex: none;
+.act-threads {
+  display: grid;
+  gap: 8px;
+}
+.act-thread {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 0 12px;
+  align-items: baseline;
+}
+.act-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1.5px solid currentColor;
+  border: 1.5px solid var(--ink-lo);
 }
-.is-merged .act-status {
-  color: var(--added);
-}
-.is-merged .act-status::before {
-  background: currentColor;
+.is-merged .act-dot {
+  border-color: var(--added);
+  background: var(--added);
 }
 .act-what {
   display: grid;
   gap: 2px;
 }
 .act-title {
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
   line-height: 1.45;
   overflow-wrap: break-word;
 }
@@ -139,13 +134,6 @@ import "./parts/diff-key.css";
 .act-title:hover,
 .act-note:hover {
   color: var(--accent);
-}
-.act-foot {
-  display: flex;
-  justify-content: flex-end;
-}
-.act-key {
-  margin-top: 16px;
 }
 @media (prefers-reduced-motion: no-preference) {
 .act-name,
@@ -165,12 +153,12 @@ import "./parts/diff-key.css";
 .act-repo {
     grid-template-columns: minmax(0, 1fr);
   }
-.act-threads {
-    gap: 14px;
+.act-stats {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 16px;
   }
-.act-thread {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
+.act-bar {
+    grid-column: 1 / -1;
   }
 }
 </style>

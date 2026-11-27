@@ -13,8 +13,7 @@ import type { SkillList } from "./skills/ports/SkillList.ts";
 import { Career } from "./career/domain/Career.ts";
 import { ContributionLog } from "./contributions/application/ContributionLog.ts";
 import { ContributionPolicy } from "./contributions/domain/ContributionPolicy.ts";
-import { Contributions } from "./contributions/domain/Contributions.ts";
-import { RecentWork } from "./contributions/domain/RecentWork.ts";
+import { OpenSource } from "./contributions/domain/OpenSource.ts";
 import { QuestCatalog } from "./quests/application/QuestCatalog.ts";
 import { QuestMap } from "./quests/domain/QuestMap.ts";
 import { Quests } from "./quests/domain/Quests.ts";
@@ -89,17 +88,11 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         earlier: quests.olderThan(age).asFacts(),
       };
     },
-    // Now, then the record: recent work by repository, and merged work from before the window.
+    // The whole record by repository, latest activity first: lines merged, years, and what is
+    // happening there now.
     contributions() {
-      const records = saved.github;
-      const recent = new RecentWork({ records, policy, since });
-      const prs = records.prs.filter(({ date }) => date < since);
-      const earlier = new Contributions({ records: { ...records, prs }, policy });
-      return {
-        figures: recent.figures(),
-        repos: recent.byRepository(),
-        earlier: { ...earlier.summary(), repos: earlier.byRepository() },
-      };
+      const work = new OpenSource({ records: saved.github, policy, since });
+      return { figures: work.figures(), repos: work.byRepository() };
     },
     articles: () =>
       saved.substack.map((article) => ({ ...article, image: feed.coverOf(article.image) })),

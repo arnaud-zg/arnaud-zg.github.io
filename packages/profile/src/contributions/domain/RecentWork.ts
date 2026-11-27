@@ -41,15 +41,6 @@ export class RecentWork {
     );
   }
 
-  // "3 merged · 5 in review · 2 reported and fixed".
-  figures() {
-    const count = (status: Status) => this.#threads.filter((one) => one.status === status).length;
-    const reported = new Set(
-      this.#threads.flatMap(({ reported }) => reported.map(({ url }) => url)),
-    );
-    return { merged: count("merged"), review: count("review"), reported: reported.size };
-  }
-
   // One entry per repository, the one with the latest activity first.
   byRepository() {
     return [...Map.groupBy(this.#threads, ({ repo }) => repo)].map(([repo, threads]) => ({

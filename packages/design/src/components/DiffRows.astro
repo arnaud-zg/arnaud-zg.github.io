@@ -6,6 +6,7 @@ interface Props { items: DiffRepo[]; max: number }
 const { items, max } = Astro.props;
 const pct = (n: number) => `--w:${(n / max) * 100}%`;
 import "./parts/repo-owner.css";
+import "./parts/diff-bar.css";
 ---
 <ul class="ds-list">
   {items.map((r) => (
@@ -14,7 +15,7 @@ import "./parts/repo-owner.css";
         <a class="ds-repo" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
         <span class="ds-count"><span class="ds-about">{r.about}</span><span class="ds-kinds">{r.kinds}</span></span>
         <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>
-        <span class="ds-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
+        <span class="ds-bar ds-row-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>
       </div>
     </li>
   ))}
@@ -59,33 +60,6 @@ import "./parts/repo-owner.css";
   display: block;
   line-height: 1.2;
 }
-.diff {
-  font: 400 var(--fs-label)/1.6 var(--mono);
-  white-space: nowrap;
-  text-align: right;
-}
-.diff b,
-.ds-bar b {
-  font-weight: 400;
-  color: var(--added);
-}
-.diff i,
-.ds-bar i {
-  font-style: normal;
-  color: var(--removed);
-}
-.ds-bar {
-  display: flex;
-  gap: 2px;
-  height: 10px;
-}
-.ds-bar b,
-.ds-bar i {
-  width: var(--w);
-  min-width: 2px;
-  border-radius: 2px;
-  background: currentColor;
-}
 .ds-list {
   border-top: 1px solid var(--line);
 }
@@ -94,21 +68,10 @@ import "./parts/repo-owner.css";
 }
 @media (prefers-reduced-motion: no-preference) {
 @supports (animation-timeline: view()) {
-.ds-bar {
-      animation: draw linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 30%;
-      transform-origin: left;
-    }
 .ds-repo-row {
       animation: rise linear both;
       animation-timeline: view();
       animation-range: entry 10% cover 25%;
-    }
-@keyframes draw {
-      from {
-        scale: 0 1;
-      }
     }
 }
 }
@@ -129,7 +92,7 @@ import "./parts/repo-owner.css";
 .ds-count {
     grid-area: about;
   }
-.ds-bar {
+.ds-row-bar {
     grid-area: bar;
     margin-top: 6px;
   }
