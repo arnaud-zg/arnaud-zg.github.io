@@ -1,5 +1,19 @@
 # portfolio
 
+## 0.8.0
+
+### Minor Changes
+
+* The figures under the hero cover the last year: GitHub's own count of contributions, and the releases of the tools I maintain; every open-source project lists its pull requests, the oldest too. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/496
+
+* Smaller open-source contributions show their lines as a bar and their latest pull requests, like the larger ones, and the side-quest figures name their month once. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/497
+
+### Patch Changes
+
+* With your consent, the page learns which skill or project you open, how long you read it, and whether you fit a diagram in view; nothing new is collected about you. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/499
+
+* Diagrams in the agent skills are sharp and show every label whole; on a small screen, a button fits a wide one in view. Past twelve skills, the rest open in a dialog. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/498
+
 ## 0.7.0
 
 ### Minor Changes
