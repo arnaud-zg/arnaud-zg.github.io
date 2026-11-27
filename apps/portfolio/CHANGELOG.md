@@ -1,5 +1,17 @@
 # portfolio
 
+## 0.7.0
+
+### Minor Changes
+
+* Open source lists the largest projects first, each with its two latest pull requests; the rest of a project's pull requests, and the smaller projects, open in a dialog. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/492
+
+* Each agent skill opens its explanation, diagrams included, in a dialog with a link to the project; the arrow in a card's corner opens the project straight away. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/493
+
+### Patch Changes
+
+* Every side quest has a tile of its own in the treemap, and a small tool beside a big one is wide enough to read. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/491
+
 ## 0.6.0
 
 ### Minor Changes
