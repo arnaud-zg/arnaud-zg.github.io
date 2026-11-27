@@ -1,5 +1,23 @@
 # portfolio
 
+## 0.6.0
+
+### Minor Changes
+
+* The strip under the hero now shows my GitHub contributions last year, instead of repeating the years of experience the journey already shows. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/487
+
+* Adveris now signs off with a sparkling flourish, Valeo steps across as a gear on a test bench, Veepee's ticket jumps with the crowd into confetti, and Tongji reads "Master's program". by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/484
+
+* Open source is now one list of every project, latest first, each with the years I contributed, how many pull requests, and the lines added and removed, with the recent pull requests under it. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/486
+
+### Patch Changes
+
+* In early career, a company's emoji now stops just in front of its year instead of covering it. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/483
+
+* Side quests count each tool's plugin releases too, and each tool's figures now read "releases last month" and "downloads last month". by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/485
+
+* Opening a side quest tile and resizing the treemap do less work, with no visible difference. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/488
+
 ## 0.5.0
 
 ### Minor Changes
