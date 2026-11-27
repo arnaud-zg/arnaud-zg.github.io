@@ -147,8 +147,10 @@ export default {
     plugins: "plugins",
     monthlyDownloads: "downloads last month",
     downloadsIn: (month: string) => `npm downloads in ${month}`,
+    npmDownloads: "npm downloads",
     monthlyReleases: "releases last month",
     releasesIn: (month: string) => `releases in ${month}`,
+    inMonth: (month: string) => `In ${month}`,
     viewOnNpm: "View on npm",
     onNpm: (name: string) => `${name} on npm`,
     showDetails: (name: string) => `${name}: show details`,
@@ -170,7 +172,6 @@ export default {
     smallerTitle: "Smaller contributions",
     prsOnGitHub: "Pull requests on GitHub",
     projects: (n: number) => (n === 1 ? "project" : "projects"),
-    contributing: "contributing",
     openSourceFigures: "Open source, merged code",
   },
 

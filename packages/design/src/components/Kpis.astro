@@ -1,11 +1,12 @@
 ---
 // One line of figures. An item without a value is plain text. `tone` colours added and removed.
-export type Kpi = { value?: string | number; label: string; tone?: "added" | "removed" };
+// A `caption` heads the figures after it, set apart by a rule: a period named once for all of them.
+export type Kpi = { value?: string | number; label: string; tone?: "added" | "removed"; caption?: boolean };
 interface Props { items: Kpi[]; label?: string }
 const { items, label } = Astro.props;
 ---
 <ul class="kpis" aria-label={label}>
-  {items.map((k) => <li>{k.value !== undefined && <b class={k.tone}>{k.value}</b>} {k.label}</li>)}
+  {items.map((k) => k.caption ? <li class="kpi-caption">{k.label}</li> : <li>{k.value !== undefined && <b class={k.tone}>{k.value}</b>} {k.label}</li>)}
 </ul>
 
 <style is:global>
@@ -24,6 +25,18 @@ const { items, label } = Astro.props;
   letter-spacing: 0;
   color: var(--ink);
   vertical-align: -0.2em;
+}
+.kpi-caption {
+  display: flex;
+  align-items: center;
+  padding-left: 28px;
+  border-left: 1px solid var(--line);
+  margin-right: -10px;
+  color: var(--ink);
+}
+.kpi-caption:first-child {
+  padding-left: 0;
+  border-left: 0;
 }
 .kpis .added {
   color: var(--added);
