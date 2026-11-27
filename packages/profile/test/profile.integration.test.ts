@@ -304,24 +304,25 @@ test("side quests: a refresh without any figure fails", async () => {
   await assert.rejects(profileOn({ registry }, saved).live.npm(), /down/);
 });
 
-test("contributions: every repository with the lines merged there and the years it spans", async () => {
+test("contributions: every repository with the lines merged there, those in review apart, and the years it spans", async () => {
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
     lastYear,
   });
   const { repos, figures } = (await profileWith({ host })).contributions();
-  const rows = repos.map(({ repo, from, to, merged, review, added, removed }) => ({
+  const rows = repos.map(({ repo, from, to, merged, review, added, removed, pending }) => ({
     repo,
     years: `${from}–${to}`,
     prs: [merged, review],
     lines: [added, removed],
+    pending: pending && [pending.added, pending.removed],
   }));
   assert.deepEqual(rows, [
-    { repo: "a/new", years: "2025–2026", prs: [0, 2], lines: [0, 0] },
-    { repo: "a/big", years: "2025–2025", prs: [3, 1], lines: [30, 6] },
-    { repo: "a/small", years: "2025–2025", prs: [1, 0], lines: [1, 1] },
-    { repo: "employer/app", years: "2025–2025", prs: [1, 0], lines: [5, 0] },
+    { repo: "a/new", years: "2025–2026", prs: [0, 2], lines: [0, 0], pending: [20, 4] },
+    { repo: "a/big", years: "2025–2025", prs: [3, 1], lines: [30, 6], pending: [10, 2] },
+    { repo: "a/small", years: "2025–2025", prs: [1, 0], lines: [1, 1], pending: undefined },
+    { repo: "employer/app", years: "2025–2025", prs: [1, 0], lines: [5, 0], pending: undefined },
   ]);
   assert.deepEqual(figures, { added: 36, removed: 7, projects: 4, from: 2025, to: 2026 });
 });

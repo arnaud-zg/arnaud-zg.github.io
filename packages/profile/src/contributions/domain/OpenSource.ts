@@ -16,6 +16,8 @@ export type RepositoryWork = {
   // Lines of merged work only: what is in review may still change.
   added: number;
   removed: number;
+  // Lines of the pull requests in review, apart: left out when none is known (an older snapshot).
+  pending?: { added: number; removed: number };
   // What is happening there now, newest first.
   threads: Thread[];
 };
@@ -47,8 +49,10 @@ export class OpenSource {
           .at(-1) ?? "",
       );
       const years = dated.map(yearOf);
-      const total = (side: 0 | 1) =>
-        done.reduce((sum, { url }) => sum + (lines[url]?.[side] ?? 0), 0);
+      const total = (side: 0 | 1, some: readonly { url: string }[]) =>
+        some.reduce((sum, { url }) => sum + (lines[url]?.[side] ?? 0), 0);
+      const inReview = threads.filter(({ status, url }) => status === "review" && lines[url]);
+      const pending = { added: total(0, inReview), removed: total(1, inReview) };
       return {
         repo,
         about: repos[repo]?.about ?? "",
@@ -56,8 +60,9 @@ export class OpenSource {
         to: Math.max(...years),
         merged: done.length,
         review: threads.filter(({ status }) => status === "review").length,
-        added: total(0),
-        removed: total(1),
+        added: total(0, done),
+        removed: total(1, done),
+        ...(pending.added + pending.removed > 0 ? { pending } : {}),
         threads,
       };
     });

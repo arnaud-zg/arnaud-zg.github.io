@@ -18,7 +18,8 @@ export class ContributionLog {
     this.#needs = needs;
   }
 
-  // Only what the page shows is asked for and saved: about 25 requests of GitHub's 5,000 an hour.
+  // Only what the page shows is asked for and saved: about 30 requests of GitHub's 5,000 an hour.
+  // Lines are read for the pull requests in review too: the page draws them apart, as pending.
   async read(): Promise<Records> {
     const { host, policy, author, now } = this.#needs;
     const asked = { author, outside: policy.owners() };
@@ -40,7 +41,7 @@ export class ContributionLog {
     const [closes, repos, lines, total] = await Promise.all([
       this.#reportsClosedBy(shown),
       this.#repositoriesOf(names),
-      this.#linesOf([...urls]),
+      this.#linesOf(shown),
       host.contributionsInLastYear(author),
     ]);
     const asOf = now.toISOString().slice(0, 10);
