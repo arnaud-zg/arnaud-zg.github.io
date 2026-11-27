@@ -103,9 +103,10 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
       if (!line) return MIN_H;
       return line.getBoundingClientRect().bottom - link.getBoundingClientRect().top + 14;
     }));
-    const fits = (focus: HTMLElement, l: ReturnType<typeof compute>) => {
-      const base = sizes(compute(undefined, 1)), next = sizes(l);
-      const W = map.getBoundingClientRect().width;
+    // `base` and `next` are tile sizes at rest and in `l`, `W` the treemap's width: measured once
+    // per opening by the caller, not again for every boost it tries.
+    type Sizes = ReturnType<typeof sizes>;
+    const fits = (focus: HTMLElement, l: ReturnType<typeof compute>, base: Sizes, next: Sizes, W: number) => {
       const headsFit = groups.every((_, gi) => (l.outer[gi].w / 100) * W >= headW[gi]);
       return headsFit && groups.every((g, gi) => g.tiles.every((t, ti) => t.el === focus ||
         (next[gi][ti].w >= Math.min(base[gi][ti].w, Math.max(MIN_W, base[gi][ti].w * 0.85)) - 0.5 && next[gi][ti].h >= Math.min(Math.max(MIN_H, needH[gi][ti]), base[gi][ti].h) - 0.5)));
@@ -131,11 +132,12 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
       // and leaves the others room for their text, else the largest that leaves them room.
       if (focus) {
         const need = cardSize(focus), [gi, ti] = indexOf(focus);
+        const base = sizes(l), W = map.getBoundingClientRect().width;
         search: for (const whole of [false, true]) for (const boost of [1, 1.25, 1.5, 1.9, 2.4, 3]) {
-          const next = compute(focus, boost, whole);
-          if (boost > 1 && !fits(focus, next)) continue;
+          const next = compute(focus, boost, whole), nextSizes = sizes(next);
+          if (boost > 1 && !fits(focus, next, base, nextSizes, W)) continue;
           l = next;
-          const room = sizes(next)[gi][ti];
+          const room = nextSizes[gi][ti];
           if (room.w >= need.w && room.h >= need.h) break search;
         }
       }
@@ -181,16 +183,24 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
       return size;
     };
     // A description too long for its tile ends on its last whole line, never cut through one.
+    // Every clamp is lifted first, then every tile measured, then the clamps set: one layout for
+    // the whole treemap, not one per tile forced by measuring right after a change. Tiles are
+    // placed on their own, so lifting one clamp never moves another tile.
     const clampLines = () => {
-      for (const g of groups) for (const t of g.tiles) {
+      const open = groups.flatMap((g) => g.tiles.flatMap((t) => {
         const line = t.el.querySelector<HTMLElement>(".tm-line");
-        if (!line || t.el.classList.contains("is-focus")) continue;
-        line.style.removeProperty("--lines");
-        const link = linkOf(t.el);
+        return line && !t.el.classList.contains("is-focus") ? [{ line, link: linkOf(t.el) }] : [];
+      }));
+      for (const { line } of open) line.style.removeProperty("--lines");
+      const clamps = open.map(({ line, link }) => {
         const room = link.getBoundingClientRect().bottom - parseFloat(getComputedStyle(link).paddingBottom) - line.getBoundingClientRect().top;
         const lh = parseFloat(getComputedStyle(line).lineHeight) || parseFloat(getComputedStyle(line).fontSize) * 1.4;
-        if (line.offsetHeight > room + 1) line.style.setProperty("--lines", String(Math.max(1, Math.floor(room / lh))));
-      }
+        return line.offsetHeight > room + 1 ? Math.max(1, Math.floor(room / lh)) : undefined;
+      });
+      open.forEach(({ line }, i) => {
+        const lines = clamps[i];
+        if (lines !== undefined) line.style.setProperty("--lines", String(lines));
+      });
     };
     new ResizeObserver(() => clampLines()).observe(map);
     // Show the card at its final spot: no wider than the treemap, nudged left or up to stay in it.
