@@ -1,5 +1,17 @@
 # portfolio
 
+## 0.9.0
+
+### Minor Changes
+
+* The figures under the hero open on years of full-time experience; the longest stay, with its promotion to Senior, moves to the journey. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/506
+
+* Open-source contributions show the lines of pull requests still in review, dotted after the merged ones, and the smaller contributions line up their figures on the right with the bar below. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/504
+
+### Patch Changes
+
+* The open-source record also reads the lines of pull requests still in review; visitors see no difference yet. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/503
+
 ## 0.8.0
 
 ### Minor Changes
