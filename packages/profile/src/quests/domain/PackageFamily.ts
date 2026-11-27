@@ -21,6 +21,7 @@ export class PackageFamily {
 
   summary() {
     const dates = this.#members.map(({ date }) => date).sort();
-    return { updated: dates.at(-1) ?? "", members: this.#members.length };
+    const names = this.#members.map(({ name }) => name);
+    return { updated: dates.at(-1) ?? "", members: names.length, names };
   }
 }

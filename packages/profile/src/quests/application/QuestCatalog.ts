@@ -29,11 +29,22 @@ export class QuestCatalog {
     return quests.sort((a, b) => b.releases - a.releases || a.name.localeCompare(b.name));
   }
 
-  async #questOf({ lead, updated, members, downloads }: Lead & { downloads: Map<string, number> }) {
+  async #questOf({
+    lead,
+    updated,
+    members,
+    names,
+    downloads,
+  }: Lead & { downloads: Map<string, number> }) {
     const { registry, parked, lines, today } = this.#needs;
     const { name, href, keywords, description } = lead;
-    const versions = await registry.versionsOf(name);
-    const releases = Object.keys(versions).filter((one) => Quest.isRelease(one, parked));
+    // A tool releases through its plugins too: every package of the family counts.
+    const dates = (await Promise.all(names.map((one) => registry.versionsOf(one)))).flatMap(
+      (versions) =>
+        Object.entries(versions).flatMap(([one, date]) =>
+          Quest.isRelease(one, parked) ? [date] : [],
+        ),
+    );
     const month = today.previous();
     return {
       name,
@@ -44,8 +55,8 @@ export class QuestCatalog {
       keywords: [...keywords],
       updated,
       members,
-      releases: releases.length,
-      monthlyReleases: releases.filter((one) => month.includes(versions[one])).length,
+      releases: dates.length,
+      monthlyReleases: dates.filter((date) => date && month.includes(date)).length,
     };
   }
 

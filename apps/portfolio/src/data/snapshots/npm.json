@@ -16,6 +16,26 @@
     "monthlyReleases": 0
   },
   {
+    "name": "shiplane",
+    "month": "October 2026",
+    "downloads": 281,
+    "line": "Release and deploy a monorepo in one command",
+    "href": "https://www.npmjs.com/package/shiplane",
+    "keywords": [
+      "release",
+      "deploy",
+      "monorepo",
+      "changesets",
+      "github-actions",
+      "ci-cd",
+      "cli"
+    ],
+    "updated": "2026-11-23",
+    "members": 9,
+    "releases": 72,
+    "monthlyReleases": 0
+  },
+  {
     "name": "react-lightsaber",
     "month": "October 2026",
     "downloads": 21,
@@ -126,27 +146,27 @@
     ],
     "updated": "2026-11-26",
     "members": 2,
-    "releases": 9,
+    "releases": 11,
     "monthlyReleases": 0
   },
   {
-    "name": "shiplane",
+    "name": "migration-preflight",
     "month": "October 2026",
-    "downloads": 281,
-    "line": "Release and deploy a monorepo in one command",
-    "href": "https://www.npmjs.com/package/shiplane",
+    "downloads": 89,
+    "line": "Test database migrations before you ship them",
+    "href": "https://www.npmjs.com/package/migration-preflight",
     "keywords": [
-      "release",
-      "deploy",
-      "monorepo",
-      "changesets",
-      "github-actions",
-      "ci-cd",
-      "cli"
+      "database",
+      "migration",
+      "testing",
+      "sql",
+      "drizzle",
+      "prisma",
+      "data-safety"
     ],
-    "updated": "2026-11-23",
-    "members": 9,
-    "releases": 9,
+    "updated": "2026-11-26",
+    "members": 3,
+    "releases": 10,
     "monthlyReleases": 0
   },
   {
@@ -219,26 +239,6 @@
     ],
     "updated": "2026-11-14",
     "members": 1,
-    "releases": 4,
-    "monthlyReleases": 0
-  },
-  {
-    "name": "migration-preflight",
-    "month": "October 2026",
-    "downloads": 89,
-    "line": "Test database migrations before you ship them",
-    "href": "https://www.npmjs.com/package/migration-preflight",
-    "keywords": [
-      "database",
-      "migration",
-      "testing",
-      "sql",
-      "drizzle",
-      "prisma",
-      "data-safety"
-    ],
-    "updated": "2026-11-26",
-    "members": 3,
     "releases": 4,
     "monthlyReleases": 0
   },
