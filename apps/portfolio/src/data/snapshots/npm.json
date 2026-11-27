@@ -13,8 +13,7 @@
     "updated": "2020-08-01",
     "members": 1,
     "releases": 88,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "shiplane",
@@ -34,8 +33,7 @@
     "updated": "2026-11-23",
     "members": 9,
     "releases": 72,
-    "monthlyReleases": 0,
-    "yearlyReleases": 72
+    "monthlyReleases": 0
   },
   {
     "name": "react-lightsaber",
@@ -47,8 +45,7 @@
     "updated": "2020-07-06",
     "members": 1,
     "releases": 50,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "http-response-status",
@@ -66,8 +63,7 @@
     "updated": "2022-12-18",
     "members": 1,
     "releases": 42,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "popup-sensor",
@@ -82,8 +78,7 @@
     "updated": "2022-06-24",
     "members": 1,
     "releases": 35,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "standalone-store",
@@ -100,8 +95,7 @@
     "updated": "2020-05-26",
     "members": 1,
     "releases": 29,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "selector",
@@ -116,8 +110,7 @@
     "updated": "2022-06-24",
     "members": 1,
     "releases": 26,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "blast-shield",
@@ -135,8 +128,7 @@
     "updated": "2026-11-26",
     "members": 1,
     "releases": 24,
-    "monthlyReleases": 0,
-    "yearlyReleases": 4
+    "monthlyReleases": 0
   },
   {
     "name": "eslint-plugin-feature-flags",
@@ -155,8 +147,7 @@
     "updated": "2026-11-26",
     "members": 2,
     "releases": 11,
-    "monthlyReleases": 0,
-    "yearlyReleases": 2
+    "monthlyReleases": 0
   },
   {
     "name": "migration-preflight",
@@ -176,8 +167,7 @@
     "updated": "2026-11-26",
     "members": 3,
     "releases": 10,
-    "monthlyReleases": 0,
-    "yearlyReleases": 10
+    "monthlyReleases": 0
   },
   {
     "name": "lazy-upload",
@@ -192,8 +182,7 @@
     "updated": "2020-08-26",
     "members": 1,
     "releases": 5,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   },
   {
     "name": "agent-context-budget",
@@ -213,8 +202,7 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
-    "monthlyReleases": 1,
-    "yearlyReleases": 4
+    "monthlyReleases": 1
   },
   {
     "name": "expo-native-guard",
@@ -233,8 +221,7 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
-    "monthlyReleases": 0,
-    "yearlyReleases": 4
+    "monthlyReleases": 0
   },
   {
     "name": "expo-pnpm-catalog",
@@ -253,8 +240,7 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 4,
-    "monthlyReleases": 0,
-    "yearlyReleases": 4
+    "monthlyReleases": 0
   },
   {
     "name": "vite-workspace-resolver",
@@ -273,8 +259,7 @@
     "updated": "2026-11-14",
     "members": 1,
     "releases": 3,
-    "monthlyReleases": 1,
-    "yearlyReleases": 3
+    "monthlyReleases": 1
   },
   {
     "name": "immutable-instance",
@@ -291,7 +276,6 @@
     "updated": "2025-11-04",
     "members": 1,
     "releases": 2,
-    "monthlyReleases": 0,
-    "yearlyReleases": 0
+    "monthlyReleases": 0
   }
 ]

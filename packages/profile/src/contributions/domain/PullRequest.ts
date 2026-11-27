@@ -12,8 +12,9 @@ export type Lines = readonly [added: number, removed: number];
 export type LinesByUrl = Readonly<Record<string, Lines | undefined>>;
 // The issues one reported and then closed with one's own pull request, by its address.
 export type ClosedIssues = Readonly<Record<string, readonly string[] | undefined>>;
-// The profile's "contributions in the last year", on the day it was read.
-export type YearOfContributions = { readonly total: number; readonly asOf: string };
+// The profile's "contributions in the last year", on the day it was read. Without that day, the
+// total is a calendar year's, saved before: not the last year's.
+export type YearOfContributions = { readonly total: number; readonly asOf?: string };
 // What is known of the work, and what is saved between builds. `prs` are merged, `open` in review.
 export type Records = {
   prs: readonly PullRequest[];

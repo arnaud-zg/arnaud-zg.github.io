@@ -11,7 +11,9 @@ export const Snapshots = z.object({
     closes: z.record(text, z.array(text)),
     repos: z.record(text, z.object({ about: text })),
     lines: z.record(text, z.tuple([z.number(), z.number()])),
-    contributions: z.object({ total: z.number(), asOf: text }),
+    // `asOf` and `yearlyReleases` are missing from data saved before they were read: the release's
+    // refresh fills them in, and until then the figure is not shown.
+    contributions: z.object({ total: z.number(), asOf: text.optional() }),
   }),
   npm: z.array(
     z.object({
@@ -25,7 +27,7 @@ export const Snapshots = z.object({
       members: z.number(),
       releases: z.number(),
       monthlyReleases: z.number(),
-      yearlyReleases: z.number(),
+      yearlyReleases: z.number().optional(),
     }),
   ),
   skills: z.array(

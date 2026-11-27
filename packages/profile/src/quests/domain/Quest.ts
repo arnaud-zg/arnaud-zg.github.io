@@ -13,7 +13,7 @@ export type QuestFacts = {
   readonly members: number;
   readonly releases: number;
   readonly monthlyReleases: number;
-  readonly yearlyReleases: number;
+  readonly yearlyReleases?: number;
 };
 export type Age = { months: number; today: Month };
 

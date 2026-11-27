@@ -96,8 +96,9 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
       return {
         figures: work.figures(),
         repos: work.byRepository(),
-        // The profile's "contributions in the last year", as of the last refresh.
-        calendar: saved.github.contributions,
+        // The profile's "contributions in the last year", as of the last refresh; none if the
+        // saved total is not one.
+        calendar: saved.github.contributions.asOf ? saved.github.contributions : undefined,
       };
     },
     articles: () =>

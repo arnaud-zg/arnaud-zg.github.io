@@ -45,10 +45,11 @@ const openSource = profile.contributions();
 const articles = profile.articles();
 const skills = profile.skills();
 
+// A figure not yet read is left out, never shown as something it is not.
 const numbers = [
-  { value: openSource.calendar.total, unit: labels.contributions, label: words.contributions },
+  ...(openSource.calendar ? [{ value: openSource.calendar.total, unit: labels.contributions, label: words.contributions }] : []),
   { value: career.longestYears, unit: labels.years, label: words.stay },
-  { value: quests.yearlyReleases, unit: labels.releases, label: words.releases },
+  ...(quests.yearlyReleases === undefined ? [] : [{ value: quests.yearlyReleases, unit: labels.releases, label: words.releases }]),
 ];
 // Header nav: every shown section that has a nav label, in page order.
 const ids: Record<string, string> = { about: "about", journey: "journey", quests: "quests", skills: "skills", writing: "writing", openSource: "open-source" };

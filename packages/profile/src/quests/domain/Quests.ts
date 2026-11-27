@@ -41,8 +41,11 @@ export class Quests {
     return this.asFacts().reduce((total, { monthlyReleases }) => total + monthlyReleases, 0);
   }
 
-  yearlyReleases(): number {
-    return this.asFacts().reduce((total, { yearlyReleases }) => total + yearlyReleases, 0);
+  // No total when a figure is missing, as for downloads: never an understated number.
+  yearlyReleases(): number | undefined {
+    const figures = this.asFacts().flatMap(({ yearlyReleases }) => yearlyReleases ?? []);
+    if (figures.length < this.count()) return undefined;
+    return figures.reduce((total, figure) => total + figure, 0);
   }
 
   // No total when a figure is missing: never an understated number.

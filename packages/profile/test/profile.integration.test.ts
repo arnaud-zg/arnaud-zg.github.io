@@ -388,6 +388,24 @@ test("contributions: the profile's count for the last year, dated by the refresh
   assert.deepEqual(profileOn(allDown, saved).contributions().calendar, saved.github.contributions);
 });
 
+test("saved data from before the last year was read shows neither figure", () => {
+  const before = { ...saved, github: { ...saved.github, contributions: { total: 2925 } } };
+  const quest = {
+    name: "a",
+    month: "December 2025",
+    line: "",
+    href: "",
+    keywords: [],
+    updated: "2025-12-01",
+    members: 1,
+    releases: 4,
+    monthlyReleases: 1,
+  };
+  const profile = profileOn(allDown, { ...before, npm: [quest] });
+  assert.equal(profile.contributions().calendar, undefined);
+  assert.equal(profile.sideQuests().yearlyReleases, undefined);
+});
+
 test("articles and skills are given as they are", async () => {
   const profile = await profileWith();
   assert.deepEqual(profile.articles(), [article]);
