@@ -46,8 +46,8 @@ const settings = {
     groups: [{ name: "Ship", emoji: "S", match: ["release"] }],
     otherGroup: "Other",
     otherEmoji: "O",
-    minShare: 0.2,
     minTileShare: 0.3,
+    minTileBeside: 0.4,
   },
   skills: { repo: "me/skills" },
   substack: { feed: "https://me.substack.com/feed" },
@@ -225,13 +225,29 @@ test("side quests: plugins join their tool and count its releases, parked ones a
     ["old"],
   );
   const [ship, other] = quests.groups;
-  assert.deepEqual([ship.name, ship.tiles[0].tool?.line], ["Ship", "release-kit"]);
-  assert.equal(ship.tiles[0].tool?.members, 2);
-  const [shared, ...more] = other.tiles;
-  assert.equal(more.length, 0);
+  assert.deepEqual([ship.name, ship.tiles[0].tool.line], ["Ship", "release-kit"]);
+  assert.equal(ship.tiles[0].tool.members, 2);
   assert.deepEqual(
-    [shared.more?.map(({ name }) => name), shared.releases, shared.weight],
-    [["x", "y"], 2, 3.3],
+    other.tiles.map(({ tool, releases, weight }) => [tool.name, releases, weight]),
+    [
+      ["x", 1, 3.3],
+      ["y", 1, 3.3],
+    ],
+  );
+});
+
+test("side quests: a small tool beside a big one is drawn at least a share of it", async () => {
+  const registry = registryOf([
+    published("release-big", { versions: undated(..."0123456789") }),
+    published("release-small", { versions: undated("1.0.0") }),
+  ]);
+  const [ship] = (await profileWith({ registry })).sideQuests().groups;
+  assert.deepEqual(
+    ship.tiles.map(({ tool, weight }) => [tool.name, weight]),
+    [
+      ["release-big", 10],
+      ["release-small", 4],
+    ],
   );
 });
 
