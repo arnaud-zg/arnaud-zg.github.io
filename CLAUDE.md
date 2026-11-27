@@ -34,3 +34,6 @@ Shiplane versions from `.changeset/*.md` only. Commit types (`feat`, `fix`) rele
   the changelog line.
 - When visitors see no difference, the sentence says so.
 - Never edit a `CHANGELOG.md` or a version by hand: the release pull request does it.
+- Never refresh data in a pull request, feature, improvement or fix alike: the snapshots in
+  `apps/portfolio/src/data/snapshots/` stay as on `main`. The release runs `pnpm data:refresh`. A
+  new saved field is optional, so `main`'s snapshots still parse.
