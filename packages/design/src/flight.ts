@@ -36,7 +36,10 @@ export type EggMotion =
   | "bounce"
   | "fizz"
   | "climb"
-  | "voyage";
+  | "voyage"
+  | "flourish"
+  | "gear"
+  | "concert";
 
 const still = matchMedia("(prefers-reduced-motion: reduce)");
 const live = new WeakMap<HTMLElement, HTMLElement>();
@@ -46,7 +49,7 @@ type Pose = { x: number; y: number; r: number; sx: number; sy: number; o: number
 // Left along the way: `at` is the share of the journey, placed where the emoji is then.
 type Mark = {
   at: number;
-  kind: "year" | "trail" | "bubble" | "drop" | "puff";
+  kind: "year" | "trail" | "bubble" | "drop" | "puff" | "spark" | "tick" | "confetti";
   dx?: number;
   dy?: number;
 };
@@ -427,6 +430,114 @@ const motions: Record<EggMotion, (j: Journey) => Path> = {
       },
     };
   },
+
+  // A web agency, sites that move: a pen stroke with one loop-de-loop in the middle, drawn
+  // behind it as a signature, leaving sparks that twinkle where it turned.
+  flourish({ from, to, weight, room, ahead }) {
+    const path = arc(from, to, Math.min(6 + 6 * weight, room * 0.5));
+    const radius = Math.max(Math.min(7 + 4 * weight, room * 0.5), 5);
+    const [start, end] = [0.3, 0.72];
+    const progress = profile(ramps(0.22, 0.3));
+    return {
+      trace: "line",
+      marks: [0.18, 0.4, 0.52, 0.64, 0.86].map((at, k) => ({
+        at,
+        kind: "spark",
+        dx: (k % 2 ? -1 : 1) * 5,
+        dy: k % 2 ? 8 : -10,
+      })),
+      pose(t) {
+        const p = progress(t);
+        const { x, y } = path.at(p);
+        const { dx, dy, turn } = loop(p, start, end, radius);
+        const flare = Math.sin(Math.PI * clamp((p - start) / (end - start)));
+        return {
+          x: x + ahead * dx,
+          y: y + dy,
+          r: ahead * turn * DEG * 0.5,
+          sx: 1 + 0.12 * flare,
+          sy: 1 + 0.12 * flare,
+          o: 1,
+        };
+      },
+    };
+  },
+
+  // R&D on cars: a gear on a test bench. It rolls in exact steps, an eighth of a turn each, as
+  // an escapement lets it, overshoots a hair and settles, and each stop leaves a tick.
+  gear({ from, to, weight, ahead, radius }) {
+    const distance = Math.hypot(to.x - from.x, to.y - from.y);
+    const steps = clamp(
+      Math.round(((distance / radius) * DEG) / 45),
+      3,
+      10 + Math.round(4 * weight),
+    );
+    const ease = (u: number) => smoother(clamp(u / 0.55)) + 0.1 * bell(u, 0.62, 0.1);
+    return {
+      pace: 1.1,
+      marks: Array.from({ length: steps - 1 }, (_, k) => ({
+        at: (k + 0.62) / steps,
+        kind: "tick",
+        dy: radius + 3,
+      })),
+      pose(t) {
+        const at = t * steps;
+        const k = Math.min(Math.floor(at), steps - 1);
+        const q = (k + ease(at - k)) / steps;
+        const { x, y } = along(from, to, q);
+        const strain = bell(at - k, 0.3, 0.14);
+        return {
+          x,
+          y,
+          r: ahead * 45 * k + ahead * 45 * ease(at - k),
+          sx: 1 + 0.04 * strain,
+          sy: 1 - 0.04 * strain,
+          o: 1,
+        };
+      },
+    };
+  },
+
+  // A concert: it jumps with the crowd on a steady beat, every jump the same height, swaying
+  // from side to side, squashing on each downbeat; confetti bursts as it lands.
+  concert({ from, to, weight, room, ahead }) {
+    const beats = 4 + Math.round(3 * weight);
+    const height = Math.min(16 + 4 * weight, room);
+    const progress = profile(ramps(0.12, 0.12));
+    return {
+      marks: [-1.2, -0.7, -0.25, 0.25, 0.7, 1.2].map((spread, k) => ({
+        at: 1,
+        kind: "confetti",
+        dx: spread * 16,
+        dy: -(14 + (k % 3) * 6),
+      })),
+      pose(t) {
+        const p = progress(t);
+        const u = (t * beats) % 1;
+        const hop = 4 * u * (1 - u);
+        const ground = 1 - clamp(Math.min(u, 1 - u) / 0.12);
+        const beat = Math.floor(t * beats);
+        const sway = (beat % 2 ? -1 : 1) * Math.sin(Math.PI * u);
+        const { x, y } = along(from, to, p);
+        return {
+          x,
+          y: y - height * hop,
+          r: ahead * 10 * sway,
+          sx: 1 + 0.16 * ground,
+          sy: 1 - 0.14 * ground,
+          o: 1,
+        };
+      },
+    };
+  },
+};
+
+// One loop of a pen: around a circle of `radius`, entered and left on the line, over the share
+// of the journey from `start` to `end`.
+const loop = (p: number, start: number, end: number, radius: number) => {
+  const s = clamp((p - start) / (end - start));
+  const a = 2 * Math.PI * smoother(s);
+  return { dx: radius * Math.sin(a), dy: -radius * (1 - Math.cos(a)), turn: a };
 };
 
 function road({ from, to, weight, ahead }: Journey, facing: 1 | -1): Path {
@@ -559,7 +670,29 @@ const markFrames: Record<Mark["kind"], { frames: Keyframe[]; duration: number; e
     duration: 800,
     easing: "cubic-bezier(0.16, 1, 0.3, 1)",
   },
+  spark: {
+    frames: [
+      { opacity: 0, transform: "rotate(45deg) scale(0.2)" },
+      { opacity: 1, transform: "rotate(45deg) scale(1.2)", offset: 0.2 },
+      { opacity: 0.4, transform: "rotate(45deg) scale(0.7)", offset: 0.45 },
+      { opacity: 0.9, transform: "rotate(45deg) scale(1)", offset: 0.65 },
+      { opacity: 0, transform: "rotate(45deg) scale(0.3)" },
+    ],
+    duration: 1100,
+    easing: "ease-out",
+  },
+  tick: {
+    frames: [
+      { opacity: 0, transform: "scaleY(0.2)" },
+      { opacity: 0.8, transform: "scaleY(1)", offset: 0.12 },
+      { opacity: 0.8, transform: "scaleY(1)", offset: 0.6 },
+      { opacity: 0, transform: "scaleY(1)" },
+    ],
+    duration: 1400,
+    easing: "ease-out",
+  },
   trail: { frames: [], duration: 0, easing: "ease-out" }, // stays until the landing, see below
+  confetti: { frames: [], duration: 0, easing: "ease-out" }, // its own burst, see below
 };
 
 // The text itself, not the box it sits in (a grid cell can be wider).
@@ -737,6 +870,28 @@ const fly = (trigger: HTMLElement) => {
     dot.style.translate = `${x + dx}px ${y + dy}px`;
     host.prepend(dot); // under the emoji
     const delay = EMERGE + at * travel;
+    if (kind === "confetti") {
+      // Thrown up and out from the landing, then it falls, turning.
+      dot.style.translate = `${x}px ${y}px`;
+      dot.dataset.tone = String(Math.round(Math.abs(dx)) % 3);
+      const spin = dx < 0 ? -1 : 1;
+      dot.animate(
+        [
+          { opacity: 0, transform: "translate(0, 0) rotate(0deg) scale(0.4)" },
+          {
+            opacity: 1,
+            transform: `translate(${dx}px, ${dy}px) rotate(${spin * 180}deg) scale(1)`,
+            offset: 0.35,
+          },
+          {
+            opacity: 0,
+            transform: `translate(${dx * 1.3}px, ${dy + 30}px) rotate(${spin * 420}deg) scale(0.8)`,
+          },
+        ],
+        { duration: 1300, delay, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+      );
+      return;
+    }
     if (kind === "trail") {
       const duration = landAt + 500 + hold * 0.5 - delay + 500;
       dot.animate(
