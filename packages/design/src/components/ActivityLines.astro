@@ -1,0 +1,43 @@
+---
+// The lines of one repository, as text and as a bar against `max`: merged work solid, the pull
+// requests in review dotted after it, on the same line, so the bar reads as the total.
+import type { ActivityRepo } from "./Activity.astro";
+import "./parts/diff-bar.css";
+// `stack`: the bar takes its own line under the figures, so rows of a dialog line up.
+interface Props { repo: ActivityRepo; max: number; review: string; stack?: boolean }
+const { repo: r, max, review, stack = false } = Astro.props;
+const p = r.pending ?? { added: 0, removed: 0 };
+const pct = (n: number) => `--w:${(n / max) * 100}%`;
+const merged = r.added + r.removed > 0;
+const pending = p.added + p.removed > 0;
+---
+{(merged || pending) && (
+  <span class:list={["diff", { "is-stacked": stack }]}>
+    {merged && <><b>+{r.added}</b> <i>−{r.removed}</i></>}
+    {pending && <span class="diff-pending" title={review}><b>+{p.added}</b> <i>−{p.removed}</i></span>}
+  </span>
+)}
+{(merged || pending) && (
+  <span class:list={["ds-bar act-bar", { "is-stacked": stack }]} aria-hidden="true">
+    {r.added > 0 && <b style={pct(r.added)}></b>}
+    {p.added > 0 && <b class="is-pending" style={pct(p.added)}></b>}
+    {r.removed > 0 && <i style={pct(r.removed)}></i>}
+    {p.removed > 0 && <i class="is-pending" style={pct(p.removed)}></i>}
+  </span>
+)}
+
+<style is:global>
+/* In a fixed column, the figures in review take a line of their own, under the merged ones. */
+.diff:not(.is-stacked) .diff-pending {
+  display: block;
+  margin-left: 0;
+}
+.act-bar.is-stacked {
+  grid-column: 1 / -1;
+}
+@media (max-width: 960px) {
+.act-bar {
+    grid-column: 1 / -1;
+  }
+}
+</style>

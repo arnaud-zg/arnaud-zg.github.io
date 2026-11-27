@@ -27,6 +27,16 @@
   border-radius: 2px;
   background: currentColor;
 }
+/* Lines still in review: dotted, after the merged ones, in the same colours. */
+.diff-pending {
+  margin-left: 0.6em;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.3em;
+}
+.ds-bar .is-pending {
+  border: 1.5px dotted currentColor;
+  background: none;
+}
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .ds-bar {

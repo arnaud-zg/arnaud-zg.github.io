@@ -4,13 +4,11 @@
 // opens the dialog that lists them all. `compact` stacks it in one column, for a dialog.
 import { external } from "../links";
 import type { ActivityLabels, ActivityRepo } from "./Activity.astro";
+import ActivityLines from "./ActivityLines.astro";
 import ActivityThreads from "./ActivityThreads.astro";
 import "./parts/repo-owner.css";
-import "./parts/diff-bar.css";
 interface Props { repo: ActivityRepo; max: number; preview: number; opens?: string; compact?: boolean; labels: ActivityLabels }
 const { repo: r, max, preview, opens, compact = false, labels } = Astro.props;
-const size = r.added + r.removed;
-const pct = (n: number) => `--w:${(n / max) * 100}%`;
 const [owner, name] = r.repo.split("/");
 ---
 <li class:list={["act-repo", { "is-compact": compact }]} data-repo={r.repo}>
@@ -21,8 +19,7 @@ const [owner, name] = r.repo.split("/");
   <div class="act-body">
     <div class="act-stats">
       <span class="act-meta">{r.years} · {r.prs}</span>
-      {size > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
-      {size > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+      <ActivityLines repo={r} max={max} review={labels.review} stack={compact} />
     </div>
     {r.threads.length > 0 && <ActivityThreads items={r.threads.slice(0, preview)} labels={labels} />}
     {opens && <button class="act-open" type="button" data-open-dialog={opens} data-item={r.repo} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
@@ -82,7 +79,8 @@ const [owner, name] = r.repo.split("/");
   align-items: center;
 }
 .act-repo.is-compact .act-stats {
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
 }
 .act-meta {
   font: 400 var(--fs-label)/1.6 var(--mono);
@@ -126,9 +124,6 @@ const [owner, name] = r.repo.split("/");
 .act-repo.is-compact .act-stats {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 6px 16px;
-  }
-.act-bar {
-    grid-column: 1 / -1;
   }
 }
 </style>

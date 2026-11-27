@@ -5,13 +5,15 @@
 // requests, the same few in each so the rows keep one height; a repository with more opens them
 // all in its own dialog, from the list or from the dialog of the rest.
 import { external } from "../links";
+import ActivityLines from "./ActivityLines.astro";
 import ActivityRow from "./ActivityRow.astro";
 import ActivityThreads from "./ActivityThreads.astro";
 import Dialog from "./Dialog.astro";
 import Pill from "./Pill.astro";
 export type ActivityStatus = "merged" | "review";
 export type ActivityThread = { status: ActivityStatus; title: string; href: string; reported?: { number: string; href: string }[] };
-export type ActivityRepo = { repo: string; about: string; href: string; years: string; prs: string; added: number; removed: number; threads: ActivityThread[] };
+// `pending`: the lines of the pull requests in review, drawn dotted after the merged ones.
+export type ActivityRepo = { repo: string; about: string; href: string; years: string; prs: string; added: number; removed: number; pending?: { added: number; removed: number }; threads: ActivityThread[] };
 export type ActivityLabels = Record<ActivityStatus, string> & {
   reported: (n: string) => string;
   details: (n: number) => string;
@@ -28,12 +30,11 @@ const size = (r: ActivityRepo) => r.added + r.removed;
 const ranked = [...items].sort((a, b) => size(b) - size(a));
 const shown = ranked.slice(0, top);
 const rest = ranked.slice(top);
-const max = Math.max(1, ...items.map(size));
-const pct = (n: number) => `--w:${(n / max) * 100}%`;
+// The bar is the total, in review included: the longest fits the width.
+const max = Math.max(1, ...items.map((r) => size(r) + (r.pending ? r.pending.added + r.pending.removed : 0)));
 // Named by its repository, so what was opened reads as itself ("oss-web-infra-dev-rspack").
 const dialogOf = (i: number) => `${id}-${ranked[i].repo.toLowerCase().replace(/[^\w-]+/g, "-")}`;
 const opens = (i: number) => (ranked[i].threads.length > PREVIEW ? dialogOf(i) : undefined);
-import "./parts/diff-bar.css";
 ---
 <div class="activity">
   <ul class="act-list">
@@ -56,8 +57,7 @@ import "./parts/diff-bar.css";
       {r.about && <p class="act-about">{r.about}</p>}
       <div class="act-stats">
         <span class="act-meta">{r.years} · {r.prs}</span>
-        {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
-        {size(r) > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+        <ActivityLines repo={r} max={max} review={labels.review} stack />
       </div>
       <ActivityThreads items={r.threads} labels={labels} />
       <a class="act-cta" href={r.href} {...external}>{labels.onGitHub} <span aria-hidden="true">↗</span></a>
@@ -90,7 +90,8 @@ import "./parts/diff-bar.css";
   display: block;
 }
 .act-sheet .act-stats {
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
 }
 .act-cta {
   justify-self: start;
@@ -102,11 +103,5 @@ import "./parts/diff-bar.css";
 .act-cta:hover {
   text-decoration: underline;
   text-underline-offset: 0.25em;
-}
-@media (max-width: 960px) {
-.act-sheet .act-stats {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 6px 16px;
-  }
 }
 </style>
