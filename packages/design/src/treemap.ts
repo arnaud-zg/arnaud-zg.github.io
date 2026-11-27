@@ -57,12 +57,9 @@ export function squarify(
     w = width,
     h = height;
 
-  const worst = (row: number[], side: number) => {
-    const s = row.reduce((a, b) => a + b, 0);
-    const max = Math.max(...row),
-      min = Math.min(...row);
-    return Math.max((side * side * max) / (s * s), (s * s) / (side * side * min));
-  };
+  // How far from square the row's worst tile is, from the row's sum, largest and smallest area.
+  const worst = (s: number, max: number, min: number, side: number) =>
+    Math.max((side * side * max) / (s * s), (s * s) / (side * side * min));
   const place = (row: { i: number; a: number }[]) => {
     const s = row.reduce((n, r) => n + r.a, 0);
     if (w >= h) {
@@ -88,15 +85,28 @@ export function squarify(
     }
   };
 
+  // The row only grows until it is placed, so its sum, largest and smallest area are kept as it
+  // grows: each item is weighed in O(1), not by summing the row again. The sum adds in the same
+  // order as before, so every layout is the same to the last bit.
   let row: { i: number; a: number }[] = [];
+  let sum = 0,
+    max = 0,
+    min = 0;
   for (const item of items) {
     const side = Math.min(w, h);
-    const areas = row.map((r) => r.a);
-    if (!row.length || worst([...areas, item.a], side) <= worst(areas, side)) row.push(item);
-    else {
+    const grown = sum + item.a;
+    const keep =
+      !row.length ||
+      worst(grown, Math.max(max, item.a), Math.min(min, item.a), side) <=
+        worst(sum, max, min, side);
+    if (!keep) {
       place(row);
-      row = [item];
+      row = [];
     }
+    row.push(item);
+    sum = keep ? grown : item.a;
+    max = keep && row.length > 1 ? Math.max(max, item.a) : item.a;
+    min = keep && row.length > 1 ? Math.min(min, item.a) : item.a;
   }
   if (row.length) place(row);
 
