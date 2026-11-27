@@ -173,10 +173,30 @@
     "https://github.com/DefinitelyTyped/DefinitelyTyped/pull/38356": [
       12,
       3
+    ],
+    "https://github.com/web-infra-dev/rspack/pull/16900": [
+      85,
+      37
+    ],
+    "https://github.com/web-infra-dev/rspack/pull/16822": [
+      33,
+      5
+    ],
+    "https://github.com/web-infra-dev/rspack/pull/16754": [
+      47,
+      1
+    ],
+    "https://github.com/iamkun/dayjs/pull/3369": [
+      37,
+      0
+    ],
+    "https://github.com/software-mansion-labs/react-native-streamdown/pull/37": [
+      160,
+      5
     ]
   },
   "contributions": {
-    "total": 10502,
+    "total": 10512,
     "asOf": "2026-11-27"
   }
 }
