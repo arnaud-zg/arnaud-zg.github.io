@@ -218,7 +218,7 @@ export default {
         school: "Tongji University",
         emoji: "🌏",
         motion: "voyage",
-        degree: "Master's programme, Software Engineering",
+        degree: "Master's program, Software Engineering",
         start: "2015",
         end: "2017",
         highlights: ["International exchange", "Software engineering and project leadership"],
@@ -239,8 +239,8 @@ export default {
     stations: [
       {
         name: "Adveris",
-        emoji: "🛒",
-        motion: "roll",
+        emoji: "✨",
+        motion: "flourish",
         role: "Full-stack developer",
         start: "2013-07",
         end: "2013-12",
@@ -261,8 +261,8 @@ export default {
       },
       {
         name: "Valeo",
-        emoji: "💡",
-        motion: "beam",
+        emoji: "⚙️",
+        motion: "gear",
         role: "R&D project developer",
         start: "2015-03",
         end: "2015-08",
@@ -295,7 +295,7 @@ export default {
       {
         name: "Veepee",
         emoji: "🎟️",
-        motion: "ticket",
+        motion: "concert",
         industry: "E-commerce, ticketing",
         role: "Front-end Developer",
         start: "2017-03",

@@ -78,6 +78,31 @@
   margin: -4.5px 0 0 -4.5px;
   background: var(--ink-lo);
 }
+.cv-fly-mark[data-kind="spark"] {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 1px;
+}
+.cv-fly-mark[data-kind="tick"] {
+  width: 1.5px;
+  height: 6px;
+  margin: -3px 0 0 -0.75px;
+  border-radius: 0;
+  background: var(--ink-lo);
+}
+.cv-fly-mark[data-kind="confetti"] {
+  width: 5px;
+  height: 8px;
+  margin: -4px 0 0 -2.5px;
+  border-radius: 1px;
+}
+.cv-fly-mark[data-kind="confetti"][data-tone="1"] {
+  background: var(--added);
+}
+.cv-fly-mark[data-kind="confetti"][data-tone="2"] {
+  background: var(--removed);
+}
 .cv-fly-trace {
   position: absolute;
   top: 0;
