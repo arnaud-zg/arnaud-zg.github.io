@@ -31,7 +31,10 @@ export const watchVisitor = (track: Track): (() => void) => {
     if (from !== undefined) total.set(id, (total.get(id) ?? 0) + performance.now() - from);
     since.delete(id);
   };
+  // A dialog of a section is read on its own, while it is open: the section behind it is not.
+  const dialogs = [...document.querySelectorAll<HTMLDialogElement>("main section[id] dialog[id]")];
   const inView = new Set<string>();
+  const dialogOpen = () => dialogs.some((d) => d.open);
   const io = new IntersectionObserver(
     (entries) => {
       for (const {
@@ -40,7 +43,7 @@ export const watchVisitor = (track: Track): (() => void) => {
       } of entries) {
         if (isIntersecting) {
           inView.add(id);
-          if (!document.hidden) since.set(id, performance.now());
+          if (!document.hidden && !dialogOpen()) since.set(id, performance.now());
         } else {
           inView.delete(id);
           pause(id);
@@ -50,6 +53,16 @@ export const watchVisitor = (track: Track): (() => void) => {
     { rootMargin: "-45% 0px -54% 0px" },
   );
   document.querySelectorAll("main section[id], main footer[id]").forEach((el) => io.observe(el));
+  const opened = new MutationObserver(() => {
+    for (const d of dialogs) {
+      if (d.open && !since.has(d.id) && !document.hidden) since.set(d.id, performance.now());
+      if (!d.open) pause(d.id);
+    }
+    for (const id of inView)
+      if (dialogOpen()) pause(id);
+      else if (!since.has(id) && !document.hidden) since.set(id, performance.now());
+  });
+  for (const d of dialogs) opened.observe(d, { attributes: true, attributeFilter: ["open"] });
   const report = () => {
     for (const id of [...since.keys()]) pause(id);
     for (const [section, ms] of total) {
@@ -63,15 +76,19 @@ export const watchVisitor = (track: Track): (() => void) => {
     "visibilitychange",
     () => {
       if (document.hidden) report();
-      else for (const id of inView) since.set(id, performance.now());
+      else {
+        const now = performance.now();
+        if (!dialogOpen()) for (const id of inView) since.set(id, now);
+        for (const d of dialogs) if (d.open) since.set(d.id, now);
+      }
     },
     on,
   );
   addEventListener("pagehide", report, on);
 
   // Without a name of its own, what was explored is its section.
-  const explored = (el: Element, action: string, item = sectionOf(el)) =>
-    track("content_explored", { section: sectionOf(el), action, item });
+  const explored = (el: Element, action: string, item?: string) =>
+    track("content_explored", { section: sectionOf(el), action, item: item || sectionOf(el) });
   const click = (e: MouseEvent) => {
     const el = e.target instanceof Element ? e.target : undefined;
     if (!el || e.button === 2) return;
@@ -89,9 +106,20 @@ export const watchVisitor = (track: Track): (() => void) => {
     if (tool) explored(el, "open-tool", tool);
     const copy = el.closest("[data-copy]");
     if (copy) explored(copy, "copy-command");
-    // Only in a section: the privacy dialog is not content.
-    const opener = el.closest("section[id] [data-open-dialog]");
-    if (opener) explored(opener, "open-details");
+    // Only in a section: the privacy dialog is not content. The item is what it opens: a
+    // repository by its name, anything else by its dialog's id.
+    const opener = el.closest<HTMLElement>("section[id] [data-open-dialog]");
+    if (opener) {
+      const { item, openDialog } = opener.dataset;
+      explored(opener, "open-details", item ?? openDialog ?? sectionOf(opener));
+    }
+    // A diagram's button fits it whole, or brings it back to its size; the item is its dialog. Its
+    // own handler has run by now: pressed is the state it just took.
+    const zoom = el.closest<HTMLElement>("section[id] [data-zoom]");
+    if (zoom) {
+      const whole = zoom.getAttribute("aria-pressed") === "true";
+      explored(zoom, whole ? "fit-diagram" : "zoom-diagram", zoom.closest("dialog[id]")?.id);
+    }
   };
   document.addEventListener("click", click, on);
   document.addEventListener("auxclick", click, on);
@@ -108,5 +136,6 @@ export const watchVisitor = (track: Track): (() => void) => {
   return () => {
     life.abort();
     io.disconnect();
+    opened.disconnect();
   };
 };
