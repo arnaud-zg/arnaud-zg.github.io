@@ -14,8 +14,7 @@ export type Tool = {
   month: string;
 };
 export type Tile = {
-  tool?: Tool;
-  more?: Tool[];
+  tool: Tool;
   releases: number;
   weight: number;
   recent: boolean;
@@ -29,7 +28,6 @@ export type ToolLabels = {
   monthlyDownloads: string;
   viewOnNpm: string;
   showDetails: (name: string) => string;
-  more: (n: number) => string;
 };
 
 // 1234 -> 1.2k, so a figure fits its badge.

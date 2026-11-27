@@ -15,20 +15,13 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
       <ul class="tm-tiles">
         {g.tiles.map((t) => (
           <li class="tm-tile" data-recent={t.recent || undefined} data-v={t.weight} data-tool={t.tool?.name} style={`${box(t.rect)};${box(t.mrect, "m")}`}>
-            {t.tool ? (
-              <div class="tm-link">
-                <span class="tm-name">{t.tool.name}</span>
-                <button class="tm-open" type="button" aria-expanded="false" aria-label={labels.showDetails(t.tool.name)}><span aria-hidden="true"></span></button>
-                <span class="tm-line">{t.tool.line}</span>
-                <ToolStats class="tm-stats" tool={t.tool} labels={labels} />
-                <a class="tm-go" href={t.tool.href} {...external}>{labels.viewOnNpm} <span aria-hidden="true">↗</span></a>
-              </div>
-            ) : (
-              <div class="tm-link tm-more">
-                <span class="tm-name">{labels.more(t.more!.length)}</span>
-                <span class="tm-line">{t.more!.map((q, i) => <>{i > 0 && ", "}<a class="inline" href={q.href} {...external}>{q.name}</a></>)}</span>
-              </div>
-            )}
+            <div class="tm-link">
+              <span class="tm-name">{t.tool.name}</span>
+              <button class="tm-open" type="button" aria-expanded="false" aria-label={labels.showDetails(t.tool.name)}><span aria-hidden="true"></span></button>
+              <span class="tm-line">{t.tool.line}</span>
+              <ToolStats class="tm-stats" tool={t.tool} labels={labels} />
+              <a class="tm-go" href={t.tool.href} {...external}>{labels.viewOnNpm} <span aria-hidden="true">↗</span></a>
+            </div>
           </li>
         ))}
       </ul>
@@ -41,7 +34,7 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
     <section class="sq-group" aria-label={g.name}>
       <h3 class="sq-head"><span aria-hidden="true">{g.emoji}</span> {g.name}</h3>
       <ul>
-        {g.tiles.flatMap((t) => (t.tool ? [t.tool] : t.more!)).map((q) => (
+        {g.tiles.map((t) => t.tool).map((q) => (
           <li>
             <a class="sq-card" href={q.href} data-tool={q.name} {...external}>
               <span class="sq-name">{q.name}</span>
@@ -340,16 +333,9 @@ const box = (r: Rect, p = "") => `--${p}x:${r.x}%;--${p}y:${r.y}%;--${p}w:${r.w}
   font-size: var(--fs-small);
   line-height: 1.5;
 }
-.tm-more {
-  background: none;
-  border-style: dashed;
-}
 .tm-line {
   font-size: clamp(0.74rem, min(5.2cqi, 13cqb), var(--fs-small));
   line-height: 1.4;
-}
-.tm-more .tm-line {
-  display: block;
 }
 .tm-line[style*="--lines"] {
   display: -webkit-box;

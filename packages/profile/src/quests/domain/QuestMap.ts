@@ -13,8 +13,8 @@ export type QuestMapRules = {
   readonly groups: readonly Subject[];
   readonly otherGroup: string;
   readonly otherEmoji: string;
-  readonly minShare: number;
   readonly minTileShare: number;
+  readonly minTileBeside: number;
 };
 export type MappedGroup = { name: string; emoji: string; tiles: QuestTile[] };
 
@@ -31,8 +31,8 @@ export class QuestMap {
   }
 
   groupsOf(quests: Quests): MappedGroup[] {
-    const { minShare, minTileShare, groups } = this.#rules;
-    const share = { total: quests.releases(), minimum: minShare, drawnMinimum: minTileShare };
+    const { minTileShare, minTileBeside, groups } = this.#rules;
+    const share = { total: quests.releases(), drawnMinimum: minTileShare, beside: minTileBeside };
     const members = Map.groupBy(quests.byReleases(), (quest) => this.#subjectOf(quest));
     return [...groups, this.#other].flatMap((subject) => {
       const own = members.get(subject);

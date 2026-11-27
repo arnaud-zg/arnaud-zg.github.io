@@ -152,7 +152,6 @@ export default {
     viewOnNpm: "View on npm",
     onNpm: (name: string) => `${name} on npm`,
     showDetails: (name: string) => `${name}: show details`,
-    more: (n: number) => `+${n} more`,
     earlier: (n: number, from: string, to: string) => `See ${n} earlier libraries · ${from}–${to}`,
     skills: "skills",
     install: "Install, any agent",
@@ -407,11 +406,11 @@ export default {
     ],
     otherGroup: "Other",
     otherEmoji: "🧪",
-    // Tools smaller than this share of the treemap merge into "+n more" in their group.
-    minShare: 0.03,
     // Every tile is drawn at least this share of the treemap so its name always fits.
     // The release count printed on it stays exact.
     minTileShare: 0.075,
+    // And at least this share of the largest tile in its group, so it never reads as a sliver.
+    minTileBeside: 0.6,
     // Optional shorter descriptions, by package name, when the npm one is too long for a tile.
     lines: {
       "vite-workspace-resolver": "Resolves workspace package imports in Vite and Vitest",
