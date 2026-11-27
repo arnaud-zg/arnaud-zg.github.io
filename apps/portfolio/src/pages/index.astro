@@ -58,7 +58,7 @@ const facts = [
   ...(school ? [{ label: labels.education, value: school, note: studied.join(", ") }] : []),
 ];
 const earlier = quests.earlier.map((q) => ({ ...q, year: q.updated.slice(0, 4), label: labels.onNpm(q.name) }));
-// The whole record by repository, latest activity first: years, pull requests, lines merged.
+// The whole record by repository: years, pull requests, lines merged. The component ranks it.
 const pullsOf = (repo: string) => `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr author:${config.github.user}`)}`;
 const span = (from: number, to: number) => (from === to ? `${from}` : `${from}–${to}`);
 const activity = openSource.repos.map((r) => ({ ...r, href: pullsOf(r.repo), years: span(r.from, r.to), prs: labels.prs(r.merged + r.review), threads: r.threads.map((t) => ({ ...t, href: t.url, reported: t.reported.map((i) => ({ ...i, href: i.url })) })) }));
@@ -141,7 +141,7 @@ const questKpis = [
       <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
         <Kpis items={openSourceKpis} label={labels.openSourceFigures} />
       </SectionHead>
-      <Activity items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst }} />
+      <Activity id="oss" items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst, details: labels.allPrs, more: labels.smallerContributions, moreTitle: labels.smallerTitle, onGitHub: labels.prsOnGitHub }} />
     </Section>
     )}
 

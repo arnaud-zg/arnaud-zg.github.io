@@ -1,51 +1,98 @@
 ---
-// The whole record by repository, the latest activity first: the years it spans, how many pull
-// requests, and the lines they added and removed once merged, as a bar against the largest. Under
-// it, the pull requests of the last months, each with a dot for its status (filled: merged,
-// hollow: in review). An issue reported first folds into the pull request that closes it.
+// The whole record by repository, the largest first: the years it spans, how many pull requests,
+// and the lines they added and removed once merged, as a bar against the largest. The first `top`
+// are listed, each with its latest pull requests; the rest open in a dialog. A repository with
+// more pull requests than its row shows opens them all in its own dialog.
 import { external } from "../links";
+import ActivityThreads from "./ActivityThreads.astro";
+import Dialog from "./Dialog.astro";
+import Pill from "./Pill.astro";
 export type ActivityStatus = "merged" | "review";
 export type ActivityThread = { status: ActivityStatus; title: string; href: string; reported?: { number: string; href: string }[] };
 export type ActivityRepo = { repo: string; about: string; href: string; years: string; prs: string; added: number; removed: number; threads: ActivityThread[] };
-interface Props { items: ActivityRepo[]; labels: Record<ActivityStatus, string> & { reported: (n: string) => string } }
-const { items, labels } = Astro.props;
-const max = Math.max(1, ...items.map((r) => r.added + r.removed));
+export type ActivityLabels = Record<ActivityStatus, string> & {
+  reported: (n: string) => string;
+  details: (n: number) => string;
+  more: (n: number) => string;
+  moreTitle: string;
+  onGitHub: string;
+};
+interface Props { id: string; items: ActivityRepo[]; top?: number; labels: ActivityLabels }
+const { id, items, top = 4, labels } = Astro.props;
+// A row shows this many pull requests at most: every row keeps the same height.
+const PREVIEW = 2;
+const size = (r: ActivityRepo) => r.added + r.removed;
+// A stable sort: equal sizes keep the given order, the latest activity first.
+const ranked = [...items].sort((a, b) => size(b) - size(a));
+const shown = ranked.slice(0, top);
+const rest = ranked.slice(top);
+const max = Math.max(1, ...items.map(size));
 const pct = (n: number) => `--w:${(n / max) * 100}%`;
+const dialogOf = (i: number) => `${id}-${i}`;
 import "./parts/repo-owner.css";
 import "./parts/diff-bar.css";
 ---
-<ul class="act-list">
-  {items.map((r) => (
-    <li class="act-repo">
-      <div class="act-head">
-        <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
-        {r.about && <p class="act-about">{r.about}</p>}
-      </div>
-      <div class="act-body">
-        <div class="act-stats">
-          <span class="act-meta">{r.years} · {r.prs}</span>
-          {r.added + r.removed > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
-          {r.added + r.removed > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+<div class="activity">
+  <ul class="act-list">
+    {shown.map((r, i) => (
+      <li class="act-repo">
+        <div class="act-head">
+          <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+          {r.about && <p class="act-about">{r.about}</p>}
         </div>
-        {r.threads.length > 0 && (
-          <ul class="act-threads">
-            {r.threads.map((t) => (
-              <li class={`act-thread is-${t.status}`}>
-                <span class="act-dot" role="img" aria-label={labels[t.status]} title={labels[t.status]}></span>
-                <span class="act-what">
-                  <a class="act-title" href={t.href} {...external}>{t.title}</a>
-                  {t.reported?.map((i) => <a class="act-note" href={i.href} {...external}>{labels.reported(i.number)}</a>)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div class="act-body">
+          <div class="act-stats">
+            <span class="act-meta">{r.years} · {r.prs}</span>
+            {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
+            {size(r) > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
+          </div>
+          {r.threads.length > 0 && <ActivityThreads items={r.threads.slice(0, PREVIEW)} labels={labels} />}
+          {r.threads.length > PREVIEW && <button class="act-open" type="button" data-open-dialog={dialogOf(i)} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
+        </div>
+      </li>
+    ))}
+  </ul>
+  {rest.length > 0 && <div class="act-foot"><Pill opens={`${id}-more`}>{labels.more(rest.length)}</Pill></div>}
+</div>
+
+{shown.map((r, i) => r.threads.length > PREVIEW && (
+  <Dialog id={dialogOf(i)} title={r.repo} size="narrow">
+    <div class="act-sheet">
+      {r.about && <p class="act-about">{r.about}</p>}
+      <div class="act-stats">
+        <span class="act-meta">{r.years} · {r.prs}</span>
+        {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
+        {size(r) > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
       </div>
-    </li>
-  ))}
-</ul>
+      <ActivityThreads items={r.threads} labels={labels} />
+      <a class="act-cta" href={r.href} {...external}>{labels.onGitHub} <span aria-hidden="true">↗</span></a>
+    </div>
+  </Dialog>
+))}
+
+{rest.length > 0 && (
+  <Dialog id={`${id}-more`} title={labels.moreTitle} size="narrow">
+    <ul class="act-small">
+      {rest.map((r) => (
+        <li class="act-row">
+          <div class="act-row-head">
+            <a class="act-name" href={r.href} {...external}><span class="owner">{r.repo.split("/")[0]}/</span>{r.repo.split("/")[1]}</a>
+            {size(r) > 0 && <span class="diff"><b>+{r.added}</b> <i>−{r.removed}</i></span>}
+          </div>
+          {r.about && <p class="act-about">{r.about}</p>}
+          <span class="act-meta">{r.years} · {r.prs}</span>
+          {r.threads.length > 0 && <ActivityThreads items={r.threads} labels={labels} />}
+        </li>
+      ))}
+    </ul>
+  </Dialog>
+)}
 
 <style is:global>
+.activity {
+  display: grid;
+  gap: 22px;
+}
 .act-list {
   border-top: 1px solid var(--line);
 }
@@ -71,6 +118,10 @@ import "./parts/diff-bar.css";
   line-height: 1.2;
 }
 .act-about {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
   font-size: var(--fs-small);
   line-height: 1.45;
   color: var(--ink-lo);
@@ -93,52 +144,61 @@ import "./parts/diff-bar.css";
   white-space: nowrap;
   color: var(--ink-lo);
 }
-.act-threads {
+.act-open,
+.act-cta {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 400 var(--fs-label)/1.6 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  cursor: pointer;
+}
+.act-open:hover,
+.act-cta:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.act-foot {
+  display: flex;
+  justify-content: flex-start;
+}
+.act-sheet {
+  display: grid;
+  gap: 18px;
+  padding: 22px 0 16px;
+}
+.act-sheet .act-about {
+  display: block;
+}
+.act-sheet .act-stats {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+.act-small {
+  display: grid;
+}
+.act-row {
   display: grid;
   gap: 8px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
 }
-.act-thread {
-  display: grid;
-  grid-template-columns: 8px minmax(0, 1fr);
-  gap: 0 12px;
+.act-row:last-child {
+  border-bottom: 0;
+}
+.act-row-head {
+  display: flex;
+  justify-content: space-between;
   align-items: baseline;
+  gap: 16px;
 }
-.act-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1.5px solid var(--ink-lo);
-}
-.is-merged .act-dot {
-  border-color: var(--added);
-  background: var(--added);
-}
-.act-what {
-  display: grid;
-  gap: 2px;
-}
-.act-title {
-  font-size: var(--fs-small);
-  line-height: 1.45;
-  overflow-wrap: break-word;
-}
-.is-review .act-title {
-  color: var(--ink-lo);
-}
-.act-note {
-  font: 400 var(--fs-label)/1.6 var(--mono);
-  letter-spacing: 0.06em;
-  color: var(--ink-lo);
-}
-.act-name:hover,
-.act-title:hover,
-.act-note:hover {
+.act-name:hover {
   color: var(--accent);
 }
 @media (prefers-reduced-motion: no-preference) {
-.act-name,
-.act-title,
-.act-note {
+.act-name {
     transition: color 300ms var(--ease-out);
   }
 @supports (animation-timeline: view()) {
@@ -153,7 +213,8 @@ import "./parts/diff-bar.css";
 .act-repo {
     grid-template-columns: minmax(0, 1fr);
   }
-.act-stats {
+.act-stats,
+.act-sheet .act-stats {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 6px 16px;
   }
