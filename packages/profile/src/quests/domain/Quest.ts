@@ -2,7 +2,8 @@ import { Month } from "../../shared/domain/Month.ts";
 
 export type QuestFacts = {
   readonly name: string;
-  // The month that `downloads` and `monthlyReleases` cover.
+  // The month that `downloads` and `monthlyReleases` cover. `yearlyReleases` covers the last year,
+  // up to the refresh: this month so far and the eleven before it.
   readonly month: string;
   readonly downloads?: number;
   readonly line: string;
@@ -12,6 +13,7 @@ export type QuestFacts = {
   readonly members: number;
   readonly releases: number;
   readonly monthlyReleases: number;
+  readonly yearlyReleases: number;
 };
 export type Age = { months: number; today: Month };
 

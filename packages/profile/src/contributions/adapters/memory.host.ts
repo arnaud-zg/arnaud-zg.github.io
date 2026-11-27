@@ -12,8 +12,8 @@ export type MemoryRepository = { description: string };
 export type MemoryHost = {
   pullRequests: readonly MemoryPullRequest[];
   repositories: Readonly<Record<string, MemoryRepository | undefined>>;
-  // The calendar's total, by year.
-  calendar?: Readonly<Record<number, number | undefined>>;
+  // The profile's contributions in the last year.
+  lastYear?: number;
 };
 
 const found = <T>({ value, name }: { value: T | undefined; name: string }): T => {
@@ -21,7 +21,7 @@ const found = <T>({ value, name }: { value: T | undefined; name: string }): T =>
   return value;
 };
 
-export const memoryHost = ({ pullRequests, repositories, calendar = {} }: MemoryHost): CodeHost => {
+export const memoryHost = ({ pullRequests, repositories, lastYear }: MemoryHost): CodeHost => {
   const byAuthor = (open: boolean, { author, outside }: { author: string; outside: string[] }) => {
     const isOutside = ({ repo }: PullRequest) => !outside.includes(repo.split("/")[0]);
     const own = pullRequests.filter(
@@ -47,8 +47,8 @@ export const memoryHost = ({ pullRequests, repositories, calendar = {} }: Memory
     repository: (name) =>
       Promise.resolve(repositories[name]).then((value) => found({ value, name })),
 
-    contributionsIn: ({ year }) =>
-      Promise.resolve(calendar[year]).then((value) => found({ value, name: `${year}` })),
+    contributionsInLastYear: (user) =>
+      Promise.resolve(lastYear).then((value) => found({ value, name: user })),
 
     linesOf: (url) =>
       Promise.resolve(pullRequests.find((one) => one.url === url)).then(

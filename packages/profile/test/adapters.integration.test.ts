@@ -88,17 +88,14 @@ const answers = memoryWeb({
   "https://api.github.com/repos/a/b": { description: "B" },
   "https://api.github.com/repos/a/b/pulls/1": { additions: 3, deletions: 1 },
 });
-// GraphQL has one address: the calendar's query gets its own answer.
-const calendar = {
-  data: { user: { contributionsCollection: { contributionCalendar: { totalContributions: 42 } } } },
-};
-const github: typeof answers = {
-  ...answers,
-  json: (url, body) =>
-    body?.query?.includes('user(login: "me")') && body.query.includes('from: "2025-01-01')
-      ? Promise.resolve(calendar)
-      : answers.json(url, body),
-};
+// The profile page, as github.com serves it: the count sits in a heading, across lines.
+const site = memoryWeb({
+  "https://github.com/users/me/contributions": `<h2 id="js-contribution-activity-description">
+      1,042
+      contributions
+        in the last year
+    </h2>`,
+});
 const hosts = {
   memory: memoryHost({
     pullRequests: [
@@ -107,12 +104,12 @@ const hosts = {
       { ...pull, repo: "mine/c", author: "me", lines: [1, 1] },
     ],
     repositories: { "a/b": { description: "B" } },
-    calendar: { 2025: 42 },
+    lastYear: 1042,
   }),
-  github: githubHost(github),
+  github: githubHost(answers, site),
 };
 for (const [name, host] of Object.entries(hosts))
-  test(`${name} host: pull requests outside, the issues they close, their repository, lines and calendar`, async () => {
+  test(`${name} host: pull requests outside, the issues they close, their repository, lines and the last year's count`, async () => {
     const asked = { author: "me", outside: ["mine"] };
     assert.deepEqual(await host.mergedPullRequests(asked), [pull]);
     assert.deepEqual(await host.openPullRequests(asked), [review]);
@@ -123,10 +120,18 @@ for (const [name, host] of Object.entries(hosts))
     assert.deepEqual(await host.issuesClosedBy([]), {});
     assert.deepEqual(await host.repository("a/b"), { description: "B" });
     assert.deepEqual(await host.linesOf(pull.url), [3, 1]);
-    assert.equal(await host.contributionsIn({ user: "me", year: 2025 }), 42);
+    assert.equal(await host.contributionsInLastYear("me"), 1042);
     await assert.rejects(host.repository("a/missing"));
     await assert.rejects(host.linesOf("https://github.com/a/b/pull/404"));
   });
+
+test("github host: a profile page without its count fails the refresh, never shows zero", async () => {
+  const blank = memoryWeb({ "https://github.com/users/me/contributions": "<h2>Sign in</h2>" });
+  await assert.rejects(
+    githubHost(answers, blank).contributionsInLastYear("me"),
+    /no contributions/,
+  );
+});
 
 const url = "https://me.dev/feed";
 const xml = `<item><title><![CDATA[Q &amp; A]]></title>

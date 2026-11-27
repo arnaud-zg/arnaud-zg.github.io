@@ -32,19 +32,14 @@ const Closing = z.object({
   ),
 });
 
-const Calendar = z.object({
-  data: z.object({
-    user: z.object({
-      contributionsCollection: z.object({
-        contributionCalendar: z.object({ totalContributions: z.number() }),
-      }),
-    }),
-  }),
-});
-
 type State = "merged" | "open";
 
-export const githubHost = (web: Web): CodeHost => {
+// The profile's heading, "10,494 contributions in the last year": GitHub's own count, which the
+// API undercounts when private work sits in an organisation behind single sign-on.
+const LAST_YEAR = /([\d,]+)\s+contributions?\s+in the last year/;
+
+// `web` reaches the API; `site` reads github.com's pages as a visitor does.
+export const githubHost = (web: Web, site: Web = web): CodeHost => {
   const pullRequests = async (
     state: State,
     { author, outside }: { author: string; outside: string[] },
@@ -94,13 +89,13 @@ export const githubHost = (web: Web): CodeHost => {
       return [additions, deletions];
     },
 
-    // What the profile's calendar shows for the year: public, and private if the profile says so.
-    async contributionsIn({ user, year }) {
-      const span = `from: "${year}-01-01T00:00:00Z", to: "${year}-12-31T23:59:59Z"`;
-      const query = `query { user(login: ${JSON.stringify(user)}) { contributionsCollection(${span}) {
-        contributionCalendar { totalContributions } } } }`;
-      const { data } = Calendar.parse(await web.json(`${API}/graphql`, { query }));
-      return data.user.contributionsCollection.contributionCalendar.totalContributions;
+    async contributionsInLastYear(user) {
+      const page = await site.text(
+        `https://github.com/users/${encodeURIComponent(user)}/contributions`,
+      );
+      const found = LAST_YEAR.exec(page.replace(/\s+/g, " "))?.[1];
+      if (!found) throw new Error(`no contributions count on ${user}'s profile`);
+      return Number(found.replaceAll(",", ""));
     },
   };
 };

@@ -28,12 +28,13 @@ interface Props { items: { value: number; unit: string; label: string }[] }
 }
 .count-line {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
+  gap: 4px 10px;
 }
 .count {
   font-weight: 200;
-  font-size: clamp(2.6rem, 5vw, 4.2rem);
+  font-size: clamp(2.6rem, 4.4vw, 3.8rem);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }

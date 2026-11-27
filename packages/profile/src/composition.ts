@@ -17,7 +17,7 @@ const livePorts = ({ skills, substack }: ProfileSettings): Ports => {
   const web = fetchWeb(AGENT);
   return {
     registry: npmRegistry(web),
-    host: githubHost(ghWeb()),
+    host: githubHost(ghWeb(), web),
     feed: substackFeed({ web, url: substack.feed }),
     list: readmeSkills({ web, repo: skills.repo }),
   };

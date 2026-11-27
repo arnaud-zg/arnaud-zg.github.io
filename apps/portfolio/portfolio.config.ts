@@ -1,7 +1,7 @@
 // The whole portfolio, configured in one place.
 //
 // Data is fetched when the site builds, from four sources, each with a saved snapshot if it is
-// down: GitHub (pull requests merged or in review, last year's contributions), npm (tools, releases, downloads), the skills repo README
+// down: GitHub (pull requests merged or in review, the profile's contributions in the last year), npm (tools, releases, downloads), the skills repo README
 // (agent skills) and Substack (articles). This file holds everything else: who I am, the words
 // on the page, which sections show, and how fetched data is filtered and grouped.
 //
@@ -84,9 +84,9 @@ export default {
     // Years of experience are in the journey, so the strip shows the work in the open instead.
     glance: {
       show: true,
-      contributions: (year: number) => `on GitHub in ${year}, public and private`,
+      contributions: "on GitHub in the last year",
       stay: "in one company, promoted to Senior",
-      releases: "of open-source tools I build and maintain",
+      releases: "in the last year, of open-source tools I build and maintain",
     },
     about: {
       show: true,
