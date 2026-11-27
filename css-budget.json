@@ -1,74 +1,74 @@
 {
   "portfolio:/design/": {
-    "raw": 53890,
-    "gzip": 12967
+    "raw": 54854,
+    "gzip": 13170
   },
   "portfolio:/design/preview/ending/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/hero-banner/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/hero-full/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/home/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/masthead/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/page/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/preview/page-head/": {
     "raw": 28625,
-    "gzip": 8443
+    "gzip": 8452
   },
   "portfolio:/design/starlight/home/": {
     "raw": 84769,
-    "gzip": 17284
+    "gzip": 17326
   },
   "portfolio:/design/starlight/page/": {
     "raw": 101003,
-    "gzip": 20399
+    "gzip": 20464
   },
   "portfolio:/": {
-    "raw": 52864,
-    "gzip": 12847
+    "raw": 53828,
+    "gzip": 13048
   },
   "sub-site:/404.html": {
     "raw": 83423,
-    "gzip": 16874
+    "gzip": 16897
   },
   "sub-site:/agent-context-budget/": {
     "raw": 101050,
-    "gzip": 20267
+    "gzip": 20310
   },
   "sub-site:/expo-native-guard/": {
     "raw": 101050,
-    "gzip": 20267
+    "gzip": 20310
   },
   "sub-site:/expo-pnpm-catalog/": {
     "raw": 101050,
-    "gzip": 20267
+    "gzip": 20310
   },
   "sub-site:/": {
     "raw": 84816,
-    "gzip": 17143
+    "gzip": 17163
   },
   "sub-site:/shiplane/": {
     "raw": 101050,
-    "gzip": 20267
+    "gzip": 20310
   },
   "sub-site:/vite-workspace-resolver/": {
     "raw": 101050,
-    "gzip": 20267
+    "gzip": 20310
   }
 }
