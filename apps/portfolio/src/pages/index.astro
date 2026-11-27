@@ -58,23 +58,17 @@ const facts = [
   ...(school ? [{ label: labels.education, value: school, note: studied.join(", ") }] : []),
 ];
 const earlier = quests.earlier.map((q) => ({ ...q, year: q.updated.slice(0, 4), label: labels.onNpm(q.name) }));
-// Now, then the record: recent pull requests by repository, older merged work in a dialog.
-const pullsOf = (repo: string, state = "") => `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr ${state}author:${config.github.user}`)}`;
-const activity = openSource.repos.map((r) => ({ ...r, href: pullsOf(r.repo), threads: r.threads.map((t) => ({ ...t, href: t.url, reported: t.reported.map((i) => ({ ...i, href: i.url })) })) }));
-const { earlier: record, figures } = openSource;
-const recentKpis = [
-  { value: figures.merged, label: labels.merged, tone: "added" as const },
-  { value: figures.review, label: labels.inReview },
-  ...(figures.reported ? [{ value: figures.reported, label: labels.reportedFixed }] : []),
+// The whole record by repository, latest activity first: years, pull requests, lines merged.
+const pullsOf = (repo: string) => `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr author:${config.github.user}`)}`;
+const span = (from: number, to: number) => (from === to ? `${from}` : `${from}–${to}`);
+const activity = openSource.repos.map((r) => ({ ...r, href: pullsOf(r.repo), years: span(r.from, r.to), prs: labels.prs(r.merged + r.review), threads: r.threads.map((t) => ({ ...t, href: t.url, reported: t.reported.map((i) => ({ ...i, href: i.url })) })) }));
+const { figures } = openSource;
+const openSourceKpis = [
+  { value: `+${figures.added.toLocaleString("en-GB")}`, label: labels.added, tone: "added" as const },
+  { value: `−${figures.removed.toLocaleString("en-GB")}`, label: labels.removed, tone: "removed" as const },
+  { value: figures.projects, label: labels.projects(figures.projects) },
+  ...(figures.from === undefined || figures.to === undefined ? [] : [{ value: span(figures.from, figures.to), label: labels.contributing }]),
 ];
-const earlierWork = {
-  id: "earlier-prs",
-  label: labels.earlierWork(record.merged, record.projects, record.from, record.to),
-  title: sections.openSource.earlierTitle,
-  items: record.repos.map((r) => ({ ...r, href: pullsOf(r.repo, "is:merged ") })),
-  added: labels.added,
-  removed: labels.removed,
-};
 const questKpis = [
   { value: quests.tools, label: labels.tools },
   ...(quests.month ? [{ value: quests.monthlyReleases, label: labels.releasesIn(quests.month) }] : []),
@@ -145,9 +139,9 @@ const questKpis = [
     {sections.openSource.show && (
     <Section id="open-source" labelledby="oss-title">
       <SectionHead id="oss-title" title={sections.openSource.title} lede={sections.openSource.lede}>
-        <Kpis items={recentKpis} label={labels.recently(config.github.recentMonths)} />
+        <Kpis items={openSourceKpis} label={labels.openSourceFigures} />
       </SectionHead>
-      <Activity items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst }} earlier={earlierWork} />
+      <Activity items={activity} labels={{ merged: labels.merged, review: labels.inReview, reported: labels.reportedFirst }} />
     </Section>
     )}
 

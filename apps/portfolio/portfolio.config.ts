@@ -119,7 +119,6 @@ export default {
       nav: "Open source",
       title: "Open source",
       lede: "Fixes and features I send upstream, to tools other teams rely on. Most recent first.",
-      earlierTitle: "Earlier contributions",
     },
     // The last words on the page, above the profile links.
     ending: {
@@ -156,15 +155,15 @@ export default {
     skills: "skills",
     install: "Install, any agent",
     readArticles: "Read them on Substack",
-    added: "added",
+    added: "lines added",
     removed: "removed",
     merged: "merged",
     inReview: "in review",
-    reportedFixed: "reported and fixed",
-    recently: (months: number) => `In the last ${months} months`,
     reportedFirst: (n: string) => `reported it first (#${n})`,
-    earlierWork: (merged: number, projects: number, from?: number, to?: number) =>
-      `${merged} merged in ${projects} ${projects === 1 ? "project" : "projects"}${from === undefined ? "" : from === to ? `, ${from}` : `, ${from}–${to}`}`,
+    prs: (n: number) => `${n} ${n === 1 ? "PR" : "PRs"}`,
+    projects: (n: number) => (n === 1 ? "project" : "projects"),
+    contributing: "contributing",
+    openSourceFigures: "Open source, merged code",
   },
 
   // ─── Analytics ─────────────────────────────────────────────────────────────────────────────
@@ -354,9 +353,10 @@ export default {
   },
 
   // ─── Data sources ──────────────────────────────────────────────────────────────────────────
-  // Open source: pull requests in other people's public repos. Recent ones, merged or in review,
-  // lead by repository; older merged ones are the record, behind a button. Comments, pull
-  // requests closed without merging and open ones older than the window are left out.
+  // Open source: pull requests in other people's public repos, by repository, latest activity
+  // first, with the lines they merged. Those of the last `recentMonths`, merged or in review, are
+  // listed by title. Comments, pull requests closed without merging and open ones older than the
+  // window are left out.
   github: {
     user: "arnaud-zg",
     // Organisations I run. Work on their repos never counts as an open-source contribution.
