@@ -92,7 +92,12 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
     // happening there now.
     contributions() {
       const work = new OpenSource({ records: saved.github, policy, since });
-      return { figures: work.figures(), repos: work.byRepository() };
+      return {
+        figures: work.figures(),
+        repos: work.byRepository(),
+        // The calendar's total for the last full year, as the profile counts it.
+        calendar: saved.github.contributions,
+      };
     },
     articles: () =>
       saved.substack.map((article) => ({ ...article, image: feed.coverOf(article.image) })),

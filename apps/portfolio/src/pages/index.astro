@@ -44,7 +44,7 @@ const articles = profile.articles();
 const skills = profile.skills();
 
 const numbers = [
-  { value: career.years, unit: labels.years, label: words.years },
+  { value: openSource.calendar.total, unit: labels.contributions, label: words.contributions(openSource.calendar.year) },
   { value: career.longestYears, unit: labels.years, label: words.stay },
   { value: quests.releases, unit: labels.releases, label: words.releases },
 ];

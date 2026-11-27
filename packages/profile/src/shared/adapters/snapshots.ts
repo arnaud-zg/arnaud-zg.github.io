@@ -11,6 +11,7 @@ export const Snapshots = z.object({
     closes: z.record(text, z.array(text)),
     repos: z.record(text, z.object({ about: text })),
     lines: z.record(text, z.tuple([z.number(), z.number()])),
+    contributions: z.object({ year: z.number(), total: z.number() }),
   }),
   npm: z.array(
     z.object({
