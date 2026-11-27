@@ -22,6 +22,8 @@ import Articles from "@arnaud-zg/design/Articles.astro";
 import Activity from "@arnaud-zg/design/Activity.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
+import Dialog from "@arnaud-zg/design/Dialog.astro";
+import Markdown from "@arnaud-zg/design/Markdown.astro";
 import { Schema } from "astro-seo-schema";
 import { external } from "@arnaud-zg/design/links";
 import { compact } from "@arnaud-zg/design/treemap";
@@ -121,8 +123,14 @@ const questKpis = [
         <Kpis items={[{ value: skills.length, label: labels.skills }]} />
       </SectionHead>
       <CardGrid>
-        {skills.map((k) => <li><LinkCard href={k.href} name={`/${k.name}`} text={k.use} /></li>)}
+        {skills.map((k) => <li>{k.explanation ? <LinkCard href={k.href} name={`/${k.name}`} text={k.use} opens={`skill-${k.name}`} openLabel={labels.skillDetails(k.name)} linkLabel={labels.skillOnGitHub(k.name)} /> : <LinkCard href={k.href} name={`/${k.name}`} text={k.use} />}</li>)}
       </CardGrid>
+      {skills.map((k) => k.explanation && (
+        <Dialog id={`skill-${k.name}`} title={`/${k.name}`} lede={k.explanation.title} size="narrow">
+          <Markdown source={k.explanation.body} base={k.href} />
+          <Pill slot="foot" href={k.href}>{labels.openSkill}</Pill>
+        </Dialog>
+      ))}
       <Command label={labels.install} command={config.skills.install} />
     </Section>
     )}

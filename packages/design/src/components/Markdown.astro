@@ -1,0 +1,109 @@
+---
+// Markdown, rendered when the site is built, as running text. Relative links and images resolve
+// against `base`; links that leave the site open in a new tab. A ```mermaid block becomes its
+// diagram, drawn in the page's theme the first time it comes into view (in a dialog: when it
+// opens), so the diagram library loads only for a reader who gets there.
+import { Marked } from "marked";
+import Prose from "./Prose.astro";
+interface Props { source: string; base?: string }
+const { source, base } = Astro.props;
+const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const marked = new Marked({
+  gfm: true,
+  renderer: {
+    code({ text, lang }) {
+      if (lang === "mermaid") return `<div class="md-diagram" data-mermaid>${escape(text)}</div>`;
+      return false;
+    },
+  },
+});
+const absolute = (url: string) => {
+  if (!base || /^(https?:|mailto:|#|\/)/.test(url)) return url;
+  return new URL(url, base).href;
+};
+const html = (await marked.parse(source))
+  .replace(/(<(?:a|img)\b[^>]*?\b(?:href|src)=")([^"]+)"/g, (_, lead: string, url: string) => `${lead}${absolute(url)}"`)
+  .replace(/<a href="(https?:[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"');
+---
+<Prose><Fragment set:html={html} /></Prose>
+
+<script>
+  // Diagrams are drawn once each, when first seen, in the theme of that moment; a theme switch
+  // draws them again. Until then, and if one does not parse, the block shows its text.
+  const blocks = [...document.querySelectorAll<HTMLElement>("[data-mermaid]")];
+  if (blocks.length) {
+    for (const b of blocks) b.dataset.source = b.textContent ?? "";
+    // Mermaid reads plain colours: let the browser turn each token into one.
+    const ink = document.createElement("canvas").getContext("2d")!;
+    const colour = (el: HTMLElement, token: string) => {
+      ink.fillStyle = "#000";
+      ink.fillStyle = getComputedStyle(el).getPropertyValue(token).trim() || "#000";
+      return ink.fillStyle;
+    };
+    let count = 0;
+    const draw = async (block: HTMLElement) => {
+      const { default: mermaid } = await import("mermaid");
+      const theme = document.documentElement.dataset.theme ?? "";
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        fontFamily: getComputedStyle(document.body).fontFamily,
+        themeVariables: {
+          darkMode: theme === "dark",
+          background: colour(block, "--bg"),
+          primaryColor: colour(block, "--surface"),
+          primaryTextColor: colour(block, "--ink"),
+          primaryBorderColor: colour(block, "--accent"),
+          lineColor: colour(block, "--ink-lo"),
+          secondaryColor: colour(block, "--surface"),
+          tertiaryColor: colour(block, "--bg"),
+          clusterBkg: colour(block, "--bg"),
+          clusterBorder: colour(block, "--line"),
+          edgeLabelBackground: colour(block, "--bg"),
+        },
+      });
+      try {
+        const { svg } = await mermaid.render(`md-diagram-${(count += 1)}`, block.dataset.source ?? "");
+        // In its own shadow root: the page's styles (a `.label`, say) never reach the diagram.
+        const root = block.shadowRoot ?? block.attachShadow({ mode: "open" });
+        // The text inside is reset to what Mermaid measured it with, or its labels clip.
+        root.innerHTML = `<style>.d{font-size:16px;line-height:normal;letter-spacing:normal;text-transform:none;white-space:normal}svg{display:block;height:auto}</style><div class="d">${svg}</div>`;
+        // It fits its box, but never below 70% of its own width: past that, it scrolls sideways.
+        const drawn = root.querySelector("svg");
+        const natural = drawn?.viewBox.baseVal.width ?? 0;
+        if (drawn && natural) {
+          const room = block.clientWidth - parseFloat(getComputedStyle(block).paddingLeft) * 2;
+          drawn.style.maxWidth = "none";
+          drawn.style.width = `${Math.min(natural, Math.max(room, natural * 0.7))}px`;
+        }
+        block.dataset.theme = theme;
+      } catch {
+        // A diagram that does not parse stays as its text.
+        block.dataset.theme = theme;
+      }
+    };
+    const seen = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { seen.unobserve(e.target); void draw(e.target as HTMLElement); }
+    });
+    for (const b of blocks) seen.observe(b);
+    new MutationObserver(() => {
+      const theme = document.documentElement.dataset.theme ?? "";
+      for (const b of blocks) if (b.dataset.theme !== undefined && b.dataset.theme !== theme) void draw(b);
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  }
+</script>
+
+<style is:global>
+.md-diagram {
+  display: grid;
+  justify-content: safe center;
+  overflow-x: auto;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font: 400 var(--fs-small)/1.5 var(--mono);
+  white-space: pre;
+  color: var(--ink-lo);
+}
+</style>

@@ -25,6 +25,8 @@
   "dependencies": {
     "@fontsource-variable/m-plus-1": "^5.3.1",
     "@fontsource-variable/m-plus-1-code": "^5.3.1",
+    "marked": "^18.3.0",
+    "mermaid": "^12.3.0",
     "simple-icons": "^16.38.0"
   },
   "devDependencies": {

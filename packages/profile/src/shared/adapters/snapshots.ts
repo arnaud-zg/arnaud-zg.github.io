@@ -27,6 +27,13 @@ export const Snapshots = z.object({
       monthlyReleases: z.number(),
     }),
   ),
-  skills: z.array(z.object({ name: text, use: text, href: text })),
+  skills: z.array(
+    z.object({
+      name: text,
+      use: text,
+      href: text,
+      explanation: z.object({ title: text, body: text }).optional(),
+    }),
+  ),
   substack: z.array(z.object({ title: text, subtitle: text, url: text, date: text, image: text })),
 });

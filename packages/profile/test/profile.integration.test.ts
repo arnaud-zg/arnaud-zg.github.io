@@ -8,7 +8,9 @@ import { createProfile } from "../src/composition.ts";
 import { memoryHost } from "../src/contributions/adapters/memory.host.ts";
 import { profileOf } from "../src/profile.ts";
 import { memoryRegistry } from "../src/quests/adapters/memory.registry.ts";
+import { memoryWeb } from "../src/shared/adapters/memory.web.ts";
 import { memorySkills } from "../src/skills/adapters/memory.skills.ts";
+import { readmeSkills } from "../src/skills/adapters/readme.skills.ts";
 
 const job = { role: "Engineer", stack: "Go, SQL", fullTime: true };
 const promotion = { at: "2020-03", label: "Senior", title: "Senior engineer" };
@@ -424,6 +426,20 @@ test("contributions: stale pull requests and other people's issues are not saved
     ["91", "92", "93"],
   );
   assert.deepEqual(closes, { "https://github.com/a/new/pull/92": [mine(5).url] });
+});
+
+test("skills: a refresh saves each explanation, and a build shows it from the saved data", async () => {
+  const raw = "https://raw.githubusercontent.com/me/skills/HEAD";
+  const web = memoryWeb({
+    [`${raw}/README.md`]: "| Do it | [`do-it`](./docs/do-it/README.md) |",
+    [`${raw}/docs/do-it/explanation.md`]: "# 💡 Explanation: why\n\n## Part\n\nText.",
+  });
+  const list = readmeSkills({ web, repo: "me/skills" });
+  const { live } = profileOn({ list }, saved);
+  const skills = await live.skills();
+  const snapshots = { ...saved, skills };
+  const shown = createProfile({ settings, run: { now: new Date(), snapshots } }).skills();
+  assert.deepEqual(shown[0].explanation, { title: "Why", body: "## Part\n\nText." });
 });
 
 test("saved data of the wrong shape stops the build", () => {

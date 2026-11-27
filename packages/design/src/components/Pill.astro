@@ -1,13 +1,20 @@
 ---
-// A quiet action. With `opens`, it opens the Dialog of that id. `look`: `arrow` leads somewhere,
+// A quiet action. With `opens`, it opens the Dialog of that id; with `href`, it is a link (a new
+// tab when it leaves the site). `look`: `arrow` leads somewhere,
 // `plain` is an answer or a choice (`aria-pressed`), `quiet` is plain small text.
 import Icon from "./Icon.astro";
 import type { Choice } from "../variants";
 import { pillVariants } from "./Pill.variants";
-interface Props extends Partial<Choice<typeof pillVariants.axes>> { opens?: string; "aria-pressed"?: "true" | "false"; [data: `data-${string}`]: string | boolean | undefined }
-const { opens, look = pillVariants.defaults.look, ...rest } = Astro.props;
+import { external } from "../links";
+interface Props extends Partial<Choice<typeof pillVariants.axes>> { opens?: string; href?: string; "aria-pressed"?: "true" | "false"; [data: `data-${string}`]: string | boolean | undefined }
+const { opens, href, look = pillVariants.defaults.look, ...rest } = Astro.props;
+const cls = look === "quiet" ? "quiet" : "pill";
 ---
-<button class={look === "quiet" ? "quiet" : "pill"} type="button" {...pillVariants.attrs({ look })} data-open-dialog={opens} aria-haspopup={opens ? "dialog" : undefined} {...rest}><slot />{look === "arrow" && <> <Icon name="arrow" size={16} /></>}</button>
+{href ? (
+  <a class={cls} href={href} {...pillVariants.attrs({ look })} {...(/^https?:/.test(href) ? external : {})} {...rest}><slot />{look === "arrow" && <> <Icon name="arrow" size={16} /></>}</a>
+) : (
+  <button class={cls} type="button" {...pillVariants.attrs({ look })} data-open-dialog={opens} aria-haspopup={opens ? "dialog" : undefined} {...rest}><slot />{look === "arrow" && <> <Icon name="arrow" size={16} /></>}</button>
+)}
 
 <style is:global>
 .pill {
