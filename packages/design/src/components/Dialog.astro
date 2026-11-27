@@ -1,9 +1,11 @@
 ---
-interface Props { id: string; title: string }
-const { id, title } = Astro.props;
+import type { Choice } from "../variants";
+import { dialogVariants } from "./Dialog.variants";
+interface Props extends Partial<Choice<typeof dialogVariants.axes>> { id: string; title: string }
+const { id, title, size = dialogVariants.defaults.size } = Astro.props;
 import "./parts/press.css";
 ---
-<dialog id={id} class="dialog" aria-labelledby={`${id}-title`}>
+<dialog id={id} class="dialog" {...dialogVariants.attrs({ size })} aria-labelledby={`${id}-title`}>
   <header class="dialog-head">
     <h2 id={`${id}-title`}>{title}</h2>
     <button class="dialog-close" type="button" data-close-dialog aria-label="Close">
@@ -17,9 +19,6 @@ import "./parts/press.css";
 .dialog-close::after {
   content: "";
   position: absolute;
-  inset: -6px -2px;
-}
-.dialog-close::after {
   inset: -4px;
 }
 .dialog {
@@ -33,6 +32,9 @@ import "./parts/press.css";
   overflow: hidden;
   display: none;
   flex-direction: column;
+}
+.dialog[data-size="narrow"] {
+  width: min(680px, calc(100vw - 32px));
 }
 .dialog[open] {
   display: flex;
@@ -93,12 +95,10 @@ import "./parts/press.css";
   }
 .dialog.is-leaving {
     opacity: 0;
-    transition-duration: var(--dur-leave);
-    transition-timing-function: var(--ease-in);
-  }
-.dialog.is-leaving {
     translate: 0 14px;
     scale: 0.98;
+    transition-duration: var(--dur-leave);
+    transition-timing-function: var(--ease-in);
   }
 .dialog.is-leaving::backdrop {
     opacity: 0;

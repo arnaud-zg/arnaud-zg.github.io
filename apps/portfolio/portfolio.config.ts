@@ -119,7 +119,7 @@ export default {
       show: true,
       nav: "Open source",
       title: "Open source",
-      lede: "Fixes and features I send upstream, to tools other teams rely on. Most recent first.",
+      lede: "Fixes and features I send upstream, to tools other teams rely on. Largest first.",
     },
     // The last words on the page, above the profile links.
     ending: {
@@ -162,6 +162,10 @@ export default {
     inReview: "in review",
     reportedFirst: (n: string) => `reported it first (#${n})`,
     prs: (n: number) => `${n} ${n === 1 ? "PR" : "PRs"}`,
+    allPrs: (n: number) => `All ${n} pull requests`,
+    smallerContributions: (n: number) => `See ${n} smaller contributions`,
+    smallerTitle: "Smaller contributions",
+    prsOnGitHub: "Pull requests on GitHub",
     projects: (n: number) => (n === 1 ? "project" : "projects"),
     contributing: "contributing",
     openSourceFigures: "Open source, merged code",
