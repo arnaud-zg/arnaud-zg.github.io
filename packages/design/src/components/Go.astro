@@ -1,8 +1,12 @@
 ---
-// The corner arrow of a card that is a link: ↗ when it leaves the site, → when it stays.
-interface Props { leaves?: boolean }
+// The corner arrow of a card that is a link: ↗ when it leaves the site, → when it stays. With
+// `href`, the arrow is a link of its own, named by `label`, on a card that does something else.
+import { external } from "../links";
+interface Props { leaves?: boolean; href?: string; label?: string }
+const { leaves, href, label } = Astro.props;
+const arrow = leaves ? "↗" : "→";
 ---
-<span class="go" aria-hidden="true">{Astro.props.leaves ? "↗" : "→"}</span>
+{href ? <a class="go" href={href} aria-label={label} title={label} {...(leaves ? external : {})}>{arrow}</a> : <span class="go" aria-hidden="true">{arrow}</span>}
 
 <style is:global>
 .go {
@@ -24,9 +28,28 @@ interface Props { leaves?: boolean }
     translate 220ms var(--ease-out);
 }
 .link-card:hover .go,
-.link-card:focus-visible .go {
+.link-card:focus-visible .go,
+.link-card:focus-within .go {
   opacity: 1;
   translate: 0 0;
+}
+a.go {
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  top: 8px;
+  right: 8px;
+}
+a.go:hover,
+a.go:focus-visible {
+  background: var(--accent);
+  color: var(--bg);
+}
+@media (hover: none) {
+a.go {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 .earlier-card:hover .go,
 .earlier-card:focus-visible .go {

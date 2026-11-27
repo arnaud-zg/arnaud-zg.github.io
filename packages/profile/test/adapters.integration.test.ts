@@ -150,17 +150,34 @@ test("substack feed: a small cover", () => {
 });
 
 const README = "https://raw.githubusercontent.com/me/skills/HEAD/README.md";
-const table = "| Do it | [`do-it`](./do) |\n| Go out | [`go`](https://go.dev) |\ntext";
+const table =
+  "| Do it | [`do-it`](./do) |\n| Go out | [`go`](https://go.dev) |\n| Explain | [`why`](./docs/why/README.md) |\n| Bare | [`bare`](./docs/bare/README.md) |\ntext";
+const EXPLAINED = "https://raw.githubusercontent.com/me/skills/HEAD/docs/why/explanation.md";
+const page =
+  "# 💡 Explanation: why it works\n\n[📚 Docs](../README.md) › [why](README.md) · **💡\nExplanation**\n\n## A part\n\n```mermaid\nflowchart LR\n  A --> B\n```";
 const skills = [
   { name: "do-it", use: "Do it", href: "https://github.com/me/skills/blob/HEAD/do" },
   { name: "go", use: "Go out", href: "https://go.dev" },
+  {
+    name: "why",
+    use: "Explain",
+    href: "https://github.com/me/skills/blob/HEAD/docs/why/README.md",
+    explanation: {
+      title: "Why it works",
+      body: "## A part\n\n```mermaid\nflowchart LR\n  A --> B\n```",
+    },
+  },
+  { name: "bare", use: "Bare", href: "https://github.com/me/skills/blob/HEAD/docs/bare/README.md" },
 ];
 const lists = {
   memory: memorySkills(skills),
-  readme: readmeSkills({ web: memoryWeb({ [README]: table }), repo: "me/skills" }),
+  readme: readmeSkills({
+    web: memoryWeb({ [README]: table, [EXPLAINED]: page }),
+    repo: "me/skills",
+  }),
 };
 for (const [name, list] of Object.entries(lists))
-  test(`${name} skills: each one, linked`, async () => {
+  test(`${name} skills: each one, linked, with its explanation when it has one`, async () => {
     assert.deepEqual(await list.skills(), skills);
   });
 
