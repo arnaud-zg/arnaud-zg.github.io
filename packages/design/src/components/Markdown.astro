@@ -2,17 +2,20 @@
 // Markdown, rendered when the site is built, as running text. Relative links and images resolve
 // against `base`; links that leave the site open in a new tab. A ```mermaid block becomes its
 // diagram, drawn in the page's theme the first time it comes into view (in a dialog: when it
-// opens), so the diagram library loads only for a reader who gets there.
+// opens), so the diagram library loads only for a reader who gets there. A diagram wider than its
+// box shows at a readable size and scrolls sideways; its button fits the whole of it in the box.
 import { Marked } from "marked";
 import Prose from "./Prose.astro";
-interface Props { source: string; base?: string }
-const { source, base } = Astro.props;
+// `zoom`: the button's words, to see the whole diagram or to read it at its size again.
+interface Props { source: string; base?: string; zoom?: { fit: string; actual: string } }
+const { source, base, zoom = { fit: "See it whole", actual: "Back to full size" } } = Astro.props;
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const marked = new Marked({
   gfm: true,
   renderer: {
     code({ text, lang }) {
-      if (lang === "mermaid") return `<div class="md-diagram" data-mermaid>${escape(text)}</div>`;
+      if (lang === "mermaid")
+        return `<figure class="md-figure"><div class="md-diagram" data-mermaid>${escape(text)}</div><button class="md-zoom" type="button" data-zoom hidden></button></figure>`;
       return false;
     },
   },
@@ -26,6 +29,7 @@ const html = (await marked.parse(source))
   .replace(/<a href="(https?:[^"]+)"/g, '<a href="$1" target="_blank" rel="noopener noreferrer"');
 ---
 <Prose><Fragment set:html={html} /></Prose>
+{html.includes("data-zoom") && <template data-zoom-words data-fit={zoom.fit} data-actual={zoom.actual}></template>}
 
 <script>
   // Diagrams are drawn once each, when first seen, in the theme of that moment; a theme switch
@@ -33,59 +37,113 @@ const html = (await marked.parse(source))
   const blocks = [...document.querySelectorAll<HTMLElement>("[data-mermaid]")];
   if (blocks.length) {
     for (const b of blocks) b.dataset.source = b.textContent ?? "";
-    // Mermaid reads plain colours: let the browser turn each token into one.
-    const ink = document.createElement("canvas").getContext("2d")!;
-    const colour = (el: HTMLElement, token: string) => {
-      ink.fillStyle = "#000";
-      ink.fillStyle = getComputedStyle(el).getPropertyValue(token).trim() || "#000";
-      return ink.fillStyle;
+    // Mermaid reads plain, opaque colours: tokens are laid over the page's background and read
+    // back as one, so a translucent surface still draws a visible box by night.
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1;
+    const ink = canvas.getContext("2d", { willReadFrequently: true })!;
+    const solid = (el: HTMLElement, ...tokens: string[]) => {
+      const style = getComputedStyle(el);
+      ink.clearRect(0, 0, 1, 1);
+      for (const token of ["--bg", ...tokens]) {
+        ink.fillStyle = "#000";
+        ink.fillStyle = style.getPropertyValue(token).trim() || "#000";
+        ink.fillRect(0, 0, 1, 1);
+      }
+      const [r, g, b] = ink.getImageData(0, 0, 1, 1).data;
+      return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+    };
+    const words = document.querySelector<HTMLElement>("[data-zoom-words]")?.dataset ?? {};
+    // A diagram is shown at its own size while it fits, or while fitting it would shrink its text
+    // below 70%: past that it scrolls sideways, and its button fits it whole in the box.
+    const size = (block: HTMLElement) => {
+      const drawn = block.shadowRoot?.querySelector("svg");
+      const natural = drawn?.viewBox.baseVal.width ?? 0;
+      const button = block.parentElement?.querySelector<HTMLButtonElement>("[data-zoom]");
+      if (!drawn || !natural || !button) return;
+      const pad = parseFloat(getComputedStyle(block).paddingLeft) * 2;
+      const room = block.clientWidth - pad;
+      const fit = Math.min(natural, room);
+      const readable = Math.min(natural, Math.max(room, natural * 0.7));
+      const whole = block.dataset.whole !== undefined;
+      drawn.style.maxWidth = "none";
+      drawn.style.width = `${whole ? fit : readable}px`;
+      button.hidden = readable <= room + 1;
+      button.textContent = whole ? (words.actual ?? "") : (words.fit ?? "");
+      button.setAttribute("aria-pressed", String(whole));
+    };
+    // The text the diagram is measured and shown with.
+    const TEXT = "font-size:16px;line-height:1.5;letter-spacing:normal;text-transform:none;white-space:normal;word-spacing:normal";
+    // A diagram's own class names (`classDef copy`) could be the page's too, and take its styles
+    // while it is measured: each gets a prefix, wherever the source names it.
+    const scoped = (source: string) => {
+      const names = [...source.matchAll(/^\s*classDef\s+([\w-]+)/gm)].map((m) => m[1]);
+      if (!names.length) return source;
+      const named = new RegExp(`(:::|^\\s*classDef\\s+|^\\s*class\\s+\\S+\\s+)(${names.join("|")})\\b`, "gm");
+      return source.replace(named, "$1md-$2");
     };
     let count = 0;
     const draw = async (block: HTMLElement) => {
       const { default: mermaid } = await import("mermaid");
       const theme = document.documentElement.dataset.theme ?? "";
+      const page = (token: string) => solid(block, token);
       mermaid.initialize({
         startOnLoad: false,
         theme: "base",
+        // Flat: the default look's drop shadows turn the labels to a blurred picture.
+        look: "classic",
         fontFamily: getComputedStyle(document.body).fontFamily,
         themeVariables: {
           darkMode: theme === "dark",
-          background: colour(block, "--bg"),
-          primaryColor: colour(block, "--surface"),
-          primaryTextColor: colour(block, "--ink"),
-          primaryBorderColor: colour(block, "--accent"),
-          lineColor: colour(block, "--ink-lo"),
-          secondaryColor: colour(block, "--surface"),
-          tertiaryColor: colour(block, "--bg"),
-          clusterBkg: colour(block, "--bg"),
-          clusterBorder: colour(block, "--line"),
-          edgeLabelBackground: colour(block, "--bg"),
+          fontSize: "15px",
+          background: page("--surface"),
+          primaryColor: solid(block, "--surface-hi"),
+          primaryTextColor: page("--ink"),
+          primaryBorderColor: page("--accent"),
+          lineColor: page("--ink-lo"),
+          secondaryColor: solid(block, "--surface-hi"),
+          tertiaryColor: page("--surface"),
+          clusterBkg: page("--surface"),
+          clusterBorder: page("--ink-lo"),
+          edgeLabelBackground: page("--surface"),
+          labelBackground: page("--surface"),
         },
       });
       try {
-        const { svg } = await mermaid.render(`md-diagram-${(count += 1)}`, block.dataset.source ?? "");
-        // In its own shadow root: the page's styles (a `.label`, say) never reach the diagram.
+        // Mermaid finds its drawing by id in the document, so it measures in the page: off
+        // screen, in a box (`.md-measure`) where the page's styles that reach a label are undone.
+        const measure = document.createElement("div");
+        measure.className = "md-measure";
+        document.body.append(measure);
+        const { svg } = await mermaid
+          .render(`md-diagram-${(count += 1)}`, scoped(block.dataset.source ?? ""), measure)
+          .finally(() => measure.remove());
+        // Shown in its own shadow root, which the page's styles never reach, with the same text
+        // rules it was measured with: every label lays out the same both times, and none clips.
         const root = block.shadowRoot ?? block.attachShadow({ mode: "open" });
-        // The text inside is reset to what Mermaid measured it with, or its labels clip.
-        root.innerHTML = `<style>.d{font-size:16px;line-height:normal;letter-spacing:normal;text-transform:none;white-space:normal}svg{display:block;height:auto}</style><div class="d">${svg}</div>`;
-        // It fits its box, but never below 70% of its own width: past that, it scrolls sideways.
-        const drawn = root.querySelector("svg");
-        const natural = drawn?.viewBox.baseVal.width ?? 0;
-        if (drawn && natural) {
-          const room = block.clientWidth - parseFloat(getComputedStyle(block).paddingLeft) * 2;
-          drawn.style.maxWidth = "none";
-          drawn.style.width = `${Math.min(natural, Math.max(room, natural * 0.7))}px`;
-        }
+        root.innerHTML = `<style>*{box-sizing:border-box}p{margin:0;text-wrap:wrap}.d{${TEXT}}svg{display:block;height:auto;margin-inline:auto}</style><div class="d">${svg}</div>`;
         block.dataset.theme = theme;
+        size(block);
       } catch {
         // A diagram that does not parse stays as its text.
+        if (block.shadowRoot) block.shadowRoot.innerHTML = "<slot></slot>";
         block.dataset.theme = theme;
       }
     };
     const seen = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { seen.unobserve(e.target); void draw(e.target as HTMLElement); }
     });
-    for (const b of blocks) seen.observe(b);
+    const resized = new ResizeObserver((entries) => {
+      for (const e of entries) size(e.target as HTMLElement);
+    });
+    for (const b of blocks) {
+      seen.observe(b);
+      resized.observe(b);
+      b.parentElement?.querySelector("[data-zoom]")?.addEventListener("click", () => {
+        b.toggleAttribute("data-whole");
+        size(b);
+      });
+    }
     new MutationObserver(() => {
       const theme = document.documentElement.dataset.theme ?? "";
       for (const b of blocks) if (b.dataset.theme !== undefined && b.dataset.theme !== theme) void draw(b);
@@ -94,16 +152,72 @@ const html = (await marked.parse(source))
 </script>
 
 <style is:global>
+.md-figure {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
 .md-diagram {
   display: grid;
   justify-content: safe center;
   overflow-x: auto;
-  padding: 18px 20px;
+  padding: 22px 20px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   font: 400 var(--fs-small)/1.5 var(--mono);
   white-space: pre;
   color: var(--ink-lo);
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+.md-measure {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  visibility: hidden;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  word-spacing: normal;
+}
+.md-measure p {
+  text-wrap: wrap;
+}
+/* Mermaid names its label groups `label`, a class the page styles: undone here, as if absent. */
+.md-measure [class~="label"] {
+  font: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  color: revert;
+}
+.md-zoom {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  font: 400 var(--fs-label)/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-lo);
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out);
+}
+.md-zoom:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.md-zoom[hidden] {
+  display: none;
 }
 </style>

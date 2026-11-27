@@ -60,6 +60,13 @@ const facts = [
   { label: labels.experience, value: `${career.years} ${labels.years}` },
   ...(school ? [{ label: labels.education, value: school, note: studied.join(", ") }] : []),
 ];
+// A skill with an explanation opens it; its corner arrow stays the link to GitHub.
+const skillCard = (k: (typeof skills)[number]) => ({
+  href: k.href,
+  name: `/${k.name}`,
+  text: k.use,
+  ...(k.explanation ? { opens: `skill-${k.name}`, openLabel: labels.skillDetails(k.name), linkLabel: labels.skillOnGitHub(k.name) } : {}),
+});
 const earlier = quests.earlier.map((q) => ({ ...q, year: q.updated.slice(0, 4), label: labels.onNpm(q.name) }));
 // The whole record by repository: years, pull requests, lines merged. The component ranks it.
 const pullsOf = (repo: string) => `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr author:${config.github.user}`)}`;
@@ -124,11 +131,19 @@ const questKpis = [
         <Kpis items={[{ value: skills.length, label: labels.skills }]} />
       </SectionHead>
       <CardGrid>
-        {skills.map((k) => <li>{k.explanation ? <LinkCard href={k.href} name={`/${k.name}`} text={k.use} opens={`skill-${k.name}`} openLabel={labels.skillDetails(k.name)} linkLabel={labels.skillOnGitHub(k.name)} /> : <LinkCard href={k.href} name={`/${k.name}`} text={k.use} />}</li>)}
+        {skills.slice(0, config.skills.shown).map((k) => <li><LinkCard {...skillCard(k)} /></li>)}
       </CardGrid>
+      {skills.length > config.skills.shown && (
+        <>
+          <Pill opens="skills-all">{labels.allSkills(skills.length)}</Pill>
+          <Dialog id="skills-all" title={labels.allSkillsTitle} lede={`${skills.length} ${labels.skills}`}>
+            <CardGrid>{skills.map((k) => <li><LinkCard {...skillCard(k)} /></li>)}</CardGrid>
+          </Dialog>
+        </>
+      )}
       {skills.map((k) => k.explanation && (
         <Dialog id={`skill-${k.name}`} title={`/${k.name}`} lede={k.explanation.title} size="narrow">
-          <Markdown source={k.explanation.body} base={k.href} />
+          <Markdown source={k.explanation.body} base={k.href} zoom={{ fit: labels.diagramFit, actual: labels.diagramActual }} />
           <Pill slot="foot" href={k.href}>{labels.openSkill}</Pill>
         </Dialog>
       ))}

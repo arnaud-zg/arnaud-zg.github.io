@@ -1,5 +1,6 @@
 ---
-// Cards in a grid that fills its width. Each child is one `<li>`.
+// Cards in a grid that fills its width. Each child is one `<li>`. In a dialog, it keeps clear of
+// the dialog's edges.
 ---
 <ul class="card-grid"><slot /></ul>
 
@@ -8,6 +9,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 10px;
+}
+.dialog-body > .card-grid {
+  padding-block: 22px 16px;
 }
 @media (prefers-reduced-motion: no-preference) {
 @supports (animation-timeline: view()) {
