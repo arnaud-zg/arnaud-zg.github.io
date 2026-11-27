@@ -81,11 +81,11 @@ export default {
   // `show: false` hides a section and its nav link. `nav` is the label in the header.
   sections: {
     // Figures under the hero, computed from GitHub, the career and npm; only the words live here.
-    // Years of experience are in the journey, so the strip shows the work in the open instead.
+    // Years of experience lead: the first thing a reader checks. The longest stay is in the journey.
     glance: {
       show: true,
+      experience: "of full-time experience",
       contributions: "on GitHub in the last year",
-      stay: "in one company, promoted to Senior",
       releases: "in the last year, of open-source tools I build and maintain",
     },
     about: {
@@ -100,6 +100,7 @@ export default {
       nav: "Journey",
       title: "Journey",
       lede: "From agency and startup to scale-up and large company.",
+      stay: "in one company, promoted to Senior",
       educationTitle: "Education",
     },
     quests: {
@@ -138,7 +139,7 @@ export default {
     tools: "tools",
     now: "Now",
     at: "at",
-    experience: "Full-time experience",
+    longestStay: "Longest stay",
     education: "Education",
     stack: "Stack",
     skillsTaught: "Skills",
