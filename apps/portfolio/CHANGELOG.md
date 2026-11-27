@@ -1,5 +1,11 @@
 # portfolio
 
+## 0.5.0
+
+### Minor Changes
+
+* Pressing a company or a school now sends its emoji from the name to its dates, in a motion of its own domain (a heartbeat for health, a flapping banknote for payroll, a stair of years then a thrown cap for a degree), slower and calmer the longer the stay. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/481
+
 ## 0.4.0
 
 ### Minor Changes
