@@ -25,7 +25,7 @@ const [owner, name] = r.repo.split("/");
       {size > 0 && <span class="ds-bar act-bar" aria-hidden="true"><b style={pct(r.added)}></b><i style={pct(r.removed)}></i></span>}
     </div>
     {r.threads.length > 0 && <ActivityThreads items={r.threads.slice(0, preview)} labels={labels} />}
-    {opens && <button class="act-open" type="button" data-open-dialog={opens} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
+    {opens && <button class="act-open" type="button" data-open-dialog={opens} data-item={r.repo} aria-haspopup="dialog">{labels.details(r.threads.length)} <span aria-hidden="true">→</span></button>}
   </div>
 </li>
 

@@ -30,7 +30,8 @@ const shown = ranked.slice(0, top);
 const rest = ranked.slice(top);
 const max = Math.max(1, ...items.map(size));
 const pct = (n: number) => `--w:${(n / max) * 100}%`;
-const dialogOf = (i: number) => `${id}-${i}`;
+// Named by its repository, so what was opened reads as itself ("oss-web-infra-dev-rspack").
+const dialogOf = (i: number) => `${id}-${ranked[i].repo.toLowerCase().replace(/[^\w-]+/g, "-")}`;
 const opens = (i: number) => (ranked[i].threads.length > PREVIEW ? dialogOf(i) : undefined);
 import "./parts/diff-bar.css";
 ---

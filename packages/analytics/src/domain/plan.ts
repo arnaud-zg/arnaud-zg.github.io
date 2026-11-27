@@ -27,6 +27,7 @@ export const plan = {
       device: oneOf("phone", "tablet", "desktop"),
     },
   },
+  // A dialog of a section counts as a part read on its own, by its id.
   section_read: {
     question: "Which parts hold attention, and for how long?",
     shown: "The sections you read, and for how long",
@@ -37,7 +38,7 @@ export const plan = {
     shown: "What you open, and the commands you copy",
     props: {
       section: slug,
-      action: oneOf("open-tool", "open-details", "copy-command"),
+      action: oneOf("open-tool", "open-details", "copy-command", "fit-diagram", "zoom-diagram"),
       item: slug,
     },
   },
