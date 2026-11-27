@@ -1,9 +1,10 @@
 ---
 // One card per job, newest first. A title earned later carries its year.
-// With an emoji, pressing the company name sends it gliding from the dates to the name, slower for a longer stay.
+// With an emoji, pressing the company name sends it from the name to the dates, in the motion of its
+// domain (`motion`, see flight.ts), slower for a longer stay.
 import Tags from "./Tags.astro";
 import Highlights from "./Highlights.astro";
-export type Role = { company: string; industry?: string; emoji?: string; since?: string; until?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
+export type Role = { company: string; industry?: string; emoji?: string; motion?: string; since?: string; until?: string; titles: { title: string; since?: string }[]; dates: string; now: boolean; highlights: string[]; stack: string[] };
 interface Props { roles: Role[]; labels: { then: string; stack: string } }
 const { roles, labels } = Astro.props;
 import "./parts/career-card.css";
@@ -12,8 +13,8 @@ import "./parts/career-card.css";
   {roles.map((r) => (
     <li class="cv-role" data-now={r.now || undefined} data-egg-row={r.emoji ? "perch" : undefined}>
       <div class="cv-head">
-        <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji} data-egg-kind="work" data-egg-since={r.since} data-egg-until={r.until}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
-        <p class="cv-dates" data-egg-from={r.emoji ? "" : undefined}>{r.dates}</p>
+        <h3 class="cv-company">{r.emoji ? <button type="button" class="cv-egg" data-egg={r.emoji} data-egg-motion={r.motion} data-egg-since={r.since} data-egg-until={r.until}>{r.company}</button> : r.company}{r.industry && <span class="cv-industry">{r.industry}</span>}</h3>
+        <p class="cv-dates" data-egg-to={r.emoji ? "" : undefined}>{r.dates}</p>
       </div>
       <p class="cv-titles">
         {r.titles.map((t, i) => <>{i > 0 && <span class="cv-arrow" aria-label={labels.then}>→</span>}<span class="cv-title">{t.title}{t.since && <span class="cv-since">{t.since}</span>}</span></>)}
