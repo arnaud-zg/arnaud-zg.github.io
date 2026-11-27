@@ -82,6 +82,7 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
         tools: active.count(),
         releases: active.releases(),
         monthlyReleases: active.monthlyReleases(),
+        yearlyReleases: active.yearlyReleases(),
         downloads: active.downloads(),
         month: active.asFacts().at(0)?.month,
         groups: new QuestMap({ rules: npm, today }).groupsOf(active),
@@ -95,8 +96,9 @@ export const profileOf = ({ settings, ports, run }: Profile) => {
       return {
         figures: work.figures(),
         repos: work.byRepository(),
-        // The calendar's total for the last full year, as the profile counts it.
-        calendar: saved.github.contributions,
+        // The profile's "contributions in the last year", as of the last refresh; none if the
+        // saved total is not one.
+        calendar: saved.github.contributions.asOf ? saved.github.contributions : undefined,
       };
     },
     articles: () =>

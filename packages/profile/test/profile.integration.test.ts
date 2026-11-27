@@ -116,7 +116,7 @@ const recentPullRequests = [
   recent("mine/own", 96, "fix: it", { open: true }),
 ];
 const tool = { description: "🚀 A tool (fast). More" };
-const calendar = { 2025: 1234, 2026: 5 };
+const lastYear = 1234;
 const repositories = {
   "a/small": tool,
   "a/big": tool,
@@ -136,7 +136,7 @@ const saved: Saved = {
     open: [],
     closes: {},
     lines: { u: [3, 4] },
-    contributions: { year: 2024, total: 900 },
+    contributions: { total: 900, asOf: "2025-06-01" },
   },
   npm: [],
   skills: [{ name: "saved", use: "", href: "" }],
@@ -147,7 +147,7 @@ const registryOf = (some: typeof packages) => memoryRegistry({ packages: some, m
 const profileOn = (some: Partial<Ports>, data: Saved) => {
   const ports = {
     registry: registryOf(packages),
-    host: memoryHost({ pullRequests, repositories, calendar }),
+    host: memoryHost({ pullRequests, repositories, lastYear }),
     feed: memoryFeed([article]),
     list: memorySkills([skill]),
     ...some,
@@ -174,7 +174,7 @@ const allDown: Partial<Ports> = {
     issuesClosedBy: down,
     repository: down,
     linesOf: down,
-    contributionsIn: down,
+    contributionsInLastYear: down,
   },
   feed: { articles: down, coverOf: (image) => image },
   list: { skills: down },
@@ -272,6 +272,18 @@ test("side quests: monthly releases are the stable ones of the last full month",
   assert.deepEqual([quests.monthlyReleases, quests.releases], [2, 4]);
 });
 
+test("side quests: yearly releases are those of this month so far and the eleven before it", async () => {
+  const versions = {
+    "0.9.0": "2025-01-31",
+    "1.0.0": "2025-02-01",
+    "1.1.0": "2025-12-31",
+    "1.2.0": "2026-01-02",
+  };
+  const registry = registryOf([published("a", { versions })]);
+  const quests = (await profileWith({ registry })).sideQuests();
+  assert.deepEqual([quests.yearlyReleases, quests.releases], [3, 4]);
+});
+
 test("side quests: a plugin's releases count for its tool", async () => {
   const versions = { "1.0.0": "2025-12-02", "1.1.0": "2025-12-20" };
   const registry = registryOf([
@@ -296,7 +308,7 @@ test("contributions: every repository with the lines merged there and the years 
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
-    calendar,
+    lastYear,
   });
   const { repos, figures } = (await profileWith({ host })).contributions();
   const rows = repos.map(({ repo, from, to, merged, review, added, removed }) => ({
@@ -314,11 +326,11 @@ test("contributions: every repository with the lines merged there and the years 
   assert.deepEqual(figures, { added: 36, removed: 7, projects: 4, from: 2025, to: 2026 });
 });
 
-test("contributions: recent work by repository, the latest activity first", async () => {
+test("contributions: every merged pull request by repository, and those in review lately", async () => {
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
-    calendar,
+    lastYear,
   });
   const { repos } = (await profileWith({ host })).contributions();
   const threads = repos.map(({ repo, about, threads }) => [
@@ -328,9 +340,13 @@ test("contributions: recent work by repository, the latest activity first", asyn
   ]);
   assert.deepEqual(threads, [
     ["a/new", "New", ["review: Add it", "review: Parse"]],
-    ["a/big", "A tool", ["merged: Keep the range", "review: Share it"]],
-    ["a/small", "A tool", []],
-    ["employer/app", "A tool", []],
+    [
+      "a/big",
+      "A tool",
+      ["merged: Keep the range", "review: Share it", "merged: Two", "merged: Three"],
+    ],
+    ["a/small", "A tool", ["merged: One"]],
+    ["employer/app", "A tool", ["merged: Nine"]],
   ]);
 });
 
@@ -338,7 +354,7 @@ test("contributions: an issue one reported folds into the pull request that clos
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
-    calendar,
+    lastYear,
   });
   const { repos } = (await profileWith({ host })).contributions();
   const [added, parsed] = repos[0].threads;
@@ -350,7 +366,7 @@ test("contributions: own work is left out even when the host returns it", async 
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
-    calendar,
+    lastYear,
   });
   const careless = {
     ...host,
@@ -366,10 +382,28 @@ test("contributions: own work is left out even when the host returns it", async 
   ]);
 });
 
-test("contributions: the calendar's total is the last full year's", async () => {
-  const { calendar: year } = (await profileWith()).contributions();
-  assert.deepEqual(year, { year: 2025, total: 1234 });
-  assert.deepEqual(profileOn(allDown, saved).contributions().calendar, { year: 2024, total: 900 });
+test("contributions: the profile's count for the last year, dated by the refresh", async () => {
+  const { calendar } = (await profileWith()).contributions();
+  assert.deepEqual(calendar, { total: 1234, asOf: "2026-01-15" });
+  assert.deepEqual(profileOn(allDown, saved).contributions().calendar, saved.github.contributions);
+});
+
+test("saved data from before the last year was read shows neither figure", () => {
+  const before = { ...saved, github: { ...saved.github, contributions: { total: 2925 } } };
+  const quest = {
+    name: "a",
+    month: "December 2025",
+    line: "",
+    href: "",
+    keywords: [],
+    updated: "2025-12-01",
+    members: 1,
+    releases: 4,
+    monthlyReleases: 1,
+  };
+  const profile = profileOn(allDown, { ...before, npm: [quest] });
+  assert.equal(profile.contributions().calendar, undefined);
+  assert.equal(profile.sideQuests().yearlyReleases, undefined);
 });
 
 test("articles and skills are given as they are", async () => {
@@ -418,7 +452,7 @@ test("contributions: stale pull requests and other people's issues are not saved
   const host = memoryHost({
     pullRequests: [...pullRequests, ...recentPullRequests],
     repositories,
-    calendar,
+    lastYear,
   });
   const { open, closes } = await profileOn({ host }, saved).live.github();
   assert.deepEqual(

@@ -17,7 +17,8 @@ type Work = { records: Records; policy: ContributionPolicy; since: string };
 
 const reportOf = (url: string): Report => ({ number: url.split("/").at(-1) ?? "", url });
 
-// What is happening now: pull requests merged or in review since `since`, newest first.
+// Every pull request merged, and those still in review since `since` (an older open one has gone
+// stale), newest first.
 export class RecentWork {
   readonly #threads: readonly (Thread & { repo: string })[];
   readonly #records: Records;
@@ -33,12 +34,11 @@ export class RecentWork {
       date: pr.date,
       reported: (closes[pr.url] ?? []).map(reportOf),
     });
-    const shown = (some: readonly PullRequest[], status: Status) =>
-      shownPullRequests({ prs: some, policy }).filter(isRecent).map(threadOf(status));
+    const shown = (some: readonly PullRequest[]) => shownPullRequests({ prs: some, policy });
     this.#records = records;
-    this.#threads = [...shown(prs, "merged"), ...shown(open, "review")].sort((a, b) =>
-      b.date.localeCompare(a.date),
-    );
+    const merged = shown(prs).map(threadOf("merged"));
+    const review = shown(open).filter(isRecent).map(threadOf("review"));
+    this.#threads = [...merged, ...review].sort((a, b) => b.date.localeCompare(a.date));
   }
 
   // One entry per repository, the one with the latest activity first.

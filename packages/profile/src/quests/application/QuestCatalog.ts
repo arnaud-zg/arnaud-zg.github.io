@@ -46,6 +46,8 @@ export class QuestCatalog {
         ),
     );
     const month = today.previous();
+    // This month so far and the eleven before it: the last year, up to the refresh.
+    const isInYear = (date: string) => date !== "" && today.monthsSince(date) < 12;
     return {
       name,
       month: month.label(),
@@ -57,6 +59,7 @@ export class QuestCatalog {
       members,
       releases: dates.length,
       monthlyReleases: dates.filter((date) => date && month.includes(date)).length,
+      yearlyReleases: dates.filter(isInYear).length,
     };
   }
 

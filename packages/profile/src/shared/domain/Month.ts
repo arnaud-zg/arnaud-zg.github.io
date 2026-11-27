@@ -26,6 +26,12 @@ export class Month {
     return Month.of(isoDate).#index === this.#index;
   }
 
+  // How many months back that date's month is: 0 for this one. A later month is never back.
+  monthsSince(isoDate: string): number {
+    const months = this.#index - Month.of(isoDate).#index;
+    return months < 0 ? Infinity : months;
+  }
+
   previous(): Month {
     return new Month(this.#index - 1);
   }

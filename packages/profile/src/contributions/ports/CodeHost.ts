@@ -10,6 +10,6 @@ export interface CodeHost {
   issuesClosedBy(pullRequestUrls: string[]): Promise<Record<string, Issue[]>>;
   repository(name: string): Promise<{ description: string }>;
   linesOf(pullRequestUrl: string): Promise<Lines>;
-  // Everything the user's contribution calendar counts in that calendar year.
-  contributionsIn(asked: { user: string; year: number }): Promise<number>;
+  // What the user's profile shows a visitor: contributions in the last year, private ones included.
+  contributionsInLastYear(user: string): Promise<number>;
 }
