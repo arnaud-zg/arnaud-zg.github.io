@@ -36,9 +36,10 @@ import {
 import { deckOf, keyOf, scaleOf, STRIP } from "../../input/domain/controls.ts";
 import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
 import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
-import { HITSTOP, JUMP, Jumper, pullToward, stopFor } from "../../moves/domain/motion.ts";
+import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
 import * as art from "./canvas.draw.ts";
 import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
+import { closestTo } from "./dom.target.ts";
 import css from "./mission.css?inline";
 import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./pixel.font.ts";
 import { fill, messageRun, scoreCard, shareRun } from "./web.share.ts";
@@ -75,6 +76,31 @@ type Foe = {
   lock: number;
   hopped: boolean;
   away: number; // seconds out of the hero's reach, in a locked wave
+};
+type Hero = {
+  x: number;
+  feet: number;
+  vy: number;
+  ground: boolean;
+  facing: 1 | -1;
+  angle: number;
+  crouch: boolean;
+  moving: boolean;
+  weapon: WeaponId;
+  ammo: number;
+  bombs: number;
+  cooldown: number;
+  recoil: number;
+  flash: number;
+  slash: number;
+  inv: number;
+  dead: number;
+  dash: number; // seconds of a dash left
+  roll: number; // seconds of a dodge roll left
+  rollDir: 1 | -1;
+  guard: boolean;
+  running: boolean;
+  dashed: Set<object>;
 };
 type Shot = {
   kind: "shot" | "pellet" | "rocket" | "flame" | "bomb" | "wave";
@@ -223,7 +249,9 @@ class Mission {
   private readonly pauseBtn = document.createElement("button");
   private readonly sp = sprites();
   private readonly sound = new Sound();
-  private readonly before = document.activeElement as HTMLElement | null;
+  private readonly before =
+    document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  private readonly listening = new AbortController(); // every listener the mission adds, gone on close
   private readonly inerted: Element[] = [];
   private readonly overflow = document.documentElement.style.overflow;
   private readonly off: (() => void)[] = [];
@@ -333,17 +361,17 @@ class Mission {
     this.raf = requestAnimationFrame(this.frame);
   }
 
-  private freshHero() {
+  private freshHero(): Hero {
     return {
       x: -HERO.w,
       feet: 0,
       vy: 0,
       ground: true,
-      facing: 1 as 1 | -1,
+      facing: 1,
       angle: 0,
       crouch: false,
       moving: false,
-      weapon: "pistol" as WeaponId,
+      weapon: "pistol",
       ammo: Infinity,
       bombs: 10,
       cooldown: 0,
@@ -352,9 +380,9 @@ class Mission {
       slash: 0,
       inv: 0,
       dead: 0,
-      dash: 0, // seconds of a dash left
-      roll: 0, // seconds of a dodge roll left
-      rollDir: 1 as 1 | -1,
+      dash: 0,
+      roll: 0,
+      rollDir: 1,
       guard: false,
       running: false,
       dashed: new Set<object>(),
@@ -432,34 +460,34 @@ class Mission {
     document.documentElement.style.overflow = "hidden";
     root.focus({ preventScroll: true });
 
-    const on = <K extends keyof WindowEventMap>(
-      target: Window | HTMLElement,
-      type: K,
-      fn: (e: WindowEventMap[K]) => void,
-      opts?: AddEventListenerOptions,
-    ) => {
-      target.addEventListener(type, fn as EventListener, opts);
-      this.off.push(() => target.removeEventListener(type, fn as EventListener, opts));
-    };
-    on(window, "resize", () => this.resize());
-    on(window, "keydown", (e) => this.keydown(e), { capture: true });
-    on(window, "keyup", (e) => {
-      const k = keyOf(e.key);
-      if (k) this.release(k);
+    const { signal } = this.listening;
+    window.addEventListener("resize", () => this.resize(), { signal });
+    window.addEventListener("keydown", (e) => this.keydown(e), { capture: true, signal });
+    window.addEventListener(
+      "keyup",
+      (e) => {
+        const k = keyOf(e.key);
+        if (k) this.release(k);
+      },
+      { signal },
+    );
+    window.addEventListener("blur", () => this.pause(true), { signal });
+    document.addEventListener("visibilitychange", () => document.hidden && this.pause(true), {
+      signal,
     });
-    on(window, "blur", () => this.pause(true));
-    const hide = () => document.hidden && this.pause(true);
-    document.addEventListener("visibilitychange", hide);
-    this.off.push(() => document.removeEventListener("visibilitychange", hide));
-    on(canvas, "contextmenu", (e) => e.preventDefault());
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault(), { signal });
     // The pointer never aims, as on a cabinet: it moves the screens on, and carries on after a message.
-    on(canvas, "pointerdown", (e) => {
-      e.preventDefault();
-      if (this.reading || this.paused) return this.press("start");
-      const box = canvas.getBoundingClientRect();
-      if (!this.fighting())
-        this.menu({ x: (e.clientX - box.left) / this.S, y: (e.clientY - box.top) / this.S });
-    });
+    canvas.addEventListener(
+      "pointerdown",
+      (e) => {
+        e.preventDefault();
+        if (this.reading || this.paused) return this.press("start");
+        const box = canvas.getBoundingClientRect();
+        if (!this.fighting())
+          this.menu({ x: (e.clientX - box.left) / this.S, y: (e.clientY - box.top) / this.S });
+      },
+      { signal },
+    );
   }
 
   // The touch deck, beside or under the stage, never over it: a thumbstick that follows the
@@ -595,6 +623,7 @@ class Mission {
     cancelAnimationFrame(this.raf);
     window.clearTimeout(this.said);
     window.clearTimeout(this.toasted);
+    this.listening.abort();
     this.off.forEach((f) => f());
     this.sound.stop();
     this.inerted.forEach((el) => el.removeAttribute("inert"));
@@ -695,7 +724,7 @@ class Mission {
       return this.close();
     }
     if (k === "tab") return this.trap(e);
-    const onControl = (e.target as Element | null)?.closest("button, a");
+    const onControl = closestTo({ target: e.target, selector: "button, a" });
     if (onControl && (k === "enter" || k === " ")) return;
     if (k === "m") return this.toggleMute();
     const key = keyOf(e.key);
@@ -741,12 +770,12 @@ class Mission {
 
   // Tab stays on the mission's own controls while it is open.
   private trap(e: KeyboardEvent) {
-    const all = [
-      ...this.root.querySelectorAll<HTMLElement>("button:not([tabindex='-1']), a"),
-    ].filter((el) => el.offsetParent !== null);
+    const all = [...this.root.querySelectorAll("button:not([tabindex='-1']), a")].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el.offsetParent !== null,
+    );
     const first = all.at(0);
     if (!first) return;
-    const at = all.indexOf(document.activeElement as HTMLElement);
+    const at = all.findIndex((el) => el === document.activeElement);
     const next = e.shiftKey ? (at <= 0 ? all.length - 1 : at - 1) : (at + 1) % all.length;
     e.preventDefault();
     (all.at(next) ?? first).focus();
@@ -1317,7 +1346,7 @@ class Mission {
     hero.crouch = (hero.ground && held.has("down")) || hero.roll > 0;
     hero.guard = hero.ground && held.has("guard") && hero.dash <= 0 && hero.roll <= 0; // shots from the front glance off
     const dir = (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0);
-    if (dir && hero.roll <= 0) hero.facing = dir as 1 | -1;
+    if (dir && hero.roll <= 0) hero.facing = sideOf(dir);
     if (!dir || hero.guard || hero.crouch) hero.running = false;
     if (hero.roll > 0) hero.x += hero.rollDir * 190 * dt;
     if (dir && !hero.crouch && !hero.guard) {
@@ -1491,8 +1520,8 @@ class Mission {
     } else if (move.id === "rollback") {
       // A roll away, low and untouchable, still facing the threat.
       const held = (this.held.has("right") ? 1 : 0) - (this.held.has("left") ? 1 : 0);
-      hero.rollDir = (held || -f) as 1 | -1;
-      hero.facing = -hero.rollDir as 1 | -1;
+      hero.rollDir = sideOf(held || -f);
+      hero.facing = sideOf(-hero.rollDir);
       hero.roll = 0.34;
       hero.inv = Math.max(hero.inv, 0.42);
       hero.running = false;

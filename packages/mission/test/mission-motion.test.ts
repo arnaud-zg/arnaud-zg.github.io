@@ -2,7 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { Combos, MOVES } from "../src/moves/domain/combos.ts";
-import { HITSTOP, JUMP, Jumper, MAGNET, pullToward, stopFor } from "../src/moves/domain/motion.ts";
+import {
+  HITSTOP,
+  JUMP,
+  Jumper,
+  MAGNET,
+  pullToward,
+  sideOf,
+  stopFor,
+} from "../src/moves/domain/motion.ts";
 
 const standing = () => {
   const j = new Jumper();
@@ -79,4 +87,10 @@ test("guard, back and jump roll out of harm's way, cheaper than any attack", () 
   const roll = MOVES.find((m) => m.id === "rollback");
   assert.ok(roll && MOVES.every((m) => m === roll || m.cost > roll.cost));
   assert.equal(new Set(MOVES.map((m) => m.keys.join())).size, MOVES.length, "no two alike");
+});
+
+test("a step left faces left, anything else faces right", () => {
+  assert.equal(sideOf(-3), -1);
+  assert.equal(sideOf(2), 1);
+  assert.equal(sideOf(0), 1);
 });

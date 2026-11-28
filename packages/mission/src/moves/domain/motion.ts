@@ -60,3 +60,6 @@ export const pullToward = (from: number, to: number, dt: number) => {
 export const HITSTOP = { kill: 0.035, heavy: 0.06, boss: 0.14, max: 0.16 } as const;
 export const stopFor = (current: number, add: number) =>
   Math.min(HITSTOP.max, Math.max(current, add));
+
+// Which way a signed step points: left below zero, right otherwise.
+export const sideOf = (step: number): 1 | -1 => (step < 0 ? -1 : 1);
