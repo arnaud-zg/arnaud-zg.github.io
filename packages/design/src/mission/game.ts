@@ -160,6 +160,7 @@ type Boss = {
 type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
 type Cube = Pt & { vx: number; vy: number; color: string };
+type Alert = { side: 1 | -1; t: number }; // a foe coming in from off screen
 type Queued = {
   at: number;
   spawn?: FoeKind;
@@ -274,6 +275,7 @@ class Mission {
   private banners: Banner[] = [];
   private cubes: Cube[] = [];
   private waves: Wave[] = [];
+  private alerts: Alert[] = [];
   private sweep: Sweep | undefined;
   private turret: Turret | undefined;
   private boss: Boss | undefined;
@@ -839,6 +841,7 @@ class Mission {
       chain: 0,
       lastKill: -9,
       energy: 50,
+      alerts: [],
       stop: 0,
       jumper: new Jumper(),
       spots: new Spots(),
@@ -1177,6 +1180,11 @@ class Mission {
         : kind === "robot"
           ? { w: 14, h: 16, hp: toughen(3, tough) }
           : { w: 14, h: 6, hp: toughen(3, tough) };
+    // One from behind is called out at the edge it comes from.
+    if (from === "left" && !extra) {
+      this.alerts.push({ side: -1, t: 0 });
+      this.sound.tick();
+    }
     const y = kind === "drone" ? -10 : this.gy - size.h;
     this.foes.push({
       kind,
@@ -2301,7 +2309,10 @@ class Mission {
         it.x = pullToward(it.x + 4.5, this.hero.x + 8, dt) - 4.5;
       if (this.hero.dead <= 0 && overlap(hb, { x: it.x, y: it.y, w: 9, h: 9 })) this.collect(it);
     }
-    this.items = this.items.filter((it) => it.t < 12);
+    // A skill waits for the player; the rest goes after a while.
+    this.items = this.items.filter((it) => it.p || it.t < 12);
+    for (const a of this.alerts) a.t += dt;
+    this.alerts = this.alerts.filter((a) => a.t < 1.4);
     for (const m of this.mates) {
       m.t += dt;
       if (m.state === "free" && m.t > 0.8 && m.t - dt <= 0.8)
@@ -2468,6 +2479,7 @@ class Mission {
       this.hud();
       if (!touch()) this.keyStrip();
     }
+    if (this.phase === "play") this.drawAlerts();
     if (this.boss && this.phase === "play")
       this.bar(this.map.boss.name, this.boss.hp / this.boss.max);
     else if (this.turret && this.turret.x < this.camX + W)
@@ -2492,6 +2504,19 @@ class Mission {
       ctx.globalAlpha = 0.45;
       art.rect(ctx, 0, 0, W, H, INK.soot); // the world waits behind the message
       ctx.globalAlpha = 1;
+    }
+  }
+
+  // A foe coming from off screen: a blinking mark at that edge, at its height.
+  private drawAlerts() {
+    const { ctx, W, gy } = this;
+    for (const a of this.alerts) {
+      if (Math.floor(a.t * 8) % 2) continue;
+      const x = a.side === -1 ? 3 : W - 12;
+      art.block(ctx, x, gy - 26, 9, 11, INK.rust);
+      drawText(ctx, "!", x + 5, gy - 24, 1, INK.goldLight, { outline: INK.soot, align: "center" });
+      const tip = a.side === -1 ? x - 2 : x + 10;
+      art.rect(ctx, tip, gy - 22, 2, 3, INK.rust);
     }
   }
 
@@ -2652,7 +2677,7 @@ class Mission {
   }
 
   private drawItem(it: Item) {
-    if (it.t > 9 && Math.floor(it.t * 8) % 2) return; // about to vanish
+    if (!it.p && it.t > 9 && Math.floor(it.t * 8) % 2) return; // about to vanish
     const bob = it.vy === 0 ? Math.round(Math.sin(it.t * 5)) : 0;
     const letter =
       it.kind === "bombs" ? "B" : it.kind === "life" ? "1" : WEAPONS[it.weapon ?? "rapid"].letter;
