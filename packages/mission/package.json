@@ -1,0 +1,15 @@
+{
+  "name": "@arnaud-zg/mission",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A secret arcade mission: the game's rules, its campaign, and the cabinet that plays it in a browser.",
+  "type": "module",
+  "exports": {
+    ".": "./src/composition.ts",
+    "./trigger": "./src/arcade/adapters/dom.trigger.ts"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  }
+}

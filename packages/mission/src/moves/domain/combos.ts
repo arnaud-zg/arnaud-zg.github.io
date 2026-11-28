@@ -2,7 +2,7 @@
 // paid for with energy. Directions count from where the hero faces: forward, back. Add a move
 // here and give it its effect in game.ts. They are secret: nothing on screen lists them, the
 // player finds them, and the debrief counts how many.
-import type { Key } from "./controls";
+import type { Key } from "../../input/domain/controls.ts";
 
 export type Input = "forward" | "back" | "up" | "down" | "fire" | "jump" | "bomb" | "guard";
 export type MoveId = "dash" | "blast" | "strike" | "rollback";

@@ -1,7 +1,7 @@
 // OPERATION: GREENFIELD, the morning map. A jungle river at dawn: mud banks, a river to wade
 // across, plank bridges, racks swallowed by vines. The boss is rooted: it never hops, it throws
 // seed pods and whips thorn vines low and high.
-import type { MissionMap } from "../map";
+import type { MissionMap } from "../map.ts";
 
 export const greenfield: MissionMap = {
   id: "greenfield",

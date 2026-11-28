@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import type { CodeKey } from "../src/mission/code.ts";
-import { pickupsOf, pushCode, swipeOf } from "../src/mission/code.ts";
+import type { CodeKey } from "../src/input/domain/code.ts";
+import { pickupsOf } from "../src/campaign/domain/loadout.ts";
+import { pushCode, swipeOf } from "../src/input/domain/code.ts";
 
 const enter = (keys: CodeKey[]) => {
   let history: CodeKey[] = [];

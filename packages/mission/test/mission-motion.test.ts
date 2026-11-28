@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { Combos, MOVES } from "../src/mission/combos.ts";
-import { HITSTOP, JUMP, Jumper, MAGNET, pullToward, stopFor } from "../src/mission/motion.ts";
+import { Combos, MOVES } from "../src/moves/domain/combos.ts";
+import { HITSTOP, JUMP, Jumper, MAGNET, pullToward, stopFor } from "../src/moves/domain/motion.ts";
 
 const standing = () => {
   const j = new Jumper();

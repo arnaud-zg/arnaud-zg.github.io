@@ -1,6 +1,6 @@
 // The maps, in the story's order: map 1 tells the site's first chapter, map 2 the second, map 3
 // the third. Which one plays is the clock's call (see pickMap): the visitor never chooses.
-import type { MissionMap, Moment, Odds } from "../map";
+import type { MissionMap, Moment, Odds } from "../map.ts";
 import { deepDive } from "./deep-dive.ts";
 import { greenfield } from "./greenfield.ts";
 import { shipIt } from "./ship-it.ts";

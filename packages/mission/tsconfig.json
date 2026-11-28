@@ -1,0 +1,11 @@
+{
+  "extends": "@arnaud-zg/configs/tsconfig/base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "importHelpers": false,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src", "test"]
+}

@@ -1,7 +1,7 @@
 // The mission's drawn things that are not sprites: foes, props, ledges, bosses, the intro's
 // plates. Each is drawn pixel by pixel from rectangles, in the map's theme, so it stays crisp.
-import type { BossArt, Layer, PropKind, Theme } from "./map";
-import { INK } from "./sprites";
+import type { BossArt, Layer, PropKind, Theme } from "../../campaign/domain/map.ts";
+import { INK } from "./canvas.sprites.ts";
 
 type Ctx = CanvasRenderingContext2D;
 const r = Math.round;

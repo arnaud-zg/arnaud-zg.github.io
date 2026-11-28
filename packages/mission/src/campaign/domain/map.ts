@@ -5,7 +5,7 @@
 // Units: stage pixels (the canvas is drawn small and scaled up), seconds, and heights measured up
 // from the ground. `at` is where the right edge of the camera must reach for an event to fire.
 
-import type { WeaponId } from "./rules";
+import type { WeaponId } from "../../combat/domain/weapons.ts";
 
 export type FoeKind = "bug" | "robot" | "drone";
 

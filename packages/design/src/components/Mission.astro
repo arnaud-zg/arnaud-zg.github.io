@@ -1,10 +1,9 @@
 ---
 // A secret mission, started by the Konami code (↑ ↑ ↓ ↓ ← → ← → B A; on a touch screen, swipes
 // then two taps) or by pressing any [data-mission-start]. Each of its maps tells one of the
-// `chapters`, whose crates hold that part of the career's stack (see pickupsOf). Nothing of the
-// game loads until it starts.
-import { missionLabels, type MissionLabels } from "../mission/labels";
-import type { Chapter, MissionData } from "../mission/code";
+// `chapters`, whose crates hold that part of the career's stack (see pickupsOf). The game lives
+// in @arnaud-zg/mission; nothing of it loads until it starts.
+import { missionLabels, type Chapter, type MissionData, type MissionLabels } from "@arnaud-zg/mission";
 interface Props {
   chapters: readonly Chapter[];
   contact?: MissionData["contact"];
@@ -15,4 +14,4 @@ const data: MissionData = { chapters, labels: { ...missionLabels, ...labels }, .
 const json = JSON.stringify(data).replace(/</g, "\\u003c");
 ---
 <script type="application/json" data-mission set:html={json} />
-<script>import "../mission/trigger";</script>
+<script>import "@arnaud-zg/mission/trigger";</script>
