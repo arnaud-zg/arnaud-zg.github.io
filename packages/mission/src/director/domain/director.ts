@@ -19,7 +19,8 @@ export const HEAT = {
 export const floorOf = (maps: number, minutes: number) =>
   Math.min(HEAT.max - 0.2, HEAT.floor + maps * HEAT.creep + minutes * HEAT.drift);
 
-export type Act = "shot" | "hit" | "kill" | "death" | "block" | "special";
+const ACTS = ["shot", "hit", "kill", "death", "block", "special"] as const;
+export type Act = (typeof ACTS)[number];
 
 // What the player has done lately, each count fading by half every `memory` seconds.
 export class Tracker {
@@ -39,7 +40,7 @@ export class Tracker {
 
   tick(dt: number) {
     const keep = 0.5 ** (dt / HEAT.memory);
-    for (const k of Object.keys(this.counts) as Act[]) this.counts[k] *= keep;
+    for (const act of ACTS) this.counts[act] *= keep;
     this.span = this.span * keep + dt;
   }
 

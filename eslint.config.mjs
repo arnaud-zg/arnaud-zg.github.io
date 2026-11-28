@@ -11,6 +11,14 @@ export default defineConfig(
     },
   },
   {
+    // A value is checked (schema, instanceof, type guard), never cast; `as const` stays.
+    files: ["packages/mission/**/*.ts"],
+    rules: {
+      "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "never" }],
+      "@typescript-eslint/no-non-null-assertion": "error",
+    },
+  },
+  {
     // `test()` from node:test returns a promise nothing has to wait for.
     files: ["**/test/**"],
     rules: { "@typescript-eslint/no-floating-promises": "off" },

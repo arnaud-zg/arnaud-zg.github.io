@@ -312,7 +312,11 @@ importers:
         specifier: ^0.43.1
         version: 0.43.1(astro@7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(supports-color@9.4.0)(typescript@6.0.3)
 
-  packages/mission: {}
+  packages/mission:
+    dependencies:
+      zod:
+        specifier: ^4.6.7
+        version: 4.6.7
 
   packages/profile:
     dependencies:

@@ -1,11 +1,11 @@
 import type { CodeKey } from "../../input/domain/code.ts";
-import type { MissionData } from "../domain/mission.ts";
 import { keyOf, pushCode, swipeOf } from "../../input/domain/code.ts";
+import { closestTo } from "./dom.target.ts";
 
 // Waits for the Konami code, typed or swiped (see code.ts), or a press on [data-mission-start],
 // then loads the mission. Until then this listener is all the page carries of it.
 
-const source = document.querySelector<HTMLScriptElement>("script[data-mission]");
+const source = document.querySelector("script[data-mission]");
 if (source) {
   let history: CodeKey[] = [];
   let loading = false;
@@ -13,9 +13,13 @@ if (source) {
     if (loading) return;
     loading = true;
     try {
-      const data = JSON.parse(source.textContent) as MissionData;
-      const { start } = await import("./canvas.game.ts");
-      start(data);
+      // The check loads with the game, never before: the page carries only this listener.
+      const [{ missionDataOf }, { start }] = await Promise.all([
+        import("./zod.data.ts"),
+        import("./canvas.game.ts"),
+      ]);
+      const data = missionDataOf(source.textContent);
+      if (data) start(data);
     } finally {
       loading = false;
     }
@@ -28,7 +32,8 @@ if (source) {
   };
   addEventListener("keydown", (e) => {
     if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-    if ((e.target as Element | null)?.closest("input, textarea, select, [contenteditable]")) return;
+    if (closestTo({ target: e.target, selector: "input, textarea, select, [contenteditable]" }))
+      return;
     push(keyOf(e.key));
   });
   let from: { x: number; y: number } | undefined;
@@ -50,6 +55,6 @@ if (source) {
     { passive: true },
   );
   document.addEventListener("click", (e) => {
-    if ((e.target as Element | null)?.closest("[data-mission-start]")) void launch();
+    if (closestTo({ target: e.target, selector: "[data-mission-start]" })) void launch();
   });
 }
