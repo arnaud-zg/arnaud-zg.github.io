@@ -57,6 +57,7 @@ export const missionLabels = {
   dash: "HOTFIX DASH",
   blast: "MERGE BLAST",
   strike: "DEPLOY STRIKE",
+  rollback: "ROLLBACK",
   supply: "SUPPLY DROP!",
   // The debrief.
   clear: "OPERATION CLEAR",
@@ -97,6 +98,6 @@ export const missionLabels = {
   down: "Down!",
   livesLeft: "lives left",
   controls:
-    "Move with the left and right arrows. Hold up to aim up, down to crouch, or down in the air to aim down. Space jumps; forward twice runs. S fires, D throws a bomb, F guards against shots from the front. Up close, firing slashes. P pauses, Enter carries on after each message, M mutes, Escape leaves.",
+    "Move with the left and right arrows. Hold up to aim up, down to crouch, or down in the air to aim down. Space jumps, higher the longer it is held; down and Space drops through a ledge; forward twice runs. S fires, D throws a bomb, F guards against shots from the front. Up close, firing slashes. P pauses, Enter carries on after each message, M mutes, Escape leaves.",
 };
 export type MissionLabels = typeof missionLabels;

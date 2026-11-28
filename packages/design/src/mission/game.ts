@@ -22,6 +22,7 @@ import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./font";
 import { loreOf } from "./lore";
 import { orderMaps, pickMap } from "./map";
 import { MAPS, MOMENTS, ODDS } from "./maps";
+import { HITSTOP, JUMP, Jumper, pullToward, stopFor } from "./motion";
 import {
   afterDeath,
   chainAfter,
@@ -170,7 +171,6 @@ type Queued = {
 
 const GROUND = 24; // the ground strip, in stage pixels
 const SPEED = 74;
-const JUMP = 178;
 const GRAVITY = 560;
 const BOSS = { w: 44, h: 48 };
 const SELECT_TIME = 20;
@@ -294,6 +294,8 @@ class Mission {
   private lastKill = -9;
   private energy = 50; // pays for the special moves
   private readonly combos = new Combos();
+  private jumper = new Jumper();
+  private stop = 0; // seconds of hit-stop left: the world holds still on a heavy blow
   private spots = new Spots(); // where the player has died on this map, for the help it gives
   private mercy = mercyOf(0); // what the next return brings
   private found = new Set<string>(); // the secret moves found this run, never told beforehand
@@ -348,6 +350,8 @@ class Mission {
       inv: 0,
       dead: 0,
       dash: 0, // seconds of a dash left
+      roll: 0, // seconds of a dodge roll left
+      rollDir: 1 as 1 | -1,
       guard: false,
       running: false,
       dashed: new Set<object>(),
@@ -438,7 +442,7 @@ class Mission {
     on(window, "keydown", (e) => this.keydown(e), { capture: true });
     on(window, "keyup", (e) => {
       const k = keyOf(e.key);
-      if (k) this.held.delete(k);
+      if (k) this.release(k);
     });
     on(window, "blur", () => this.pause(true));
     const hide = () => document.hidden && this.pause(true);
@@ -522,7 +526,7 @@ class Mission {
       b.tabIndex = -1;
       b.setAttribute("aria-label", label);
       b.innerHTML = glyphSvg(text);
-      const up = () => this.held.delete(key);
+      const up = () => this.release(key);
       b.addEventListener("pointerdown", (e) => {
         e.preventDefault();
         b.setPointerCapture(e.pointerId);
@@ -686,6 +690,12 @@ class Mission {
     if (key === "bomb") return this.throwBomb();
   }
 
+  // A key let go. Letting go of jump on the way up makes a short hop.
+  private release(key: Key) {
+    this.held.delete(key);
+    if (key === "jump" && this.fighting()) this.hero.vy = this.jumper.release(this.hero.vy);
+  }
+
   // Tab stays on the mission's own controls while it is open.
   private trap(e: KeyboardEvent) {
     const all = [
@@ -829,6 +839,8 @@ class Mission {
       chain: 0,
       lastKill: -9,
       energy: 50,
+      stop: 0,
+      jumper: new Jumper(),
       spots: new Spots(),
       mercy: mercyOf(0),
     });
@@ -943,7 +955,8 @@ class Mission {
     if (this.reading) {
       this.reading += dt;
       this.card.classList.toggle("is-ready", this.reading > READ);
-    } else if (!this.paused && this.phase !== "still") this.update(dt);
+    } else if (this.stop > 0) this.stop -= dt;
+    else if (!this.paused && this.phase !== "still") this.update(dt);
     this.draw();
     this.raf = requestAnimationFrame(this.frame);
   };
@@ -1205,10 +1218,22 @@ class Mission {
     );
   }
 
+  // A press waits a moment for the ground (motion.ts); the jump itself starts in updateHero.
   private jump() {
+    if (this.hero.dead <= 0) this.jumper.press(this.t);
+  }
+
+  // Down and jump on a ledge drops through it; otherwise, a jump.
+  private leap() {
     const { hero } = this;
-    if (hero.dead > 0 || !hero.ground) return;
-    hero.vy = -JUMP;
+    if (hero.ground && this.held.has("down") && this.onLedge(hero.x + 8, hero.feet)) {
+      hero.feet += 1; // under the ledge's top: it no longer holds the hero
+      hero.ground = false;
+      hero.vy = 20;
+      this.jumper.fall();
+      return;
+    }
+    hero.vy = -JUMP.speed;
     hero.ground = false;
     this.sound.jump();
   }
@@ -1238,11 +1263,13 @@ class Mission {
       if (hero.dead <= 0) this.respawn();
       return;
     }
-    hero.crouch = hero.ground && held.has("down");
-    hero.guard = hero.ground && held.has("guard") && hero.dash <= 0; // shots from the front glance off
+    hero.roll -= dt;
+    hero.crouch = (hero.ground && held.has("down")) || hero.roll > 0;
+    hero.guard = hero.ground && held.has("guard") && hero.dash <= 0 && hero.roll <= 0; // shots from the front glance off
     const dir = (held.has("right") ? 1 : 0) - (held.has("left") ? 1 : 0);
-    if (dir) hero.facing = dir as 1 | -1;
+    if (dir && hero.roll <= 0) hero.facing = dir as 1 | -1;
     if (!dir || hero.guard || hero.crouch) hero.running = false;
+    if (hero.roll > 0) hero.x += hero.rollDir * 190 * dt;
     if (dir && !hero.crouch && !hero.guard) {
       hero.x += dir * SPEED * (hero.running ? 1.7 : 1) * dt;
       hero.moving = true;
@@ -1266,6 +1293,8 @@ class Mission {
       hero.x = this.turret.x - 14;
     if (this.boss && hero.x > this.boss.x - 12) hero.x = this.boss.x - 12;
     if (hero.ground && hero.feet < gy && !this.onLedge(hero.x + 8, hero.feet)) hero.ground = false;
+    this.jumper.ground(hero.ground, this.t);
+    if (hero.roll <= 0 && this.jumper.take(this.t, hero.ground)) this.leap();
     if (!hero.ground) {
       const before = hero.feet;
       hero.vy = Math.min(300, hero.vy + GRAVITY * dt);
@@ -1409,6 +1438,15 @@ class Mission {
       hero.dashed = new Set();
       hero.inv = Math.max(hero.inv, 0.45);
       this.sound.slash();
+    } else if (move.id === "rollback") {
+      // A roll away, low and untouchable, still facing the threat.
+      const held = (this.held.has("right") ? 1 : 0) - (this.held.has("left") ? 1 : 0);
+      hero.rollDir = (held || -f) as 1 | -1;
+      hero.facing = -hero.rollDir as 1 | -1;
+      hero.roll = 0.34;
+      hero.inv = Math.max(hero.inv, 0.42);
+      hero.running = false;
+      this.sound.jump();
     } else if (move.id === "blast") {
       const s = this.shoulder();
       this.shots.push({
@@ -1499,6 +1537,7 @@ class Mission {
       this.spots.die(spotOf(this.lockAt === undefined ? undefined : this.lockId, this.camX)),
     );
     if (this.mercy.calm) this.heat = this.floor();
+    this.stop = stopFor(this.stop, HITSTOP.heavy);
     this.sound.death();
     this.shake = 6;
     this.burst(hero.x + 8, hero.feet - 9, 18, ["#8e949e", "#263a66", "#f1bf91", INK.soot], 110);
@@ -1530,7 +1569,10 @@ class Mission {
       bombs: 10,
       inv: this.mercy.safe,
       dead: 0,
+      dash: 0,
+      roll: 0,
     });
+    this.jumper = new Jumper();
     if (this.mercy.supply) this.supplyDrop();
     this.mercy = mercyOf(0);
   }
@@ -1621,6 +1663,10 @@ class Mission {
     }
     if (f.hp > 0) return;
     const base = f.kind === "bug" ? 100 : f.kind === "robot" ? 300 : 400;
+    this.stop = stopFor(
+      this.stop,
+      f.kind === "bug" ? HITSTOP.kill : HITSTOP.heavy * (melee ? 1.3 : 1),
+    );
     this.chain = chainAfter(this.chain, this.t - this.lastKill);
     this.lastKill = this.t;
     const mult = multiplierOf(this.chain) * (melee ? 2 : 1);
@@ -1862,6 +1908,7 @@ class Mission {
     this.turret = undefined;
     this.score += 5000;
     this.shake = 6;
+    this.stop = stopFor(this.stop, HITSTOP.boss);
     for (let i = 0; i < 4; i++)
       window.setTimeout(
         () => this.boomAt(tu.x + rand(4, 32), this.gy - rand(4, 20), rand(8, 12), 0.6),
@@ -1919,6 +1966,7 @@ class Mission {
       this.sweep = undefined;
       this.sound.roar();
       this.shake = 8;
+      this.stop = stopFor(this.stop, HITSTOP.boss);
       this.banners.push({ title: this.L.enraged, t: 0, dur: 1.4 });
       this.say(this.L.enraged);
       if (!b.crateGiven) {
@@ -2040,6 +2088,7 @@ class Mission {
 
   private bossDown() {
     this.go("fall");
+    this.stop = stopFor(this.stop, HITSTOP.boss);
     this.score += 20000;
     this.sweep = undefined;
     this.waves = [];
@@ -2131,6 +2180,9 @@ class Mission {
         this.here.landed++;
         this.tracker.observe("hit");
         this.damage(hit, s.dmg, s);
+        // A hit robot is pushed back a little, and a drone nudged.
+        const foe = this.foes.find((f) => f === hit);
+        if (foe && foe.kind !== "bug") foe.x += Math.sign(s.vx) * (s.kind === "shot" ? 0.8 : 2);
         if (s.kind === "rocket") this.blast(s.x, s.y, 10, 0);
         if (s.kind !== "flame" && s.kind !== "wave") s.life = 0;
       }
@@ -2244,6 +2296,9 @@ class Mission {
         it.y = Math.min(it.floor, it.y + it.vy * dt);
         if (it.y >= it.floor) it.vy = 0;
       }
+      // Once it rests, it drifts to a hero close by.
+      if (it.vy === 0 && this.hero.dead <= 0 && Math.abs(it.y + 9 - this.hero.feet) < 24)
+        it.x = pullToward(it.x + 4.5, this.hero.x + 8, dt) - 4.5;
       if (this.hero.dead <= 0 && overlap(hb, { x: it.x, y: it.y, w: 9, h: 9 })) this.collect(it);
     }
     this.items = this.items.filter((it) => it.t < 12);
@@ -3191,7 +3246,7 @@ class Mission {
     if (this.chain >= 2 && this.t - this.lastKill < 1.6)
       drawText(ctx, `X${multiplierOf(this.chain)}`, w + 8, 12, 2, GOLD, look);
     // Energy, for the special moves: it fills with time and with each kill.
-    const full = this.energy >= (MOVES.at(-1)?.cost ?? ENERGY.max);
+    const full = this.energy >= Math.max(...MOVES.map((m) => m.cost));
     const lx = 6 + textWidth(L.energy) + 3,
       bw = w - textWidth(L.energy) - 12;
     art.rect(ctx, 2, 35, w, 8, INK.soot);
