@@ -12,6 +12,11 @@ flow:
       version: [pnpm, -s, "changeset:version"]
       line: whatsChanged
       thanks: none
+# Apps ship to preview first; promote sends what preview validated to production.
+deployApps:
+  promote:
+    - from: preview
+      to: production
 # What gets released, in this order. The first app is the repository's Latest release.
 modules:
   - use: web-app
