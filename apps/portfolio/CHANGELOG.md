@@ -1,5 +1,21 @@
 # portfolio
 
+## 0.11.0
+
+### Minor Changes
+
+* The secret mission reads the player better: a struggling player faces one gun at a time, softer foes and a supply drop when stuck in one spot, while a sharp one meets a crossfire and tougher foes. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/510
+
+* In the secret mission, jumps forgive a press a moment early or late, a quick tap makes a short hop, down and jump drops through a ledge, heavy blows land with a jolt, pickups drift to the hero, and a new secret move waits to be found. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/511
+
+* On a phone, the secret mission's controls get their own panel under the stage, or either side of it when the phone lies down, so the stick and buttons never hide the action. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/514
+
+### Patch Changes
+
+* In the secret mission, a skill that falls out of a crate now waits until it is picked up, and foes coming from behind are called out at the edge of the screen. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/512
+
+* The secret mission moves into a package of its own, split by what each part decides; visitors see no difference. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/515
+
 ## 0.10.0
 
 ### Minor Changes
