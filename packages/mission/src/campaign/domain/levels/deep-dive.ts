@@ -78,6 +78,7 @@ export const deepDive: MissionMap = {
     { at: 200, kind: "spawn", spawn: { foe: "bug", n: 3, gap: 1 } },
     { at: 200, kind: "exercise", x: 230, id: "guest-list" },
     { at: 260, kind: "crate", x: 320, h: 20 },
+    { at: 310, kind: "prop", id: "duck", x: 350 },
     { at: 330, kind: "spawn", spawn: { foe: "robot", delay: 0.5 } },
     {
       at: 420,
@@ -94,6 +95,7 @@ export const deepDive: MissionMap = {
     { at: 680, kind: "mate", x: 700, h: 18, gift: "bombs" },
     { at: 720, kind: "crate", x: 768, h: 34 },
     { at: 760, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.2 } },
+    { at: 760, kind: "prop", id: "coffee", x: 800 },
     { at: 800, kind: "spawn", spawn: { foe: "robot", from: "left", delay: 1 } },
     { at: 900, kind: "crate", x: 920 },
     {
@@ -123,6 +125,7 @@ export const deepDive: MissionMap = {
     },
     { at: 1400, kind: "crate", x: 1366, h: 36 },
     { at: 1420, kind: "exercise", x: 1450, id: "loop-shard" },
+    { at: 1460, kind: "prop", id: "keyboard", x: 1500 },
     { at: 1520, kind: "crate", x: 1530 },
     { at: 1550, kind: "exercise", x: 1580, id: "loop-reload" },
     { at: 1600, kind: "mate", x: 1640, gift: "bombs" },

@@ -9,6 +9,7 @@
 // (rules.ts), never the score. Every message stops the game until Space carries on.
 // Reduced motion gets the loadout, still.
 import type { FoeLook, Shift, Trait } from "../../campaign/domain/levels/catalog/foes.ts";
+import type { PropId } from "../../campaign/domain/levels/catalog/items.ts";
 import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
 import type { Answer, Perk } from "../../challenge/domain/exercise.ts";
@@ -25,7 +26,9 @@ import type { Played } from "./web.share.ts";
 import { COLLEAGUES } from "../../campaign/domain/levels/catalog/colleagues.ts";
 import { EXERCISES } from "../../campaign/domain/levels/catalog/exercises.ts";
 import { FOES, ROSTERS } from "../../campaign/domain/levels/catalog/foes.ts";
+import { HAPTICS } from "../../campaign/domain/levels/catalog/haptics.ts";
 import { INCIDENTS, SPAM } from "../../campaign/domain/levels/catalog/incidents.ts";
+import { BUZZ, PROPS } from "../../campaign/domain/levels/catalog/items.ts";
 import { LOOP_STAGES, TESTS_SKIPPED } from "../../campaign/domain/levels/catalog/loops.ts";
 import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
 import { POINTS, TALLY } from "../../campaign/domain/levels/catalog/points.ts";
@@ -73,6 +76,7 @@ import {
   textWidth,
   wrap,
 } from "./pixel.font.ts";
+import { hapticsOf } from "./vibrate.haptics.ts";
 import { fill, messageRun, scoreCard, shareRun } from "./web.share.ts";
 import { Sound } from "./webaudio.sound.ts";
 
@@ -110,6 +114,7 @@ type Foe = {
   look: FoeLook; // dressed for office hours or the night shift (catalog/foes.ts, ROSTERS)
   trait: Trait;
   revived: boolean;
+  dazed: number; // seconds left standing still: a rubber duck, a force push
 };
 type Hero = {
   x: number;
@@ -137,7 +142,8 @@ type Hero = {
   dashed: Set<object>;
 };
 type Shot = {
-  kind: "shot" | "pellet" | "rocket" | "flame" | "bomb" | "wave";
+  kind: "shot" | "pellet" | "rocket" | "flame" | "bomb" | "wave" | "prop";
+  prop?: PropId; // what was thrown
   x: number;
   y: number;
   vx: number;
@@ -406,6 +412,12 @@ class Mission {
   private stutter = 0; // degraded: seconds since the last frame drawn
   private loopZone: LoopZone | undefined;
   private mechanic: Mechanic | undefined; // how the boss really falls (canvas.bosses.ts)
+  private props: { id: PropId; x: number }[] = []; // lying on the ground, to grab
+  private carried: PropId | undefined; // held over the head
+  private carriedAt = 0;
+  private caffeineUntil = 0;
+  private debugUntil = 0; // a rubber duck heard it all: the boss's weak points show
+  private readonly haptics = hapticsOf({ allowed: () => !this.sound.muted && !reduced() });
   private targetsNow: readonly Target[] = []; // the weak points a blow was just tested against
   private readonly theme: ReturnType<typeof themeOf>; // set from the site's data, in the constructor
   private shift: Shift = "light"; // light: office hours; dark: the night shift
@@ -465,6 +477,7 @@ class Mission {
     this.resize();
     this.sound.start();
     this.go(reduced() ? "still" : "boot");
+    this.haptics.buzz(HAPTICS.start); // ↑ ↑ ↓ ↓, in the hand
     this.say(
       reduced() ? this.loadoutWords() : `${this.L.boot}. ${this.map.title}. ${this.L.press}.`,
     );
@@ -922,6 +935,7 @@ class Mission {
     }
     if (key === "pause") return this.pause(true);
     if (this.special(key)) return;
+    if (key === "guard" && this.carried) return this.useCarried();
     this.tap(key);
     if (key === "fire") return this.fire(false);
     if (key === "jump") return this.jump();
@@ -1067,6 +1081,10 @@ class Mission {
       boostUntil: 0,
       loopZone: undefined,
       mechanic: undefined,
+      props: [],
+      carried: undefined,
+      caffeineUntil: 0,
+      debugUntil: 0,
       introduced: new Set<string>(),
       slowUntil: 0,
       busyUntil: 0,
@@ -1405,10 +1423,14 @@ class Mission {
         if (e.x !== undefined)
           return void this.boards.push({ x: e.x, id: e.id, used: false, kiosk: true });
         this.crash = { id: e.id, t: 0 };
+        this.haptics.buzz(HAPTICS.crash);
         this.held.clear();
         this.sound.music(undefined);
         this.sound.boom(true);
         this.shake = 6;
+        return;
+      case "prop":
+        this.props.push({ id: e.id, x: e.x });
         return;
       case "colleague":
         this.colleagues.add({ id: e.id, x: e.x });
@@ -1508,6 +1530,7 @@ class Mission {
       lock,
       hopped: false,
       away: 0,
+      dazed: 0,
       ...this.skinOf(kind),
     });
     // At ease, the player meets one more now and then.
@@ -1537,8 +1560,14 @@ class Mission {
       touch: touch(),
       sound: {
         tick: () => this.sound.tick(),
-        press: () => this.sound.chime(),
-        nope: () => this.sound.empty(),
+        press: () => {
+          this.sound.chime();
+          this.haptics.buzz(HAPTICS.right);
+        },
+        nope: () => {
+          this.sound.empty();
+          this.haptics.buzz(HAPTICS.wrong);
+        },
       },
       say: (text) => this.say(text),
       done: (answers) => this.closeBoard({ id: board.id, answers }),
@@ -1575,6 +1604,7 @@ class Mission {
   private afterIncident(fixed: boolean) {
     this.sound.music(this.map.music, Boolean(this.boss));
     this.degraded = !fixed;
+    if (fixed) this.haptics.buzz(HAPTICS.green);
     if (fixed) this.boostUntil = this.t + 15;
     this.banners.push({ title: fixed ? this.L.buildGreen : this.L.degradedMode, t: 0, dur: 2.2 });
     this.say(fixed ? this.L.buildGreen : this.L.degradedMode);
@@ -1618,6 +1648,7 @@ class Mission {
     const zone = this.loopZone;
     if (!zone) return;
     zone.loop = change(zone.loop);
+    this.haptics.buzz(HAPTICS.faster);
     const stage = this.loopStage();
     if (stage) this.banners.push({ title: `${stage.label} · ${stage.eta}`, t: 0, dur: 2 });
   }
@@ -1689,6 +1720,122 @@ class Mission {
     painters[h.kind]();
   }
 
+  // ── What lies around, Little Fighter style: crouch and fire to grab, fire to throw, guard to use ─
+  private grabOrThrow() {
+    const { hero } = this;
+    if (this.carried) return this.throwCarried();
+    const near = this.props.find((p) => Math.abs(hero.x + 8 - p.x) < 10);
+    if (!near || !hero.crouch || !hero.ground) return false;
+    this.props = this.props.filter((p) => p !== near);
+    this.carried = near.id;
+    this.carriedAt = this.t;
+    hero.cooldown = 0.3; // a held trigger does not throw it straight away
+    this.sound.pickup();
+    this.notes.push({
+      x: hero.x + 8,
+      y: hero.feet - 34,
+      text: this.L.carrying,
+      t: 0,
+      color: INK.goldLight,
+    });
+    return true;
+  }
+
+  private throwCarried() {
+    const { hero } = this;
+    const id = this.carried;
+    if (!id) return false;
+    this.carried = undefined;
+    hero.cooldown = 0.35;
+    const running = hero.running ? 1.5 : 1; // a running throw goes further
+    this.shots.push({
+      kind: "prop",
+      prop: id,
+      x: hero.x + 8,
+      y: hero.feet - 24,
+      vx: hero.facing * 170 * running,
+      vy: -130,
+      dmg: PROPS[id].damage,
+      life: 3,
+      hits: new Set(),
+      bounces: 0,
+    });
+    this.sound.toss();
+    return true;
+  }
+
+  private useCarried() {
+    const id = this.carried;
+    if (!id) return;
+    const prop = PROPS[id];
+    this.notes.push({
+      x: this.hero.x + 8,
+      y: this.hero.feet - 34,
+      text: prop.used,
+      t: 0,
+      color: prop.use === "none" ? INK.rust : INK.goldLight,
+    });
+    const uses = {
+      caffeine: () => {
+        this.caffeineUntil = this.t + BUZZ.caffeine;
+        this.carried = undefined;
+        this.sound.oneUp();
+      },
+      debug: () => {
+        this.debugUntil = this.t + BUZZ.debug;
+        for (const f of this.foes.filter((foe) => foe.x > this.camX && foe.x < this.camX + this.W))
+          f.dazed = BUZZ.debug;
+        this.carried = undefined;
+        this.sound.chime();
+      },
+      none: () => this.sound.empty(), // a keyboard is not a drink: still held
+    } as const satisfies { [K in typeof prop.use]: () => void };
+    uses[prop.use]();
+  }
+
+  // A thrown thing hits, bounces if it can, and is spent: coffee splashes, a keyboard thuds.
+  private flyProp(s: Shot, hit: object | undefined) {
+    const prop = s.prop ? PROPS[s.prop] : undefined;
+    if (!prop) return void (s.life = 0);
+    const landed = s.y >= this.gy - 1;
+    if (hit && !s.hits.has(hit)) {
+      s.hits.add(hit);
+      this.here.landed++;
+      this.damage(hit, prop.damage, s);
+      const foe = this.foes.find((f) => f === hit);
+      if (foe) foe.x += Math.sign(s.vx) * 10; // knocked back, as in the brawlers
+    }
+    if (!hit && !landed) return;
+    if (s.bounces < prop.bounces) {
+      s.bounces++;
+      [s.vy, s.vx] = [-150, s.vx * -0.7];
+      if (landed) s.y = this.gy - 2;
+      this.sound.jump();
+      return;
+    }
+    s.life = 0;
+    if (prop.splash) return this.blast(s.x, Math.min(s.y, this.gy - 2), prop.splash, 1);
+    this.burst(s.x, s.y, 8, [INK.stoneLight, INK.soot], 60);
+    this.sound.thud();
+  }
+
+  private drawProps() {
+    const { ctx, hero } = this;
+    for (const p of this.props) {
+      art.item(ctx, { id: p.id, x: p.x - 6, y: this.gy - 8 });
+      if (this.carried || Math.abs(hero.x + 8 - p.x) > 24) continue;
+      this.hint({ text: PROPS[p.id].name, x: p.x, y: this.gy - 26, ink: INK.goldLight });
+      this.hint({ text: this.L.grab, x: p.x, y: this.gy - 17, ink: INK.sandLight });
+    }
+  }
+
+  // A word over the world, kept whole on the stage near an edge.
+  private hint({ text, x, y, ink }: { text: string; x: number; y: number; ink: string }) {
+    const half = textWidth(text) / 2;
+    const at = Math.max(this.camX + 4 + half, Math.min(this.camX + this.W - 4 - half, x));
+    drawText(this.ctx, text, at, y, 1, ink, { outline: INK.soot, align: "center" });
+  }
+
   // ── The boss's mechanic: what it may ask of the fight ───────────────────────────────────────
   private arena(): Arena {
     return {
@@ -1705,7 +1852,7 @@ class Mission {
       },
       labels: this.L,
       context: () => this.ledger.contextName() ?? this.L.booking,
-      fluent: () => this.ledger.speaksTheLanguage(),
+      fluent: () => this.ledger.speaksTheLanguage() || this.t < this.debugUntil,
       owes: (reason) => this.ledger.reasons().includes(reason),
       note: ({ x, y, text, bad }) =>
         this.notes.push({ x, y, text, t: 0, color: bad ? INK.rust : INK.goldLight }),
@@ -1925,7 +2072,7 @@ class Mission {
     if (!dir || hero.guard || hero.crouch) hero.running = false;
     if (hero.roll > 0) hero.x += hero.rollDir * 190 * dt;
     if (dir && !hero.crouch && !hero.guard) {
-      const nitted = this.t < this.slowUntil ? 0.5 : 1; // a nit to address slows the walk
+      const nitted = (this.t < this.slowUntil ? 0.5 : 1) * (this.t < this.caffeineUntil ? 1.4 : 1); // a nit slows, coffee speeds
       hero.x += dir * SPEED * (hero.running ? 1.7 : 1) * nitted * dt;
       hero.moving = true;
       if (hero.running && hero.ground && Math.random() < 0.5)
@@ -1997,6 +2144,7 @@ class Mission {
   private fire(held: boolean) {
     const { hero } = this;
     if (hero.dead > 0 || hero.cooldown > 0 || this.t < this.busyUntil) return;
+    if (this.grabOrThrow()) return;
     const reach: Box = {
       x: hero.facing === 1 ? hero.x + 10 : hero.x - 8,
       y: hero.feet - 18,
@@ -2021,6 +2169,7 @@ class Mission {
       dy = Math.sin(hero.angle);
     hero.cooldown = held && hero.weapon === "pistol" ? 0.3 : w.cooldown;
     if (cannon === "cannon") hero.cooldown = this.loopStage()?.build ?? hero.cooldown;
+    if (this.t < this.caffeineUntil) hero.cooldown *= 0.6; // caffeinated: a faster trigger finger
     hero.recoil = 0.05;
     hero.flash = 0.05;
     this.here.fired++;
@@ -2086,56 +2235,122 @@ class Mission {
   }
 
   private perform(move: Move) {
-    const { hero, L } = this;
-    const f = hero.facing;
+    const { L } = this;
     this.banners.push({ title: L[move.id], t: 0, dur: 1.2 });
     this.say(L[move.id]);
     this.shake = Math.max(this.shake, 3);
-    if (move.id === "dash") {
-      hero.dash = 0.28;
-      hero.dashed = new Set();
-      hero.inv = Math.max(hero.inv, 0.45);
-      this.sound.slash();
-    } else if (move.id === "rollback") {
-      // A roll away, low and untouchable, still facing the threat.
-      const held = (this.held.has("right") ? 1 : 0) - (this.held.has("left") ? 1 : 0);
-      hero.rollDir = sideOf(held || -f);
-      hero.facing = sideOf(-hero.rollDir);
-      hero.roll = 0.34;
-      hero.inv = Math.max(hero.inv, 0.42);
-      hero.running = false;
-      this.sound.jump();
-    } else if (move.id === "blast") {
-      const s = this.shoulder();
+    const moves = {
+      dash: () => this.dashMove(),
+      rollback: () => this.rollMove(),
+      blast: () => this.blastMove(),
+      strike: () => this.strikeMove(),
+      force: () => this.forceMove(),
+      revert: () => this.revertMove(),
+    } as const satisfies { [K in Move["id"]]: () => void };
+    moves[move.id]();
+  }
+
+  private dashMove() {
+    const { hero } = this;
+    hero.dash = 0.28;
+    hero.dashed = new Set();
+    hero.inv = Math.max(hero.inv, 0.45);
+    this.sound.slash();
+  }
+
+  // A roll away, low and untouchable, still facing the threat.
+  private rollMove() {
+    const { hero } = this;
+    const held = (this.held.has("right") ? 1 : 0) - (this.held.has("left") ? 1 : 0);
+    hero.rollDir = sideOf(held || -hero.facing);
+    hero.facing = sideOf(-hero.rollDir);
+    hero.roll = 0.34;
+    hero.inv = Math.max(hero.inv, 0.42);
+    hero.running = false;
+    this.sound.jump();
+  }
+
+  private blastMove() {
+    const f = this.hero.facing;
+    const s = this.shoulder();
+    this.shots.push({
+      kind: "wave",
+      x: s.x + f * 10,
+      y: s.y,
+      vx: f * 230,
+      vy: 0,
+      dmg: 5,
+      life: 1.4,
+      hits: new Set(),
+      bounces: 0,
+    });
+    this.sound.pellets();
+    this.sound.charge();
+  }
+
+  // Bombs rain ahead, one after another.
+  private strikeMove() {
+    const { hero } = this;
+    const f = hero.facing;
+    for (let i = 0; i < 5; i++)
       this.shots.push({
-        kind: "wave",
-        x: s.x + f * 10,
-        y: s.y,
-        vx: f * 230,
-        vy: 0,
-        dmg: 5,
-        life: 1.4,
+        kind: "bomb",
+        x: hero.x + 8 + f * (34 + i * 26),
+        y: -12 - i * 14,
+        vx: 0,
+        vy: 60,
+        dmg: 7,
+        life: 4,
         hits: new Set(),
-        bounces: 0,
+        bounces: 1,
       });
-      this.sound.pellets();
-      this.sound.charge();
-    } else {
-      // Bombs rain ahead, one after another.
-      for (let i = 0; i < 5; i++)
-        this.shots.push({
-          kind: "bomb",
-          x: hero.x + 8 + f * (34 + i * 26),
-          y: -12 - i * 14,
-          vx: 0,
-          vy: 60,
-          dmg: 7,
-          life: 4,
-          hits: new Set(),
-          bounces: 1,
-        });
-      this.sound.warn();
+    this.sound.warn();
+  }
+
+  // git push --force: a shoulder charge that shoves every foe in sight back, whatever was there.
+  private forceMove() {
+    const { hero } = this;
+    hero.dash = 0.18;
+    hero.dashed = new Set();
+    hero.inv = Math.max(hero.inv, 0.4);
+    for (const f of this.foes.filter(
+      (foe) => foe.state !== "fall" && foe.x > this.camX && foe.x < this.camX + this.W,
+    )) {
+      f.x += hero.facing * 60;
+      f.dazed = Math.max(f.dazed, 0.6);
+      this.hurtFoe(f, 2, false);
     }
+    this.shake = 6;
+    this.sound.boom(true);
+  }
+
+  // git revert: an uppercut that undoes what was coming: shots near, a beam about to fire.
+  private revertMove() {
+    const { hero } = this;
+    const cx = hero.x + 8;
+    const near = (x: number) => Math.abs(x - cx) < 60;
+    const undone = this.hostiles.filter((h) => near(h.x)).length;
+    this.hostiles = this.hostiles.filter((h) => !near(h.x));
+    this.sweep = undefined;
+    for (const f of this.foes.filter(
+      (foe) => foe.state !== "fall" && Math.abs(foe.x + foe.w / 2 - cx) < 30,
+    )) {
+      f.vy = -160;
+      f.ground = false;
+      this.hurtFoe(f, 4, true);
+    }
+    hero.vy = -120;
+    hero.ground = false;
+    hero.inv = Math.max(hero.inv, 0.5);
+    if (undone)
+      this.notes.push({
+        x: cx,
+        y: hero.feet - 28,
+        text: `${this.L.reverted} X${undone}`,
+        t: 0,
+        color: INK.goldLight,
+      });
+    this.sound.slash();
   }
 
   // The dash: a rush forward, untouchable, cutting through all it crosses.
@@ -2184,6 +2399,7 @@ class Mission {
   private kill() {
     const { hero } = this;
     if (hero.dead > 0 || hero.inv > 0 || this.phase === "fall") return;
+    this.haptics.buzz(HAPTICS.death);
     hero.dead = 1.5;
     hero.vy = -120;
     this.here.deaths++;
@@ -2346,6 +2562,7 @@ class Mission {
       return;
     }
     const base = FOES[f.kind].points;
+    this.haptics.buzz(this.chain >= 2 ? HAPTICS.combo(multiplierOf(this.chain + 1)) : HAPTICS.kill);
     this.stop = stopFor(
       this.stop,
       f.kind === "bug" ? HITSTOP.kill : HITSTOP.heavy * (melee ? 1.3 : 1),
@@ -2458,6 +2675,10 @@ class Mission {
       f.t += dt;
       f.flash -= dt;
       const dx = hx - (f.x + f.w / 2);
+      if (f.dazed > 0 && f.state !== "fall") {
+        f.dazed -= dt;
+        continue;
+      }
       if (f.state === "fall") {
         f.vy += 300 * dt;
         f.y += f.vy * dt;
@@ -2786,6 +3007,7 @@ class Mission {
             lock: -1,
             hopped: true,
             away: 0,
+            dazed: 0,
             ...this.skinOf("bug"),
           });
         }
@@ -2807,6 +3029,7 @@ class Mission {
   }
 
   private bossDown() {
+    this.haptics.buzz(HAPTICS.bossDown);
     this.go("fall");
     this.stop = stopFor(this.stop, HITSTOP.boss);
     this.score += POINTS.boss;
@@ -2880,12 +3103,16 @@ class Mission {
             grav: 0,
           });
       }
-      if (s.kind === "bomb") s.vy += 420 * dt;
+      if (s.kind === "bomb" || s.kind === "prop") s.vy += 420 * dt;
       if (s.kind === "flame") s.vy -= 30 * dt;
       s.x += s.vx * dt;
       s.y += s.vy * dt;
       const size = s.kind === "flame" ? 4 : s.kind === "wave" ? 9 : 2;
       const hit = this.hitAt({ x: s.x - size / 2, y: s.y - size / 2, w: size, h: size });
+      if (s.kind === "prop") {
+        this.flyProp(s, hit);
+        continue;
+      }
       if (s.kind === "bomb") {
         if (s.y >= gy - 1 && !hit && s.bounces === 0)
           [s.y, s.vy, s.vx, s.bounces] = [gy - 1, s.vy * -0.35, s.vx * 0.6, 1];
@@ -3329,6 +3556,7 @@ class Mission {
     for (const p of map.platforms)
       if (p.x + p.w > cam && p.x < cam + W) art.ledge(ctx, p.x, gy - p.h, p.w, gy, map.theme.ledge);
     for (const b of this.boards) art.whiteboard(ctx, b.x, gy, t, b.used);
+    this.drawProps();
     this.colleagues.draw({ ctx, t });
     for (const m of this.mates) {
       art.mate(ctx, m.x, m.feet, m.state === "free", m.t);
@@ -3375,6 +3603,8 @@ class Mission {
         });
     }
     this.drawHero();
+    if (this.carried)
+      art.item(ctx, { id: this.carried, x: this.hero.x + 2, y: this.hero.feet - 28 });
     this.drawShots();
     for (const h of this.hostiles) this.drawHostile(h);
     for (const w of this.waves)
@@ -3515,6 +3745,10 @@ class Mission {
   private drawShots() {
     const { ctx, t } = this;
     for (const s of this.shots) {
+      if (s.kind === "prop" && s.prop) {
+        art.item(ctx, { id: s.prop, x: s.x - 5, y: s.y - 4, spin: Math.floor(t * 14) % 4 });
+        continue;
+      }
       if (s.kind === "flame") {
         const p = 1 - s.life / WEAPONS.flame.life;
         art.disc(

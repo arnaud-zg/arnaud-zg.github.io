@@ -5,7 +5,7 @@
 import type { Key } from "../../input/domain/controls.ts";
 
 export type Input = "forward" | "back" | "up" | "down" | "fire" | "jump" | "bomb" | "guard";
-export type MoveId = "dash" | "blast" | "strike" | "rollback";
+export type MoveId = "dash" | "blast" | "strike" | "rollback" | "force" | "revert";
 export type Move = {
   readonly id: MoveId;
   readonly keys: readonly Input[];
@@ -18,6 +18,8 @@ export const MOVES: readonly Move[] = [
   { id: "blast", keys: ["guard", "down", "fire"], cost: 45, shown: "F ↓ S" }, // MERGE BLAST
   { id: "strike", keys: ["guard", "up", "bomb"], cost: 70, shown: "F ↑ D" }, // DEPLOY STRIKE
   { id: "rollback", keys: ["guard", "back", "jump"], cost: 20, shown: "F ← SPACE" }, // a dodge roll
+  { id: "force", keys: ["guard", "forward", "forward", "fire"], cost: 50, shown: "F → → S" }, // GIT PUSH --FORCE
+  { id: "revert", keys: ["guard", "down", "up", "fire"], cost: 40, shown: "F ↓ ↑ S" }, // GIT REVERT
 ];
 
 export const WINDOW = 0.6; // seconds a run of keys may take
