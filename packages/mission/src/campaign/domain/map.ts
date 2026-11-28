@@ -8,6 +8,7 @@ import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { ColleagueId } from "./levels/catalog/colleagues.ts";
 import type { ExerciseId } from "./levels/catalog/exercises.ts";
 import type { INCIDENTS } from "./levels/catalog/incidents.ts";
+import type { PropId } from "./levels/catalog/items.ts";
 
 type IncidentId = keyof typeof INCIDENTS;
 
@@ -55,6 +56,8 @@ export type MapEvent =
       readonly id: ColleagueId;
       readonly x: number;
     }
+  // Something lying on the ground at `x`, to grab, throw or use (catalog/items.ts).
+  | { readonly at: number; readonly kind: "prop"; readonly id: PropId; readonly x: number }
   // From `from` to `to`, the hero's gun is the CI cannon, and every shot waits for its build.
   | { readonly at: number; readonly kind: "loop"; readonly from: number; readonly to: number }
   // The end: a warning, then the boss, in the last screen of the map. Drops one crate.

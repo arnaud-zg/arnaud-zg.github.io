@@ -652,3 +652,38 @@ export const pixelLine = ({
       color,
     );
 };
+
+// What lies around (catalog/items.ts); `spin` turns a thrown one a quarter at a time.
+const PROP_ART = {
+  coffee: (ctx: Ctx, x: number, y: number) => {
+    block(ctx, x, y + 1, 5, 6, INK.white);
+    rect(ctx, x + 1, y + 1, 3, 1, "#6b3f22");
+    rect(ctx, x + 5, y + 3, 1, 2, INK.white);
+    rect(ctx, x + 1, y - 1, 1, 1, INK.stoneLight);
+    rect(ctx, x + 3, y - 2, 1, 1, INK.stoneLight);
+  },
+  duck: (ctx: Ctx, x: number, y: number) => {
+    block(ctx, x, y + 3, 7, 4, "#ffd43b");
+    block(ctx, x + 4, y, 3, 4, "#ffd43b");
+    rect(ctx, x + 7, y + 2, 2, 1, "#ff8c1a");
+    rect(ctx, x + 5, y + 1, 1, 1, INK.soot);
+  },
+  keyboard: (ctx: Ctx, x: number, y: number) => {
+    block(ctx, x, y + 3, 12, 4, "#2b2f3a");
+    for (let i = 0; i < 5; i++) rect(ctx, x + 1 + i * 2, y + 4, 1, 1, INK.stoneLight);
+    rect(ctx, x + 3, y + 6, 6, 1, INK.stoneLight);
+  },
+} as const;
+
+export const item = (
+  ctx: Ctx,
+  args: { id: keyof typeof PROP_ART; x: number; y: number; spin?: number },
+) => {
+  const turn = args.spin ?? 0;
+  if (turn % 2 === 0) return PROP_ART[args.id](ctx, Math.round(args.x), Math.round(args.y));
+  ctx.save();
+  ctx.translate(Math.round(args.x) + 6, Math.round(args.y) + 4);
+  ctx.scale(-1, turn === 3 ? -1 : 1);
+  PROP_ART[args.id](ctx, -6, -4);
+  ctx.restore();
+};

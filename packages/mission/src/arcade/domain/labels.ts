@@ -139,6 +139,12 @@ export const missionLabels = {
   unreferenced: "UNREFERENCED: SWEEP IT!",
   released: "{name} RELEASED",
   leakedAgain: "A NEW {name} LEAKED",
+  // Little Fighter style: grab what lies around, throw it or use it; and two more secret moves.
+  grab: "↓ + FIRE: GRAB",
+  carrying: "FIRE: THROW · GUARD: USE",
+  force: "GIT PUSH --FORCE",
+  revert: "GIT REVERT",
+  reverted: "REVERTED",
   // Technical debt, carried from map to map; a continue is a hotfix shipped in a hurry.
   debt: "DEBT",
   hotfix: "HOTFIX IN PROD: DEBT +1",
@@ -169,8 +175,8 @@ export const missionLabels = {
     "Hi! I just played your secret mission. {played}: {score} points, {skills} of {total} skills unlocked.",
   // Spoken only.
   close: "Leave the mission",
-  mute: "Sound off",
-  unmute: "Sound on",
+  mute: "Sound and vibration off",
+  unmute: "Sound and vibration on",
   fire: "Fire",
   jump: "Jump",
   throw: "Throw a bomb",
