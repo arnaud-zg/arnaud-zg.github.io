@@ -1,5 +1,33 @@
 # portfolio
 
+## 0.12.0
+
+### Minor Changes
+
+* Each boss of the secret mission now falls the way its migration really works: the monolith is strangled through its API gateway, one service at a time, least coupled first; the dependency tree is pruned leaves first; the memory leak heals until its references are cut, then a bomb sweeps it. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/525
+
+* In the secret mission, colleagues review your code, throw nits and change the scope mid-fight, and light or dark mode (switchable in game) brings office-hours or night-shift foes: Jira tickets and meeting invites by day, race conditions, 3 a.m. pagers and zombie processes by night. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/524
+
+* Whiteboards in each operation of the secret mission bring light code exercises (a binary search tree, hashmap lockers, a recursion base case, Big O races) and design decisions whose names and shortcuts follow you, for better or for debt. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/522
+
+* The secret mission fits every screen from an iPhone SE up, never lets its words overlap, says sorry on smaller screens, and its end buttons say what each one does. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/519
+
+* In the secret mission, grab what lies around and throw it or use it (coffee, a rubber duck, a mechanical keyboard), find two new secret moves (git push --force, git revert), and on phones that can, feel the game buzz in Morse code and binary. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/526
+
+* The secret mission now crashes into a production incident to fix from a terminal (or play on, degraded and flaky), and its Doctolib chapter has a feedback loop to speed up, shot by shot, until the CI cannon becomes HOT RELOAD. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/523
+
+* After each operation of the secret mission, a code review turns coverage, incidents, lead time, skills and combos into points, and the technical debt you carry costs interest, map after map. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/521
+
+### Patch Changes
+
+* The secret mission is calmer to play: one thing speaks at a time in a fight, whiteboards reveal the question after the colleague has spoken, and the debrief's reviewer comments on one row at a time. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/529
+
+* Behind the scenes, every level of the secret mission lives in one folder, foes and points included; visitors see no difference. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/520
+
+* Turning your phone mid-mission no longer hides foes or stalls the fight: the game pauses, and everything stays on the ground. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/517
+
+* The secret mission checks the data it starts from and trusts no unchecked type; visitors see no difference. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/518
+
 ## 0.11.0
 
 ### Minor Changes
