@@ -61,6 +61,17 @@ export const deepDive: MissionMap = {
       { below: 0.3, attacks: ["hop", "sweepLow", "sweepHigh", "volley", "spawn"], rest: 0.75 },
     ],
     split: "GARBAGE COLLECTED!",
+    mechanic: {
+      kind: "gc",
+      references: [
+        { name: "LISTENER", health: 5 },
+        { name: "TIMER", health: 5 },
+        { name: "CACHE", health: 5 },
+      ],
+      heal: 4,
+      referenced: 0.2,
+      sweep: 3,
+    },
   },
   events: [
     { at: 0, kind: "crate", x: 160 },

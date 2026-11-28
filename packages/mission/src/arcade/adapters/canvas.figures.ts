@@ -15,30 +15,6 @@ type Painter<F> = {
 type Kind = Figure["kind"];
 type Of<K extends Kind> = Extract<Figure, { kind: K }>;
 
-// A line of pixels from one point to another, so nothing is smoothed.
-const pixelLine = ({
-  ctx,
-  from,
-  to,
-  color,
-}: {
-  ctx: Ctx;
-  from: { x: number; y: number };
-  to: { x: number; y: number };
-  color: string;
-}) => {
-  const steps = Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y), 1);
-  for (let i = 0; i <= steps; i++)
-    art.rect(
-      ctx,
-      Math.round(from.x + ((to.x - from.x) * i) / steps),
-      Math.round(from.y + ((to.y - from.y) * i) / steps),
-      1,
-      1,
-      color,
-    );
-};
-
 const NODE = { w: 15, h: 9 } as const;
 const treeSpot = ({ index, area }: { index: number; area: Area }) => {
   const depth = Math.floor(Math.log2(index + 1));
@@ -57,7 +33,7 @@ const tree: Painter<Of<"tree">> = {
       const parent = treeSpot({ index: Math.floor((index - 1) / 2), area });
       const child = treeSpot({ index, area });
       const lit = figure.path.includes(index) && figure.path.includes(Math.floor((index - 1) / 2));
-      pixelLine({
+      art.pixelLine({
         ctx,
         from: { x: parent.x, y: parent.y + NODE.h },
         to: { x: child.x, y: child.y },
