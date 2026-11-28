@@ -5,7 +5,7 @@
 import type { Key } from "./controls";
 
 export type Input = "forward" | "back" | "up" | "down" | "fire" | "jump" | "bomb" | "guard";
-export type MoveId = "dash" | "blast" | "strike";
+export type MoveId = "dash" | "blast" | "strike" | "rollback";
 export type Move = {
   readonly id: MoveId;
   readonly keys: readonly Input[];
@@ -17,6 +17,7 @@ export const MOVES: readonly Move[] = [
   { id: "dash", keys: ["guard", "forward", "fire"], cost: 30, shown: "F → S" }, // HOTFIX DASH
   { id: "blast", keys: ["guard", "down", "fire"], cost: 45, shown: "F ↓ S" }, // MERGE BLAST
   { id: "strike", keys: ["guard", "up", "bomb"], cost: 70, shown: "F ↑ D" }, // DEPLOY STRIKE
+  { id: "rollback", keys: ["guard", "back", "jump"], cost: 20, shown: "F ← SPACE" }, // a dodge roll
 ];
 
 export const WINDOW = 0.6; // seconds a run of keys may take
