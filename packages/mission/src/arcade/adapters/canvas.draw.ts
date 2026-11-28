@@ -559,3 +559,72 @@ export const missing = (ctx: Ctx, x: number, y: number, w: number, h: number) =>
         (dx + dy) % (size * 2) ? "#ff00ff" : "#000000",
       );
 };
+
+// The office and the night shift (catalog/foes.ts). A Jira ticket on little legs, priority red.
+export const ticket = (ctx: Ctx, x: number, y: number, t: number, flash: boolean) => {
+  const step = Math.floor(t * 8) % 2;
+  block(ctx, x, y, 10, 6, flash ? INK.white : "#f4f1e8");
+  rect(ctx, x, y, 10, 1, "#3f6fd0");
+  rect(ctx, x + 2, y + 2, 5, 1, INK.stone);
+  rect(ctx, x + 7, y + 3, 2, 2, INK.rust);
+  rect(ctx, x + 2 + step, y + 6, 1, 1, INK.soot);
+  rect(ctx, x + 7 - step, y + 6, 1, 1, INK.soot);
+};
+
+// A meeting invite: a calendar page with its red header, flapping in.
+export const invite = (ctx: Ctx, x: number, y: number, t: number, flash: boolean) => {
+  const flap = Math.floor(t * 10) % 2;
+  block(ctx, x, y + flap, 14, 7, flash ? INK.white : "#f4f1e8");
+  rect(ctx, x, y + flap, 14, 2, INK.rust);
+  rect(ctx, x + 3, y + 4 + flap, 2, 1, INK.soot);
+  rect(ctx, x + 7, y + 4 + flap, 2, 1, INK.soot);
+  rect(ctx, x + 10, y + 4 + flap, 1, 1, "#3f6fd0");
+};
+
+// A 3 a.m. pager: the drone, and a red light that never stops blinking.
+export const pagerLight = (ctx: Ctx, x: number, y: number, t: number) => {
+  if (Math.floor(t * 6) % 2) rect(ctx, x + 6, y - 2, 2, 2, "#ff3b30");
+};
+
+// The robot's tie, for the reorg: corporate to the last bolt.
+export const tie = (ctx: Ctx, x: number, y: number, facing: 1 | -1) => {
+  const at = facing === 1 ? x + 6 : x + 7;
+  rect(ctx, at, y + 8, 1, 4, INK.rust);
+  rect(ctx, at - 1, y + 8, 3, 1, INK.rust);
+};
+
+// A zombie process: the robot gone green, with a Z once it has come back.
+export const undead = (ctx: Ctx, x: number, y: number, revived: boolean) => {
+  ctx.globalAlpha = 0.35;
+  rect(ctx, x, y, 14, 16, "#5bd35b");
+  ctx.globalAlpha = 1;
+  if (revived) rect(ctx, x + 10, y - 4, 3, 1, "#5bd35b");
+};
+
+// What a colleague throws or sends: a nit in a speech bubble, a calendar invite.
+export const nitBubble = (ctx: Ctx, x: number, y: number) => {
+  block(ctx, x - 4, y - 3, 9, 6, INK.white);
+  rect(ctx, x - 2, y - 1, 1, 2, INK.rust);
+  rect(ctx, x, y - 1, 1, 2, INK.rust);
+  rect(ctx, x + 2, y - 1, 1, 2, INK.rust);
+};
+export const inviteDrop = (ctx: Ctx, x: number, y: number) => {
+  block(ctx, x - 2, y - 2, 5, 4, "#f4f1e8");
+  rect(ctx, x - 2, y - 2, 5, 1, INK.rust);
+};
+
+// A colleague: hair, a face, a shirt of their own, legs that walk when they walk.
+export const colleague = (
+  ctx: Ctx,
+  look: { x: number; feet: number; shirt: string; hair: string; t: number; walking: boolean },
+) => {
+  const x = Math.round(look.x);
+  const top = look.feet - 18;
+  const step = look.walking ? Math.floor(look.t * 8) % 2 : 0;
+  rect(ctx, x + 2, top, 6, 2, look.hair);
+  block(ctx, x + 2, top + 2, 6, 5, "#f1bf91");
+  rect(ctx, x + 6, top + 4, 1, 1, INK.soot);
+  block(ctx, x + 1, top + 7, 8, 6, look.shirt);
+  rect(ctx, x + 2 + step, top + 13, 2, 5, "#2e3a55");
+  rect(ctx, x + 6 - step, top + 13, 2, 5, "#2e3a55");
+};

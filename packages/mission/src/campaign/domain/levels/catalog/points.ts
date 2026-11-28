@@ -9,6 +9,7 @@ export const POINTS = {
   boss: 20000,
   bossHit: 20, // per point of damage
   melee: 2, // a kill up close counts this many times
+  nit: 50, // a nit guarded: resolved
 } as const;
 
 // What the review after each map pays for (combat/domain/score.ts, reviewOf).

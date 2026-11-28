@@ -4,6 +4,7 @@
 // from the ground. `at` is where the right edge of the camera must reach for an event to fire.
 
 import type { WeaponId } from "../../combat/domain/weapons.ts";
+import type { ColleagueId } from "./levels/catalog/colleagues.ts";
 import type { ExerciseId } from "./levels/catalog/exercises.ts";
 import type { INCIDENTS } from "./levels/catalog/incidents.ts";
 
@@ -46,6 +47,13 @@ export type MapEvent =
   | { readonly at: number; readonly kind: "exercise"; readonly x: number; readonly id: ExerciseId }
   // Production breaks at `at`; with `x`, a hotfix kiosk instead, open only while still degraded.
   | { readonly at: number; readonly kind: "incident"; readonly id: IncidentId; readonly x?: number }
+  // A colleague at `x` (catalog/colleagues.ts): a review, nits, or a change of scope mid-fight.
+  | {
+      readonly at: number;
+      readonly kind: "colleague";
+      readonly id: ColleagueId;
+      readonly x: number;
+    }
   // From `from` to `to`, the hero's gun is the CI cannon, and every shot waits for its build.
   | { readonly at: number; readonly kind: "loop"; readonly from: number; readonly to: number }
   // The end: a warning, then the boss, in the last screen of the map. Drops one crate.
