@@ -20,6 +20,7 @@ export type Board = {
   readonly sound: { tick: () => void; press: () => void; nope: () => void };
   readonly say: (text: string) => void;
   readonly done: (answers: readonly Answer[]) => void;
+  readonly firstTime: boolean; // the run's first whiteboard: it says which keys to use
 };
 
 // A whiteboard in the office's colours, or a terminal: green on black.
@@ -27,7 +28,7 @@ type Skin = "whiteboard" | "terminal";
 type Palette = {
   readonly title: Ink;
   readonly intro: string;
-  readonly ask: string;
+  readonly ask: Ink;
   readonly body: string;
   readonly row: string;
   readonly picked: string;
@@ -37,9 +38,9 @@ type Palette = {
 };
 const PALETTES = {
   whiteboard: {
-    title: GOLD,
-    intro: INK.khaki,
-    ask: INK.goldLight,
+    title: INK.khaki,
+    intro: INK.sandLight,
+    ask: GOLD,
     body: INK.sandLight,
     row: INK.soot,
     picked: INK.mortar,
@@ -48,9 +49,9 @@ const PALETTES = {
     timer: INK.khaki,
   },
   terminal: {
-    title: TERM.ink,
-    intro: TERM.dim,
-    ask: TERM.ink,
+    title: TERM.dim,
+    intro: TERM.ink,
+    ask: "#c4ffb8",
     body: TERM.ink,
     row: TERM.bg,
     picked: "#123a12",
@@ -60,9 +61,24 @@ const PALETTES = {
   },
 } as const satisfies { [K in Skin]: Palette };
 
+// The intro, typed: only as many characters as have been said so far.
+const typedOut = (placed: Placed, count: number): Placed => {
+  let left = count;
+  const lines = placed.lines.map((line) => {
+    const shown = line.slice(0, Math.max(0, left));
+    left -= line.length + 1;
+    return shown;
+  });
+  return { ...placed, lines };
+};
+
 type Reply = { readonly choice: Choice | undefined; readonly t: number };
 type Pt = { readonly x: number; readonly y: number };
 const READ = 0.6; // a reply can be dismissed after this long, never by accident
+// The colleague speaks first, then the question and its answers come in: one thing at a time.
+const TYPING = 70; // characters a second
+const SETTLE = 0.25; // seconds between the last word and the question
+const FADE = 0.2;
 
 export class Whiteboard {
   private step = 0;
@@ -90,17 +106,31 @@ export class Whiteboard {
     this.board.say(`${this.exercise.speaker}: ${this.exercise.intro} ${step.ask} ${choices}`);
   }
 
+  // When the question shows: after the intro is typed out, on the first step only.
+  private revealAt() {
+    const intro = this.step === 0 ? `${this.exercise.speaker}: ${this.exercise.intro}`.length : 0;
+    return intro / TYPING + SETTLE;
+  }
+  private revealed() {
+    return this.t >= this.revealAt();
+  }
+  // Seconds on the standup timer: it starts once the question shows.
+  private elapsed() {
+    return Math.max(0, this.t - this.revealAt());
+  }
+
   tick(dt: number) {
     this.t += dt;
     if (this.reply) {
       this.reply = { ...this.reply, t: this.reply.t + dt };
       return;
     }
-    if (this.t >= this.exercise.time) this.answer(undefined);
+    if (this.elapsed() >= this.exercise.time) this.answer(undefined);
   }
 
   press(key: Key) {
     if (this.reply) return this.carryOn(key);
+    if (!this.revealed()) return this.skipIntro(key);
     const step = this.current();
     if (!step) return;
     const count = step.choices.length;
@@ -113,8 +143,14 @@ export class Whiteboard {
 
   tap(at: Pt) {
     if (this.reply) return this.carryOn("start");
+    if (!this.revealed()) return this.skipIntro("start");
     const row = this.rows.findIndex((r) => at.y >= r.top && at.y <= r.bottom);
     if (row >= 0) this.pick(row);
+  }
+
+  // Space, or a tap, finishes the intro at once rather than answering blind.
+  private skipIntro(key: Key) {
+    if (key === "fire" || key === "jump" || key === "start") this.t = this.revealAt();
   }
 
   private move(to: number) {
@@ -130,7 +166,7 @@ export class Whiteboard {
   }
 
   private answer(choice: Choice | undefined) {
-    this.answers.push({ choice, seconds: this.t });
+    this.answers.push({ choice, seconds: this.elapsed() });
     this.reply = { choice, t: 0 };
     const quiz = this.exercise.kind !== "decision";
     const missed = quiz && choice?.right !== true;
@@ -175,7 +211,7 @@ export class Whiteboard {
       height: wrap(c.text, width - 12).length * 10 + 4,
     }));
     const hint = this.board.touch ? L.pickTouch : L.pickKeys;
-    const left = Math.max(0, Math.ceil(this.exercise.time - this.t));
+    const left = Math.max(0, this.exercise.time - this.elapsed());
     const { placed } = column({
       pieces: [
         { kind: "text", text: `${head} · ${this.exercise.title}`, max: 1 },
@@ -202,12 +238,10 @@ export class Whiteboard {
             ]
           : [
               ...choiceBoxes,
-              {
-                kind: "text" as const,
-                text: `${L.standup} ${left}S · ${hint}`,
-                max: 1,
-                optional: true,
-              },
+              { kind: "box" as const, height: 3 }, // the standup timer, a bar that runs down
+              this.board.firstTime
+                ? { kind: "text" as const, text: hint, max: 1, optional: true }
+                : undefined,
             ]),
       ],
       top: 12,
@@ -224,12 +258,28 @@ export class Whiteboard {
     const look = { align: "left" } as const;
     const p = this.palette();
     drawPlaced({ ctx, placed: title, x: 14, ink: p.title, look });
-    drawPlaced({ ctx, placed: intro, x: 14, ink: p.intro, look });
+    drawPlaced({
+      ctx,
+      placed: intro && typedOut(intro, Math.floor(this.t * TYPING)),
+      x: 14,
+      ink: p.intro,
+      look,
+    });
+    if (!this.revealed()) return;
+    ctx.globalAlpha = Math.min(1, (this.t - this.revealAt()) / FADE);
     if (figure && step.figure)
-      paintFigure({ ctx, figure: step.figure, area: { x: 14, y: figure.y, w: width }, t: this.t });
+      paintFigure({
+        ctx,
+        figure: step.figure,
+        area: { x: 14, y: figure.y, w: width },
+        t: this.elapsed(),
+      });
     drawPlaced({ ctx, placed: ask, x: 14, ink: reply ? this.verdict().ink : p.ask, look });
-    if (reply) return this.drawReply(rest);
-    this.drawChoices({ placed: rest, width, step: step.choices, left });
+    const after = reply
+      ? () => this.drawReply(rest)
+      : () => this.drawChoices({ placed: rest, width, step: step.choices, left });
+    after();
+    ctx.globalAlpha = 1;
   }
 
   private drawReply(rest: readonly (Placed | undefined)[]) {
@@ -268,15 +318,25 @@ export class Whiteboard {
         drawText(ctx, line, 22, box.y + 1 + l * 10, 1, on ? p.pickedText : p.body),
       );
     });
-    const timer = placed.at(step.length);
-    if (timer)
-      drawPlaced({
+    const bar = placed.at(step.length);
+    if (bar) {
+      art.rect(ctx, 14, bar.y + 1, width, 1, p.row === TERM.bg ? TERM.dim : INK.stoneDark);
+      art.rect(
         ctx,
-        placed: timer,
-        x: 14,
-        ink: left <= 5 ? INK.rust : p.timer,
-        look: { align: "left" },
-      });
+        14,
+        bar.y,
+        Math.round((width * left) / this.exercise.time),
+        3,
+        left <= 5 ? INK.rust : p.timer,
+      );
+    }
+    drawPlaced({
+      ctx,
+      placed: placed.at(step.length + 1),
+      x: 14,
+      ink: p.timer,
+      look: { align: "left" },
+    });
   }
 
   private skin(): Skin {

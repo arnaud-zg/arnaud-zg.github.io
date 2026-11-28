@@ -115,6 +115,7 @@ type Foe = {
   trait: Trait;
   revived: boolean;
   dazed: number; // seconds left standing still: a rubber duck, a force push
+  named: boolean; // the first of its kind on this map: its name rides above it for a moment
 };
 type Hero = {
   x: number;
@@ -177,7 +178,9 @@ type Boom = Pt & {
   dur: number;
   lobes: { dx: number; dy: number; r: number }[];
 };
-type Note = Pt & { text: string; t: number; color: string };
+// An event says something happened (gold, rust); ambient words (scores, names) stay in the background.
+type Note = Pt & { text: string; t: number; color: string; ambient?: boolean };
+const NOTES = { events: 3, ambient: 2 } as const; // at most this many at once: the newest win
 type Banner = { title: string; big?: boolean; t: number; dur: number };
 type Crate = {
   p: Pickup | undefined;
@@ -406,6 +409,7 @@ class Mission {
   }; // this map's, for its rank and review
   private boards: Board[] = [];
   private whiteboard: Whiteboard | undefined; // an exercise is up: the fight waits
+  private opened = 0; // whiteboards opened this run: only the first one explains the keys
   private crash: { id: keyof typeof INCIDENTS; t: number } | undefined; // production going down
   private degraded = false; // an incident left unfixed: the map plays broken
   private boostUntil = 0; // double points after a fix, until then
@@ -1044,6 +1048,7 @@ class Mission {
         lives: 2,
         continues: 0,
         ledger: new Ledger(),
+        opened: 0,
         heat: HEAT.start,
         tracker: new Tracker(),
         found: new Set<string>(),
@@ -1571,6 +1576,7 @@ class Mission {
       },
       say: (text) => this.say(text),
       done: (answers) => this.closeBoard({ id: board.id, answers }),
+      firstTime: this.opened++ === 0,
     });
   }
 
@@ -1823,9 +1829,16 @@ class Mission {
     const { ctx, hero } = this;
     for (const p of this.props) {
       art.item(ctx, { id: p.id, x: p.x - 6, y: this.gy - 8 });
-      if (this.carried || Math.abs(hero.x + 8 - p.x) > 24) continue;
-      this.hint({ text: PROPS[p.id].name, x: p.x, y: this.gy - 26, ink: INK.goldLight });
-      this.hint({ text: this.L.grab, x: p.x, y: this.gy - 17, ink: INK.sandLight });
+      const away = Math.abs(hero.x + 8 - p.x);
+      if (this.carried || away > 24) continue;
+      // Near, its name; right over it, how to take it: one line at a time.
+      const close = away < 12;
+      this.hint({
+        text: close ? this.L.grab : PROPS[p.id].name,
+        x: p.x,
+        y: this.gy - 17,
+        ink: close ? INK.goldLight : INK.sand,
+      });
     }
   }
 
@@ -1881,17 +1894,9 @@ class Mission {
   // ── The office and the night shift: a new foe wears the hour's clothes, named once ──────────
   private skinOf(kind: FoeKind) {
     const skin = ROSTERS[this.shift][kind];
-    if (!this.introduced.has(skin.name)) {
-      this.introduced.add(skin.name);
-      this.notes.push({
-        x: this.camX + this.W - 40,
-        y: this.gy - 40,
-        text: skin.name,
-        t: 0,
-        color: INK.goldLight,
-      });
-    }
-    return { look: skin.look, trait: skin.trait, revived: false };
+    const named = !this.introduced.has(skin.name); // the first of its kind wears its name a moment
+    this.introduced.add(skin.name);
+    return { look: skin.look, trait: skin.trait, revived: false, named };
   }
 
   private toggleShift() {
@@ -1985,6 +1990,13 @@ class Mission {
       },
     } as const satisfies { [K in FoeLook]: () => void };
     painters[f.look]();
+    if (f.named && f.t < 2)
+      this.hint({
+        text: ROSTERS[this.shift][f.kind].name,
+        x: f.x + f.w / 2,
+        y: f.y - 10,
+        ink: INK.sand,
+      });
   }
 
   // ── The hero ───────────────────────────────────────────────────────────────────────────────
@@ -2582,6 +2594,7 @@ class Mission {
       text: mult > 1 ? `${base * mult} X${mult}` : String(base),
       t: 0,
       color: mult > 1 ? INK.gold : INK.goldLight,
+      ambient: true,
     });
     if (f.kind === "drone") {
       f.state = "fall";
@@ -3306,7 +3319,10 @@ class Mission {
     for (const b of this.booms) b.t += dt;
     this.booms = this.booms.filter((b) => b.t < b.dur);
     for (const n of this.notes) n.t += dt;
-    this.notes = this.notes.filter((n) => n.t < 0.9);
+    const live = this.notes.filter((n) => n.t < 0.9);
+    const events = live.filter((n) => !n.ambient).slice(-NOTES.events);
+    const ambient = live.filter((n) => n.ambient).slice(-NOTES.ambient);
+    this.notes = [...events, ...ambient];
     const banner = this.banners.at(0);
     if (banner && (banner.t += dt) > banner.dur) this.banners.shift();
     else if (banner && this.banners.length > 1 && banner.t > 0.9) this.banners.shift();
@@ -3622,7 +3638,10 @@ class Mission {
       const text = clipLine({ text: n.text, width: this.W - 8 });
       const half = textWidth(text) / 2;
       const x = Math.max(this.camX + 4 + half, Math.min(this.camX + this.W - 4 - half, n.x));
-      drawText(ctx, text, x, n.y - n.t * 16, 1, n.color, { outline: INK.soot, align: "center" });
+      drawText(ctx, text, x, n.y - n.t * 16, 1, n.ambient ? INK.sand : n.color, {
+        outline: INK.soot,
+        align: "center",
+      });
     }
     ctx.restore();
   }
@@ -4445,7 +4464,9 @@ class Mission {
     if (!b) return;
     const { ctx, W, H } = this;
     if (b.t > b.dur - 0.3 && Math.floor(b.t * 16) % 2) return;
-    const fitted = fitText({ text: b.title, width: W - 16, max: b.big ? 7 : 3 });
+    // A word or two may shout; a sentence speaks at a smaller size.
+    const loud = b.big ? 7 : b.title.length > 16 ? 2 : 3;
+    const fitted = fitText({ text: b.title, width: W - 16, max: loud });
     const pop = b.t < 0.07 && fitted.lines.length === 1 ? 1 : 0;
     const top = Math.max(this.zones().banner, b.big ? Math.round(H * 0.3) : 0) - pop * 3;
     drawPlaced({
@@ -4582,13 +4603,41 @@ class Mission {
     return this.stats().map(([key, value], step) => this.statRow({ key, value, step, box: edges }));
   }
 
-  // A cleared map: the code review, a row per metric with the reviewer's line, then the totals.
+  // A cleared map's review: rows, then the reviewer on one row at a time (marked), then totals.
   private reviewRows({ edges, inner }: { edges: { left: number; right: number }; inner: number }) {
     const signed = (n: number) => (n < 0 ? `${n}` : `+${n}`);
-    const rows = this.review.map((r, step) => this.verdictRow({ review: r, step, edges, inner }));
-    const n = rows.length;
+    const n = this.review.length;
+    const said = this.review.map((r) => this.reviewWords({ review: r, inner }));
+    const spoken = () => this.spokenReview(n);
+    const rows = this.review.map((r, step) =>
+      this.verdictRow({
+        review: r,
+        step,
+        edges,
+        roomy: said[step]?.roomy ?? true,
+        spoken: () => spoken() === step,
+      }),
+    );
+    const tallest = Math.max(1, ...said.map((w) => w.lines.length));
+    // The rows and what the reviewer says about them stay on one page together.
+    const review: Row = {
+      height: rows.reduce((h, r) => h + r.height, 0) + 6 + tallest * 9 + 4,
+      step: 0,
+      draw: (y) => {
+        let at = y;
+        for (const row of rows) {
+          if (this.revealed > row.step) row.draw(at);
+          at += row.height;
+        }
+        art.rect(this.ctx, edges.left, at + 2, edges.right - edges.left, 1, INK.stoneDark);
+        const lines = said.at(spoken())?.lines ?? [];
+        lines.forEach((line, i) =>
+          drawText(this.ctx, line, edges.left, at + 6 + i * 9, 1, INK.sandLight),
+        );
+      },
+    };
     return [
-      ...rows,
+      review,
       this.statRow({
         key: this.L.reviewBonus,
         value: signed(bonusOf(this.review)),
@@ -4609,32 +4658,48 @@ class Mission {
       }),
     ];
   }
+
+  // While the rows come in, the newest is spoken about; once all are in, each in turn.
+  private spokenReview(n: number) {
+    const settled = (n + 3) * 0.28 + 1.5;
+    if (this.pt < settled) return Math.max(0, Math.min(this.revealed, n) - 1);
+    return Math.floor((this.pt - settled) / 2.4) % Math.max(1, n);
+  }
+
+  // What the reviewer says about a row; in a narrow box, the row's detail moves into it.
+  private reviewWords({ review, inner }: { review: ReviewRow; inner: number }) {
+    const label = this.L[REVIEW_LABELS[review.id]];
+    const points = review.points < 0 ? String(review.points) : `+${review.points}`;
+    const roomy = textWidth(`${label} ${review.detail}`) + textWidth(points) + 12 <= inner;
+    const line = REVIEW[review.id][review.verdict];
+    return { roomy, lines: wrap(roomy ? line : `${review.detail} · ${line}`, inner) };
+  }
+
   private verdictRow({
     review,
     step,
     edges,
-    inner,
+    roomy,
+    spoken,
   }: {
     review: ReviewRow;
     step: number;
     edges: { left: number; right: number };
-    inner: number;
+    roomy: boolean;
+    spoken: () => boolean;
   }): Row {
     const label = this.L[REVIEW_LABELS[review.id]];
     const points = review.points < 0 ? String(review.points) : `+${review.points}`;
-    // A narrow box keeps the label clear of the points: the detail moves to the reviewer's line.
-    const roomy = textWidth(`${label} ${review.detail}`) + textWidth(points) + 6 <= inner;
     const head = roomy ? `${label} ${review.detail}` : label;
-    const line = REVIEW[review.id][review.verdict];
-    const said = wrap(roomy ? line : `${review.detail} · ${line}`, inner);
     const ink = review.points < 0 ? INK.rust : INK.goldLight;
     return {
-      height: 10 + said.length * 9 + 2,
+      height: 10,
       step,
       draw: (y) => {
-        drawText(this.ctx, head, edges.left, y, 1, INK.sand);
+        const on = spoken();
+        if (on) drawText(this.ctx, ">", edges.left - 6, y, 1, INK.gold);
+        drawText(this.ctx, head, edges.left, y, 1, on ? INK.sandLight : INK.sand);
         drawText(this.ctx, points, edges.right, y, 1, ink, { align: "right" });
-        said.forEach((l, i) => drawText(this.ctx, l, edges.left, y + 10 + i * 9, 1, INK.khaki));
       },
     };
   }
