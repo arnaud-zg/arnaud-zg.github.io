@@ -44,18 +44,96 @@
   display: flex;
   gap: 12px;
 }
+/* The end buttons take the touch deck's place, or the foot of the stage without one: never over
+   the debrief, never off screen. Each says what it does, in two lines that wrap. */
 .op-end {
   position: absolute;
-  left: 50%;
-  z-index: 1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  background: var(--op-soot);
+  box-shadow:
+    inset 0 3px 0 var(--op-sand),
+    inset 0 6px 0 var(--op-soot),
+    inset 0 7px 0 var(--op-rust);
+  animation: op-in 200ms steps(3) both;
+}
+.op[data-deck="none"] .op-end {
+  padding-inline: max(12px, calc((100% - 1100px) / 2));
+}
+@media (min-width: 1000px) {
+  .op[data-deck="none"] .op-end {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.op[data-deck="bottom"] .op-end {
+  align-content: center;
+  min-height: var(--op-deck);
+  gap: 8px;
+  padding-top: 12px;
+}
+/* Lying down: two buttons in each side column, the stage between them left clear. */
+.op[data-deck="side"] .op-end {
+  top: 0;
+  grid-template-areas:
+    "share . play"
+    "message . exit";
+  grid-template-columns: var(--op-deck) 1fr var(--op-deck);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+.op[data-deck="side"] .op-end-btn {
+  margin: 8px;
+  pointer-events: auto;
+}
+.op[data-deck="side"] [data-end="play"] {
+  grid-area: play;
+}
+.op[data-deck="side"] [data-end="share"] {
+  grid-area: share;
+}
+.op[data-deck="side"] [data-end="message"] {
+  grid-area: message;
+}
+.op[data-deck="side"] [data-end="exit"] {
+  grid-area: exit;
+}
+/* While they are up, the touch deck has nothing to do: they stand in its place. */
+.op:has(.op-end:not([hidden])) .op-pad {
+  visibility: hidden;
+}
+.op-end-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--op-px, 2px) * 3);
+  min-height: 44px;
+  padding: 10px 12px;
+  text-align: left;
+}
+.op-end-note {
+  --op-px: var(--op-px-small, 1.5px);
+  opacity: 0.85;
+}
+.op-end-btn .op-words {
+  justify-content: flex-start;
+}
+/* Pixel lettering that wraps: one drawing per word, laid out like text. */
+.op-words {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 14px;
-  width: max-content;
-  max-width: calc(100% - 32px);
-  translate: -50% 0;
-  animation: op-in 200ms steps(3) both;
+  gap: calc(var(--op-px, 2px) * 3) calc(var(--op-px, 2px) * 6);
 }
 .op-end[hidden] {
   display: none;
@@ -265,16 +343,18 @@
    Big and still, under the HUD, while the action slows behind it. */
 .op-card {
   position: absolute;
-  top: calc(var(--op-s, 3px) * 44);
+  top: calc((100% - var(--op-deck-under, 0px)) / 2);
   left: 50%;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: calc(var(--op-px, 2px) * 3);
-  max-width: calc(100% - 24px);
+  width: max-content;
+  max-width: min(calc(100% - var(--op-deck-side, 0px) * 2 - 24px), calc(var(--op-px, 2px) * 240));
+  max-height: calc(100% - var(--op-deck-under, 0px) - 16px);
   padding: calc(var(--op-px, 2px) * 6) calc(var(--op-px, 2px) * 9);
-  translate: -50% 0;
+  translate: -50% -50%;
   background: rgb(27 20 16 / 0.94);
   color: var(--op-sand-light);
   box-shadow:
@@ -336,6 +416,7 @@
 }
 .op-toast {
   position: absolute;
+  max-width: calc(100% - var(--op-deck-side, 0px) * 2 - 24px);
   left: 50%;
   bottom: calc(var(--op-deck-under, 0px) + var(--op-s, 3px) * 30);
   z-index: 2;
@@ -379,6 +460,13 @@
   .op-btn {
     transition: none;
   }
+}
+/* Under the stage, the tools sit in the deck's top-left corner, clear of the HUD and the stick. */
+.op[data-deck="bottom"] .op-tools {
+  top: auto;
+  right: auto;
+  bottom: calc(var(--op-deck) - 50px);
+  left: max(10px, env(safe-area-inset-left));
 }
 /* Beside the stage, the tools sit small at the top of the buttons' column. */
 .op[data-deck="side"] .op-tools {

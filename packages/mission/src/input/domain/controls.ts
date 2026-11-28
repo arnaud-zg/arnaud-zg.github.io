@@ -61,3 +61,8 @@ export const deckOf = (width: number, height: number, touch: boolean): Deck => {
 // How many screen pixels a stage pixel takes, for a stage area: as big as fits, 2 to 5.
 export const scaleOf = (w: number, h: number) =>
   Math.max(2, Math.min(5, Math.floor(Math.min(w / 300, h / 190))));
+
+// The smallest stage it plays on (an iPhone SE either way, bars included); below, it says sorry.
+export const FLOOR = { width: 170, height: 140 } as const;
+export const playable = ({ width, height }: { width: number; height: number }) =>
+  width >= FLOOR.width && height >= FLOOR.height;
