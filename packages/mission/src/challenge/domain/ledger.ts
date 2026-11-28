@@ -3,6 +3,24 @@ export type Debt = { readonly reason: string; readonly amount: number; readonly 
 
 export class Ledger {
   private readonly debts: Debt[] = [];
+  private context: string | undefined; // the name the run's bounded context goes by
+  private fluent = false; // a ubiquitous language: everyone means the same by each word
+
+  name(context: string) {
+    this.context = context;
+  }
+
+  contextName() {
+    return this.context;
+  }
+
+  learnTheLanguage() {
+    this.fluent = true;
+  }
+
+  speaksTheLanguage() {
+    return this.fluent;
+  }
 
   owe(debt: Debt) {
     this.debts.push(debt);

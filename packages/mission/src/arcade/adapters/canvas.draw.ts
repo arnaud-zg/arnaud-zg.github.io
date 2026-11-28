@@ -524,3 +524,23 @@ export const padlock = (ctx: Ctx, x: number, y: number, color: string) => {
   block(ctx, x, y + 5, 9, 7, color);
   rect(ctx, x + 4, y + 7, 1, 3, INK.soot);
 };
+
+// A whiteboard on two legs, scribbled on; a "?" bobs over it until it has been used.
+export const whiteboard = (ctx: Ctx, x: number, gy: number, t: number, used: boolean) => {
+  const left = Math.round(x - 10);
+  rect(ctx, left + 2, gy - 12, 1, 12, INK.stoneDark);
+  rect(ctx, left + 17, gy - 12, 1, 12, INK.stoneDark);
+  rect(ctx, left, gy - 26, 20, 15, INK.stone);
+  rect(ctx, left + 1, gy - 25, 18, 13, "#f4f1e8");
+  rect(ctx, left + 3, gy - 23, 8, 1, "#3f6fd0");
+  rect(ctx, left + 3, gy - 20, 12, 1, "#3f6fd0");
+  rect(ctx, left + 3, gy - 17, 6, 1, INK.rust);
+  rect(ctx, left + 11, gy - 18, 4, 4, "#3f6fd0");
+  if (used) return;
+  const bob = Math.round(Math.sin(t * 4) * 2);
+  block(ctx, left + 6, gy - 38 + bob, 8, 9, INK.gold);
+  rect(ctx, left + 8, gy - 36 + bob, 4, 1, INK.soot);
+  rect(ctx, left + 11, gy - 35 + bob, 1, 2, INK.soot);
+  rect(ctx, left + 9, gy - 33 + bob, 2, 1, INK.soot);
+  rect(ctx, left + 9, gy - 31 + bob, 2, 1, INK.soot);
+};
