@@ -57,6 +57,7 @@ export const missionLabels = {
   dash: "HOTFIX DASH",
   blast: "MERGE BLAST",
   strike: "DEPLOY STRIKE",
+  supply: "SUPPLY DROP!",
   // The debrief.
   clear: "OPERATION CLEAR",
   failed: "GAME OVER",

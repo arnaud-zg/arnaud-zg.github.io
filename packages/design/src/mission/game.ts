@@ -28,8 +28,13 @@ import {
   floorOf,
   HEAT,
   heatToward,
+  mercyOf,
   multiplierOf,
+  nextAttack,
   rankOf,
+  spotOf,
+  Spots,
+  toughen,
   Tracker,
   tuningOf,
   weaponOf,
@@ -135,6 +140,7 @@ type Turret = {
   burst: number;
   flash: number;
   lock: number;
+  max: number;
 };
 type Boss = {
   x: number;
@@ -147,6 +153,8 @@ type Boss = {
   flash: number;
   count: number;
   crateGiven: boolean;
+  max: number; // its health at the start, set by the heat it met
+  last: Attack | undefined;
 };
 type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
@@ -286,6 +294,8 @@ class Mission {
   private lastKill = -9;
   private energy = 50; // pays for the special moves
   private readonly combos = new Combos();
+  private spots = new Spots(); // where the player has died on this map, for the help it gives
+  private mercy = mercyOf(0); // what the next return brings
   private found = new Set<string>(); // the secret moves found this run, never told beforehand
   // The intro and the debrief
   private cursor = 0;
@@ -819,6 +829,8 @@ class Mission {
       chain: 0,
       lastKill: -9,
       energy: 50,
+      spots: new Spots(),
+      mercy: mercyOf(0),
     });
     const bombs = this.hero.bombs;
     this.hero = this.freshHero();
@@ -1097,9 +1109,11 @@ class Mission {
         for (let i = 0; i < (e.chutes ?? 0); i++)
           this.queue.push({ at: this.t + 2 + i * 3, lock: id, chute: true });
         if (e.turret !== undefined) {
+          const hp = toughen(this.map.turret.hp, this.tune().boss);
           this.turret = {
             x: e.turret,
-            hp: this.map.turret.hp,
+            hp,
+            max: hp,
             t: 0,
             next: 1.5,
             telegraph: 0,
@@ -1122,10 +1136,12 @@ class Mission {
     }
   }
 
+  // A wave's foes come at the map's pace, spread out a little more for a player at ease.
   private enqueue(s: Spawn, lock: number) {
+    const pace = this.tune().pace;
     for (let i = 0; i < (s.n ?? 1); i++)
       this.queue.push({
-        at: this.t + (s.delay ?? 0) + i * (s.gap ?? 1),
+        at: this.t + ((s.delay ?? 0) + i * (s.gap ?? 1)) * pace,
         spawn: s.foe,
         from: s.from,
         lock,
@@ -1141,12 +1157,13 @@ class Mission {
 
   private spawnFoe(kind: FoeKind, from: "right" | "left", lock: number, extra: boolean) {
     const x = from === "left" ? this.camX - 16 : this.camX + this.W + 6;
+    const tough = this.tune().tough;
     const size =
       kind === "bug"
         ? { w: 10, h: 6, hp: 1 }
         : kind === "robot"
-          ? { w: 14, h: 16, hp: 3 }
-          : { w: 14, h: 6, hp: 3 };
+          ? { w: 14, h: 16, hp: toughen(3, tough) }
+          : { w: 14, h: 6, hp: toughen(3, tough) };
     const y = kind === "drone" ? -10 : this.gy - size.h;
     this.foes.push({
       kind,
@@ -1477,6 +1494,11 @@ class Mission {
     this.chain = 0;
     this.tracker.observe("death");
     this.heat = afterDeath(this.heat, this.floor());
+    // Stuck in one spot: the game helps (rules.ts, mercyOf).
+    this.mercy = mercyOf(
+      this.spots.die(spotOf(this.lockAt === undefined ? undefined : this.lockId, this.camX)),
+    );
+    if (this.mercy.calm) this.heat = this.floor();
     this.sound.death();
     this.shake = 6;
     this.burst(hero.x + 8, hero.feet - 9, 18, ["#8e949e", "#263a66", "#f1bf91", INK.soot], 110);
@@ -1506,9 +1528,28 @@ class Mission {
       weapon: "pistol",
       ammo: Infinity,
       bombs: 10,
-      inv: 2.6,
+      inv: this.mercy.safe,
       dead: 0,
     });
+    if (this.mercy.supply) this.supplyDrop();
+    this.mercy = mercyOf(0);
+  }
+
+  // A weapon from the map's loot, falling where the hero comes back. It holds no skill.
+  private supplyDrop() {
+    const loot = this.map.loot;
+    const weapon = loot.at(Math.floor(Math.random() * loot.length)) ?? "rapid";
+    this.items.push({
+      kind: "weapon",
+      weapon,
+      x: this.camX + 58,
+      y: -14,
+      vy: 0,
+      t: 0,
+      floor: this.gy - 9,
+    });
+    this.banners.push({ title: this.L.supply, t: 0, dur: 1.4 });
+    this.say(this.L.supply);
   }
 
   private carryOn() {
@@ -1681,6 +1722,7 @@ class Mission {
     const tune = this.tune();
     const hb = this.heroBox();
     const hx = hero.x + 8;
+    let aiming = this.foes.filter((f) => f.state === "aim").length;
     for (const f of this.foes) {
       f.t += dt;
       f.flash -= dt;
@@ -1720,7 +1762,13 @@ class Mission {
         f.timer -= dt;
         if (f.state === "walk") {
           f.x += f.facing * (dist > 110 ? 1 : dist < 55 ? -1 : 0) * 30 * dt;
-          if (f.timer <= 0 && inView && hero.dead <= 0) [f.state, f.timer] = ["aim", tune.warn];
+          // Only so many take aim at once: the others wait their turn.
+          if (f.timer <= 0 && inView && hero.dead <= 0) {
+            if (aiming < tune.shooters) {
+              [f.state, f.timer] = ["aim", tune.warn];
+              aiming++;
+            } else f.timer = rand(0.2, 0.5);
+          }
         } else if (f.timer <= 0) {
           const from = { x: f.facing === 1 ? f.x + 17 : f.x - 3, y: f.y + 9 };
           if (Math.random() < 0.25) this.lob(from, { x: hx, y: gy }, "shell", 1);
@@ -1748,13 +1796,15 @@ class Mission {
   private aimAt(from: Pt, speed: number) {
     const tx = this.hero.x + 8 - from.x,
       ty = this.hero.feet - (this.hero.crouch ? 6 : 11) - from.y;
-    const n = Math.hypot(tx, ty) || 1;
+    // At ease, the aim strays a little: standing still is not always a hit.
+    const j = this.tune().jitter;
+    const a = Math.atan2(ty, tx) + rand(-j, j);
     this.hostiles.push({
       kind: "bullet",
       x: from.x,
       y: from.y,
-      vx: (tx / n) * speed,
-      vy: (ty / n) * speed,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
       grav: 0,
     });
   }
@@ -1831,14 +1881,17 @@ class Mission {
       x: this.map.length - BOSS.w - 10,
       hop: 160,
       vy: 1,
-      hp: this.map.boss.hp,
+      hp: toughen(this.map.boss.hp, this.tune().boss),
       phase: 1,
       state: "drop",
       t: 0,
       flash: 0,
       count: 0,
       crateGiven: false,
+      max: 1,
+      last: undefined,
     };
+    this.boss.max = this.boss.hp;
     this.sound.music(this.map.music, true);
     this.say(this.map.boss.name);
   }
@@ -1859,7 +1912,7 @@ class Mission {
     b.flash -= dt;
     const { gy } = this;
     const spec = this.map.boss;
-    const phase = spec.phases.reduce((n, p, i) => (b.hp / spec.hp <= p.below ? i + 1 : n), 1);
+    const phase = spec.phases.reduce((n, p, i) => (b.hp / b.max <= p.below ? i + 1 : n), 1);
     const stage = spec.phases.at(phase - 1) ?? spec.phases.at(0);
     if (phase > b.phase && b.state !== "drop") {
       [b.phase, b.state, b.t] = [phase, "roar", 0];
@@ -1913,8 +1966,9 @@ class Mission {
         break;
       case "idle":
         if (stage && b.t > stage.rest * this.tune().rest) {
-          const pick = stage.attacks.at(Math.floor(Math.random() * stage.attacks.length)) ?? "hop";
-          [b.state, b.t, b.count] = [pick, 0, 0];
+          const pick =
+            nextAttack(stage.attacks, b.last, this.tune().repeat, Math.random()) ?? "hop";
+          [b.state, b.t, b.count, b.last] = [pick, 0, 0, pick];
           if (pick === "hop") [b.vy, b.hop] = [-(115 + phase * 10), 0.01];
           if (pick === "sweepLow" || pick === "sweepHigh") {
             this.sweep = {
@@ -2360,9 +2414,9 @@ class Mission {
       if (!touch()) this.keyStrip();
     }
     if (this.boss && this.phase === "play")
-      this.bar(this.map.boss.name, this.boss.hp / this.map.boss.hp);
+      this.bar(this.map.boss.name, this.boss.hp / this.boss.max);
     else if (this.turret && this.turret.x < this.camX + W)
-      this.bar(this.map.turret.name, this.turret.hp / this.map.turret.hp);
+      this.bar(this.map.turret.name, this.turret.hp / this.turret.max);
     if (this.phase === "brief") this.briefing();
     if (this.phase === "warning") this.warning();
     if (
@@ -2673,7 +2727,7 @@ class Mission {
       Math.round(b.x),
       Math.round(this.gy - BOSS.h + 1 - b.hop),
       {
-        hurt: 1 - b.hp / this.map.boss.hp,
+        hurt: 1 - b.hp / b.max,
         phase: b.phase,
         t: this.t,
         flash: b.flash > 0,
