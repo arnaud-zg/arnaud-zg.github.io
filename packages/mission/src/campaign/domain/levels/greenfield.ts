@@ -62,7 +62,19 @@ export const greenfield: MissionMap = {
       { below: 0.66, attacks: ["volley", "sweepLow", "sweepHigh", "spawn"], rest: 1.2 },
       { below: 0.3, attacks: ["volley", "sweepLow", "sweepHigh", "spawn", "volley"], rest: 0.8 },
     ],
-    split: "TREE SHAKEN!",
+    split: "TREE SHAKEN: 0 KB!",
+    mechanic: {
+      kind: "prune",
+      packages: [
+        { name: "APP", health: 30 },
+        { name: "UI-KIT", parent: "APP", health: 24 },
+        { name: "UTILS", parent: "APP", health: 24 },
+        { name: "LEFT-PAD", parent: "UI-KIT", health: 18 },
+        { name: "IS-ODD", parent: "UI-KIT", health: 18 },
+        { name: "LODASH", parent: "UTILS", health: 18 },
+        { name: "MOMENT", parent: "UTILS", health: 18 },
+      ],
+    },
   },
   events: [
     { at: 0, kind: "crate", x: 140 },

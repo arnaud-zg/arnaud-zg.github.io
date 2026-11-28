@@ -628,3 +628,27 @@ export const colleague = (
   rect(ctx, x + 2 + step, top + 13, 2, 5, "#2e3a55");
   rect(ctx, x + 6 - step, top + 13, 2, 5, "#2e3a55");
 };
+
+// A line of pixels from one point to another, so nothing is smoothed.
+export const pixelLine = ({
+  ctx,
+  from,
+  to,
+  color,
+}: {
+  ctx: Ctx;
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  color: string;
+}) => {
+  const steps = Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y), 1);
+  for (let i = 0; i <= steps; i++)
+    rect(
+      ctx,
+      Math.round(from.x + ((to.x - from.x) * i) / steps),
+      Math.round(from.y + ((to.y - from.y) * i) / steps),
+      1,
+      1,
+      color,
+    );
+};

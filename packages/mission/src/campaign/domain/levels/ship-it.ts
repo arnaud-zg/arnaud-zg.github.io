@@ -62,7 +62,17 @@ export const shipIt: MissionMap = {
       { below: 0.66, attacks: ["hop", "volley", "sweepLow"], rest: 1.2 },
       { below: 0.3, attacks: ["hop", "volley", "sweepLow", "sweepHigh", "spawn"], rest: 0.8 },
     ],
-    split: "SPLIT INTO MICROSERVICES!",
+    split: "STRANGLER FIG COMPLETE!",
+    mechanic: {
+      kind: "strangler",
+      gateway: 10,
+      seams: [
+        { name: "NOTIFICATIONS", health: 30 },
+        { name: "AUTH", health: 35 },
+        { name: "{context}", health: 40 },
+        { name: "CORE", health: 45 },
+      ],
+    },
   },
   events: [
     { at: 0, kind: "crate", x: 150 },

@@ -3,6 +3,7 @@
 // Units: stage pixels (the canvas is drawn small and scaled up), seconds, and heights measured up
 // from the ground. `at` is where the right edge of the camera must reach for an event to fire.
 
+import type { Mechanic } from "../../combat/domain/bosses.ts";
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { ColleagueId } from "./levels/catalog/colleagues.ts";
 import type { ExerciseId } from "./levels/catalog/exercises.ts";
@@ -75,6 +76,7 @@ export type Boss = {
     readonly rest: number;
   }[];
   readonly split: string; // shouted when it falls
+  readonly mechanic: Mechanic; // how it really falls (combat/domain/bosses.ts)
 };
 
 export type Layer = {

@@ -13,12 +13,14 @@ import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
 import type { Answer, Perk } from "../../challenge/domain/exercise.ts";
 import type { Loop } from "../../challenge/domain/loop.ts";
+import type { Mechanic as BossMechanic } from "../../combat/domain/bosses.ts";
 import type { ReviewId, ReviewRow } from "../../combat/domain/score.ts";
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { Deck, Key } from "../../input/domain/controls.ts";
 import type { Move } from "../../moves/domain/combos.ts";
 import type { Piece } from "../domain/layout.ts";
 import type { MissionData } from "../domain/mission.ts";
+import type { Arena, Mechanic, Target } from "./canvas.bosses.ts";
 import type { Played } from "./web.share.ts";
 import { COLLEAGUES } from "../../campaign/domain/levels/catalog/colleagues.ts";
 import { EXERCISES } from "../../campaign/domain/levels/catalog/exercises.ts";
@@ -53,6 +55,7 @@ import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
 import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
 import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
 import { clipLine, column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
+import { mechanicOf } from "./canvas.bosses.ts";
 import { Colleagues } from "./canvas.colleagues.ts";
 import * as art from "./canvas.draw.ts";
 import { Whiteboard } from "./canvas.exercise.ts";
@@ -217,7 +220,7 @@ type Boss = {
 };
 type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
-type Cube = Pt & { vx: number; vy: number; color: string };
+type Cube = Pt & { vx: number; vy: number; color: string; label?: string }; // label: an extracted service
 type Alert = { side: 1 | -1; t: number }; // a foe coming in from off screen
 type Board = { x: number; id: keyof typeof EXERCISES; used: boolean; kiosk?: boolean }; // a kiosk opens only while degraded
 type LoopZone = { from: number; to: number; loop: Loop; entered: boolean; done: boolean };
@@ -264,6 +267,13 @@ export const start = (data: MissionData) => {
     () => (open = false),
   );
 };
+
+// The hint a boss opens with: how it really falls.
+const HINTS = {
+  strangler: "hintStrangler",
+  prune: "hintPrune",
+  gc: "hintGc",
+} as const satisfies { [K in BossMechanic["kind"]]: keyof MissionData["labels"] };
 
 const REVIEW_LABELS = {
   coverage: "reviewCoverage",
@@ -395,6 +405,8 @@ class Mission {
   private boostUntil = 0; // double points after a fix, until then
   private stutter = 0; // degraded: seconds since the last frame drawn
   private loopZone: LoopZone | undefined;
+  private mechanic: Mechanic | undefined; // how the boss really falls (canvas.bosses.ts)
+  private targetsNow: readonly Target[] = []; // the weak points a blow was just tested against
   private readonly theme: ReturnType<typeof themeOf>; // set from the site's data, in the constructor
   private shift: Shift = "light"; // light: office hours; dark: the night shift
   private readonly themeBtn = document.createElement("button");
@@ -1054,6 +1066,7 @@ class Mission {
       degraded: false,
       boostUntil: 0,
       loopZone: undefined,
+      mechanic: undefined,
       introduced: new Set<string>(),
       slowUntil: 0,
       busyUntil: 0,
@@ -1676,6 +1689,48 @@ class Mission {
     painters[h.kind]();
   }
 
+  // ── The boss's mechanic: what it may ask of the fight ───────────────────────────────────────
+  private arena(): Arena {
+    return {
+      boss: () => {
+        const b = this.boss;
+        return b ? { x: b.x, top: this.gy - BOSS.h - b.hop, ratio: b.hp / b.max } : undefined;
+      },
+      gy: () => this.gy,
+      hurt: (damage) => {
+        if (this.boss) this.boss.hp -= damage;
+      },
+      heal: (health) => {
+        if (this.boss) this.boss.hp = Math.min(this.boss.max, this.boss.hp + health);
+      },
+      labels: this.L,
+      context: () => this.ledger.contextName() ?? this.L.booking,
+      fluent: () => this.ledger.speaksTheLanguage(),
+      owes: (reason) => this.ledger.reasons().includes(reason),
+      note: ({ x, y, text, bad }) =>
+        this.notes.push({ x, y, text, t: 0, color: bad ? INK.rust : INK.goldLight }),
+      banner: (title) => this.banners.push({ title, t: 0, dur: 1.8 }),
+      burst: ({ x, y }) =>
+        this.burst(x, y, 12, [INK.gold, ...this.map.theme.debris.slice(0, 3)], 90),
+      cube: ({ x, y, label }) =>
+        this.cubes.push({
+          x,
+          y,
+          vx: rand(-60, 60),
+          vy: -140,
+          color: this.map.theme.debris.at(0) ?? INK.gold,
+          label,
+        }),
+      lob: (from) => this.lob(from, { x: this.hero.x + 8, y: this.gy }, "brick", 1.1),
+    };
+  }
+
+  // A weak point can bring the boss down as well as a blow on its body.
+  private bossFallen() {
+    const b = this.boss;
+    if (b && b.state !== "drop" && this.phase === "play" && b.hp <= 0) this.bossDown();
+  }
+
   // ── The office and the night shift: a new foe wears the hour's clothes, named once ──────────
   private skinOf(kind: FoeKind) {
     const skin = ROSTERS[this.shift][kind];
@@ -2223,6 +2278,9 @@ class Mission {
     if (this.turret && overlap(b, { x: this.turret.x, y: this.gy - 22, w: 36, h: 22 }))
       return this.turret;
     const boss = this.boss;
+    this.targetsNow = boss && boss.state !== "drop" ? (this.mechanic?.targets() ?? []) : [];
+    const weak = this.targetsNow.find((t) => overlap(b, t.box));
+    if (weak) return weak;
     if (
       boss &&
       boss.state !== "drop" &&
@@ -2247,9 +2305,16 @@ class Mission {
       if (tu.hp <= 0) this.turretDown();
       return;
     }
+    const weak = this.targetsNow.find((t) => t === target);
+    if (weak) {
+      weak.hit({ damage: dmg, blast: this.blasting });
+      this.burst(at.x, at.y, 3, [INK.goldLight, INK.gold], 40);
+      this.sound.hit();
+      return this.bossFallen();
+    }
     const b = this.boss;
     if (b && target === b) {
-      b.hp -= dmg;
+      this.mechanic?.body({ damage: dmg, at, blast: this.blasting }); // every boss has one
       b.flash = 0.05;
       this.score += Math.round(dmg * POINTS.bossHit);
       this.burst(at.x, at.y, 3, [INK.goldLight, ...this.map.theme.debris.slice(0, 2)], 50);
@@ -2583,6 +2648,14 @@ class Mission {
       last: undefined,
     };
     this.boss.max = this.boss.hp;
+    this.mechanic = mechanicOf({
+      spec: this.map.boss.mechanic,
+      arena: this.arena(),
+      scale: this.boss.max / this.map.boss.hp,
+    });
+    const parts = this.mechanic.health();
+    if (parts !== undefined) [this.boss.hp, this.boss.max] = [parts, parts];
+    this.banners.push({ title: this.L[HINTS[this.map.boss.mechanic.kind]], t: 0, dur: 2.6 });
     this.sound.music(this.map.music, true);
     this.say(this.map.boss.name);
   }
@@ -2601,6 +2674,7 @@ class Mission {
     if (!b) return;
     b.t += dt;
     b.flash -= dt;
+    if (b.state !== "drop") this.mechanic?.update(dt);
     const { gy } = this;
     const spec = this.map.boss;
     const phase = spec.phases.reduce((n, p, i) => (b.hp / b.max <= p.below ? i + 1 : n), 1);
@@ -2861,8 +2935,14 @@ class Mission {
     if (this.turret && overlap(area, { x: this.turret.x, y: this.gy - 22, w: 36, h: 22 }))
       this.damage(this.turret, dmg, { x, y });
     const b = this.boss;
+    this.blasting = true;
+    if (b && b.state !== "drop")
+      for (const t of this.mechanic?.targets() ?? [])
+        if (overlap(area, t.box)) t.hit({ damage: dmg, blast: true });
     if (b && overlap(area, { x: b.x, y: this.gy - BOSS.h - b.hop, w: BOSS.w, h: BOSS.h }))
       this.damage(b, dmg, { x, y });
+    this.blasting = false;
+    this.bossFallen();
   }
 
   private updateHostiles(dt: number) {
@@ -3282,11 +3362,17 @@ class Mission {
       this.drawFoe(f);
     }
     if (this.boss) this.drawBoss(this.boss);
+    if (this.boss) this.mechanic?.draw(ctx, t);
     for (const c of this.cubes) {
       art.block(ctx, c.x, c.y, 6, 6, c.color);
       ctx.globalAlpha = 0.45;
       art.rect(ctx, c.x, c.y, 6, 1, INK.white);
       ctx.globalAlpha = 1;
+      if (c.label)
+        drawText(ctx, c.label.slice(0, 8), c.x + 3, c.y - 8, 1, INK.goldLight, {
+          outline: INK.soot,
+          align: "center",
+        });
     }
     this.drawHero();
     this.drawShots();
