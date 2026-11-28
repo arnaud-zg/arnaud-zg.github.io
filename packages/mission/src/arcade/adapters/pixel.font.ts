@@ -1,5 +1,7 @@
 // A 5×7 pixel font, drawn for the mission: capitals, digits and the marks its words need.
 // Each glyph is seven rows of five bits; a character it lacks is drawn as "?".
+import { FONT, linesOf, widthOf } from "../domain/layout.ts";
+
 const GLYPHS: Record<string, string> = {
   A: "01110 10001 10001 11111 10001 10001 10001",
   B: "11110 10001 10001 11110 10001 10001 11110",
@@ -68,8 +70,8 @@ const ROWS = Object.fromEntries(
   ]),
 );
 
-export const GLYPH_H = 7;
-const ADVANCE = 6; // five columns and one of space
+export const GLYPH_H = FONT.height;
+const ADVANCE = FONT.advance;
 
 const clean = (text: string) =>
   [...text.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase()].map((c) => {
@@ -77,31 +79,17 @@ const clean = (text: string) =>
     return ch in ROWS ? ch : "?";
   });
 
-export const textWidth = (text: string, scale = 1) =>
-  Math.max(0, clean(text).length * ADVANCE - 1) * scale;
+export const textWidth = (text: string, scale = 1) => widthOf({ text, scale });
 
 // The largest whole scale at which the text fits the width, between 1 and `max`.
 export const fitScale = (text: string, width: number, max: number) =>
   Math.max(1, Math.min(max, Math.floor(width / Math.max(1, textWidth(text)))));
 
 // Breaks the text into lines no wider than `width` at scale 1, on spaces.
-export const wrap = (text: string, width: number) => {
-  const per = Math.max(1, Math.floor((width + 1) / ADVANCE));
-  const lines: string[] = [];
-  let line = "";
-  for (const word of text.split(" ")) {
-    const next = line ? `${line} ${word}` : word;
-    if (next.length > per && line) {
-      lines.push(line);
-      line = word;
-    } else line = next;
-  }
-  if (line) lines.push(line);
-  return lines;
-};
+export const wrap = (text: string, width: number) => linesOf({ text, width });
 
-type Ink = string | readonly string[]; // one colour, or one per glyph row: lettering that shades
-type Look = { outline?: string; shadow?: string; align?: "left" | "center" | "right" };
+export type Ink = string | readonly string[]; // one colour, or one per glyph row: lettering that shades
+export type Look = { outline?: string; shadow?: string; align?: "left" | "center" | "right" };
 
 const paint = (
   ctx: CanvasRenderingContext2D,
@@ -188,3 +176,7 @@ export const glyphSvg = (text: string) => {
   const w = Math.max(1, chars.length * ADVANCE - 1);
   return `<svg class="op-label" viewBox="0 0 ${w} ${GLYPH_H}" style="--w:${w}" aria-hidden="true" shape-rendering="crispEdges"><path d="${d}" /></svg>`;
 };
+
+// Lettering a box wraps by itself: one drawing per word, laid out by the browser like text.
+export const glyphWords = (text: string) =>
+  `<span class="op-words">${text.split(" ").filter(Boolean).map(glyphSvg).join("")}</span>`;

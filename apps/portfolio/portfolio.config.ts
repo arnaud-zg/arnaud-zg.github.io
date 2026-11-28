@@ -228,9 +228,12 @@ export default {
         stations: ["PayFit", "Doctolib"],
       },
     ],
-    // The engineer you play, and the message the debrief copies for LinkedIn.
+    // The engineer you play, the debrief's buttons, and the message it copies for LinkedIn.
     labels: {
       hero: "ARNAUD",
+      message: "MESSAGE ARNAUD",
+      messageNote: "COPIES A MESSAGE, OPENS LINKEDIN",
+      exit: "BACK TO THE PORTFOLIO",
       messageText:
         "Hi Arnaud! I just played your secret mission. {played}: {score} points, {skills} of {total} skills unlocked.",
     },

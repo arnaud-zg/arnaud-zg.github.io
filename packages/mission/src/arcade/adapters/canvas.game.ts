@@ -13,6 +13,7 @@ import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaig
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { Deck, Key } from "../../input/domain/controls.ts";
 import type { Move } from "../../moves/domain/combos.ts";
+import type { Piece } from "../domain/layout.ts";
 import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
 import { loreOf } from "../../campaign/domain/lore.ts";
@@ -33,15 +34,25 @@ import {
   Tracker,
   tuningOf,
 } from "../../director/domain/director.ts";
-import { deckOf, keyOf, scaleOf, STRIP } from "../../input/domain/controls.ts";
+import { deckOf, keyOf, playable, scaleOf, STRIP } from "../../input/domain/controls.ts";
 import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
 import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
 import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
+import { column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
 import * as art from "./canvas.draw.ts";
+import { drawPlaced } from "./canvas.layout.ts";
 import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
 import { closestTo } from "./dom.target.ts";
 import css from "./mission.css?inline";
-import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./pixel.font.ts";
+import {
+  drawText,
+  fitScale,
+  GLYPH_H,
+  glyphSvg,
+  glyphWords,
+  textWidth,
+  wrap,
+} from "./pixel.font.ts";
 import { fill, messageRun, scoreCard, shareRun } from "./web.share.ts";
 import { Sound } from "./webaudio.sound.ts";
 
@@ -187,6 +198,7 @@ type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
 type Cube = Pt & { vx: number; vy: number; color: string };
 type Alert = { side: 1 | -1; t: number }; // a foe coming in from off screen
+type Row = { height: number; step: number; draw: (y: number) => void }; // a debrief line, shown once `revealed` passes `step`
 type Queued = {
   at: number;
   spawn?: FoeKind;
@@ -208,6 +220,12 @@ const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const ease = (p: number) => 1 - (1 - p) ** 3;
 const overlap = (a: Box, b: Box) =>
   a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+// The visible area, not innerWidth: a page wider than the phone widens the window past the screen.
+const visibleArea = () => {
+  const view = window.visualViewport;
+  if (!view) return { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+  return { left: view.offsetLeft, top: view.offsetTop, width: view.width, height: view.height };
+};
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const touch = () => matchMedia("(pointer: coarse)").matches;
 
@@ -222,6 +240,12 @@ export const start = (data: MissionData) => {
     pickMap(MAPS, ODDS, MOMENTS, now).note,
     () => (open = false),
   );
+};
+
+type EndWords = { title: string; note: string };
+const paintEndButton = ({ button, words }: { button: HTMLButtonElement; words: EndWords }) => {
+  button.setAttribute("aria-label", `${words.title}. ${words.note.toLowerCase()}`);
+  button.innerHTML = `<span class="op-end-title">${glyphWords(words.title)}</span><span class="op-end-note">${glyphWords(words.note)}</span>`;
 };
 
 const SPEAKER = '<path d="M4 9h4l5-4v14l-5-4H4z" />';
@@ -337,7 +361,9 @@ class Mission {
   private stamps: Pt[] = [];
   private typed = 0;
   private revealed = 0;
-  private boxBottom = 0;
+  private endRoom = 0; // stage pixels the end buttons cover at the foot of the stage
+  private briefPage = 0;
+  private tooSmall = false; // a stage under the floor: the hero says sorry instead of playing
 
   constructor(
     private readonly data: MissionData,
@@ -440,15 +466,30 @@ class Mission {
 
     end.className = "op-end";
     end.hidden = true;
-    this.playBtn.className = "op-btn";
+    this.playBtn.className = "op-btn op-end-btn";
+    this.playBtn.dataset.end = "play";
     this.playBtn.type = "button";
     this.playBtn.addEventListener("click", () => this.onward());
+    const share = { title: L.share, note: touch() ? L.shareNote : L.shareNoteDesktop };
     end.append(
       this.playBtn,
-      this.button(L.share, () => void this.shareScore(), "dark"),
+      this.endButton({ kind: "share", words: share, fn: () => void this.shareScore() }),
     );
-    if (this.data.contact) end.append(this.button(L.message, () => void this.messageMe(), "dark"));
-    end.append(this.button(L.exit, () => this.close(), "dark"));
+    if (this.data.contact)
+      end.append(
+        this.endButton({
+          kind: "message",
+          words: { title: L.message, note: L.messageNote },
+          fn: () => void this.messageMe(),
+        }),
+      );
+    end.append(
+      this.endButton({
+        kind: "exit",
+        words: { title: L.exit, note: L.exitNote },
+        fn: () => this.close(),
+      }),
+    );
     this.mountPad();
     root.append(this.styleTag(), canvas, tools, card, this.pad, end, toast, live);
     for (const el of document.body.children)
@@ -462,6 +503,8 @@ class Mission {
 
     const { signal } = this.listening;
     window.addEventListener("resize", () => this.resize(), { signal });
+    window.visualViewport?.addEventListener("resize", () => this.resize(), { signal });
+    window.visualViewport?.addEventListener("scroll", () => this.resize(), { signal });
     window.addEventListener("keydown", (e) => this.keydown(e), { capture: true, signal });
     window.addEventListener(
       "keyup",
@@ -595,6 +638,18 @@ class Mission {
     return b;
   }
 
+  // A button under the debrief says what it does, in two lines that wrap with the room it has.
+  private endButton({ kind, words, fn }: { kind: string; words: EndWords; fn: () => void }) {
+    const b = document.createElement("button");
+    b.className = "op-btn op-end-btn";
+    b.dataset.look = "dark";
+    b.dataset.end = kind;
+    b.type = "button";
+    paintEndButton({ button: b, words });
+    b.addEventListener("click", fn);
+    return b;
+  }
+
   private paintMute() {
     const { mute, sound, L } = this;
     mute.innerHTML = sound.muted ? ICONS.off : ICONS.on;
@@ -612,7 +667,7 @@ class Mission {
   }
 
   private flashToast(text: string) {
-    this.toast.innerHTML = glyphSvg(text);
+    this.toast.innerHTML = glyphWords(text);
     this.toast.hidden = false;
     window.clearTimeout(this.toasted);
     this.toasted = window.setTimeout(() => (this.toast.hidden = true), 3400);
@@ -636,7 +691,16 @@ class Mission {
   // The stage fills what the touch deck leaves (controls.ts, deckOf), scaled pixel for pixel.
   private resize() {
     const before = { ground: this.gy, width: this.W };
-    this.deck = deckOf(window.innerWidth, window.innerHeight, touch());
+    const view = visibleArea();
+    Object.assign(this.root.style, {
+      left: `${view.left}px`,
+      top: `${view.top}px`,
+      width: `${view.width}px`,
+      height: `${view.height}px`,
+    });
+    this.deck = deckOf(view.width, view.height, touch());
+    this.tooSmall = !playable(this.stageSize());
+    if (this.tooSmall) this.deck = deckOf(view.width, view.height, false); // no deck to say sorry
     const { stage, mode, size } = this.deck;
     this.S = scaleOf(stage.w, stage.h);
     this.W = Math.ceil(stage.w / this.S);
@@ -646,18 +710,29 @@ class Mission {
     this.root.dataset.deck = mode;
     this.root.style.setProperty("--op-deck", `${size}px`);
     this.root.style.setProperty("--op-deck-under", `${mode === "bottom" ? size : 0}px`);
-    this.pad.hidden = mode === "none" || this.phase === "still";
+    this.pad.hidden = mode === "none" || this.phase === "still" || this.tooSmall;
     canvas.width = W;
     canvas.height = H;
     canvas.style.width = `${W * S}px`;
     canvas.style.height = `${H * S}px`;
     this.root.style.setProperty("--op-px", `${Math.min(S, 3)}px`);
+    this.root.style.setProperty("--op-px-small", `${Math.min(S, 3) * 0.75}px`);
+    this.root.style.setProperty("--op-deck-side", `${mode === "side" ? size : 0}px`);
     this.root.style.setProperty("--op-s", `${S}px`);
     this.ctx.imageSmoothingEnabled = false;
     this.paintMap();
+    this.measureEnd();
+    if (this.tooSmall) this.say(`${this.L.tooSmallTitle} ${this.L.tooSmall}`);
     if (before.ground === this.gy && before.width === this.W) return;
     this.followGround(before.ground);
     this.pause(true); // a turned phone: nothing hits the hero while they find their grip again
+  }
+
+  // The stage the deck leaves, in stage pixels.
+  private stageSize() {
+    const { stage } = this.deck;
+    const scale = scaleOf(stage.w, stage.h);
+    return { width: Math.ceil(stage.w / scale), height: Math.ceil(stage.h / scale) };
   }
 
   // The ground line moved: everything that stood on it, or flew above it, moves with it.
@@ -809,9 +884,7 @@ class Mission {
         }
         return this.confirm();
       case "brief":
-        if (this.typed < this.briefChars()) this.typed = this.briefChars();
-        else this.startPlay();
-        return;
+        return this.carryOnBrief();
       case "continue":
         return this.carryOn();
       case "clear":
@@ -825,7 +898,7 @@ class Mission {
   private go(phase: Phase) {
     this.phase = phase;
     this.pt = 0;
-    this.pad.hidden = this.deck.mode === "none" || phase === "still"; // the deck stays put: the stage never jumps
+    this.pad.hidden = this.deck.mode === "none" || phase === "still" || this.tooSmall; // the deck stays put
     this.pauseBtn.hidden = !this.fighting() || !touch();
     if (phase === "title") this.stamps = [];
     if (phase === "select")
@@ -851,6 +924,7 @@ class Mission {
   // After a debrief: the next map once this one is finished, or a new campaign.
   private onward() {
     this.end.hidden = true;
+    this.measureEnd();
     if (this.failed || this.isLast()) {
       Object.assign(this, {
         failed: false,
@@ -907,6 +981,7 @@ class Mission {
       boss: undefined,
       revealed: 0,
       typed: 0,
+      briefPage: 0,
       cleared: 0,
       chain: 0,
       lastKill: -9,
@@ -940,10 +1015,6 @@ class Mission {
       ],
       lines: [`${hh}:${mm} · ${this.map.time}`, ...this.map.briefing.flatMap((l) => wrap(l, w))],
     };
-  }
-  private briefChars() {
-    const { title, head, lines } = this.briefLines();
-    return title.length + [...head, ...lines].join("").length;
   }
 
   private startPlay() {
@@ -996,17 +1067,17 @@ class Mission {
     const name = L[weapon === "pistol" ? "rapid" : weapon];
     const pickups = this.chapter().pickups;
     const line = (text: string, size: string) =>
-      `<span class="op-line" data-size="${size}">${glyphSvg(text)}</span>`;
+      `<span class="op-line" data-size="${size}">${glyphWords(text)}</span>`;
     const lore = loreOf(p.name);
     card.innerHTML = [
       p.marks.length ? `<span class="op-marks">${p.marks.join(" ")}</span>` : "",
       line(p.name.toUpperCase(), "big"),
       line(this.fact(p).split(" · ")[0] ?? "", "mid"),
-      ...wrap(p.places.join(", ").toUpperCase(), 230).map((l) => line(l, "mid")),
+      line(p.places.join(", ").toUpperCase(), "mid"),
       line(`${L.unlocked}: ${name}`, "gold"),
-      ...(lore ? wrap(lore.toUpperCase(), 230).map((l) => line(l, "lore")) : []),
+      lore ? line(lore.toUpperCase(), "lore") : "",
       line(`${L.skills} ${pickups.indexOf(p) + 1}/${pickups.length}`, "dim"),
-      `<span class="op-carry">${glyphSvg(touch() ? L.tap : L.resume)}</span>`,
+      `<span class="op-carry">${glyphWords(touch() ? L.tap : L.resume)}</span>`,
     ].join("");
     card.hidden = false;
     this.reading = 0.001;
@@ -1025,14 +1096,25 @@ class Mission {
   private frame = (now: number) => {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
+    this.step(dt);
+    const paint = this.tooSmall ? () => this.drawTooSmall() : () => this.draw();
+    paint();
+    this.raf = requestAnimationFrame(this.frame);
+  };
+
+  // One tick of the clock: a message waits to be read, a heavy blow holds, or the world moves.
+  private step(dt: number) {
     if (this.reading) {
       this.reading += dt;
       this.card.classList.toggle("is-ready", this.reading > READ);
-    } else if (this.stop > 0) this.stop -= dt;
-    else if (!this.paused && this.phase !== "still") this.update(dt);
-    this.draw();
-    this.raf = requestAnimationFrame(this.frame);
-  };
+      return;
+    }
+    if (this.stop > 0) {
+      this.stop -= dt;
+      return;
+    }
+    if (!this.paused && this.phase !== "still" && !this.tooSmall) this.update(dt);
+  }
 
   private update(dt: number) {
     this.t += dt;
@@ -2523,8 +2605,15 @@ class Mission {
         : this.failed || this.isLast()
           ? this.L.replay
           : this.L.next;
-    this.playBtn.setAttribute("aria-label", play);
-    this.playBtn.innerHTML = glyphSvg(play);
+    const note =
+      phase === "still"
+        ? this.L.playAnywayNote
+        : this.failed || this.isLast()
+          ? this.L.replayNote
+          : this.L.nextNote
+              .replace("{n}", String(this.stage + 2))
+              .replace("{total}", String(this.order.length));
+    paintEndButton({ button: this.playBtn, words: { title: play, note } });
     this.root.querySelector(".op-list")?.remove();
     if (phase === "still") {
       const list = document.createElement("ul");
@@ -2536,12 +2625,14 @@ class Mission {
       }
       this.root.append(list);
       this.end.hidden = false;
+      this.measureEnd();
       this.playBtn.focus({ preventScroll: true });
       return;
     }
     window.setTimeout(() => {
       if (this.phase !== phase) return;
       this.end.hidden = false;
+      this.measureEnd();
       this.playBtn.focus({ preventScroll: true });
     }, 2600);
     const spoken = this.stats()
@@ -2571,10 +2662,7 @@ class Mission {
       if (!touch()) this.keyStrip();
     }
     if (this.phase === "play") this.drawAlerts();
-    if (this.boss && this.phase === "play")
-      this.bar(this.map.boss.name, this.boss.hp / this.boss.max);
-    else if (this.turret && this.turret.x < this.camX + W)
-      this.bar(this.map.turret.name, this.turret.hp / this.turret.max);
+    this.drawFoeBar();
     if (this.phase === "brief") this.briefing();
     if (this.phase === "warning") this.warning();
     if (
@@ -2584,7 +2672,10 @@ class Mission {
       this.t - this.cleared < 3 &&
       Math.floor(this.t * 3) % 2 === 0
     )
-      drawText(ctx, this.L.goOn, W - 10, H * 0.45, 2, GOLD, { outline: INK.soot, align: "right" });
+      drawText(ctx, this.L.goOn, W - 10, this.zones().goOn, 2, GOLD, {
+        outline: INK.soot,
+        align: "right",
+      });
     if (!this.reading) this.banner();
     if (this.phase === "continue") this.drawContinue();
     if (this.phase === "over") this.bigText(this.L.failed, INK.rust);
@@ -2980,12 +3071,37 @@ class Mission {
   }
 
   private drawPaused() {
-    this.bigText(this.L.paused, INK.goldLight);
-    const hint = touch() ? this.L.tap : this.L.resume;
-    const below = this.H * 0.36 + GLYPH_H * fitScale(this.L.paused, this.W - 16, 5) + 12;
-    drawText(this.ctx, hint, this.W / 2, below, fitScale(hint, this.W - 16, 1), INK.sandLight, {
-      outline: INK.soot,
-      align: "center",
+    const { ctx, W, L } = this;
+    const { placed } = column({
+      pieces: [
+        { kind: "text", text: L.paused, max: 5 },
+        { kind: "text", text: touch() ? L.tap : L.resume, max: 1 },
+      ],
+      top: this.zones().bar.bottom,
+      bottom: this.gy,
+      width: W - 16,
+      gap: 8,
+    });
+    const [title, hint] = placed;
+    const first = title ?? hint;
+    const last = hint ?? title;
+    if (!first || !last) return;
+    ctx.globalAlpha = 0.6;
+    art.rect(ctx, 0, first.y - 6, W, last.y + last.height - first.y + 12, INK.soot);
+    ctx.globalAlpha = 1;
+    drawPlaced({
+      ctx,
+      placed: title,
+      x: W / 2,
+      ink: GOLD,
+      look: { outline: INK.soot, align: "center" },
+    });
+    drawPlaced({
+      ctx,
+      placed: hint,
+      x: W / 2,
+      ink: INK.sandLight,
+      look: { outline: INK.soot, align: "center" },
     });
   }
 
@@ -3057,29 +3173,57 @@ class Mission {
       );
   }
 
-  // The title: the map's rarity, OPERATION, its name shot into a metal plate, then PRESS SPACE.
+  // The title as a column (layout.ts): on a short stage the small print goes first.
   private drawTitle() {
     const { ctx, W, H, L, pt, map } = this;
     const [base, light, dark] = map.theme.plate;
     art.rect(ctx, 0, 0, W, H, map.theme.menu);
     for (const l of map.theme.layers) art.layer(ctx, l, this.t * 20, W, H - 10, this.t);
     art.rect(ctx, 0, H - 10, W, 10, map.theme.ground.base);
-    const rarity = `${STARS[map.rarity]} ${L[map.rarity]}`;
-    const top = this.stage > 0 ? L.nextUnlocked : (this.note ?? "");
-    drawText(ctx, rarity, W / 2, 10, 1, map.rarity === "rare" ? INK.gold : INK.sandLight, {
-      outline: INK.soot,
-      align: "center",
-    });
-    if (top)
-      drawText(ctx, top, W / 2, 21, 1, INK.goldLight, { outline: INK.soot, align: "center" });
     const colon = map.title.indexOf(":");
     const lead = colon < 0 ? "" : map.title.slice(0, colon + 1);
     const word = colon < 0 ? map.title : map.title.slice(colon + 1).trim();
     const s = fitScale(word, W - 40, 6);
     const pw = textWidth(word, s) + 24,
       ph = GLYPH_H * s + 20;
+    const hero = this.sp.hero.at(0);
+    const note = this.stage > 0 ? L.nextUnlocked : (this.note ?? "");
+    const chapterLine = `${L.chapter} ${MAPS.indexOf(map) + 1} · ${this.chapter().title}`;
+    const text = (t: string, max: number, optional = false): Piece => ({
+      kind: "text",
+      text: t,
+      max,
+      optional,
+    });
+    const { placed } = column({
+      pieces: [
+        text(`${STARS[map.rarity]} ${L[map.rarity]}`, 1),
+        note ? text(note, 1, true) : undefined,
+        { kind: "box", height: Math.max(GLYPH_H * 2, hero ? hero.h * 2 - 4 : 0) },
+        { kind: "box", height: ph },
+        text(chapterLine, 2),
+        text(map.time, 1, true),
+        touch() && H > W ? text(L.rotate, 1, true) : undefined,
+        text(touch() ? L.tapStart : L.press, 2),
+        text(L.coin, 1, true),
+      ],
+      top: 6,
+      bottom: H - 12,
+      width: W - 16,
+      gap: 5,
+    });
+    const [rarity, top, leadRow, plate, chapter, time, rotate, press, coin] = placed;
+    const look = { outline: INK.soot, align: "center" } as const;
+    drawPlaced({
+      ctx,
+      placed: rarity,
+      x: W / 2,
+      ink: map.rarity === "rare" ? INK.gold : INK.sandLight,
+      look,
+    });
+    drawPlaced({ ctx, placed: top, x: W / 2, ink: INK.goldLight, look });
     const px = Math.round((W - pw) / 2),
-      py = Math.round(H * 0.3);
+      py = plate?.y ?? Math.round(H * 0.3);
     art.block(ctx, px, py, pw, ph, base);
     art.rect(ctx, px, py, pw, 2, light);
     art.rect(ctx, px, py + ph - 3, pw, 3, dark);
@@ -3104,40 +3248,28 @@ class Mission {
         align: "center",
       });
     }
-    if (lead && pt > slam + 0.2)
-      drawText(ctx, lead, px + 4, py - 14, fitScale(lead, pw, 2), INK.sandLight, {
+    if (lead && leadRow && pt > slam + 0.2) {
+      const ls = fitScale(lead, pw - (hero ? 34 : 0), 2);
+      drawText(ctx, lead, px + 4, leadRow.y + leadRow.height - GLYPH_H * ls, ls, INK.sandLight, {
         outline: INK.soot,
-      });
-    if (pt > slam + 0.4) {
-      const line = `${L.chapter} ${MAPS.indexOf(map) + 1} · ${this.chapter().title}`;
-      drawText(ctx, line, W / 2, py + ph + 8, fitScale(line, W - 16, 2), light, {
-        outline: INK.soot,
-        align: "center",
-      });
-      drawText(ctx, map.time, W / 2, py + ph + 26, 1, INK.sandLight, {
-        outline: INK.soot,
-        align: "center",
       });
     }
-    if (pt > slam + 0.6 && touch() && H > W)
-      drawText(ctx, L.rotate, W / 2, H * 0.66, 1, INK.goldLight, {
-        outline: INK.soot,
-        align: "center",
-      });
-    if (pt > slam + 0.6) {
-      const hero = this.sp.hero.at(0);
-      if (hero) this.blit(hero.img, px + pw - 30, py - hero.h * 2 + 4, true, 2);
-      if (Math.floor(this.t * 2) % 2 === 0)
-        drawText(ctx, L.press, W / 2, H * 0.74, fitScale(L.press, W - 20, 2), GOLD, {
-          outline: INK.soot,
-          align: "center",
-        });
-      drawText(ctx, L.coin, W / 2, H * 0.74 + 22, 1, INK.sandLight, { align: "center" });
+    if (pt > slam + 0.4) {
+      drawPlaced({ ctx, placed: chapter, x: W / 2, ink: light, look });
+      drawPlaced({ ctx, placed: time, x: W / 2, ink: INK.sandLight, look });
+    }
+    if (pt <= slam + 0.6) return;
+    drawPlaced({ ctx, placed: rotate, x: W / 2, ink: INK.goldLight, look });
+    if (hero) this.blit(hero.img, px + pw - 30, py - hero.h * 2 + 4, true, 2);
+    if (Math.floor(this.t * 2) % 2 === 0)
+      drawPlaced({ ctx, placed: press, x: W / 2, ink: GOLD, look });
+    drawPlaced({ ctx, placed: coin, x: W / 2, ink: INK.sandLight, look: { align: "center" } });
+    const lowest = (coin ?? press)?.y ?? H;
+    if (W >= 200 && lowest < H - 34)
       drawText(ctx, `${L.credits} 03`, W - 8, H - 22, 1, INK.sandLight, {
         outline: INK.soot,
         align: "right",
       });
-    }
   }
 
   // Four cards, one hero; the cursor blinks, the clock counts down.
@@ -3225,16 +3357,44 @@ class Mission {
       });
   }
 
-  // The briefing: the chapter, the map, then the controls. It waits for Space.
-  private briefing() {
-    const { ctx, W, H, L } = this;
+  // The briefing waits for Space; on a short stage it comes in pages.
+  private briefPages() {
     const { w, title, head, lines } = this.briefLines();
     const ts = fitScale(title, w, 2);
+    const all = [...head, ...lines];
+    const box = 9 + GLYPH_H * ts + 8 + 4;
+    const room = this.H - Math.round(this.H * 0.06) - box - 30;
+    const pages = pagesOf({ heights: all.map(() => GLYPH_H + 5), room });
+    return { w, title, ts, all, headCount: head.length, pages };
+  }
+  private briefChars() {
+    const { title, all, pages } = this.briefPages();
+    const page = pages.at(this.briefPage) ?? [];
+    return (
+      (this.briefPage === 0 ? title.length : 0) + page.map((i) => all.at(i) ?? "").join("").length
+    );
+  }
+  private carryOnBrief() {
+    if (this.typed < this.briefChars()) {
+      this.typed = this.briefChars();
+      return;
+    }
+    if (this.briefPage < this.briefPages().pages.length - 1) {
+      this.briefPage++;
+      this.typed = 0;
+      return;
+    }
+    this.startPlay();
+  }
+
+  private briefing() {
+    const { ctx, W, H, L } = this;
+    const { w, title, ts, all, headCount, pages } = this.briefPages();
+    const page = pages.at(this.briefPage) ?? [];
     const bw = w + 14,
       bx = Math.round((W - bw) / 2),
       by = Math.round(H * 0.06);
-    const all = [...head, ...lines];
-    const bh = 9 + GLYPH_H * ts + 8 + all.length * (GLYPH_H + 5) + 4;
+    const bh = 9 + GLYPH_H * ts + 8 + page.length * (GLYPH_H + 5) + 4;
     this.frame3(bx, by, bw, bh);
     let left = Math.floor(this.typed);
     const cut = (s: string) => {
@@ -3242,50 +3402,55 @@ class Mission {
       left -= s.length;
       return shown;
     };
-    drawText(ctx, cut(title), bx + 7, by + 8, ts, GOLD, { outline: INK.soot });
-    let y = by + 8 + GLYPH_H * ts + 8;
-    all.forEach((l, i) => {
-      drawText(
-        ctx,
-        cut(l),
-        bx + 7,
-        y,
-        1,
-        i < head.length ? INK.goldLight : i === head.length ? INK.gold : INK.sandLight,
-      );
-      y += GLYPH_H + 5;
+    drawText(ctx, this.briefPage === 0 ? cut(title) : title, bx + 7, by + 8, ts, GOLD, {
+      outline: INK.soot,
     });
+    let y = by + 8 + GLYPH_H * ts + 8;
+    for (const i of page) {
+      const ink = i < headCount ? INK.goldLight : i === headCount ? INK.gold : INK.sandLight;
+      drawText(ctx, cut(all.at(i) ?? ""), bx + 7, y, 1, ink);
+      y += GLYPH_H + 5;
+    }
     if (this.typed < this.briefChars()) return;
-    let cy = by + bh + 8;
-    if (touch())
-      for (const l of wrap(L.touch, W - 24)) {
-        drawText(ctx, l, W / 2, cy, 1, INK.sandLight, { outline: INK.soot, align: "center" });
-        cy += 10;
-      }
-    else {
-      // The keys, then the special moves, in one card: two columns of keycaps.
-      const entries = [...STRIP.map(([k, label]) => ({ k, text: L[label], ink: INK.sandLight }))];
-      const rows = Math.ceil(entries.length / 2);
-      const cw = Math.min(W - 16, 280),
-        cx = Math.round((W - cw) / 2);
-      const ch = 14 + rows * 11 + 4;
-      this.frame3(cx, cy, cw, ch);
-      drawText(ctx, L.controlsTitle, cx + 7, cy + 6, 1, INK.gold);
-      entries.forEach(({ k, text, ink }, i) => {
-        const kx = cx + 7 + (i % 2) * Math.floor((cw - 14) / 2),
-          ky = cy + 17 + Math.floor(i / 2) * 11;
-        drawText(ctx, text, kx + this.keycap(kx, ky, k) + 4, ky + 1, 1, ink);
-      });
-      cy += ch + 6;
+    const last = this.briefPage >= pages.length - 1;
+    const cy = last ? this.briefHelp(by + bh + 8) : by + bh + 8;
+    if (Math.floor(this.t * 2) % 2 !== 0) return;
+    const more = `${touch() ? "TAP" : "ENTER"} · ${L.more} ${this.briefPage + 1}/${pages.length}`;
+    const go = last ? (touch() ? L.tap : L.pressGo) : more;
+    drawText(ctx, go, W / 2, cy + 2, fitScale(go, W - 16, 2), GOLD, {
+      outline: INK.soot,
+      align: "center",
+    });
+  }
+
+  // Under the briefing, the controls, when the stage has room for them; returns where it ends.
+  private briefHelp(top: number) {
+    const { ctx, W, H, L } = this;
+    if (touch()) {
+      const lines = wrap(L.touch, W - 24);
+      if (top + lines.length * 10 + 22 > H) return top;
+      lines.forEach((l, i) =>
+        drawText(ctx, l, W / 2, top + i * 10, 1, INK.sandLight, {
+          outline: INK.soot,
+          align: "center",
+        }),
+      );
+      return top + lines.length * 10 + 4;
     }
-    cy += 4;
-    if (Math.floor(this.t * 2) % 2 === 0) {
-      const go = touch() ? L.tap : L.pressGo;
-      drawText(ctx, go, W / 2, cy + 2, fitScale(go, W - 16, 2), GOLD, {
-        outline: INK.soot,
-        align: "center",
-      });
-    }
+    const entries = STRIP.map(([k, label]) => ({ k, text: L[label] }));
+    const rows = Math.ceil(entries.length / 2);
+    const cw = Math.min(W - 16, 280),
+      cx = Math.round((W - cw) / 2);
+    const ch = 14 + rows * 11 + 4;
+    if (top + ch + 26 > H) return top;
+    this.frame3(cx, top, cw, ch);
+    drawText(ctx, L.controlsTitle, cx + 7, top + 6, 1, INK.gold);
+    entries.forEach(({ k, text }, i) => {
+      const kx = cx + 7 + (i % 2) * Math.floor((cw - 14) / 2),
+        ky = top + 17 + Math.floor(i / 2) * 11;
+      drawText(ctx, text, kx + this.keycap(kx, ky, k) + 4, ky + 1, 1, INK.sandLight);
+    });
+    return top + ch + 10;
   }
 
   private warning() {
@@ -3319,33 +3484,64 @@ class Mission {
     ctx.globalAlpha = 0.7;
     art.rect(ctx, 0, 0, W, H, INK.soot);
     ctx.globalAlpha = 1;
-    drawText(ctx, L.continue, W / 2, H * 0.28, fitScale(L.continue, W - 16, 3), GOLD, {
-      outline: INK.soot,
-      align: "center",
+    const { placed } = column({
+      pieces: [
+        { kind: "text", text: L.continue, max: 3 },
+        { kind: "text", text: String(Math.max(0, Math.ceil(this.countdown))), max: 8 },
+        { kind: "text", text: touch() ? L.tap : L.press, max: 1, optional: true },
+      ],
+      top: Math.min(48, Math.round(H * 0.2)), // under the HUD, still in sight
+      bottom: H - 8,
+      width: W - 16,
+      gap: 10,
     });
-    const n = String(Math.max(0, Math.ceil(this.countdown)));
-    drawText(ctx, n, W / 2, H * 0.42, fitScale(n, W, 8), INK.goldLight, {
-      outline: INK.soot,
-      shadow: INK.rust,
-      align: "center",
+    const [title, count, prompt] = placed;
+    drawPlaced({
+      ctx,
+      placed: title,
+      x: W / 2,
+      ink: GOLD,
+      look: { outline: INK.soot, align: "center" },
+    });
+    drawPlaced({
+      ctx,
+      placed: count,
+      x: W / 2,
+      ink: INK.goldLight,
+      look: { outline: INK.soot, shadow: INK.rust, align: "center" },
     });
     if (Math.floor(this.t * 2) % 2 === 0)
-      drawText(ctx, touch() ? L.tap : L.press, W / 2, H * 0.72, 1, INK.sandLight, {
-        outline: INK.soot,
-        align: "center",
+      drawPlaced({
+        ctx,
+        placed: prompt,
+        x: W / 2,
+        ink: INK.sandLight,
+        look: { outline: INK.soot, align: "center" },
       });
   }
 
-  private hud() {
-    const { ctx, hero, L } = this;
-    const look = { outline: INK.soot };
+  private hudLines() {
+    const { hero, L } = this;
     const arms =
       hero.weapon === "pistol"
         ? `${L.arms} P --`
         : `${L.arms} ${WEAPONS[hero.weapon].letter} ${String(Math.ceil(hero.ammo)).padStart(3, "0")}`;
     const top = `${L.score} ${String(this.score).padStart(7, "0")}`;
     const mid = `${arms}  ${L.bombs} ${String(hero.bombs).padStart(2, "0")}`;
-    const w = Math.max(textWidth(top), textWidth(mid)) + 10;
+    return { top, mid, width: Math.max(textWidth(top), textWidth(mid)) + 10 };
+  }
+  private zones() {
+    return zonesOf({
+      width: this.W,
+      height: this.H,
+      hud: { right: this.hudLines().width + 2, bottom: 44 },
+    });
+  }
+
+  private hud() {
+    const { ctx, L } = this;
+    const look = { outline: INK.soot };
+    const { top, mid, width: w } = this.hudLines();
     ctx.globalAlpha = 0.9;
     art.rect(ctx, 2, 2, w, 33, INK.soot);
     ctx.globalAlpha = 1;
@@ -3388,17 +3584,30 @@ class Mission {
     );
   }
 
+  // The boss's health while it fights, or else the turret's once it is in sight.
+  private drawFoeBar() {
+    if (this.boss && this.phase === "play")
+      return this.bar(this.map.boss.name, this.boss.hp / this.boss.max);
+    const tu = this.turret;
+    if (tu && tu.x < this.camX + this.W && this.fighting())
+      this.bar(this.map.turret.name, tu.hp / tu.max);
+  }
+
   private bar(name: string, hp: number) {
     const { ctx, W } = this;
-    const bw = Math.min(130, W - 24),
-      x = Math.round((W - bw) / 2),
-      y = W < 260 ? 50 : 37;
-    drawText(ctx, name, W / 2, y - 10, 1, INK.goldLight, { outline: INK.soot, align: "center" });
-    art.rect(ctx, x - 2, y - 2, bw + 4, 8, INK.soot);
-    art.rect(ctx, x - 1, y - 1, bw + 2, 6, INK.gold);
-    art.rect(ctx, x, y, bw, 4, INK.soot);
-    art.rect(ctx, x, y, Math.max(0, Math.round(bw * hp)), 4, INK.rust);
-    art.rect(ctx, x, y, Math.max(0, Math.round(bw * hp)), 1, INK.ember);
+    const { bar } = this.zones();
+    const x = Math.round((W - bar.width) / 2),
+      y = bar.line;
+    const fitted = fitText({ text: name, width: W - 16, max: 1 });
+    drawText(ctx, fitted.lines.at(0) ?? name, W / 2, bar.name, 1, INK.goldLight, {
+      outline: INK.soot,
+      align: "center",
+    });
+    art.rect(ctx, x - 2, y - 2, bar.width + 4, 8, INK.soot);
+    art.rect(ctx, x - 1, y - 1, bar.width + 2, 6, INK.gold);
+    art.rect(ctx, x, y, bar.width, 4, INK.soot);
+    art.rect(ctx, x, y, Math.max(0, Math.round(bar.width * hp)), 4, INK.rust);
+    art.rect(ctx, x, y, Math.max(0, Math.round(bar.width * hp)), 1, INK.ember);
   }
 
   private banner() {
@@ -3406,103 +3615,205 @@ class Mission {
     if (!b) return;
     const { ctx, W, H } = this;
     if (b.t > b.dur - 0.3 && Math.floor(b.t * 16) % 2) return;
-    const s = fitScale(b.title, W - 16, b.big ? 7 : 3);
-    const scale = b.t < 0.07 ? s + 1 : s;
-    drawText(
+    const fitted = fitText({ text: b.title, width: W - 16, max: b.big ? 7 : 3 });
+    const pop = b.t < 0.07 && fitted.lines.length === 1 ? 1 : 0;
+    const top = Math.max(this.zones().banner, b.big ? Math.round(H * 0.3) : 0) - pop * 3;
+    drawPlaced({
       ctx,
-      b.title,
-      W / 2,
-      Math.round(b.big ? H * 0.3 : H * 0.24) - (scale - s) * 3,
-      scale,
-      GOLD,
-      { outline: INK.soot, shadow: INK.rust, align: "center" },
-    );
+      placed: { ...fitted, scale: fitted.scale + pop, y: top, height: heightOf(fitted) },
+      x: W / 2,
+      ink: GOLD,
+      look: { outline: INK.soot, shadow: INK.rust, align: "center" },
+    });
   }
 
   // The debrief: what was done, the rank, the chapter's skills (the missed ones dimmed), and
-  // what comes next: the next operation, or the congratulation.
+  // what comes next. Rows come in pages when the stage is short; the end buttons stay clear.
   private debrief() {
-    const { ctx, W, H, L } = this;
+    const { W, L } = this;
     const bw = Math.min(W - 16, 270),
-      bx = Math.round((W - bw) / 2),
-      by = Math.max(6, Math.round(H * 0.04));
+      bx = Math.round((W - bw) / 2);
     const inner = bw - 16;
-    const head = this.headline();
-    const ts = fitScale(head, inner, 2);
-    const rows = this.stats();
     const pickups = this.chapter().pickups;
-    const lines = this.flow(
+    const stats = this.stats();
+    const loadout = this.flow(
       pickups.map((p, i) => ({
-        text: p.name.toUpperCase().replaceAll(" ", " ") + (i < pickups.length - 1 ? " ·" : ""),
+        text: p.name.toUpperCase() + (i < pickups.length - 1 ? " ·" : ""),
         on: this.got.includes(p),
       })),
       inner,
     );
     const tail = this.failed ? "" : this.isLast() ? L.congratsLine : L.nextUnlocked;
-    const tails = tail ? wrap(tail, inner) : [];
-    const bh =
-      10 +
-      GLYPH_H * ts +
-      16 +
-      rows.length * 10 +
-      2 +
-      GLYPH_H * 2 +
-      8 +
-      10 +
-      lines.length * 10 +
-      tails.length * 10 +
-      8;
-    this.frame3(bx, by, bw, bh);
-    this.boxBottom = by + bh;
+    const rows: Row[] = [
+      ...stats.map(([k, v], i) =>
+        this.statRow({ key: k, value: v, step: i, box: { left: bx + 8, right: bx + bw - 8 } }),
+      ),
+      this.rankRow({ step: stats.length, left: bx + 8, right: bx + bw - 8 }),
+      this.textRow({ text: L.loadout, step: stats.length + 1, x: bx + 8, ink: INK.khaki }),
+      ...loadout.map((line) => this.flowRow({ line, step: stats.length + 1, x: bx + 8 })),
+      ...(tail ? wrap(tail, inner) : []).map((text) =>
+        this.textRow({ text, step: stats.length + 1, x: W / 2, ink: INK.gold, align: "center" }),
+      ),
+    ];
     const step = Math.floor(this.pt / 0.28);
-    if (step > this.revealed && this.revealed < rows.length + 2) {
+    if (step > this.revealed && this.revealed < stats.length + 2) {
       this.revealed = step;
       this.sound.tick();
     }
-    const L0 = bx + 8,
-      R0 = bx + bw - 8;
-    drawText(ctx, head, W / 2, by + 9, ts, this.failed ? INK.rust : GOLD, {
+    this.pagedBox({
+      box: { x: bx, w: bw },
+      head: this.headline(),
+      sub: `${this.map.title} · ${this.chapter().title}`,
+      rows,
+    });
+  }
+
+  // Reduced motion: every chapter's skills, still, in pages when they do not fit.
+  private loadout() {
+    const { W } = this;
+    const bw = Math.min(W - 16, 270),
+      bx = Math.round((W - bw) / 2);
+    const rows = MAPS.map((m) => this.chapter(m)).flatMap((c) => [
+      this.textRow({ text: c.title, step: -1, x: bx + 8, ink: INK.gold }),
+      ...this.flow(
+        c.pickups.map((p, i) => ({
+          text: p.name.toUpperCase() + (i < c.pickups.length - 1 ? " ·" : ""),
+          on: true,
+        })),
+        bw - 16,
+      ).map((line) => this.flowRow({ line, step: -1, x: bx + 8 })),
+    ]);
+    this.pagedBox({ box: { x: bx, w: bw }, head: this.L.loadout, sub: "", rows });
+  }
+
+  // A framed box with as many rows as fit above the end buttons; more, and pages take turns.
+  private pagedBox({
+    box,
+    head,
+    sub,
+    rows,
+  }: {
+    box: { x: number; w: number };
+    head: string;
+    sub: string;
+    rows: Row[];
+  }) {
+    const { ctx, W, H } = this;
+    const inner = box.w - 16;
+    const ts = fitScale(head, inner, 2);
+    const subs = sub ? wrap(sub, inner) : [];
+    const headHeight = 9 + GLYPH_H * ts + 6 + subs.length * 10 + 4;
+    const top = Math.max(6, Math.round(H * 0.04));
+    const room = H - this.endRoom - top - headHeight - 24;
+    const pages = pagesOf({ heights: rows.map((r) => r.height), room });
+    const index = this.pageShown({ pages, rows });
+    const page = pages.at(index) ?? [];
+    const marker = pages.length > 1 ? 10 : 0;
+    const bh = headHeight + page.reduce((n, i) => n + (rows.at(i)?.height ?? 0), 0) + 8 + marker;
+    this.frame3(box.x, top, box.w, bh);
+    drawText(ctx, head, W / 2, top + 9, ts, this.failed ? INK.rust : GOLD, {
       outline: INK.soot,
       align: "center",
     });
-    drawText(
-      ctx,
-      `${this.map.title} · ${this.chapter().title}`,
-      W / 2,
-      by + 10 + GLYPH_H * ts + 4,
-      1,
-      INK.khaki,
-      { align: "center" },
+    subs.forEach((l, i) =>
+      drawText(ctx, l, W / 2, top + 9 + GLYPH_H * ts + 6 + i * 10, 1, INK.khaki, {
+        align: "center",
+      }),
     );
-    let y = by + 10 + GLYPH_H * ts + 16;
-    rows.forEach(([k, v], i) => {
-      if (this.revealed > i) {
-        drawText(ctx, k, L0, y, 1, INK.sand);
-        drawText(ctx, v, R0, y, 1, INK.goldLight, { align: "right" });
-      }
-      y += 10;
-    });
-    y += 2;
-    if (this.revealed > rows.length) {
-      drawText(ctx, L.rank, L0, y + 4, 1, INK.sand);
-      drawText(ctx, this.rank(), R0, y, 2, GOLD, { outline: INK.soot, align: "right" });
+    let y = top + headHeight;
+    for (const i of page) {
+      const row = rows.at(i);
+      if (!row) continue;
+      if (this.revealed > row.step) row.draw(y);
+      y += row.height;
     }
-    y += GLYPH_H * 2 + 8;
-    if (this.revealed > rows.length + 1) {
-      drawText(ctx, L.loadout, L0, y, 1, INK.khaki);
-      y += 10;
-      for (const l of lines) {
-        let x = L0;
-        for (const it of l)
-          x += drawText(ctx, it.text, x, y, 1, it.on ? INK.sandLight : INK.stoneDark) + 6;
-        y += 10;
-      }
-      for (const l of tails) {
-        drawText(ctx, l, W / 2, y + 2, 1, INK.gold, { align: "center" });
-        y += 10;
-      }
+    if (pages.length > 1)
+      drawText(ctx, `${index + 1}/${pages.length}`, box.x + box.w - 8, top + bh - 9, 1, INK.khaki, {
+        align: "right",
+      });
+  }
+
+  // While the rows come in, the page holding the newest; once all are in, the pages take turns.
+  private pageShown({ pages, rows }: { pages: number[][]; rows: Row[] }) {
+    if (pages.length < 2) return 0;
+    const lastStep = Math.max(0, ...rows.map((r) => r.step));
+    const settled = (lastStep + 1) * 0.28 + 2.5;
+    if (this.phase === "clear" && this.pt < settled) {
+      const newest = rows.findLastIndex((r) => this.revealed > r.step);
+      return Math.max(
+        0,
+        pages.findIndex((p) => p.includes(newest)),
+      );
     }
-    this.placeEnd();
+    return Math.floor(Math.max(0, this.pt - settled) / 4) % pages.length;
+  }
+
+  private statRow({
+    key,
+    value,
+    step,
+    box,
+  }: {
+    key: string;
+    value: string;
+    step: number;
+    box: { left: number; right: number };
+  }): Row {
+    return {
+      height: 10,
+      step,
+      draw: (y) => {
+        drawText(this.ctx, key, box.left, y, 1, INK.sand);
+        drawText(this.ctx, value, box.right, y, 1, INK.goldLight, { align: "right" });
+      },
+    };
+  }
+  private rankRow({ step, left, right }: { step: number; left: number; right: number }): Row {
+    return {
+      height: GLYPH_H * 2 + 10,
+      step,
+      draw: (y) => {
+        drawText(this.ctx, this.L.rank, left, y + 6, 1, INK.sand);
+        drawText(this.ctx, this.rank(), right, y + 2, 2, GOLD, {
+          outline: INK.soot,
+          align: "right",
+        });
+      },
+    };
+  }
+  private textRow({
+    text,
+    step,
+    x,
+    ink,
+    align = "left",
+  }: {
+    text: string;
+    step: number;
+    x: number;
+    ink: string;
+    align?: "left" | "center";
+  }): Row {
+    return { height: 10, step, draw: (y) => drawText(this.ctx, text, x, y, 1, ink, { align }) };
+  }
+  private flowRow({
+    line,
+    step,
+    x,
+  }: {
+    line: { text: string; on: boolean }[];
+    step: number;
+    x: number;
+  }): Row {
+    return {
+      height: 10,
+      step,
+      draw: (y) => {
+        let at = x;
+        for (const it of line)
+          at += drawText(this.ctx, it.text, at, y, 1, it.on ? INK.sandLight : INK.stoneDark) + 6;
+      },
+    };
   }
 
   // Lays words of two inks into lines no wider than `width`.
@@ -3523,43 +3834,51 @@ class Mission {
     return lines;
   }
 
-  // Reduced motion: every chapter's skills, still.
-  private loadout() {
-    const { ctx, W, H } = this;
-    const bw = Math.min(W - 16, 270),
-      bx = Math.round((W - bw) / 2),
-      by = Math.max(6, Math.round(H * 0.04));
-    const inner = bw - 16;
-    const blocks = MAPS.map((m) => this.chapter(m)).map((c) => ({
-      title: c.title,
-      lines: this.flow(
-        c.pickups.map((p, i) => ({
-          text: p.name.toUpperCase().replaceAll(" ", " ") + (i < c.pickups.length - 1 ? " ·" : ""),
-          on: true,
-        })),
-        inner,
-      ),
-    }));
-    const bh = 12 + blocks.reduce((n, b) => n + 12 + b.lines.length * 10 + 4, 0) + 4;
-    this.frame3(bx, by, bw, bh);
-    this.boxBottom = by + bh;
-    let y = by + 8;
-    drawText(ctx, this.L.loadout, bx + 8, y, 1, INK.khaki);
-    y += 12;
-    for (const b of blocks) {
-      drawText(ctx, b.title, bx + 8, y, 1, INK.gold);
-      y += 12;
-      for (const l of b.lines) {
-        let x = bx + 8;
-        for (const it of l) x += drawText(ctx, it.text, x, y, 1, INK.sandLight) + 6;
-        y += 10;
-      }
-      y += 4;
-    }
-    this.placeEnd();
+  // Without a touch deck the end buttons cover the stage's foot, so the debrief keeps clear of it.
+  private measureEnd() {
+    this.endRoom =
+      this.deck.mode === "none" && !this.end.hidden
+        ? Math.ceil(this.end.offsetHeight / this.S) + 4
+        : 0;
   }
 
-  private placeEnd() {
-    this.end.style.top = `${(this.boxBottom + 6) * this.S}px`;
+  // Under the floor (controls.ts, playable): the hero, and a word to say sorry.
+  private drawTooSmall() {
+    const { ctx, W, H, L } = this;
+    art.rect(ctx, 0, 0, W, H, this.map.theme.menu);
+    const hero = this.sp.hero.at(0);
+    const heroHeight = hero ? hero.h * 2 : 0;
+    const { placed } = column({
+      pieces: [
+        { kind: "text", text: `${L.hero}:`, max: 1 },
+        { kind: "text", text: L.tooSmallTitle, max: 3 },
+        { kind: "text", text: L.tooSmall, max: 1 },
+      ],
+      top: Math.max(14, H - heroHeight - 190), // the bubble stays near the one who speaks
+      bottom: H - heroHeight - 18,
+      width: W - 28,
+      gap: 6,
+    });
+    const shown = placed.filter((p) => p !== undefined);
+    const first = shown.at(0);
+    const last = shown.at(-1);
+    if (first && last) {
+      const top = first.y - 7,
+        bottom = last.y + last.height + 7;
+      this.frame3(6, top, W - 12, bottom - top);
+      art.rect(ctx, 24, bottom, 6, 3, INK.soot);
+      art.rect(ctx, 24, bottom + 3, 3, 3, INK.soot);
+    }
+    const [speaker, title, words] = placed;
+    drawPlaced({ ctx, placed: speaker, x: W / 2, ink: INK.khaki });
+    drawPlaced({
+      ctx,
+      placed: title,
+      x: W / 2,
+      ink: GOLD,
+      look: { outline: INK.soot, align: "center" },
+    });
+    drawPlaced({ ctx, placed: words, x: W / 2, ink: INK.sandLight });
+    if (hero) this.blit(hero.img, 14, H - heroHeight - 6, false, 2);
   }
 }

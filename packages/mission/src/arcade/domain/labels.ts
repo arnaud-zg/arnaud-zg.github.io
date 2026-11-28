@@ -7,6 +7,7 @@ export const missionLabels = {
   boot: "PIXEL FORGE",
   bootLine: "16-BIT ARCADE SYSTEM",
   press: "PRESS ENTER",
+  tapStart: "TAP TO START",
   coin: "INSERT COFFEE",
   credits: "CREDITS",
   common: "COMMON",
@@ -73,15 +74,26 @@ export const missionLabels = {
   nextUnlocked: "NEXT OPERATION UNLOCKED",
   congrats: "CONGRATULATIONS!",
   congratsLine: "EVERY OPERATION CLEAR: THE WHOLE JOURNEY, SEEN",
-  // The buttons under the debrief, and what sharing says. In the texts, {played} (each
-  // operation with its rank), {score}, {skills}, {total}, {host} and {url} are filled in.
+  // Each end button with what it does; {n}, {total}, {played}, {score}, {skills}, {host}, {url} are filled in.
   replay: "Play again",
-  share: "Share my score",
+  replayNote: "FROM THE FIRST OPERATION",
+  nextNote: "OPERATION {n} OF {total}",
+  share: "Share my score card",
+  shareNote: "SENDS AN IMAGE OF YOUR SCORE",
+  shareNoteDesktop: "COPIES AN IMAGE OF YOUR SCORE, THEN OPENS A LINKEDIN POST",
   message: "Message me",
+  messageNote: "COPIES A MESSAGE, OPENS THE LINK",
   exit: "Back to the page",
+  exitNote: "LEAVES THE GAME",
   playAnyway: "Play anyway",
-  copied: "COPIED: PASTE IT IN YOUR MESSAGE",
-  imageCopied: "SCORE CARD COPIED: PASTE IT IN YOUR POST",
+  playAnywayNote: "THE GAME, WITH MOTION",
+  copied: "MESSAGE COPIED: PASTE IT IN YOUR MESSAGE",
+  imageCopied: "SCORE IMAGE COPIED: PASTE IT INTO YOUR POST",
+  // A screen too small to play on: the hero says so, and where to play instead.
+  tooSmallTitle: "SORRY!",
+  tooSmall:
+    "THIS SCREEN IS TOO SMALL FOR THE MISSION. IT'S A PRETTY GOOD GAME THOUGH: TRY IT ON A BIGGER SCREEN, OR TURN YOUR PHONE.",
+  more: "MORE",
   rankOf: "rank {rank}",
   shareText:
     "I found the secret mission hidden in {host}. Played {played}: {score} points, {skills} of {total} skills unlocked. Think you can beat it? {url}",
