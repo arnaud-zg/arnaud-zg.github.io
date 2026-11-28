@@ -3,10 +3,11 @@ import { globSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 const LAYERS = ["domain", "ports", "application", "adapters"];
-// The layer is the folder a file sits in, or one above it (the mission's maps sit in domain/maps).
+// The layer is the nearest folder named for one, at any depth (domain/levels/catalog is domain).
 const layerOf = (path) => {
   const dirs = path.split("/").slice(0, -1);
-  return LAYERS.findIndex((layer) => dirs.at(-1) === layer || dirs.at(-2) === layer);
+  const nearest = dirs.findLast((dir) => LAYERS.includes(dir));
+  return nearest === undefined ? -1 : LAYERS.indexOf(nearest);
 };
 const contextOf = (path) => path.split("/src/")[1].split("/")[0];
 const problems = [];

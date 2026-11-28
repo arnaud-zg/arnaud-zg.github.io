@@ -20,5 +20,5 @@ reads `input`, `campaign` reads `combat`, the `arcade` reads them all, and nothi
 Until the code is in, a page carries only `./trigger`: the listener, and the Konami code it waits
 for. The game, its art and its sound load after.
 
-To add a map, write a file in `src/campaign/domain/maps/` in the shape of `MissionMap`, list it in
-`maps/index.ts`, and give it a rarity.
+Every level, and what levels share (foes, points, lore), lives in one folder:
+[`src/campaign/domain/levels/`](src/campaign/domain/levels/README.md) says how to add one.

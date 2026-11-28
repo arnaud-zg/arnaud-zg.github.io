@@ -1,7 +1,7 @@
 // The secret mission, loaded only once the Konami code is in (see trigger.ts). An arcade
 // campaign over the dimmed page, drawn on a small canvas scaled up pixel for pixel.
 //
-// The run: a power-on badge, the title, character select, then the three maps of maps/, one per
+// The run: a power-on badge, the title, character select, then the three maps of levels/, one per
 // chapter of the career, in the order the clock draws (see orderMaps). Finishing one, at any
 // rank, unlocks the next; all three earn a congratulation. Each map has its briefing,
 // checkpoints, mid-boss and boss; its crates hold the chapter's skills and unlock its weapons.
@@ -16,9 +16,11 @@ import type { Move } from "../../moves/domain/combos.ts";
 import type { Piece } from "../domain/layout.ts";
 import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
-import { loreOf } from "../../campaign/domain/lore.ts";
+import { FOES } from "../../campaign/domain/levels/catalog/foes.ts";
+import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
+import { POINTS } from "../../campaign/domain/levels/catalog/points.ts";
+import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/levels/index.ts";
 import { orderMaps, pickMap } from "../../campaign/domain/map.ts";
-import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/maps/index.ts";
 import { chainAfter, multiplierOf, rankOf } from "../../combat/domain/score.ts";
 import { weaponOf, WEAPONS } from "../../combat/domain/weapons.ts";
 import {
@@ -1326,12 +1328,12 @@ class Mission {
   private spawnFoe(kind: FoeKind, from: "right" | "left", lock: number, extra: boolean) {
     const x = from === "left" ? this.camX - 16 : this.camX + this.W + 6;
     const tough = this.tune().tough;
-    const size =
-      kind === "bug"
-        ? { w: 10, h: 6, hp: 1 }
-        : kind === "robot"
-          ? { w: 14, h: 16, hp: toughen(3, tough) }
-          : { w: 14, h: 6, hp: toughen(3, tough) };
+    const spec = FOES[kind];
+    const size = {
+      w: spec.width,
+      h: spec.height,
+      hp: spec.toughens ? toughen(spec.health, tough) : spec.health,
+    };
     // One from behind is called out at the edge it comes from.
     if (from === "left" && !extra) {
       this.alerts.push({ side: -1, t: 0 });
@@ -1807,7 +1809,7 @@ class Mission {
     if (b && target === b) {
       b.hp -= dmg;
       b.flash = 0.05;
-      this.score += Math.round(dmg * 20);
+      this.score += Math.round(dmg * POINTS.bossHit);
       this.burst(at.x, at.y, 3, [INK.goldLight, ...this.map.theme.debris.slice(0, 2)], 50);
       this.sound.hit();
       if (b.hp <= 0) this.bossDown();
@@ -1823,14 +1825,14 @@ class Mission {
       if (f.kind === "robot") [f.state, f.timer] = ["walk", Math.max(f.timer, 0.6)];
     }
     if (f.hp > 0) return;
-    const base = f.kind === "bug" ? 100 : f.kind === "robot" ? 300 : 400;
+    const base = FOES[f.kind].points;
     this.stop = stopFor(
       this.stop,
       f.kind === "bug" ? HITSTOP.kill : HITSTOP.heavy * (melee ? 1.3 : 1),
     );
     this.chain = chainAfter(this.chain, this.t - this.lastKill);
     this.lastKill = this.t;
-    const mult = multiplierOf(this.chain) * (melee ? 2 : 1);
+    const mult = multiplierOf(this.chain) * (melee ? POINTS.melee : 1);
     this.score += base * mult;
     this.kills++;
     this.tracker.observe("kill");
@@ -1861,7 +1863,7 @@ class Mission {
 
   private openCrate(c: Crate) {
     this.crates = this.crates.filter((o) => o !== c);
-    this.score += 200;
+    this.score += POINTS.crate;
     this.burst(c.x + 6, c.y + 5, 16, [INK.khaki, "#d29a55", "#8a5a2b", INK.soot], 90);
     this.boomAt(c.x + 6, c.y + 5, 7, 0.35);
     this.items.push({
@@ -1882,7 +1884,7 @@ class Mission {
     m.t = 0;
     this.freed++;
     this.here.freed++;
-    this.score += 1000;
+    this.score += POINTS.mate;
     this.sound.free();
     this.notes.push({ x: m.x + 6, y: m.feet - 22, text: "1000", t: 0, color: INK.goldLight });
   }
@@ -1906,7 +1908,7 @@ class Mission {
     const weapon = it.weapon ?? "rapid";
     hero.weapon = weapon;
     hero.ammo = WEAPONS[weapon].ammo;
-    this.score += 500;
+    this.score += POINTS.weapon;
     this.sound.pickup();
     if (it.p) {
       this.got.push(it.p);
@@ -2086,7 +2088,7 @@ class Mission {
     const tu = this.turret;
     if (!tu) return;
     this.turret = undefined;
-    this.score += 5000;
+    this.score += POINTS.turret;
     this.shake = 6;
     this.stop = stopFor(this.stop, HITSTOP.boss);
     for (let i = 0; i < 4; i++)
@@ -2270,7 +2272,7 @@ class Mission {
   private bossDown() {
     this.go("fall");
     this.stop = stopFor(this.stop, HITSTOP.boss);
-    this.score += 20000;
+    this.score += POINTS.boss;
     this.sweep = undefined;
     this.waves = [];
     this.hostiles = [];

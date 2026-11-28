@@ -1,6 +1,4 @@
-// What a mission map is. Each map lives in its own file under maps/ and is data only: the engine
-// (game.ts) reads it, and nothing in a map runs. To add one, write a file in this shape, list it
-// in maps/index.ts and give it hours in the schedule there.
+// What a mission map is: one data file per level in levels/ (see its README), read by the engine.
 //
 // Units: stage pixels (the canvas is drawn small and scaled up), seconds, and heights measured up
 // from the ground. `at` is where the right edge of the camera must reach for an event to fire.
@@ -93,7 +91,7 @@ export type Theme = {
 
 export type MissionMap = {
   readonly id: string;
-  readonly rarity: Rarity; // how often the clock brings it (see maps/index.ts)
+  readonly rarity: Rarity; // how often the clock brings it (see levels/index.ts)
   readonly title: string;
   readonly time: string; // the hour it plays at, said on the briefing
   readonly briefing: readonly string[];

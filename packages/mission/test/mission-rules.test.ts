@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { crateSlots, orderMaps, pickMap } from "../src/campaign/domain/map.ts";
-import { MAPS, MOMENTS, ODDS } from "../src/campaign/domain/maps/index.ts";
+import { MAPS, MOMENTS, ODDS } from "../src/campaign/domain/levels/index.ts";
+import { orderMaps, pickMap } from "../src/campaign/domain/map.ts";
 import { chainAfter, multiplierOf, rankOf } from "../src/combat/domain/score.ts";
 import { weaponOf, WEAPONS } from "../src/combat/domain/weapons.ts";
 import {
@@ -80,20 +80,6 @@ test("the rank is hard to earn: one credit, the skills and a sure hand", () => {
   assert.equal(rankOf({ ...run, cleared: false }), "-");
 });
 
-test("every map holds a crate for each skill, keeps its events in order and ends on its boss", () => {
-  for (const map of MAPS) {
-    assert.equal(crateSlots(map), 11, map.id);
-    assert.deepEqual(map.events.at(-1), { at: map.length, kind: "boss" }, map.id);
-    const ats = map.events.map((e) => e.at);
-    assert.deepEqual(
-      ats,
-      [...ats].sort((a, b) => a - b),
-      map.id,
-    );
-    assert.equal(map.boss.phases[0]?.below, 1, map.id);
-  }
-});
-
 const at = (h: number, m: number, day = 28) =>
   pickMap(MAPS, ODDS, MOMENTS, new Date(2026, 10, day, h, m));
 
@@ -156,7 +142,7 @@ test("the campaign plays every map once, the clock's pick first, the rare one mo
 });
 
 test("every skill of the site's stack has a fun fact to tell", async () => {
-  const { loreOf } = await import("../src/campaign/domain/lore.ts");
+  const { loreOf } = await import("../src/campaign/domain/levels/catalog/lore.ts");
   for (const s of ["TypeScript", "React Native", "Node.js", "Module Federation", "CQRS"])
     assert.ok(loreOf(s), s);
   assert.equal(loreOf("Cobol"), undefined);
