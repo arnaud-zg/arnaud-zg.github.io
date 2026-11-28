@@ -68,6 +68,7 @@ export const shipIt: MissionMap = {
     { at: 0, kind: "crate", x: 150 },
     { at: 0, kind: "crate", x: 236 },
     { at: 220, kind: "spawn", spawn: { foe: "bug", n: 2, gap: 1.4 } },
+    { at: 260, kind: "exercise", x: 290, id: "race" },
     {
       at: 340,
       kind: "lock",
@@ -98,6 +99,7 @@ export const shipIt: MissionMap = {
     { at: 900, kind: "lock", x: 990, turret: 950, wave: [{ foe: "bug", n: 3, gap: 3, delay: 4 }] },
     { at: 1060, kind: "spawn", spawn: { foe: "robot", n: 3, gap: 1.3 } },
     { at: 1080, kind: "spawn", spawn: { foe: "drone", delay: 2 } },
+    { at: 1100, kind: "exercise", x: 1130, id: "draw-the-boundary" },
     { at: 1150, kind: "mate", x: 1190, h: 20, gift: "life" },
     { at: 1210, kind: "crate", x: 1276, h: 36 },
     { at: 1270, kind: "spawn", spawn: { foe: "bug", n: 5, gap: 0.55 } },
@@ -106,6 +108,7 @@ export const shipIt: MissionMap = {
     { at: 1420, kind: "mate", x: 1450, gift: "bombs" },
     { at: 1480, kind: "spawn", spawn: { foe: "robot", n: 2, gap: 1, delay: 0.5 } },
     { at: 1520, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.6 } },
+    { at: 1600, kind: "exercise", x: 1640, id: "route-the-packet" },
     { at: 1900, kind: "boss" },
   ],
 };

@@ -67,6 +67,7 @@ export const greenfield: MissionMap = {
   events: [
     { at: 0, kind: "crate", x: 140 },
     { at: 160, kind: "spawn", spawn: { foe: "drone", delay: 0.5 } },
+    { at: 170, kind: "exercise", x: 210, id: "name-the-context" },
     { at: 240, kind: "crate", x: 250 },
     { at: 300, kind: "spawn", spawn: { foe: "bug", n: 3, gap: 0.9 } },
     {
@@ -85,6 +86,7 @@ export const greenfield: MissionMap = {
     { at: 600, kind: "spawn", spawn: { foe: "robot", n: 2, gap: 1.5 } },
     { at: 640, kind: "spawn", spawn: { foe: "robot", from: "left", delay: 1.5 } },
     { at: 760, kind: "crate", x: 780 },
+    { at: 800, kind: "exercise", x: 830, id: "matryoshka" },
     {
       at: 880,
       kind: "lock",
@@ -111,6 +113,7 @@ export const greenfield: MissionMap = {
     { at: 1460, kind: "mate", x: 1500, gift: "bombs" },
     { at: 1520, kind: "spawn", spawn: { foe: "robot", n: 2, gap: 1, delay: 0.5 } },
     { at: 1560, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.4 } },
+    { at: 1600, kind: "exercise", x: 1630, id: "lockers" },
     { at: 1900, kind: "boss" },
   ],
 };

@@ -10,6 +10,7 @@
 // Reduced motion gets the loadout, still.
 import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
+import type { Answer, Perk } from "../../challenge/domain/exercise.ts";
 import type { ReviewId, ReviewRow } from "../../combat/domain/score.ts";
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { Deck, Key } from "../../input/domain/controls.ts";
@@ -17,12 +18,14 @@ import type { Move } from "../../moves/domain/combos.ts";
 import type { Piece } from "../domain/layout.ts";
 import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
+import { EXERCISES } from "../../campaign/domain/levels/catalog/exercises.ts";
 import { FOES } from "../../campaign/domain/levels/catalog/foes.ts";
 import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
 import { POINTS, TALLY } from "../../campaign/domain/levels/catalog/points.ts";
 import { REVIEW } from "../../campaign/domain/levels/catalog/review.ts";
 import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/levels/index.ts";
 import { orderMaps, pickMap } from "../../campaign/domain/map.ts";
+import { resultOf } from "../../challenge/domain/exercise.ts";
 import { Ledger } from "../../challenge/domain/ledger.ts";
 import { bonusOf, chainAfter, multiplierOf, rankOf, reviewOf } from "../../combat/domain/score.ts";
 import { weaponOf, WEAPONS } from "../../combat/domain/weapons.ts";
@@ -45,6 +48,7 @@ import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts
 import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
 import { column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
 import * as art from "./canvas.draw.ts";
+import { Whiteboard } from "./canvas.exercise.ts";
 import { drawPlaced } from "./canvas.layout.ts";
 import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
 import { closestTo } from "./dom.target.ts";
@@ -203,6 +207,7 @@ type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
 type Cube = Pt & { vx: number; vy: number; color: string };
 type Alert = { side: 1 | -1; t: number }; // a foe coming in from off screen
+type Board = { x: number; id: keyof typeof EXERCISES; used: boolean }; // a whiteboard standing in the level
 type Row = { height: number; step: number; draw: (y: number) => void }; // a debrief line, shown once `revealed` passes `step`
 type Queued = {
   at: number;
@@ -359,7 +364,17 @@ class Mission {
   private freed = 0;
   private seconds = 0;
   private got: Pickup[] = [];
-  private here = { deaths: 0, fired: 0, landed: 0, freed: 0, seconds: 0, bestChain: 0 }; // this map's, for its rank and review
+  private here = {
+    deaths: 0,
+    fired: 0,
+    landed: 0,
+    freed: 0,
+    seconds: 0,
+    bestChain: 0,
+    exercises: { asked: 0, solved: 0, points: 0 },
+  }; // this map's, for its rank and review
+  private boards: Board[] = [];
+  private whiteboard: Whiteboard | undefined; // an exercise is up: the fight waits
   private ledger = new Ledger(); // the run's technical debt, carried from map to map
   private review: readonly ReviewRow[] = []; // the last cleared map's, with its bonus already in the score
   private chain = 0;
@@ -541,10 +556,11 @@ class Mission {
       "pointerdown",
       (e) => {
         e.preventDefault();
-        if (this.reading || this.paused) return this.press("start");
         const box = canvas.getBoundingClientRect();
-        if (!this.fighting())
-          this.menu({ x: (e.clientX - box.left) / this.S, y: (e.clientY - box.top) / this.S });
+        const at = { x: (e.clientX - box.left) / this.S, y: (e.clientY - box.top) / this.S };
+        if (this.whiteboard) return this.whiteboard.tap(at);
+        if (this.reading || this.paused) return this.press("start");
+        if (!this.fighting()) this.menu(at);
       },
       { signal },
     );
@@ -828,6 +844,7 @@ class Mission {
 
   private press(key: Key) {
     this.held.add(key);
+    if (this.whiteboard) return this.whiteboard.press(key);
     const go = key === "start" || key === "jump" || key === "fire";
     // A message is up: Enter, Space or a tap carries on, once it has been read.
     if (this.reading) {
@@ -985,6 +1002,7 @@ class Mission {
       crates: [],
       items: [],
       mates: [],
+      boards: [],
       foes: [],
       shots: [],
       hostiles: [],
@@ -1014,7 +1032,16 @@ class Mission {
     this.hero = this.freshHero();
     this.hero.feet = this.gy;
     if (this.stage > 0) this.hero.bombs = Math.max(bombs, 6);
-    this.here = { deaths: 0, fired: 0, landed: 0, freed: 0, seconds: 0, bestChain: 0 };
+    this.here = {
+      deaths: 0,
+      fired: 0,
+      landed: 0,
+      freed: 0,
+      seconds: 0,
+      bestChain: 0,
+      exercises: { asked: 0, solved: 0, points: 0 },
+    };
+    this.whiteboard = undefined;
     this.review = [];
     this.end.hidden = true;
     this.sound.music(undefined);
@@ -1123,6 +1150,10 @@ class Mission {
 
   // One tick of the clock: a message waits to be read, a heavy blow holds, or the world moves.
   private step(dt: number) {
+    if (this.whiteboard) {
+      this.whiteboard.tick(dt);
+      return;
+    }
     if (this.reading) {
       this.reading += dt;
       this.card.classList.toggle("is-ready", this.reading > READ);
@@ -1289,6 +1320,9 @@ class Mission {
       case "mate":
         this.mates.push({ x: e.x, feet: gy - (e.h ?? 0), state: "bound", t: 0, gift: e.gift });
         return;
+      case "exercise":
+        this.boards.push({ x: e.x, id: e.id, used: false });
+        return;
       case "spawn":
         return this.enqueue(e.spawn, -1);
       case "lock": {
@@ -1378,6 +1412,67 @@ class Mission {
     // At ease, the player meets one more now and then.
     if (!extra && Math.random() < this.tune().extra)
       this.queue.push({ at: this.t + 0.7, spawn: kind, from, lock, extra: true });
+  }
+
+  // ── The whiteboards: walking into one opens it, and the fight waits for the answer ─────────
+  private walkUpToBoards() {
+    const board = this.boards.find(
+      (b) => !b.used && Math.abs(this.hero.x + 8 - b.x) < 8 && this.hero.dead <= 0,
+    );
+    if (!board) return;
+    board.used = true;
+    this.held.clear();
+    this.whiteboard = new Whiteboard(EXERCISES[board.id], {
+      ctx: this.ctx,
+      size: () => ({ W: this.W, H: this.H }),
+      frame: ({ x, y, w, h }) => this.frame3(x, y, w, h),
+      labels: this.L,
+      touch: touch(),
+      sound: {
+        tick: () => this.sound.tick(),
+        press: () => this.sound.chime(),
+        nope: () => this.sound.empty(),
+      },
+      say: (text) => this.say(text),
+      done: (answers) => this.closeBoard({ id: board.id, answers }),
+    });
+  }
+
+  // The answers count: points and the code review for a quiz, debt and perks for a decision.
+  private closeBoard({ id, answers }: { id: keyof typeof EXERCISES; answers: readonly Answer[] }) {
+    const exercise = EXERCISES[id];
+    const result = resultOf({ exercise, answers });
+    this.whiteboard = undefined;
+    this.hero.inv = Math.max(this.hero.inv, 0.8);
+    this.score += result.points;
+    if (exercise.kind === "quiz")
+      this.here.exercises = {
+        asked: this.here.exercises.asked + 1,
+        solved: this.here.exercises.solved + (result.solved ? 1 : 0),
+        points: this.here.exercises.points + result.points,
+      };
+    if (result.debt > 0)
+      this.ledger.owe({ reason: exercise.id, amount: result.debt, stage: this.stage });
+    if (result.debt < 0) this.ledger.repay({ amount: -result.debt, stage: this.stage });
+    if (result.name) this.ledger.name(result.name);
+    result.perks.forEach((perk) => this.grant(perk));
+    const banner =
+      exercise.kind === "quiz"
+        ? `${result.solved ? this.L.solved : this.L.reviewQuality} +${result.points}`
+        : `${this.L.context}: ${this.ledger.contextName() ?? exercise.title}`;
+    this.banners.push({ title: banner, t: 0, dur: 1.8 });
+  }
+
+  private grant(perk: Perk) {
+    const perks = {
+      bombs: () => (this.hero.bombs += 3),
+      weapon: () => {
+        this.hero.weapon = "spread";
+        this.hero.ammo = WEAPONS.spread.ammo;
+      },
+      language: () => this.ledger.learnTheLanguage(),
+    } as const satisfies { [K in Perk]: () => void };
+    perks[perk]();
   }
 
   // ── The hero ───────────────────────────────────────────────────────────────────────────────
@@ -2472,6 +2567,7 @@ class Mission {
 
   private updateThings(dt: number) {
     const { gy } = this;
+    this.walkUpToBoards();
     for (const c of this.crates) {
       if (c.floor >= 0) continue;
       c.y += (this.H / 12) * dt;
@@ -2610,7 +2706,6 @@ class Mission {
         par: this.map.par,
         skills: pickups.filter((p) => this.got.includes(p)).length,
         total: pickups.length,
-        exercises: { asked: 0, solved: 0, points: 0 },
         debt: this.ledger.total(),
         stage: this.stage,
       },
@@ -2725,6 +2820,7 @@ class Mission {
     if (this.phase === "clear") this.debrief();
     if (this.phase === "still") this.loadout();
     if (this.paused) this.drawPaused();
+    this.whiteboard?.draw();
     if (this.reading) {
       ctx.globalAlpha = 0.45;
       art.rect(ctx, 0, 0, W, H, INK.soot); // the world waits behind the message
@@ -2794,6 +2890,7 @@ class Mission {
     );
     for (const p of map.platforms)
       if (p.x + p.w > cam && p.x < cam + W) art.ledge(ctx, p.x, gy - p.h, p.w, gy, map.theme.ledge);
+    for (const b of this.boards) art.whiteboard(ctx, b.x, gy, t, b.used);
     for (const m of this.mates) {
       art.mate(ctx, m.x, m.feet, m.state === "free", m.t);
       if (m.state === "bound" && Math.floor(t * 2) % 2 === 0)

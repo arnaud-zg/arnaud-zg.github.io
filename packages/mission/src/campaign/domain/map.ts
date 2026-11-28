@@ -4,6 +4,7 @@
 // from the ground. `at` is where the right edge of the camera must reach for an event to fire.
 
 import type { WeaponId } from "../../combat/domain/weapons.ts";
+import type { ExerciseId } from "./levels/catalog/exercises.ts";
 
 export type FoeKind = "bug" | "robot" | "drone";
 
@@ -38,6 +39,8 @@ export type MapEvent =
       readonly chutes?: number;
       readonly turret?: number; // where the mid-boss stands; it drops two crates
     }
+  // A whiteboard at `x`: walking into it opens an exercise or a design decision (catalog/exercises.ts).
+  | { readonly at: number; readonly kind: "exercise"; readonly x: number; readonly id: ExerciseId }
   // The end: a warning, then the boss, in the last screen of the map. Drops one crate.
   | { readonly at: number; readonly kind: "boss" };
 

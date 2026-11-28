@@ -65,6 +65,7 @@ export const deepDive: MissionMap = {
   events: [
     { at: 0, kind: "crate", x: 160 },
     { at: 200, kind: "spawn", spawn: { foe: "bug", n: 3, gap: 1 } },
+    { at: 200, kind: "exercise", x: 230, id: "guest-list" },
     { at: 260, kind: "crate", x: 320, h: 20 },
     { at: 330, kind: "spawn", spawn: { foe: "robot", delay: 0.5 } },
     {
@@ -90,6 +91,7 @@ export const deepDive: MissionMap = {
       turret: 1050,
       wave: [{ foe: "robot", n: 2, gap: 5, delay: 3 }],
     },
+    { at: 1000, kind: "exercise", x: 1040, id: "shortcut" },
     { at: 1180, kind: "spawn", spawn: { foe: "bug", n: 5, gap: 0.5 } },
     { at: 1240, kind: "mate", x: 1280, h: 22, gift: "life" },
     {
@@ -109,6 +111,7 @@ export const deepDive: MissionMap = {
     { at: 1600, kind: "mate", x: 1640, gift: "bombs" },
     { at: 1650, kind: "spawn", spawn: { foe: "robot", n: 3, gap: 0.9 } },
     { at: 1700, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.2 } },
+    { at: 1700, kind: "exercise", x: 1730, id: "fibonacci" },
     { at: 1950, kind: "boss" },
   ],
 };
