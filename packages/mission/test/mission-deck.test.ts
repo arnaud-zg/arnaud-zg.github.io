@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { DECK, deckOf, scaleOf } from "../src/mission/controls.ts";
+import { DECK, deckOf, scaleOf } from "../src/input/domain/controls.ts";
 
 const phones = [
   [390, 844],

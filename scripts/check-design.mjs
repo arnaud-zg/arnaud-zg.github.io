@@ -40,7 +40,11 @@ const own = [
   ...config.sites.map((s) => s.id).filter((id) => id !== "home"),
 ];
 for (const file of walk(src).filter((f) => /\.(astro|ts|css)$/.test(f))) {
-  const text = readFileSync(file, "utf8").replaceAll("@arnaud-zg/design", "");
+  // Its own name and the packages it declares are addresses, not the owner's words.
+  const text = ["@arnaud-zg/design", ...declared].reduce(
+    (t, name) => t.replaceAll(name, ""),
+    readFileSync(file, "utf8"),
+  );
   for (const word of own)
     if (text.includes(word))
       problems.push(`${relative(".", file)} names "${word}": take it from the site`);

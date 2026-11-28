@@ -8,42 +8,40 @@
 // One hit and you are down; three lives, then a continue. The difficulty follows the player
 // (rules.ts), never the score. Every message stops the game until Space carries on.
 // Reduced motion gets the loadout, still.
-import type { Chapter, MissionData, Pickup } from "./code";
-import type { Move } from "./combos";
-import type { Deck, Key } from "./controls";
-import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "./map";
-import type { WeaponId } from "./rules";
-import type { Played } from "./share";
-import css from "../styles/mission.css?inline";
-import { Combos, ENERGY, inputOf, MOVES } from "./combos";
-import { deckOf, keyOf, scaleOf, STRIP } from "./controls";
-import * as art from "./draw";
-import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./font";
-import { loreOf } from "./lore";
-import { orderMaps, pickMap } from "./map";
-import { MAPS, MOMENTS, ODDS } from "./maps";
-import { HITSTOP, JUMP, Jumper, pullToward, stopFor } from "./motion";
+import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
+import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
+import type { WeaponId } from "../../combat/domain/weapons.ts";
+import type { Deck, Key } from "../../input/domain/controls.ts";
+import type { Move } from "../../moves/domain/combos.ts";
+import type { MissionData } from "../domain/mission.ts";
+import type { Played } from "./web.share.ts";
+import { loreOf } from "../../campaign/domain/lore.ts";
+import { orderMaps, pickMap } from "../../campaign/domain/map.ts";
+import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/maps/index.ts";
+import { chainAfter, multiplierOf, rankOf } from "../../combat/domain/score.ts";
+import { weaponOf, WEAPONS } from "../../combat/domain/weapons.ts";
 import {
   afterDeath,
-  chainAfter,
   floorOf,
   HEAT,
   heatToward,
   mercyOf,
-  multiplierOf,
   nextAttack,
-  rankOf,
   spotOf,
   Spots,
   toughen,
   Tracker,
   tuningOf,
-  weaponOf,
-  WEAPONS,
-} from "./rules";
-import { fill, messageRun, scoreCard, shareRun } from "./share";
-import { Sound } from "./sound";
-import { ARM, GOLD, HERO, INK, paper, sprites } from "./sprites";
+} from "../../director/domain/director.ts";
+import { deckOf, keyOf, scaleOf, STRIP } from "../../input/domain/controls.ts";
+import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
+import { HITSTOP, JUMP, Jumper, pullToward, stopFor } from "../../moves/domain/motion.ts";
+import * as art from "./canvas.draw.ts";
+import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
+import css from "./mission.css?inline";
+import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./pixel.font.ts";
+import { fill, messageRun, scoreCard, shareRun } from "./web.share.ts";
+import { Sound } from "./webaudio.sound.ts";
 
 type Phase =
   | "boot"

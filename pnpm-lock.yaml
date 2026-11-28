@@ -253,6 +253,9 @@ importers:
       '@arnaud-zg/design':
         specifier: workspace:*
         version: link:../../packages/design
+      '@arnaud-zg/mission':
+        specifier: workspace:*
+        version: link:../../packages/mission
       '@arnaud-zg/profile':
         specifier: workspace:*
         version: link:../../packages/profile
@@ -283,6 +286,9 @@ importers:
 
   packages/design:
     dependencies:
+      '@arnaud-zg/mission':
+        specifier: workspace:*
+        version: link:../mission
       '@fontsource-variable/m-plus-1':
         specifier: ^5.3.1
         version: 5.3.1
@@ -305,6 +311,8 @@ importers:
       '@astrojs/starlight':
         specifier: ^0.43.1
         version: 0.43.1(astro@7.4.13(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(supports-color@9.4.0)(typescript@6.0.3)
+
+  packages/mission: {}
 
   packages/profile:
     dependencies:

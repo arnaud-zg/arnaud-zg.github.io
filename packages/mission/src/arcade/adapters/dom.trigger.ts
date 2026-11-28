@@ -1,5 +1,6 @@
-import type { CodeKey, MissionData } from "./code";
-import { keyOf, pushCode, swipeOf } from "./code";
+import type { CodeKey } from "../../input/domain/code.ts";
+import type { MissionData } from "../domain/mission.ts";
+import { keyOf, pushCode, swipeOf } from "../../input/domain/code.ts";
 
 // Waits for the Konami code, typed or swiped (see code.ts), or a press on [data-mission-start],
 // then loads the mission. Until then this listener is all the page carries of it.
@@ -13,7 +14,7 @@ if (source) {
     loading = true;
     try {
       const data = JSON.parse(source.textContent) as MissionData;
-      const { start } = await import("./game");
+      const { start } = await import("./canvas.game.ts");
       start(data);
     } finally {
       loading = false;

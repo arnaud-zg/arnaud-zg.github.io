@@ -17,13 +17,13 @@
     "./treemap": "./src/treemap.ts",
     "./photos": "./src/photos.ts",
     "./variants": "./src/variants.ts",
-    "./flight": "./src/flight.ts",
-    "./mission": "./src/mission/code.ts"
+    "./flight": "./src/flight.ts"
   },
   "scripts": {
     "typecheck": "astro-check"
   },
   "dependencies": {
+    "@arnaud-zg/mission": "workspace:*",
     "@fontsource-variable/m-plus-1": "^5.3.1",
     "@fontsource-variable/m-plus-1-code": "^5.3.1",
     "marked": "^18.3.0",

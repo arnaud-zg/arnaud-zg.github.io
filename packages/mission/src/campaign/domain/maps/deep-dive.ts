@@ -1,7 +1,7 @@
 // OPERATION: DEEP DIVE, the night map. A beach under the moon: tide pools, wooden piers, buoys
 // and a wreck on the sand, the sea behind. The boss is a rusty tank that leaks: it slams the
 // ground, throws barrels, and sprays a jet of water low and high.
-import type { MissionMap } from "../map";
+import type { MissionMap } from "../map.ts";
 
 export const deepDive: MissionMap = {
   id: "deep-dive",

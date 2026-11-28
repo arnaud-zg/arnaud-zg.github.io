@@ -1,9 +1,9 @@
 // Sharing a run: the words, a score card to go with them, and where they go. LinkedIn takes no
 // image and no private message from a link, so: on a phone, the system's share sheet with the
 // card; elsewhere, the card on the clipboard and a LinkedIn post opened with the words in it.
-import type { MissionLabels } from "./labels";
-import { drawText, fitScale, GLYPH_H } from "./font.ts";
-import { GOLD, INK, paper } from "./sprites.ts";
+import type { MissionLabels } from "../domain/labels.ts";
+import { GOLD, INK, paper } from "./canvas.sprites.ts";
+import { drawText, fitScale, GLYPH_H } from "./pixel.font.ts";
 
 export type Played = { readonly title: string; readonly rank: string }; // rank "-": not cleared
 export type Result = {

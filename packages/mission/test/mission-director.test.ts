@@ -14,7 +14,7 @@ import {
   toughen,
   Tracker,
   tuningOf,
-} from "../src/mission/rules.ts";
+} from "../src/director/domain/director.ts";
 
 // Plays `seconds` of a player who, each second, fires `shots`, lands `hits`, kills `kills`, and
 // dies once every `dieEvery` seconds, the way the game does: each death in the same spot counts

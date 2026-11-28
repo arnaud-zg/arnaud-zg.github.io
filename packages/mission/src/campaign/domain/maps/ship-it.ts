@@ -1,7 +1,7 @@
 // OPERATION: SHIP IT, the afternoon map. A desert ruin town under the sun: dunes, palms,
 // broken arches to climb on, server racks half sunk in the sand. The boss hops, and every
 // landing runs a shockwave along the ground.
-import type { MissionMap } from "../map";
+import type { MissionMap } from "../map.ts";
 
 export const shipIt: MissionMap = {
   id: "ship-it",

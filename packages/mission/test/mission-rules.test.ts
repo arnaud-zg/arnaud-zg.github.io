@@ -1,21 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { crateSlots, orderMaps, pickMap } from "../src/mission/map.ts";
-import { MAPS, MOMENTS, ODDS } from "../src/mission/maps/index.ts";
+import { crateSlots, orderMaps, pickMap } from "../src/campaign/domain/map.ts";
+import { MAPS, MOMENTS, ODDS } from "../src/campaign/domain/maps/index.ts";
+import { chainAfter, multiplierOf, rankOf } from "../src/combat/domain/score.ts";
+import { weaponOf, WEAPONS } from "../src/combat/domain/weapons.ts";
 import {
   afterDeath,
-  chainAfter,
   floorOf,
   HEAT,
   heatToward,
-  multiplierOf,
-  rankOf,
   Tracker,
   tuningOf,
-  weaponOf,
-  WEAPONS,
-} from "../src/mission/rules.ts";
+} from "../src/director/domain/director.ts";
 
 test("each crate hands out the map's next weapon, round and round", () => {
   const loot = ["rapid", "spread", "flame"] as const;
@@ -125,8 +122,8 @@ test("each map has its own rarity", () => {
 });
 
 test("the shared words list every operation played, with its rank or how it ended", async () => {
-  const { fill } = await import("../src/mission/share.ts");
-  const { missionLabels } = await import("../src/mission/labels.ts");
+  const { fill } = await import("../src/arcade/adapters/web.share.ts");
+  const { missionLabels } = await import("../src/arcade/domain/labels.ts");
   const run = {
     played: [
       { title: "OPERATION: DEEP DIVE", rank: "A" },
@@ -159,14 +156,14 @@ test("the campaign plays every map once, the clock's pick first, the rare one mo
 });
 
 test("every skill of the site's stack has a fun fact to tell", async () => {
-  const { loreOf } = await import("../src/mission/lore.ts");
+  const { loreOf } = await import("../src/campaign/domain/lore.ts");
   for (const s of ["TypeScript", "React Native", "Node.js", "Module Federation", "CQRS"])
     assert.ok(loreOf(s), s);
   assert.equal(loreOf("Cobol"), undefined);
 });
 
 test("guard, a direction and an action, quickly, trigger a special move; slowly, nothing", async () => {
-  const { Combos, inputOf } = await import("../src/mission/combos.ts");
+  const { Combos, inputOf } = await import("../src/moves/domain/combos.ts");
   const c = new Combos();
   assert.equal(c.press("guard", 0), undefined);
   assert.equal(c.press("forward", 0.1), undefined);
@@ -185,7 +182,7 @@ test("guard, a direction and an action, quickly, trigger a special move; slowly,
 });
 
 test("the action keys sit side by side, in the same place on QWERTY and AZERTY", async () => {
-  const { keyOf } = await import("../src/mission/controls.ts");
+  const { keyOf } = await import("../src/input/domain/controls.ts");
   assert.deepEqual(["s", "d", "f", " ", "p"].map(keyOf), [
     "fire",
     "bomb",
