@@ -98,6 +98,18 @@ export const missionLabels = {
   solved: "SOLVED",
   context: "CONTEXT",
   stackOverflow: "STACK OVERFLOW",
+  // A production incident, fixed or not, and the feedback loop.
+  incident: "INCIDENT",
+  segfault: "SEGMENTATION FAULT (CORE DUMPED)",
+  buildGreen: "BUILD GREEN: DOUBLE POINTS",
+  degradedMode: "DEGRADED MODE",
+  allGreen: "ALL GREEN: NOTHING TO FIX",
+  objectObject: "[OBJECT OBJECT]",
+  flaky: "FLAKY",
+  retry: "FLAKY · RETRY",
+  bugInProd: "BUG IN PROD",
+  loopIn: "ENTERING: THE FEEDBACK LOOP",
+  reload: "HOT RELOAD",
   // Technical debt, carried from map to map; a continue is a hotfix shipped in a hurry.
   debt: "DEBT",
   hotfix: "HOTFIX IN PROD: DEBT +1",

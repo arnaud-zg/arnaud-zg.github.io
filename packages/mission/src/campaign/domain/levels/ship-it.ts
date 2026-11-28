@@ -84,6 +84,7 @@ export const shipIt: MissionMap = {
     { at: 500, kind: "mate", x: 566, h: 18, gift: "bombs" },
     { at: 540, kind: "spawn", spawn: { foe: "robot", n: 2, gap: 1.6 } },
     { at: 620, kind: "crate", x: 650 },
+    { at: 700, kind: "incident", id: "prod-down" },
     {
       at: 720,
       kind: "lock",
@@ -107,6 +108,7 @@ export const shipIt: MissionMap = {
     { at: 1340, kind: "crate", x: 1390 },
     { at: 1420, kind: "mate", x: 1450, gift: "bombs" },
     { at: 1480, kind: "spawn", spawn: { foe: "robot", n: 2, gap: 1, delay: 0.5 } },
+    { at: 1500, kind: "incident", id: "prod-down", x: 1530 },
     { at: 1520, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.6 } },
     { at: 1600, kind: "exercise", x: 1640, id: "route-the-packet" },
     { at: 1900, kind: "boss" },

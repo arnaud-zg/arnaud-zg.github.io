@@ -30,6 +30,13 @@ export const linesOf = ({ text, width }: { text: string; width: number }) => {
   return lines;
 };
 
+// One line that must stay one line (a stack frame, a log): cut to the width, ending in "..".
+export const clipLine = ({ text, width }: { text: string; width: number }) => {
+  const per = perLine(width);
+  const chars = glyphs(text);
+  return chars.length <= per ? text : `${chars.slice(0, Math.max(0, per - 2)).join("")}..`;
+};
+
 export type Fitted = { readonly scale: number; readonly lines: readonly string[] };
 
 // As big as fits on one line, up to `max`; too long even at 1, it wraps at 1.

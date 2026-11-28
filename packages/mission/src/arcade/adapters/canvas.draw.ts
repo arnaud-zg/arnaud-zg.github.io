@@ -544,3 +544,18 @@ export const whiteboard = (ctx: Ctx, x: number, gy: number, t: number, used: boo
   rect(ctx, left + 9, gy - 33 + bob, 2, 1, INK.soot);
   rect(ctx, left + 9, gy - 31 + bob, 2, 1, INK.soot);
 };
+
+// A sprite that failed to load: the magenta and black checks every engine falls back to.
+export const missing = (ctx: Ctx, x: number, y: number, w: number, h: number) => {
+  const size = 3;
+  for (let dy = 0; dy < h; dy += size)
+    for (let dx = 0; dx < w; dx += size)
+      rect(
+        ctx,
+        Math.round(x + dx),
+        Math.round(y + dy),
+        Math.min(size, w - dx),
+        Math.min(size, h - dy),
+        (dx + dy) % (size * 2) ? "#ff00ff" : "#000000",
+      );
+};

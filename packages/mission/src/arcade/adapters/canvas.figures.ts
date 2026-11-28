@@ -1,8 +1,9 @@
 // The whiteboard's drawings, one painter per kind: a tree, lockers, nested calls, a race.
 import type { Figure, Racer } from "../../challenge/domain/exercise.ts";
 import { workOf } from "../../challenge/domain/exercise.ts";
+import { clipLine } from "../domain/layout.ts";
 import * as art from "./canvas.draw.ts";
-import { INK } from "./canvas.sprites.ts";
+import { INK, TERM } from "./canvas.sprites.ts";
 import { drawText, textWidth } from "./pixel.font.ts";
 
 type Ctx = CanvasRenderingContext2D;
@@ -168,7 +169,24 @@ const race: Painter<Of<"race">> = {
   },
 };
 
-const PAINTERS: { readonly [K in Kind]: Painter<Of<K>> } = { tree, lockers, dolls, race };
+// A stack trace, the error in red and the frames under it.
+const trace: Painter<Of<"trace">> = {
+  height: (figure) => figure.lines.length * 9 + 2,
+  paint: ({ ctx, figure, area }) => {
+    figure.lines.forEach((line, i) =>
+      drawText(
+        ctx,
+        clipLine({ text: line, width: area.w }),
+        area.x,
+        area.y + i * 9,
+        1,
+        i === 0 ? TERM.alert : TERM.dim,
+      ),
+    );
+  },
+};
+
+const PAINTERS: { readonly [K in Kind]: Painter<Of<K>> } = { tree, lockers, dolls, race, trace };
 
 // Indexed by a generic kind, the table hands each figure its own painter, with no cast.
 const heightWith = <K extends Kind>(kind: K, figure: Of<K>) => PAINTERS[kind].height(figure);

@@ -1,5 +1,7 @@
 // Exercises and decisions a level places by id: a nod to interview classics, never an interview.
 import type { Exercise } from "../../../../challenge/domain/exercise.ts";
+import { INCIDENTS } from "./incidents.ts";
+import { LOOP_CONSOLES } from "./loops.ts";
 
 const TREE = [50, 30, 70, 20, 42, 60, 80]; // level order: 50 at the root, its children, theirs
 
@@ -314,6 +316,8 @@ export const EXERCISES = {
       },
     ],
   },
+  ...INCIDENTS,
+  ...LOOP_CONSOLES,
 } as const satisfies Record<string, Exercise>;
 
 export type ExerciseId = keyof typeof EXERCISES;

@@ -3,11 +3,12 @@ import type { Answer, Choice, Exercise } from "../../challenge/domain/exercise.t
 import type { Key } from "../../input/domain/controls.ts";
 import type { MissionLabels } from "../domain/labels.ts";
 import type { Placed } from "../domain/layout.ts";
+import type { Ink } from "./pixel.font.ts";
 import { column } from "../domain/layout.ts";
 import * as art from "./canvas.draw.ts";
 import { figureHeight, paintFigure } from "./canvas.figures.ts";
 import { drawPlaced } from "./canvas.layout.ts";
-import { GOLD, INK } from "./canvas.sprites.ts";
+import { GOLD, INK, TERM } from "./canvas.sprites.ts";
 import { drawText, wrap } from "./pixel.font.ts";
 
 export type Board = {
@@ -20,6 +21,44 @@ export type Board = {
   readonly say: (text: string) => void;
   readonly done: (answers: readonly Answer[]) => void;
 };
+
+// A whiteboard in the office's colours, or a terminal: green on black.
+type Skin = "whiteboard" | "terminal";
+type Palette = {
+  readonly title: Ink;
+  readonly intro: string;
+  readonly ask: string;
+  readonly body: string;
+  readonly row: string;
+  readonly picked: string;
+  readonly pickedText: string;
+  readonly cursor: Ink;
+  readonly timer: string;
+};
+const PALETTES = {
+  whiteboard: {
+    title: GOLD,
+    intro: INK.khaki,
+    ask: INK.goldLight,
+    body: INK.sandLight,
+    row: INK.soot,
+    picked: INK.mortar,
+    pickedText: INK.goldLight,
+    cursor: GOLD,
+    timer: INK.khaki,
+  },
+  terminal: {
+    title: TERM.ink,
+    intro: TERM.dim,
+    ask: TERM.ink,
+    body: TERM.ink,
+    row: TERM.bg,
+    picked: "#123a12",
+    pickedText: "#c4ffb8",
+    cursor: TERM.ink,
+    timer: TERM.dim,
+  },
+} as const satisfies { [K in Skin]: Palette };
 
 type Reply = { readonly choice: Choice | undefined; readonly t: number };
 type Pt = { readonly x: number; readonly y: number };
@@ -93,7 +132,7 @@ export class Whiteboard {
   private answer(choice: Choice | undefined) {
     this.answers.push({ choice, seconds: this.t });
     this.reply = { choice, t: 0 };
-    const quiz = this.exercise.kind === "quiz";
+    const quiz = this.exercise.kind !== "decision";
     const missed = quiz && choice?.right !== true;
     (missed ? this.board.sound.nope : this.board.sound.press)();
     this.board.say(`${this.verdict().text}. ${choice?.says ?? this.board.labels.timeoutSays}`);
@@ -128,7 +167,8 @@ export class Whiteboard {
     ctx.globalAlpha = 1;
     const width = W - 28;
     const L = this.board.labels;
-    const head = this.exercise.kind === "quiz" ? L.whiteboard : L.designReview;
+    const heads = { quiz: L.whiteboard, decision: L.designReview, incident: L.incident } as const;
+    const head = `${this.skin() === "terminal" ? "$ " : ""}${heads[this.exercise.kind]}`;
     const reply = this.reply;
     const choiceBoxes = step.choices.map((c) => ({
       kind: "box" as const,
@@ -179,14 +219,15 @@ export class Whiteboard {
     const first = shown.at(0);
     const last = shown.at(-1);
     if (!first || !last) return;
-    this.board.frame({ x: 6, y: first.y - 6, w: W - 12, h: last.y + last.height - first.y + 12 });
+    this.box({ x: 6, y: first.y - 6, w: W - 12, h: last.y + last.height - first.y + 12 });
     const [title, intro, figure, ask, ...rest] = placed;
     const look = { align: "left" } as const;
-    drawPlaced({ ctx, placed: title, x: 14, ink: GOLD, look });
-    drawPlaced({ ctx, placed: intro, x: 14, ink: INK.khaki, look });
+    const p = this.palette();
+    drawPlaced({ ctx, placed: title, x: 14, ink: p.title, look });
+    drawPlaced({ ctx, placed: intro, x: 14, ink: p.intro, look });
     if (figure && step.figure)
       paintFigure({ ctx, figure: step.figure, area: { x: 14, y: figure.y, w: width }, t: this.t });
-    drawPlaced({ ctx, placed: ask, x: 14, ink: reply ? this.verdict().ink : INK.goldLight, look });
+    drawPlaced({ ctx, placed: ask, x: 14, ink: reply ? this.verdict().ink : p.ask, look });
     if (reply) return this.drawReply(rest);
     this.drawChoices({ placed: rest, width, step: step.choices, left });
   }
@@ -194,9 +235,10 @@ export class Whiteboard {
   private drawReply(rest: readonly (Placed | undefined)[]) {
     const { ctx } = this.board;
     const [says, prompt] = rest;
-    drawPlaced({ ctx, placed: says, x: 14, ink: INK.sandLight, look: { align: "left" } });
+    const p = this.palette();
+    drawPlaced({ ctx, placed: says, x: 14, ink: p.body, look: { align: "left" } });
     if ((this.reply?.t ?? 0) > READ && Math.floor((this.reply?.t ?? 0) * 2) % 2 === 0)
-      drawPlaced({ ctx, placed: prompt, x: 14, ink: GOLD, look: { align: "left" } });
+      drawPlaced({ ctx, placed: prompt, x: 14, ink: p.title, look: { align: "left" } });
     // The stack gives way for two seconds, then the reply shows through again.
     if (this.reply?.choice?.gag === "overflow" && this.reply.t < 2.4) this.overflow(this.reply.t);
   }
@@ -213,16 +255,17 @@ export class Whiteboard {
     left: number;
   }) {
     const { ctx } = this.board;
+    const p = this.palette();
     this.rows = [];
     step.forEach((choice, i) => {
       const box = placed.at(i);
       if (!box) return;
       this.rows.push({ top: box.y - 2, bottom: box.y + box.height + 2 });
       const on = i === this.cursor;
-      art.rect(ctx, 12, box.y - 1, width + 4, box.height, on ? INK.mortar : INK.soot);
-      if (on && Math.floor(this.t * 4) % 2 === 0) drawText(ctx, ">", 14, box.y + 1, 1, GOLD);
+      art.rect(ctx, 12, box.y - 1, width + 4, box.height, on ? p.picked : p.row);
+      if (on && Math.floor(this.t * 4) % 2 === 0) drawText(ctx, ">", 14, box.y + 1, 1, p.cursor);
       wrap(choice.text, width - 12).forEach((line, l) =>
-        drawText(ctx, line, 22, box.y + 1 + l * 10, 1, on ? INK.goldLight : INK.sandLight),
+        drawText(ctx, line, 22, box.y + 1 + l * 10, 1, on ? p.pickedText : p.body),
       );
     });
     const timer = placed.at(step.length);
@@ -231,9 +274,29 @@ export class Whiteboard {
         ctx,
         placed: timer,
         x: 14,
-        ink: left <= 5 ? INK.rust : INK.khaki,
+        ink: left <= 5 ? INK.rust : p.timer,
         look: { align: "left" },
       });
+  }
+
+  private skin(): Skin {
+    return this.exercise.skin ?? "whiteboard";
+  }
+  private palette() {
+    return PALETTES[this.skin()];
+  }
+
+  // A whiteboard gets the game's riveted frame; a terminal, a black screen with a cursor.
+  private box(area: { x: number; y: number; w: number; h: number }) {
+    if (this.skin() === "whiteboard") return this.board.frame(area);
+    const { ctx } = this.board;
+    art.rect(ctx, area.x, area.y, area.w, area.h, TERM.bg);
+    art.rect(ctx, area.x, area.y, area.w, 1, TERM.dim);
+    art.rect(ctx, area.x, area.y + area.h - 1, area.w, 1, TERM.dim);
+    art.rect(ctx, area.x, area.y, 1, area.h, TERM.dim);
+    art.rect(ctx, area.x + area.w - 1, area.y, 1, area.h, TERM.dim);
+    if (Math.floor(this.t * 2) % 2 === 0)
+      art.rect(ctx, area.x + area.w - 10, area.y + area.h - 9, 5, 6, TERM.ink);
   }
 
   // The wrong base case: frames pile up until the stack gives way.
