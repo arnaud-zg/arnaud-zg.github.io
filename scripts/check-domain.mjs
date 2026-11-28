@@ -14,11 +14,12 @@ const problems = [];
 // The mission's contexts may read only these others; the arcade, which plays them, reads them all.
 const MISSION = {
   combat: [],
+  challenge: [],
   director: [],
   input: [],
   moves: ["input"],
-  campaign: ["combat"],
-  arcade: ["combat", "director", "input", "moves", "campaign"],
+  campaign: ["combat", "challenge"],
+  arcade: ["combat", "challenge", "director", "input", "moves", "campaign"],
 };
 
 for (const file of globSync("packages/{analytics,mission,profile}/src/**/*.ts")) {

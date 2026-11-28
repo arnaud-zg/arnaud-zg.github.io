@@ -14,6 +14,7 @@ export const greenfield: MissionMap = {
   ],
   warning: "WARNING! DEEP ROOTS AHEAD",
   length: 1900,
+  par: 180,
   loot: ["rapid", "spread", "flame"],
   theme: {
     dim: "rgb(8 20 14 / 0.9)",

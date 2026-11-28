@@ -10,6 +10,7 @@
 // Reduced motion gets the loadout, still.
 import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
+import type { ReviewId, ReviewRow } from "../../combat/domain/score.ts";
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { Deck, Key } from "../../input/domain/controls.ts";
 import type { Move } from "../../moves/domain/combos.ts";
@@ -18,10 +19,12 @@ import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
 import { FOES } from "../../campaign/domain/levels/catalog/foes.ts";
 import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
-import { POINTS } from "../../campaign/domain/levels/catalog/points.ts";
+import { POINTS, TALLY } from "../../campaign/domain/levels/catalog/points.ts";
+import { REVIEW } from "../../campaign/domain/levels/catalog/review.ts";
 import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/levels/index.ts";
 import { orderMaps, pickMap } from "../../campaign/domain/map.ts";
-import { chainAfter, multiplierOf, rankOf } from "../../combat/domain/score.ts";
+import { Ledger } from "../../challenge/domain/ledger.ts";
+import { bonusOf, chainAfter, multiplierOf, rankOf, reviewOf } from "../../combat/domain/score.ts";
 import { weaponOf, WEAPONS } from "../../combat/domain/weapons.ts";
 import {
   afterDeath,
@@ -244,6 +247,16 @@ export const start = (data: MissionData) => {
   );
 };
 
+const REVIEW_LABELS = {
+  coverage: "reviewCoverage",
+  incidents: "reviewIncidents",
+  leadTime: "reviewLeadTime",
+  knowledge: "reviewKnowledge",
+  quality: "reviewQuality",
+  combo: "reviewCombo",
+  interest: "reviewInterest",
+} as const satisfies { [K in ReviewId]: keyof MissionData["labels"] };
+
 type EndWords = { title: string; note: string };
 const paintEndButton = ({ button, words }: { button: HTMLButtonElement; words: EndWords }) => {
   button.setAttribute("aria-label", `${words.title}. ${words.note.toLowerCase()}`);
@@ -346,7 +359,9 @@ class Mission {
   private freed = 0;
   private seconds = 0;
   private got: Pickup[] = [];
-  private here = { deaths: 0, fired: 0, landed: 0, freed: 0 }; // this map's, for its rank
+  private here = { deaths: 0, fired: 0, landed: 0, freed: 0, seconds: 0, bestChain: 0 }; // this map's, for its rank and review
+  private ledger = new Ledger(); // the run's technical debt, carried from map to map
+  private review: readonly ReviewRow[] = []; // the last cleared map's, with its bonus already in the score
   private chain = 0;
   private lastKill = -9;
   private energy = 50; // pays for the special moves
@@ -938,6 +953,7 @@ class Mission {
         got: [],
         lives: 2,
         continues: 0,
+        ledger: new Ledger(),
         heat: HEAT.start,
         tracker: new Tracker(),
         found: new Set<string>(),
@@ -998,7 +1014,8 @@ class Mission {
     this.hero = this.freshHero();
     this.hero.feet = this.gy;
     if (this.stage > 0) this.hero.bombs = Math.max(bombs, 6);
-    this.here = { deaths: 0, fired: 0, landed: 0, freed: 0 };
+    this.here = { deaths: 0, fired: 0, landed: 0, freed: 0, seconds: 0, bestChain: 0 };
+    this.review = [];
     this.end.hidden = true;
     this.sound.music(undefined);
   }
@@ -1168,6 +1185,7 @@ class Mission {
         return;
       default:
         this.seconds += dt;
+        this.here.seconds += dt;
         this.energy = Math.min(ENERGY.max, this.energy + ENERGY.regen * dt);
         this.adjust(dt);
         this.level();
@@ -1181,6 +1199,7 @@ class Mission {
         this.effects(dt);
         if (this.phase === "warning" && this.pt > 2.4) this.bossIn();
         if (this.phase === "fall" && this.pt > 3.8) {
+          this.reviewMap();
           this.played.push({ title: this.map.title, rank: this.rank() });
           this.go("clear");
           this.sound.fanfare();
@@ -1759,6 +1778,8 @@ class Mission {
 
   private carryOn() {
     this.continues++;
+    this.ledger.owe({ reason: "hotfix", amount: 1, stage: this.stage });
+    this.banners.push({ title: this.L.hotfix, t: 0, dur: 2 });
     this.lives = 2;
     this.go("play");
     this.spawnHero();
@@ -1831,6 +1852,7 @@ class Mission {
       f.kind === "bug" ? HITSTOP.kill : HITSTOP.heavy * (melee ? 1.3 : 1),
     );
     this.chain = chainAfter(this.chain, this.t - this.lastKill);
+    this.here.bestChain = Math.max(this.here.bestChain, this.chain);
     this.lastKill = this.t;
     const mult = multiplierOf(this.chain) * (melee ? POINTS.melee : 1);
     this.score += base * mult;
@@ -2575,7 +2597,26 @@ class Mission {
       skills,
       total: pickups.length,
       accuracy: landed / Math.max(1, fired),
+      debt: this.ledger.total(),
     });
+  }
+
+  // The map is cleared: its review is read out at the debrief, and its bonus joins the score.
+  private reviewMap() {
+    const pickups = this.chapter().pickups;
+    this.review = reviewOf({
+      run: {
+        ...this.here,
+        par: this.map.par,
+        skills: pickups.filter((p) => this.got.includes(p)).length,
+        total: pickups.length,
+        exercises: { asked: 0, solved: 0, points: 0 },
+        debt: this.ledger.total(),
+        stage: this.stage,
+      },
+      weights: TALLY,
+    });
+    this.score = Math.max(0, this.score + bonusOf(this.review));
   }
   private stats() {
     const secs = Math.round(this.seconds);
@@ -3522,6 +3563,11 @@ class Mission {
       });
   }
 
+  private skillsLine() {
+    const pickups = this.chapter().pickups;
+    return `${this.L.skills} ${pickups.filter((p) => this.got.includes(p)).length}/${pickups.length}`;
+  }
+
   private hudLines() {
     const { hero, L } = this;
     const arms =
@@ -3530,7 +3576,14 @@ class Mission {
         : `${L.arms} ${WEAPONS[hero.weapon].letter} ${String(Math.ceil(hero.ammo)).padStart(3, "0")}`;
     const top = `${L.score} ${String(this.score).padStart(7, "0")}`;
     const mid = `${arms}  ${L.bombs} ${String(hero.bombs).padStart(2, "0")}`;
-    return { top, mid, width: Math.max(textWidth(top), textWidth(mid)) + 10 };
+    const debt = this.ledger.total();
+    const third = `${this.skillsLine()}${debt > 0 ? ` ${L.debt} ${debt}` : ""}`;
+    const width = Math.max(
+      textWidth(top),
+      textWidth(mid),
+      textWidth(third) + Math.max(3, this.lives) * 8 + 4,
+    );
+    return { top, mid, width: width + 10 };
   }
   private zones() {
     return zonesOf({
@@ -3557,16 +3610,26 @@ class Mission {
       art.rect(ctx, x - 1, 25, 1, 2, "#4b4f5a");
       art.rect(ctx, x + 4, 25, 1, 1, INK.soot);
     }
-    const pickups = this.chapter().pickups;
-    drawText(
+    const at = drawText(
       ctx,
-      `${L.skills} ${pickups.filter((p) => this.got.includes(p)).length}/${pickups.length}`,
+      this.skillsLine(),
       10 + Math.max(3, this.lives) * 8,
       23,
       1,
       INK.sandLight,
       look,
     );
+    const debt = this.ledger.total();
+    if (debt > 0)
+      drawText(
+        ctx,
+        `${L.debt} ${debt}`,
+        10 + Math.max(3, this.lives) * 8 + at + 6,
+        23,
+        1,
+        INK.rust,
+        look,
+      );
     if (this.chain >= 2 && this.t - this.lastKill < 1.6)
       drawText(ctx, `X${multiplierOf(this.chain)}`, w + 8, 12, 2, GOLD, look);
     // Energy, for the special moves: it fills with time and with each kill.
@@ -3637,7 +3700,8 @@ class Mission {
       bx = Math.round((W - bw) / 2);
     const inner = bw - 16;
     const pickups = this.chapter().pickups;
-    const stats = this.stats();
+    const edges = { left: bx + 8, right: bx + bw - 8 };
+    const facts = this.review.length ? this.reviewRows({ edges, inner }) : this.statRows(edges);
     const loadout = this.flow(
       pickups.map((p, i) => ({
         text: p.name.toUpperCase() + (i < pickups.length - 1 ? " ·" : ""),
@@ -3647,18 +3711,16 @@ class Mission {
     );
     const tail = this.failed ? "" : this.isLast() ? L.congratsLine : L.nextUnlocked;
     const rows: Row[] = [
-      ...stats.map(([k, v], i) =>
-        this.statRow({ key: k, value: v, step: i, box: { left: bx + 8, right: bx + bw - 8 } }),
-      ),
-      this.rankRow({ step: stats.length, left: bx + 8, right: bx + bw - 8 }),
-      this.textRow({ text: L.loadout, step: stats.length + 1, x: bx + 8, ink: INK.khaki }),
-      ...loadout.map((line) => this.flowRow({ line, step: stats.length + 1, x: bx + 8 })),
+      ...facts,
+      this.rankRow({ step: facts.length, ...edges }),
+      this.textRow({ text: L.loadout, step: facts.length + 1, x: bx + 8, ink: INK.khaki }),
+      ...loadout.map((line) => this.flowRow({ line, step: facts.length + 1, x: bx + 8 })),
       ...(tail ? wrap(tail, inner) : []).map((text) =>
-        this.textRow({ text, step: stats.length + 1, x: W / 2, ink: INK.gold, align: "center" }),
+        this.textRow({ text, step: facts.length + 1, x: W / 2, ink: INK.gold, align: "center" }),
       ),
     ];
     const step = Math.floor(this.pt / 0.28);
-    if (step > this.revealed && this.revealed < stats.length + 2) {
+    if (step > this.revealed && this.revealed < facts.length + 2) {
       this.revealed = step;
       this.sound.tick();
     }
@@ -3748,6 +3810,68 @@ class Mission {
       );
     }
     return Math.floor(Math.max(0, this.pt - settled) / 4) % pages.length;
+  }
+
+  // A failed map: what happened, plainly.
+  private statRows(edges: { left: number; right: number }) {
+    return this.stats().map(([key, value], step) => this.statRow({ key, value, step, box: edges }));
+  }
+
+  // A cleared map: the code review, a row per metric with the reviewer's line, then the totals.
+  private reviewRows({ edges, inner }: { edges: { left: number; right: number }; inner: number }) {
+    const signed = (n: number) => (n < 0 ? `${n}` : `+${n}`);
+    const rows = this.review.map((r, step) => this.verdictRow({ review: r, step, edges, inner }));
+    const n = rows.length;
+    return [
+      ...rows,
+      this.statRow({
+        key: this.L.reviewBonus,
+        value: signed(bonusOf(this.review)),
+        step: n,
+        box: edges,
+      }),
+      this.statRow({
+        key: this.L.score,
+        value: String(this.score).padStart(7, "0"),
+        step: n + 1,
+        box: edges,
+      }),
+      this.statRow({
+        key: this.L.secrets,
+        value: `${this.found.size}/${MOVES.length}`,
+        step: n + 2,
+        box: edges,
+      }),
+    ];
+  }
+  private verdictRow({
+    review,
+    step,
+    edges,
+    inner,
+  }: {
+    review: ReviewRow;
+    step: number;
+    edges: { left: number; right: number };
+    inner: number;
+  }): Row {
+    const label = this.L[REVIEW_LABELS[review.id]];
+    const points = review.points < 0 ? String(review.points) : `+${review.points}`;
+    // A narrow box keeps the label clear of the points: the detail moves to the reviewer's line.
+    const roomy = textWidth(`${label} ${review.detail}`) + textWidth(points) + 6 <= inner;
+    const head = roomy ? `${label} ${review.detail}` : label;
+    const line = REVIEW[review.id][review.verdict];
+    const said = wrap(roomy ? line : `${review.detail} · ${line}`, inner);
+    const ink = review.points < 0 ? INK.rust : INK.goldLight;
+    return {
+      height: 10 + said.length * 9 + 2,
+      step,
+      draw: (y) => {
+        drawText(this.ctx, head, edges.left, y, 1, INK.sand);
+        drawText(this.ctx, points, edges.right, y, 1, ink, { align: "right" });
+        said.forEach((l, i) => drawText(this.ctx, l, edges.left, y + 10 + i * 9, 1, INK.khaki));
+      },
+    };
   }
 
   private statRow({
