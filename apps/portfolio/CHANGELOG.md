@@ -1,5 +1,11 @@
 # portfolio
 
+## 0.10.0
+
+### Minor Changes
+
+* Type the Konami code, or swipe it on a phone, for a secret arcade mission: three operations, one per chapter of the journey, whose crates unlock the stack behind each job. by @arnaud-zg in https://github.com/arnaud-zg/arnaud-zg.github.io/pull/508
+
 ## 0.9.0
 
 ### Minor Changes
