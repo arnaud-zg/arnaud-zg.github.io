@@ -14,6 +14,7 @@ export const shipIt: MissionMap = {
   ],
   warning: "WARNING! LEGACY AHEAD",
   length: 1900,
+  par: 180,
   loot: ["rapid", "rocket", "spread"],
   theme: {
     dim: "rgb(27 20 16 / 0.9)",

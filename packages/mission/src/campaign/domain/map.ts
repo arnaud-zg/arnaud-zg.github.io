@@ -97,6 +97,7 @@ export type MissionMap = {
   readonly briefing: readonly string[];
   readonly warning: string;
   readonly length: number;
+  readonly par: number; // seconds a good run takes, for the review's lead time
   // The weapons this map unlocks, handed out in turn by its crates, one per skill.
   readonly loot: readonly WeaponId[];
   readonly theme: Theme;

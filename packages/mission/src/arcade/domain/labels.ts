@@ -74,6 +74,19 @@ export const missionLabels = {
   nextUnlocked: "NEXT OPERATION UNLOCKED",
   congrats: "CONGRATULATIONS!",
   congratsLine: "EVERY OPERATION CLEAR: THE WHOLE JOURNEY, SEEN",
+  // The review after each map: one row per metric, then the bonus it adds up to.
+  reviewTitle: "CODE REVIEW",
+  reviewCoverage: "TEST COVERAGE",
+  reviewIncidents: "ZERO INCIDENTS",
+  reviewLeadTime: "LEAD TIME",
+  reviewKnowledge: "KNOWLEDGE",
+  reviewQuality: "CODE QUALITY",
+  reviewCombo: "MAX COMBO",
+  reviewInterest: "DEBT INTEREST",
+  reviewBonus: "REVIEW BONUS",
+  // Technical debt, carried from map to map; a continue is a hotfix shipped in a hurry.
+  debt: "DEBT",
+  hotfix: "HOTFIX IN PROD: DEBT +1",
   // Each end button with what it does; {n}, {total}, {played}, {score}, {skills}, {host}, {url} are filled in.
   replay: "Play again",
   replayNote: "FROM THE FIRST OPERATION",

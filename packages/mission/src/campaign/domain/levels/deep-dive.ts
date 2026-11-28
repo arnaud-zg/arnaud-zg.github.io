@@ -14,6 +14,7 @@ export const deepDive: MissionMap = {
   ],
   warning: "WARNING! LEAK DETECTED",
   length: 1950,
+  par: 190,
   loot: ["rocket", "flame", "rapid"],
   theme: {
     dim: "rgb(6 10 24 / 0.9)",

@@ -72,7 +72,15 @@ test("quick kills build a chain that multiplies the score, up to eight", () => {
 });
 
 test("the rank is hard to earn: one credit, the skills and a sure hand", () => {
-  const run = { cleared: true, continues: 0, deaths: 1, skills: 11, total: 11, accuracy: 0.5 };
+  const run = {
+    cleared: true,
+    continues: 0,
+    deaths: 1,
+    skills: 11,
+    total: 11,
+    accuracy: 0.5,
+    debt: 0,
+  };
   assert.equal(rankOf(run), "S");
   assert.equal(rankOf({ ...run, accuracy: 0.3 }), "A");
   assert.equal(rankOf({ ...run, deaths: 3 }), "B");

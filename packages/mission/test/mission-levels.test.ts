@@ -46,3 +46,9 @@ for (const map of MAPS) {
     assert.equal(map.boss.phases[0]?.below, 1);
   });
 }
+
+test("every line the reviewer says can be drawn in the pixel font", async () => {
+  const { REVIEW } = await import("../src/campaign/domain/levels/catalog/review.ts");
+  for (const lines of Object.values(REVIEW))
+    for (const line of Object.values(lines)) assert.deepEqual(missingGlyphs(line), [], line);
+});
