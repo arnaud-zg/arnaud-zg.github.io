@@ -79,6 +79,15 @@ const clean = (text: string) =>
     return ch in ROWS ? ch : "?";
   });
 
+// The characters of a text this font cannot draw, which it would show as "?".
+export const missingGlyphs = (text: string) =>
+  [
+    ...text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase(),
+  ].filter((c) => !((ALIAS[c] ?? c) in ROWS));
+
 export const textWidth = (text: string, scale = 1) => widthOf({ text, scale });
 
 // The largest whole scale at which the text fits the width, between 1 and `max`.
