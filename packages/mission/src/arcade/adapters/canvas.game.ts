@@ -35,6 +35,7 @@ import {
 } from "../../director/domain/director.ts";
 import { deckOf, keyOf, scaleOf, STRIP } from "../../input/domain/controls.ts";
 import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
+import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
 import { HITSTOP, JUMP, Jumper, pullToward, stopFor } from "../../moves/domain/motion.ts";
 import * as art from "./canvas.draw.ts";
 import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
@@ -73,6 +74,7 @@ type Foe = {
   ground: boolean;
   lock: number;
   hopped: boolean;
+  away: number; // seconds out of the hero's reach, in a locked wave
 };
 type Shot = {
   kind: "shot" | "pellet" | "rocket" | "flame" | "bomb" | "wave";
@@ -604,6 +606,7 @@ class Mission {
 
   // The stage fills what the touch deck leaves (controls.ts, deckOf), scaled pixel for pixel.
   private resize() {
+    const before = { ground: this.gy, width: this.W };
     this.deck = deckOf(window.innerWidth, window.innerHeight, touch());
     const { stage, mode, size } = this.deck;
     this.S = scaleOf(stage.w, stage.h);
@@ -623,12 +626,37 @@ class Mission {
     this.root.style.setProperty("--op-s", `${S}px`);
     this.ctx.imageSmoothingEnabled = false;
     this.paintMap();
+    if (before.ground === this.gy && before.width === this.W) return;
+    this.followGround(before.ground);
+    this.pause(true); // a turned phone: nothing hits the hero while they find their grip again
+  }
+
+  // The ground line moved: everything that stood on it, or flew above it, moves with it.
+  private followGround(from: number) {
+    const move = (height: number) => followGround({ height, from, to: this.gy });
+    const { hero } = this;
+    hero.feet = move(hero.feet);
+    for (const thing of [
+      ...this.foes,
+      ...this.shots,
+      ...this.hostiles,
+      ...this.parts,
+      ...this.booms,
+      ...this.notes,
+      ...this.cubes,
+    ])
+      thing.y = move(thing.y);
+    for (const crate of this.crates)
+      [crate.y, crate.floor] = [move(crate.y), crate.floor < 0 ? crate.floor : move(crate.floor)];
+    for (const item of this.items) [item.y, item.floor] = [move(item.y), move(item.floor)];
+    for (const mate of this.mates) mate.feet = move(mate.feet);
+    if (this.sweep) this.sweep.y = move(this.sweep.y);
   }
 
   private paintMap() {
     this.root.style.setProperty("--op-dim", this.map.theme.dim);
     this.groundImg = art.ground(this.W, this.map.length, this.map.theme);
-    this.camX = Math.min(this.camX, Math.max(0, this.map.length - this.W));
+    this.camX = Math.min(this.camX, Math.max(0, (this.lockAt ?? this.map.length) - this.W));
   }
 
   // ── Sharing the result ─────────────────────────────────────────────────────────────────────
@@ -1213,6 +1241,7 @@ class Mission {
       ground: kind !== "drone",
       lock,
       hopped: false,
+      away: 0,
     });
     // At ease, the player meets one more now and then.
     if (!extra && Math.random() < this.tune().extra)
@@ -1854,9 +1883,28 @@ class Mission {
         }
       }
     }
+    this.bringBackStranded(dt);
     this.foes = this.foes.filter(
       (f) => f.hp > -99 && f.x > this.camX - 80 && f.x < this.camX + this.W + 80,
     );
+  }
+
+  // A locked wave never waits on a foe the hero cannot reach: one out of reach too long walks back in.
+  private bringBackStranded(dt: number) {
+    if (this.lockAt === undefined) return;
+    const reach = { left: this.camX + 4, right: this.camX + this.W - 4, top: 0, bottom: this.gy };
+    for (const foe of this.foes.filter((f) => f.lock === this.lockId && f.state !== "fall")) {
+      const inReach =
+        foe.x >= reach.left &&
+        foe.x + foe.w <= reach.right &&
+        foe.y >= reach.top &&
+        foe.y + foe.h <= reach.bottom + 1;
+      foe.away = inReach ? 0 : foe.away + dt;
+      if (foe.away < STRANDED) continue;
+      foe.x = keptInLock({ x: foe.x, width: foe.w, ...reach });
+      if (foe.kind !== "drone") foe.y = this.gy - foe.h;
+      foe.away = 0;
+    }
   }
 
   // A shot straight at the hero, at their waist, or lower when they crouch.
@@ -2088,6 +2136,7 @@ class Mission {
             ground: false,
             lock: -1,
             hopped: true,
+            away: 0,
           });
         }
         if (b.t > 1.2) rest();
@@ -2512,7 +2561,7 @@ class Mission {
     if (this.phase === "over") this.bigText(this.L.failed, INK.rust);
     if (this.phase === "clear") this.debrief();
     if (this.phase === "still") this.loadout();
-    if (this.paused) this.bigText(this.L.paused, INK.goldLight);
+    if (this.paused) this.drawPaused();
     if (this.reading) {
       ctx.globalAlpha = 0.45;
       art.rect(ctx, 0, 0, W, H, INK.soot); // the world waits behind the message
@@ -2899,6 +2948,16 @@ class Mission {
       [w - 3, h - 3],
     ] as const)
       art.rect(ctx, x + rx, y + ry, 1, 1, INK.gold);
+  }
+
+  private drawPaused() {
+    this.bigText(this.L.paused, INK.goldLight);
+    const hint = touch() ? this.L.tap : this.L.resume;
+    const below = this.H * 0.36 + GLYPH_H * fitScale(this.L.paused, this.W - 16, 5) + 12;
+    drawText(this.ctx, hint, this.W / 2, below, fitScale(hint, this.W - 16, 1), INK.sandLight, {
+      outline: INK.soot,
+      align: "center",
+    });
   }
 
   private bigText(text: string, ink: string) {
