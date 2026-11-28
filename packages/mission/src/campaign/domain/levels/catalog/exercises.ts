@@ -316,6 +316,35 @@ export const EXERCISES = {
       },
     ],
   },
+  "too-complex": {
+    id: "too-complex",
+    kind: "quiz",
+    title: "REQUEST CHANGES",
+    speaker: "THE ARCHITECT",
+    intro: "YOUR PULL REQUEST: 14 FILES, 3 FACTORIES, 1 FEATURE. TOO COMPLEX.",
+    points: 1500,
+    time: 20,
+    steps: [
+      {
+        ask: "HOW DO YOU SHIP A BUTTON THAT SAYS HELLO?",
+        choices: [
+          {
+            text: "ABSTRACTBUTTONFACTORYPROVIDER",
+            says: "THE FACTORY NEEDS A FACTORY NOW. CHANGES REQUESTED.",
+          },
+          {
+            text: "A FUNCTION THAT RETURNS A BUTTON",
+            right: true,
+            says: "APPROVED. YOU MAY SHIP.",
+          },
+          {
+            text: "ONE MICROSERVICE PER BUTTON STATE",
+            says: "THREE SERVICES TO SAY HELLO. CHANGES REQUESTED.",
+          },
+        ],
+      },
+    ],
+  },
   ...INCIDENTS,
   ...LOOP_CONSOLES,
 } as const satisfies Record<string, Exercise>;

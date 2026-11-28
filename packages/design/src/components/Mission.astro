@@ -10,7 +10,9 @@ interface Props {
   labels?: Partial<MissionLabels>;
 }
 const { chapters, contact, labels } = Astro.props;
-const data: MissionData = { chapters, labels: { ...missionLabels, ...labels }, ...(contact ? { contact } : {}) };
+// The site's theme lives where HeadInit.astro and the theme switch keep it.
+const theme = { attribute: "theme", storageKey: "theme" };
+const data: MissionData = { chapters, labels: { ...missionLabels, ...labels }, theme, ...(contact ? { contact } : {}) };
 const json = JSON.stringify(data).replace(/</g, "\\u003c");
 ---
 <script type="application/json" data-mission set:html={json} />

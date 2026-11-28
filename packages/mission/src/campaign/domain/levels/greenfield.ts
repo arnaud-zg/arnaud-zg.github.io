@@ -95,6 +95,7 @@ export const greenfield: MissionMap = {
       wave: [{ foe: "drone", n: 3, gap: 3.5, delay: 2 }],
     },
     { at: 1060, kind: "spawn", spawn: { foe: "bug", n: 4, gap: 0.6 } },
+    { at: 1060, kind: "colleague", id: "nitpicker", x: 1100 },
     { at: 1120, kind: "mate", x: 1150, h: 18, gift: "life" },
     {
       at: 1200,
@@ -108,6 +109,7 @@ export const greenfield: MissionMap = {
         { foe: "robot", from: "left", delay: 5 },
       ],
     },
+    { at: 1200, kind: "colleague", id: "pm", x: 1240 },
     { at: 1280, kind: "crate", x: 1238, h: 32 },
     { at: 1400, kind: "crate", x: 1450 },
     { at: 1460, kind: "mate", x: 1500, gift: "bombs" },

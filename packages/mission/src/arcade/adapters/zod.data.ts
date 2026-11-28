@@ -17,6 +17,7 @@ const data = z.object({
   chapters: z.array(chapter),
   labels: z.record(z.string(), z.string()),
   contact: z.optional(z.object({ href: z.string(), label: z.string() })),
+  theme: z.optional(z.object({ attribute: z.string(), storageKey: z.string() })),
 });
 
 const isLabel = (key: string): key is keyof MissionLabels => Object.hasOwn(missionLabels, key);
@@ -37,6 +38,11 @@ const parseJson = (text: string): unknown => {
 export const missionDataOf = (text: string): MissionData | undefined => {
   const parsed = data.safeParse(parseJson(text));
   if (!parsed.success) return undefined;
-  const { chapters, labels, contact } = parsed.data;
-  return { chapters, labels: labelsOf(labels), ...(contact ? { contact } : {}) };
+  const { chapters, labels, contact, theme } = parsed.data;
+  return {
+    chapters,
+    labels: labelsOf(labels),
+    ...(contact ? { contact } : {}),
+    ...(theme ? { theme } : {}),
+  };
 };

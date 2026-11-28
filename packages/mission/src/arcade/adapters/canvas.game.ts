@@ -8,6 +8,7 @@
 // One hit and you are down; three lives, then a continue. The difficulty follows the player
 // (rules.ts), never the score. Every message stops the game until Space carries on.
 // Reduced motion gets the loadout, still.
+import type { FoeLook, Shift, Trait } from "../../campaign/domain/levels/catalog/foes.ts";
 import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
 import type { Answer, Perk } from "../../challenge/domain/exercise.ts";
@@ -19,8 +20,9 @@ import type { Move } from "../../moves/domain/combos.ts";
 import type { Piece } from "../domain/layout.ts";
 import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
+import { COLLEAGUES } from "../../campaign/domain/levels/catalog/colleagues.ts";
 import { EXERCISES } from "../../campaign/domain/levels/catalog/exercises.ts";
-import { FOES } from "../../campaign/domain/levels/catalog/foes.ts";
+import { FOES, ROSTERS } from "../../campaign/domain/levels/catalog/foes.ts";
 import { INCIDENTS, SPAM } from "../../campaign/domain/levels/catalog/incidents.ts";
 import { LOOP_STAGES, TESTS_SKIPPED } from "../../campaign/domain/levels/catalog/loops.ts";
 import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
@@ -51,11 +53,13 @@ import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
 import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
 import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
 import { clipLine, column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
+import { Colleagues } from "./canvas.colleagues.ts";
 import * as art from "./canvas.draw.ts";
 import { Whiteboard } from "./canvas.exercise.ts";
 import { drawPlaced } from "./canvas.layout.ts";
 import { ARM, GOLD, HERO, INK, paper, sprites, TERM } from "./canvas.sprites.ts";
 import { closestTo } from "./dom.target.ts";
+import { themeOf } from "./dom.theme.ts";
 import css from "./mission.css?inline";
 import {
   drawText,
@@ -100,6 +104,9 @@ type Foe = {
   lock: number;
   hopped: boolean;
   away: number; // seconds out of the hero's reach, in a locked wave
+  look: FoeLook; // dressed for office hours or the night shift (catalog/foes.ts, ROSTERS)
+  trait: Trait;
+  revived: boolean;
 };
 type Hero = {
   x: number;
@@ -138,7 +145,8 @@ type Shot = {
   bounces: number;
 };
 type Hostile = {
-  kind: "bullet" | "brick" | "shell" | "bomb";
+  kind: "bullet" | "brick" | "shell" | "bomb" | "nit" | "invite";
+  text?: string; // a nit's words
   x: number;
   y: number;
   vx: number;
@@ -275,6 +283,8 @@ const paintEndButton = ({ button, words }: { button: HTMLButtonElement; words: E
 
 const SPEAKER = '<path d="M4 9h4l5-4v14l-5-4H4z" />';
 const ICONS = {
+  sun: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2" /></svg>',
+  moon: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20 15A8 8 0 1 1 9 4a6.5 6.5 0 0 0 11 11z" /></svg>',
   on: `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">${SPEAKER}<path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" /></svg>`,
   off: `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">${SPEAKER}<path d="m17 9 5 6m0-6-5 6" /></svg>`,
   close:
@@ -385,6 +395,25 @@ class Mission {
   private boostUntil = 0; // double points after a fix, until then
   private stutter = 0; // degraded: seconds since the last frame drawn
   private loopZone: LoopZone | undefined;
+  private readonly theme: ReturnType<typeof themeOf>; // set from the site's data, in the constructor
+  private shift: Shift = "light"; // light: office hours; dark: the night shift
+  private readonly themeBtn = document.createElement("button");
+  private introduced = new Set<string>(); // foe names already called out on this map
+  private slowUntil = 0; // a nit landed: the hero walks slower until then
+  private busyUntil = 0; // a meeting invite landed: no shooting until then
+  private blasting = false; // an explosion is dealing its damage: kill -9 for the undead
+  private readonly colleagues = new Colleagues({
+    hero: () => ({ x: this.hero.x, alive: this.hero.dead <= 0 }),
+    view: () => ({ camX: this.camX, W: this.W, gy: this.gy }),
+    context: () => this.ledger.contextName() ?? this.L.it,
+    inDebt: () => this.ledger.total() >= 2,
+    review: (id) => this.openBoard({ x: this.hero.x, id, used: true }),
+    reviewing: () => this.whiteboard !== undefined,
+    nit: ({ x, y, text }) =>
+      this.hostiles.push({ kind: "nit", x, y, vx: -95, vy: 0, grav: 0, text }),
+    scope: (extra) => this.growScope(extra),
+    say: (text) => this.say(text),
+  });
   private ledger = new Ledger(); // the run's technical debt, carried from map to map
   private review: readonly ReviewRow[] = []; // the last cleared map's, with its bonus already in the score
   private chain = 0;
@@ -417,6 +446,8 @@ class Mission {
     if (!first) throw new Error("No mission map");
     this.map = first;
     this.L = data.labels;
+    this.theme = themeOf(data.theme ?? { attribute: "theme", storageKey: "theme" });
+    this.shift = this.theme.read();
     this.ctx = paper(this.canvas);
     this.mount();
     this.resize();
@@ -504,7 +535,12 @@ class Mission {
     this.pauseBtn.innerHTML = ICONS.pause;
     this.pauseBtn.setAttribute("aria-label", L.keyPause.toLowerCase());
     this.pauseBtn.addEventListener("click", () => this.pause(!this.paused));
-    tools.append(this.pauseBtn, mute, close);
+    this.themeBtn.className = "op-btn op-icon";
+    this.themeBtn.dataset.look = "dark";
+    this.themeBtn.type = "button";
+    this.paintThemeBtn();
+    this.themeBtn.addEventListener("click", () => this.toggleShift());
+    tools.append(this.pauseBtn, this.themeBtn, mute, close);
 
     end.className = "op-end";
     end.hidden = true;
@@ -557,6 +593,7 @@ class Mission {
       { signal },
     );
     window.addEventListener("blur", () => this.pause(true), { signal });
+    this.theme.watch({ changed: (shift) => shift !== this.shift && this.useShift(shift), signal });
     document.addEventListener("visibilitychange", () => document.hidden && this.pause(true), {
       signal,
     });
@@ -1017,6 +1054,9 @@ class Mission {
       degraded: false,
       boostUntil: 0,
       loopZone: undefined,
+      introduced: new Set<string>(),
+      slowUntil: 0,
+      busyUntil: 0,
       foes: [],
       shots: [],
       hostiles: [],
@@ -1056,6 +1096,7 @@ class Mission {
       exercises: { asked: 0, solved: 0, points: 0 },
     };
     this.whiteboard = undefined;
+    this.colleagues.clear();
     this.review = [];
     this.end.hidden = true;
     this.sound.music(undefined);
@@ -1356,6 +1397,10 @@ class Mission {
         this.sound.boom(true);
         this.shake = 6;
         return;
+      case "colleague":
+        this.colleagues.add({ id: e.id, x: e.x });
+        this.say(COLLEAGUES[e.id].name);
+        return;
       case "loop":
         this.loopZone = {
           from: e.from,
@@ -1450,6 +1495,7 @@ class Mission {
       lock,
       hopped: false,
       away: 0,
+      ...this.skinOf(kind),
     });
     // At ease, the player meets one more now and then.
     if (!extra && Math.random() < this.tune().extra)
@@ -1595,6 +1641,150 @@ class Mission {
     return "held";
   }
 
+  // What a hostile does when it hits the ground: shells and bombs blow up, the rest crumble.
+  private land(h: Hostile) {
+    const { gy, hero } = this;
+    const explode = () => {
+      this.boomAt(h.x, gy - 4, 10, 0.45);
+      this.sound.boom();
+      if (Math.abs(hero.x + 8 - h.x) < 13 && hero.feet > gy - 14) this.kill();
+    };
+    const landings = {
+      shell: explode,
+      bomb: explode,
+      brick: () => this.burst(h.x, gy - 2, 6, [...this.map.theme.volley], 50),
+      invite: () => this.burst(h.x, gy - 2, 4, [INK.white, INK.rust], 30),
+      bullet: () => undefined,
+      nit: () => undefined,
+    } as const satisfies { [K in Hostile["kind"]]: () => void };
+    landings[h.kind]();
+  }
+
+  private drawHostile(h: Hostile) {
+    const { ctx, t, map } = this;
+    const painters = {
+      bullet: () => {
+        art.disc(ctx, h.x, h.y, 2, INK.soot);
+        art.rect(ctx, h.x - 1, h.y - 1, 2, 2, Math.floor(t * 20) % 2 ? INK.goldLight : INK.ember);
+      },
+      brick: () => art.block(ctx, h.x - 2, h.y - 1, 4, 3, map.theme.volley[0]),
+      nit: () => art.nitBubble(ctx, h.x, h.y),
+      invite: () => art.inviteDrop(ctx, h.x, h.y),
+      shell: () => art.block(ctx, h.x - 1, h.y - 1, 3, 3, INK.mortar),
+      bomb: () => art.block(ctx, h.x - 1, h.y - 1, 3, 3, INK.soot),
+    } as const satisfies { [K in Hostile["kind"]]: () => void };
+    painters[h.kind]();
+  }
+
+  // ── The office and the night shift: a new foe wears the hour's clothes, named once ──────────
+  private skinOf(kind: FoeKind) {
+    const skin = ROSTERS[this.shift][kind];
+    if (!this.introduced.has(skin.name)) {
+      this.introduced.add(skin.name);
+      this.notes.push({
+        x: this.camX + this.W - 40,
+        y: this.gy - 40,
+        text: skin.name,
+        t: 0,
+        color: INK.goldLight,
+      });
+    }
+    return { look: skin.look, trait: skin.trait, revived: false };
+  }
+
+  private toggleShift() {
+    const next: Shift = this.shift === "dark" ? "light" : "dark";
+    this.theme.write(next);
+    this.useShift(next);
+  }
+  private useShift(shift: Shift) {
+    this.shift = shift;
+    this.paintThemeBtn();
+    if (this.fighting())
+      this.banners.push({
+        title: shift === "dark" ? this.L.nightShift : this.L.officeHours,
+        t: 0,
+        dur: 1.6,
+      });
+  }
+  private paintThemeBtn() {
+    const dark = this.shift === "dark";
+    this.themeBtn.innerHTML = dark ? ICONS.sun : ICONS.moon;
+    this.themeBtn.setAttribute("aria-label", dark ? this.L.toLight : this.L.toDark);
+  }
+
+  // A nit: guarded, it is resolved; landed, the hero is slowed. An invite: no shooting for a while.
+  private officeHit(h: Hostile) {
+    const at = { x: this.hero.x + 8, y: this.hero.feet - 26 };
+    const front = Math.sign(h.vx) === -this.hero.facing;
+    if (h.kind === "nit" && this.hero.guard && front) {
+      this.score += POINTS.nit;
+      this.notes.push({ ...at, text: this.L.resolved, t: 0, color: INK.goldLight });
+      return;
+    }
+    if (h.kind === "nit") this.slowUntil = this.t + 1.2;
+    if (h.kind === "invite") this.busyUntil = this.t + 1.3;
+    const text = h.kind === "nit" ? (h.text ?? "NIT") : this.L.busy;
+    this.notes.push({ ...at, text, t: 0, color: INK.rust });
+    this.sound.empty();
+  }
+
+  // The PM's quick change: more foes for the fight in progress.
+  private growScope(extra: number) {
+    if (this.lockAt === undefined || extra <= 0) return;
+    this.enqueue({ foe: "robot", n: extra, gap: 1, delay: 1.2 }, this.lockId);
+    this.banners.push({ title: this.L.scopeCreep, t: 0, dur: 1.8 });
+  }
+
+  // Each look is drawn by its own painter; the hour decides which.
+  private drawFoe(f: Foe) {
+    const { ctx, map } = this;
+    const flash = f.flash > 0;
+    const painters = {
+      ticket: () => art.ticket(ctx, f.x, f.y, f.t, flash),
+      race: () => {
+        ctx.globalAlpha = 0.55;
+        art.bug(ctx, f.x - 3, f.y, f.facing, map.theme, f.t, flash);
+        art.bug(ctx, f.x + 3, f.y, f.facing, map.theme, f.t + 0.3, flash);
+        ctx.globalAlpha = 1;
+      },
+      reorg: () => {
+        art.robot(
+          ctx,
+          f.x,
+          f.y,
+          f.facing,
+          map.theme,
+          f.t,
+          f.state === "aim",
+          f.state === "walk",
+          flash,
+        );
+        art.tie(ctx, f.x, f.y, f.facing);
+      },
+      zombie: () => {
+        art.robot(
+          ctx,
+          f.x,
+          f.y,
+          f.facing,
+          map.theme,
+          f.t,
+          f.state === "aim",
+          f.state === "walk",
+          flash,
+        );
+        art.undead(ctx, f.x, f.y, f.revived);
+      },
+      invite: () => art.invite(ctx, f.x, f.y, f.t, flash),
+      pager: () => {
+        art.drone(ctx, f.x, f.y, map.theme, f.t, flash);
+        art.pagerLight(ctx, f.x, f.y, f.t);
+      },
+    } as const satisfies { [K in FoeLook]: () => void };
+    painters[f.look]();
+  }
+
   // ── The hero ───────────────────────────────────────────────────────────────────────────────
   private heroBox(): Box {
     const h = this.hero.crouch ? 13 : 18;
@@ -1680,7 +1870,8 @@ class Mission {
     if (!dir || hero.guard || hero.crouch) hero.running = false;
     if (hero.roll > 0) hero.x += hero.rollDir * 190 * dt;
     if (dir && !hero.crouch && !hero.guard) {
-      hero.x += dir * SPEED * (hero.running ? 1.7 : 1) * dt;
+      const nitted = this.t < this.slowUntil ? 0.5 : 1; // a nit to address slows the walk
+      hero.x += dir * SPEED * (hero.running ? 1.7 : 1) * nitted * dt;
       hero.moving = true;
       if (hero.running && hero.ground && Math.random() < 0.5)
         this.parts.push({
@@ -1750,7 +1941,7 @@ class Mission {
   // A press fires once; holding fires on: the pistol slowly, the pickups at their own pace.
   private fire(held: boolean) {
     const { hero } = this;
-    if (hero.dead > 0 || hero.cooldown > 0) return;
+    if (hero.dead > 0 || hero.cooldown > 0 || this.t < this.busyUntil) return;
     const reach: Box = {
       x: hero.facing === 1 ? hero.x + 10 : hero.x - 8,
       y: hero.feet - 18,
@@ -2076,6 +2267,19 @@ class Mission {
       if (f.kind === "robot") [f.state, f.timer] = ["walk", Math.max(f.timer, 0.6)];
     }
     if (f.hp > 0) return;
+    // A zombie process gets back up once; only an explosion is a kill -9.
+    if (f.trait === "undead" && !f.revived && !this.blasting) {
+      f.revived = true;
+      f.hp = 2;
+      this.notes.push({
+        x: f.x + f.w / 2,
+        y: f.y - 4,
+        text: this.L.killNine,
+        t: 0,
+        color: INK.rust,
+      });
+      return;
+    }
     const base = FOES[f.kind].points;
     this.stop = stopFor(
       this.stop,
@@ -2203,6 +2407,9 @@ class Mission {
       if (f.kind === "bug") {
         f.facing = dx < 0 ? -1 : 1;
         f.x += f.facing * 28 * tune.bug * (this.boss && this.boss.phase >= 3 ? 1.25 : 1) * dt;
+        // A race condition is in two places at once: every so often, it is in the other one.
+        if (f.trait === "blink" && Math.floor(f.t / 0.7) !== Math.floor((f.t - dt) / 0.7))
+          f.x += rand(-12, 12);
         if (f.ground && !f.hopped && Math.abs(dx) < 36 && Math.random() < dt * 2) {
           f.vy = -130;
           f.ground = false;
@@ -2240,11 +2447,13 @@ class Mission {
         }
       } else {
         const cruise = gy - 58 + Math.sin(f.t * 2 + f.x * 0.01) * 8;
-        f.y += Math.sign(cruise - f.y) * Math.min(Math.abs(cruise - f.y), 50 * dt);
-        f.x += Math.sign(dx) * Math.min(Math.abs(dx), 40 * dt);
+        const pace = f.trait === "fast" ? 1.6 : 1; // the 3 a.m. pager does not wait
+        f.y += Math.sign(cruise - f.y) * Math.min(Math.abs(cruise - f.y), 50 * pace * dt);
+        f.x += Math.sign(dx) * Math.min(Math.abs(dx), 40 * pace * dt);
         f.timer -= dt;
         if (Math.abs(dx) < 12 && f.timer <= 0) {
-          this.hostiles.push({ kind: "bomb", x: f.x + 6, y: f.y + 6, vx: 0, vy: 10, grav: 300 });
+          const drop = f.trait === "busy" ? "invite" : "bomb";
+          this.hostiles.push({ kind: drop, x: f.x + 6, y: f.y + 6, vx: 0, vy: 10, grav: 300 });
           f.timer = 1.7 / tune.fire;
         }
       }
@@ -2503,6 +2712,7 @@ class Mission {
             lock: -1,
             hopped: true,
             away: 0,
+            ...this.skinOf("bug"),
           });
         }
         if (b.t > 1.2) rest();
@@ -2639,8 +2849,10 @@ class Mission {
     this.sound.boom();
     if (!dmg) return;
     const area = { x: x - r, y: y - r, w: r * 2, h: r * 2 };
+    this.blasting = true;
     for (const f of [...this.foes])
       if (f.state !== "fall" && overlap(area, f)) this.hurtFoe(f, dmg, false);
+    this.blasting = false;
     for (const c of [...this.crates])
       if (overlap(area, { x: c.x, y: c.y, w: 12, h: 11 })) this.openCrate(c);
     for (const m of this.mates)
@@ -2660,6 +2872,15 @@ class Mission {
       h.vy += h.grav * dt;
       h.x += h.vx * dt;
       h.y += h.vy * dt;
+      if (
+        hero.dead <= 0 &&
+        (h.kind === "nit" || h.kind === "invite") &&
+        overlap(hb, { x: h.x - 4, y: h.y - 3, w: 8, h: 6 })
+      ) {
+        this.officeHit(h);
+        h.y = 9999;
+        continue;
+      }
       if (hero.dead <= 0 && overlap(hb, { x: h.x - 1.5, y: h.y - 1.5, w: 3, h: 3 })) {
         const front = Math.sign(h.vx) === -hero.facing;
         if (hero.guard && front && h.kind !== "shell" && h.kind !== "bomb") {
@@ -2670,11 +2891,7 @@ class Mission {
         h.y = 9999;
       }
       if (h.y >= gy - 1 && h.y < 9000) {
-        if (h.kind === "shell" || h.kind === "bomb") {
-          this.boomAt(h.x, gy - 4, 10, 0.45);
-          this.sound.boom();
-          if (Math.abs(hero.x + 8 - h.x) < 13 && hero.feet > gy - 14) this.kill();
-        } else if (h.kind === "brick") this.burst(h.x, gy - 2, 6, [...this.map.theme.volley], 50);
+        this.land(h);
         h.y = 9999;
       }
     }
@@ -2705,6 +2922,7 @@ class Mission {
     const { gy } = this;
     this.walkUpToBoards();
     this.walkTheLoop();
+    this.colleagues.update(dt);
     for (const c of this.crates) {
       if (c.floor >= 0) continue;
       c.y += (this.H / 12) * dt;
@@ -3031,6 +3249,7 @@ class Mission {
     for (const p of map.platforms)
       if (p.x + p.w > cam && p.x < cam + W) art.ledge(ctx, p.x, gy - p.h, p.w, gy, map.theme.ledge);
     for (const b of this.boards) art.whiteboard(ctx, b.x, gy, t, b.used);
+    this.colleagues.draw({ ctx, t });
     for (const m of this.mates) {
       art.mate(ctx, m.x, m.feet, m.state === "free", m.t);
       if (m.state === "bound" && Math.floor(t * 2) % 2 === 0)
@@ -3060,20 +3279,7 @@ class Mission {
         art.missing(ctx, f.x, f.y, f.w, f.h);
         continue;
       }
-      if (f.kind === "bug") art.bug(ctx, f.x, f.y, f.facing, map.theme, f.t, f.flash > 0);
-      else if (f.kind === "robot")
-        art.robot(
-          ctx,
-          f.x,
-          f.y,
-          f.facing,
-          map.theme,
-          f.t,
-          f.state === "aim",
-          f.state === "walk",
-          f.flash > 0,
-        );
-      else art.drone(ctx, f.x, f.y, map.theme, f.t, f.flash > 0);
+      this.drawFoe(f);
     }
     if (this.boss) this.drawBoss(this.boss);
     for (const c of this.cubes) {
@@ -3084,13 +3290,7 @@ class Mission {
     }
     this.drawHero();
     this.drawShots();
-    for (const h of this.hostiles) {
-      if (h.kind === "bullet") {
-        art.disc(ctx, h.x, h.y, 2, INK.soot);
-        art.rect(ctx, h.x - 1, h.y - 1, 2, 2, Math.floor(t * 20) % 2 ? INK.goldLight : INK.ember);
-      } else if (h.kind === "brick") art.block(ctx, h.x - 2, h.y - 1, 4, 3, map.theme.volley[0]);
-      else art.block(ctx, h.x - 1, h.y - 1, 3, 3, h.kind === "shell" ? INK.mortar : INK.soot);
-    }
+    for (const h of this.hostiles) this.drawHostile(h);
     for (const w of this.waves)
       for (let i = 0; i < 4; i++)
         art.rect(ctx, w.x - i * 2, gy - 5 + i, 2, 5 - i, map.theme.ground.light);
@@ -3101,11 +3301,13 @@ class Mission {
     }
     ctx.globalAlpha = 1;
     for (const b of this.booms) this.drawBoom(b);
-    for (const n of this.notes)
-      drawText(ctx, n.text, n.x, n.y - n.t * 16, 1, n.color, {
-        outline: INK.soot,
-        align: "center",
-      });
+    // A note stays on the stage, whole, even when it pops up near an edge.
+    for (const n of this.notes) {
+      const text = clipLine({ text: n.text, width: this.W - 8 });
+      const half = textWidth(text) / 2;
+      const x = Math.max(this.camX + 4 + half, Math.min(this.camX + this.W - 4 - half, n.x));
+      drawText(ctx, text, x, n.y - n.t * 16, 1, n.color, { outline: INK.soot, align: "center" });
+    }
     ctx.restore();
   }
 

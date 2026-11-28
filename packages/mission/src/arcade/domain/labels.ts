@@ -110,6 +110,16 @@ export const missionLabels = {
   bugInProd: "BUG IN PROD",
   loopIn: "ENTERING: THE FEEDBACK LOOP",
   reload: "HOT RELOAD",
+  // The office hours (light mode) and the night shift (dark mode), and the colleagues.
+  officeHours: "OFFICE HOURS",
+  nightShift: "THE NIGHT SHIFT",
+  toLight: "Switch to light mode: office hours",
+  toDark: "Switch to dark mode: the night shift",
+  killNine: "KILL -9?",
+  resolved: "RESOLVED",
+  busy: "BUSY: IN A MEETING",
+  scopeCreep: "SCOPE CREEP: +2 FOES",
+  it: "IT",
   // Technical debt, carried from map to map; a continue is a hotfix shipped in a hurry.
   debt: "DEBT",
   hotfix: "HOTFIX IN PROD: DEBT +1",

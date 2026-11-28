@@ -474,6 +474,15 @@
   right: max(8px, env(safe-area-inset-right));
   gap: 6px;
 }
+/* Four tools are wider than the column: they wrap to two rows, the buttons start under them. */
+.op[data-deck="side"] .op-tools {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(var(--op-deck) - 16px);
+}
+.op[data-deck="side"] .op-buttons {
+  padding-top: 100px;
+}
 .op[data-deck="side"] .op-tools .op-icon {
   width: 38px;
   height: 38px;

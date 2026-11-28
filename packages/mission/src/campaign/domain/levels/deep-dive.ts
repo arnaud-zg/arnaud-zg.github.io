@@ -79,6 +79,7 @@ export const deepDive: MissionMap = {
         { foe: "drone", n: 2, gap: 2, delay: 3 },
       ],
     },
+    { at: 420, kind: "colleague", id: "pm", x: 450 },
     { at: 680, kind: "mate", x: 700, h: 18, gift: "bombs" },
     { at: 720, kind: "crate", x: 768, h: 34 },
     { at: 760, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.2 } },
@@ -117,6 +118,7 @@ export const deepDive: MissionMap = {
     { at: 1650, kind: "spawn", spawn: { foe: "robot", n: 3, gap: 0.9 } },
     { at: 1700, kind: "spawn", spawn: { foe: "drone", n: 2, gap: 1.2 } },
     { at: 1700, kind: "exercise", x: 1730, id: "fibonacci" },
+    { at: 1760, kind: "colleague", id: "architect", x: 1800 },
     { at: 1950, kind: "boss" },
   ],
 };
