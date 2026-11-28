@@ -1,0 +1,18 @@
+---
+// A secret mission, started by the Konami code (↑ ↑ ↓ ↓ ← → ← → B A; on a touch screen, swipes
+// then two taps) or by pressing any [data-mission-start]. Each of its maps tells one of the
+// `chapters`, whose crates hold that part of the career's stack (see pickupsOf). Nothing of the
+// game loads until it starts.
+import { missionLabels, type MissionLabels } from "../mission/labels";
+import type { Chapter, MissionData } from "../mission/code";
+interface Props {
+  chapters: readonly Chapter[];
+  contact?: MissionData["contact"];
+  labels?: Partial<MissionLabels>;
+}
+const { chapters, contact, labels } = Astro.props;
+const data: MissionData = { chapters, labels: { ...missionLabels, ...labels }, ...(contact ? { contact } : {}) };
+const json = JSON.stringify(data).replace(/</g, "\\u003c");
+---
+<script type="application/json" data-mission set:html={json} />
+<script>import "../mission/trigger";</script>

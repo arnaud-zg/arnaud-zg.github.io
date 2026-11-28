@@ -1,0 +1,331 @@
+/* The secret mission (see mission/game.ts): a pixel stage over the dimmed page, and the few
+   controls that stay real buttons. Loaded with the mission, never before. Its own palette: a
+   desert sortie, the same by day and by night. */
+.op {
+  --op-soot: #1b1410;
+  --op-sand: #e8c37a;
+  --op-sand-light: #f6dea4;
+  --op-gold: #ffd447;
+  --op-gold-hi: #ffe680;
+  --op-rust: #b5532c;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  background: var(--op-dim, rgb(27 20 16 / 0.84));
+  color: var(--op-sand-light);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  animation: op-in 260ms var(--ease-out) both;
+}
+/* A faint scanline, as on the cabinets. */
+.op::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.09) 2px 3px);
+}
+.op-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: pixelated;
+  cursor: crosshair;
+}
+.op-tools {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: flex;
+  gap: 12px;
+}
+.op-end {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  translate: -50% 0;
+  animation: op-in 200ms steps(3) both;
+}
+.op-end[hidden] {
+  display: none;
+}
+/* Buttons cut from the same pixels: a soot rim, a lit top, a shaded base. */
+.op-btn {
+  margin: 0;
+  padding: 11px 18px;
+  border: 0;
+  background: var(--op-gold);
+  color: var(--op-soot);
+  font: inherit;
+  line-height: 0;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 3px var(--op-soot),
+    inset 0 3px 0 rgb(255 243 176 / 0.9),
+    inset 0 -4px 0 rgb(181 83 44 / 0.6);
+  transition: translate 90ms steps(2);
+}
+.op-btn[data-look="dark"] {
+  background: var(--op-soot);
+  color: var(--op-sand-light);
+  box-shadow:
+    0 0 0 3px var(--op-sand),
+    inset 0 3px 0 rgb(246 222 164 / 0.16),
+    inset 0 -4px 0 rgb(0 0 0 / 0.45);
+}
+.op-btn[hidden] {
+  display: none;
+}
+.op-btn:hover {
+  background: var(--op-gold-hi);
+}
+.op-btn[data-look="dark"]:hover {
+  background: #3a2a1e;
+}
+.op-btn:active {
+  translate: 0 2px;
+}
+.op-btn:focus-visible {
+  outline: 3px dashed var(--op-sand-light);
+  outline-offset: 6px;
+}
+.op-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.op-icon svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+/* Touch controls: the left half is a thumbstick that appears where the thumb lands; three
+   arcade buttons sit under the right thumb. */
+.op-pad {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.op-pad[hidden] {
+  display: none;
+}
+.op-stick {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 65%;
+  pointer-events: auto;
+  touch-action: none;
+}
+.op-ring {
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  border-radius: 50%;
+  background: rgb(27 20 16 / 0.45);
+  box-shadow:
+    0 0 0 3px var(--op-soot),
+    inset 0 0 0 3px var(--op-sand);
+}
+.op-ring[hidden] {
+  display: none;
+}
+.op-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border-radius: 50%;
+  background: var(--op-gold);
+  box-shadow:
+    0 0 0 3px var(--op-soot),
+    inset 0 3px 0 rgb(255 243 176 / 0.9),
+    inset 0 -4px 0 rgb(181 83 44 / 0.6);
+}
+.op-buttons {
+  position: absolute;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+/* FIRE, BOMB, GUARD, JUMP: one row under the right thumb, as on the keyboard. */
+.op-key {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  border-radius: 50%;
+  touch-action: none;
+  --op-px: 2px;
+}
+.op-key[data-key="jump"] {
+  background: var(--op-sand);
+}
+.op-key[data-key="bomb"] {
+  background: var(--op-rust);
+}
+/* On a narrow phone held upright, the four buttons make a square, leaving the stick its room. */
+@media (max-width: 560px) {
+  .op-tools {
+    top: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+  .op-tools .op-icon {
+    width: 38px;
+    height: 38px;
+  }
+  .op-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 62px);
+  }
+}
+.op-key[data-key="guard"] {
+  background: #a8e4ff;
+}
+.op-key:active {
+  translate: 0 3px;
+}
+/* A skill card: the places' marks, then the skill, its years and places, the weapon it unlocks.
+   Big and still, under the HUD, while the action slows behind it. */
+.op-card {
+  position: absolute;
+  top: calc(var(--op-s, 3px) * 44);
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--op-px, 2px) * 3);
+  max-width: calc(100% - 24px);
+  padding: calc(var(--op-px, 2px) * 6) calc(var(--op-px, 2px) * 9);
+  translate: -50% 0;
+  background: rgb(27 20 16 / 0.94);
+  color: var(--op-sand-light);
+  box-shadow:
+    0 0 0 3px var(--op-soot),
+    inset 0 0 0 2px var(--op-sand),
+    inset 0 0 0 5px rgb(27 20 16 / 0.94),
+    inset 0 0 0 6px var(--op-gold);
+  pointer-events: none;
+  animation: op-card-in 260ms steps(4) both;
+}
+.op-card[hidden] {
+  display: none;
+}
+.op-marks {
+  font-size: calc(var(--op-px, 2px) * 11);
+  line-height: 1.1;
+  letter-spacing: 0.15em;
+}
+.op-line {
+  display: block;
+}
+.op-line[data-size="big"] {
+  color: var(--op-gold);
+}
+.op-line[data-size="big"] .op-label {
+  width: calc(var(--op-px, 2px) * var(--w) * 2);
+  height: calc(var(--op-px, 2px) * 14);
+}
+.op-line[data-size="gold"] {
+  color: var(--op-gold);
+}
+.op-line[data-size="lore"] {
+  color: #b8c4d6;
+}
+.op-line[data-size="dim"] {
+  color: var(--op-sand);
+  opacity: 0.8;
+}
+/* The prompt to carry on shows once the card has been up long enough to read. */
+.op-carry {
+  margin-top: calc(var(--op-px, 2px) * 3);
+  color: var(--op-gold);
+  visibility: hidden;
+}
+.op-card.is-ready .op-carry {
+  visibility: visible;
+  animation: op-blink 1s steps(2) infinite;
+}
+@keyframes op-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes op-card-in {
+  from {
+    opacity: 0;
+    scale: 1.15;
+  }
+}
+.op-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--op-s, 3px) * 30);
+  z-index: 2;
+  margin: 0;
+  padding: 10px 16px;
+  translate: -50% 0;
+  background: var(--op-gold);
+  color: var(--op-soot);
+  box-shadow: 0 0 0 3px var(--op-soot);
+}
+.op-toast[hidden] {
+  display: none;
+}
+/* Labels in the stage's own pixel font (see glyphSvg), as many screen pixels per dot as the stage. */
+.op-label {
+  display: block;
+  width: calc(var(--op-px, 2px) * var(--w));
+  height: calc(var(--op-px, 2px) * 7);
+  fill: currentColor;
+}
+.op-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes op-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .op,
+  .op-card,
+  .op-card.is-ready .op-carry,
+  .op-end {
+    animation: none;
+  }
+  .op-btn {
+    transition: none;
+  }
+}

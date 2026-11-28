@@ -164,6 +164,7 @@ export default {
     diagramFit: "See it whole",
     diagramActual: "Back to full size",
     skillOnGitHub: (name: string) => `${name} on GitHub`,
+    getInTouch: "Get in touch",
     openSkill: "Open the skill on GitHub",
     readArticles: "Read them on Substack",
     added: "lines added",
@@ -203,6 +204,35 @@ export default {
       rights:
         "I can't tell which visits are yours, so I can't look them up. You can complain to your data protection authority. Questions?",
       contact: "Write to me on LinkedIn",
+    },
+  },
+
+  // ─── Secret mission ────────────────────────────────────────────────────────────────────────
+  // The Konami code starts it. Its three maps tell the career in three chapters, in this order;
+  // each chapter's crates hold the stack of the stations named here, from the career below.
+  mission: {
+    chapters: [
+      {
+        title: "THE EARLY YEARS",
+        line: "SIX-MONTH INTERNSHIPS ALONGSIDE EPITECH",
+        stations: ["Adveris", "Testapic", "Valeo", "ASC", "Solive"],
+      },
+      {
+        title: "FRONT-END AND MOBILE",
+        line: "TICKETING AT VEEPEE, PARKING APPS AT ONEPARK",
+        stations: ["Veepee", "Onepark"],
+      },
+      {
+        title: "PLATFORM AND ARCHITECTURE",
+        line: "SENIOR AT PAYFIT, PLATFORM AT DOCTOLIB",
+        stations: ["PayFit", "Doctolib"],
+      },
+    ],
+    // The engineer you play, and the message the debrief copies for LinkedIn.
+    labels: {
+      hero: "ARNAUD",
+      messageText:
+        "Hi Arnaud! I just played your secret mission. {played}: {score} points, {skills} of {total} skills unlocked.",
     },
   },
 

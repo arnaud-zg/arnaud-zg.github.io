@@ -21,11 +21,13 @@ import Shelf from "@arnaud-zg/design/Shelf.astro";
 import Articles from "@arnaud-zg/design/Articles.astro";
 import Activity from "@arnaud-zg/design/Activity.astro";
 import SecretBird from "@arnaud-zg/design/SecretBird.astro";
+import Mission from "@arnaud-zg/design/Mission.astro";
 import Pill from "@arnaud-zg/design/Pill.astro";
 import Dialog from "@arnaud-zg/design/Dialog.astro";
 import Markdown from "@arnaud-zg/design/Markdown.astro";
 import { Schema } from "astro-seo-schema";
 import { external } from "@arnaud-zg/design/links";
+import { pickupsOf } from "@arnaud-zg/design/mission";
 import { compact } from "@arnaud-zg/design/treemap";
 import Analytics from "../components/Analytics.astro";
 import { analytics } from "../analytics";
@@ -78,6 +80,14 @@ const openSourceKpis = [
   { value: `−${figures.removed.toLocaleString("en-GB")}`, label: labels.removed, tone: "removed" as const },
   { value: figures.projects, label: labels.projects(figures.projects) },
 ];
+// The secret mission: one chapter per map, each with the stack of its stations, most used first.
+// Its debrief leads to LinkedIn.
+const chapters = config.mission.chapters.map(({ title, line, stations }) => ({
+  title,
+  line,
+  pickups: pickupsOf(config.career.stations.filter((s) => (stations as readonly string[]).includes(s.name)), 11),
+}));
+const contact = links.find((l) => l.icon === "linkedin");
 const questKpis = [
   { value: quests.tools, label: labels.tools },
   // The month's figures share one caption: the month is named once.
@@ -171,5 +181,6 @@ const questKpis = [
 
     {sections.ending.show && <Ending site={siteInfo} title={sections.ending.title} line={sections.ending.line} links={links}>{analytics && <Pill look="quiet" opens="privacy">{config.analytics.words.link}</Pill>}<SecretBird href={`${import.meta.env.BASE_URL}design/`} label="Design workshop" /></Ending>}
   </Content>
+  <Mission chapters={chapters} contact={contact && { href: contact.href, label: labels.getInTouch }} labels={config.mission.labels} />
   {analytics && <Analytics settings={analytics} />}
 </Site>
