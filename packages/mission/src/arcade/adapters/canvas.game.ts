@@ -11,6 +11,7 @@
 import type { Chapter, Pickup } from "../../campaign/domain/loadout.ts";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "../../campaign/domain/map.ts";
 import type { Answer, Perk } from "../../challenge/domain/exercise.ts";
+import type { Loop } from "../../challenge/domain/loop.ts";
 import type { ReviewId, ReviewRow } from "../../combat/domain/score.ts";
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { Deck, Key } from "../../input/domain/controls.ts";
@@ -20,6 +21,8 @@ import type { MissionData } from "../domain/mission.ts";
 import type { Played } from "./web.share.ts";
 import { EXERCISES } from "../../campaign/domain/levels/catalog/exercises.ts";
 import { FOES } from "../../campaign/domain/levels/catalog/foes.ts";
+import { INCIDENTS, SPAM } from "../../campaign/domain/levels/catalog/incidents.ts";
+import { LOOP_STAGES, TESTS_SKIPPED } from "../../campaign/domain/levels/catalog/loops.ts";
 import { loreOf } from "../../campaign/domain/levels/catalog/lore.ts";
 import { POINTS, TALLY } from "../../campaign/domain/levels/catalog/points.ts";
 import { REVIEW } from "../../campaign/domain/levels/catalog/review.ts";
@@ -27,6 +30,7 @@ import { MAPS, MOMENTS, ODDS } from "../../campaign/domain/levels/index.ts";
 import { orderMaps, pickMap } from "../../campaign/domain/map.ts";
 import { resultOf } from "../../challenge/domain/exercise.ts";
 import { Ledger } from "../../challenge/domain/ledger.ts";
+import { faster, shotOf, skipTests, stageOf } from "../../challenge/domain/loop.ts";
 import { bonusOf, chainAfter, multiplierOf, rankOf, reviewOf } from "../../combat/domain/score.ts";
 import { weaponOf, WEAPONS } from "../../combat/domain/weapons.ts";
 import {
@@ -46,11 +50,11 @@ import { deckOf, keyOf, playable, scaleOf, STRIP } from "../../input/domain/cont
 import { Combos, ENERGY, inputOf, MOVES } from "../../moves/domain/combos.ts";
 import { followGround, keptInLock, STRANDED } from "../../moves/domain/ground.ts";
 import { HITSTOP, JUMP, Jumper, pullToward, sideOf, stopFor } from "../../moves/domain/motion.ts";
-import { column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
+import { clipLine, column, fitText, heightOf, pagesOf, zonesOf } from "../domain/layout.ts";
 import * as art from "./canvas.draw.ts";
 import { Whiteboard } from "./canvas.exercise.ts";
 import { drawPlaced } from "./canvas.layout.ts";
-import { ARM, GOLD, HERO, INK, paper, sprites } from "./canvas.sprites.ts";
+import { ARM, GOLD, HERO, INK, paper, sprites, TERM } from "./canvas.sprites.ts";
 import { closestTo } from "./dom.target.ts";
 import css from "./mission.css?inline";
 import {
@@ -207,7 +211,8 @@ type Sweep = { y: number; charge: number; fire: number; t: number };
 type Wave = { x: number; speed: number };
 type Cube = Pt & { vx: number; vy: number; color: string };
 type Alert = { side: 1 | -1; t: number }; // a foe coming in from off screen
-type Board = { x: number; id: keyof typeof EXERCISES; used: boolean }; // a whiteboard standing in the level
+type Board = { x: number; id: keyof typeof EXERCISES; used: boolean; kiosk?: boolean }; // a kiosk opens only while degraded
+type LoopZone = { from: number; to: number; loop: Loop; entered: boolean; done: boolean };
 type Row = { height: number; step: number; draw: (y: number) => void }; // a debrief line, shown once `revealed` passes `step`
 type Queued = {
   at: number;
@@ -375,6 +380,11 @@ class Mission {
   }; // this map's, for its rank and review
   private boards: Board[] = [];
   private whiteboard: Whiteboard | undefined; // an exercise is up: the fight waits
+  private crash: { id: keyof typeof INCIDENTS; t: number } | undefined; // production going down
+  private degraded = false; // an incident left unfixed: the map plays broken
+  private boostUntil = 0; // double points after a fix, until then
+  private stutter = 0; // degraded: seconds since the last frame drawn
+  private loopZone: LoopZone | undefined;
   private ledger = new Ledger(); // the run's technical debt, carried from map to map
   private review: readonly ReviewRow[] = []; // the last cleared map's, with its bonus already in the score
   private chain = 0;
@@ -1003,6 +1013,10 @@ class Mission {
       items: [],
       mates: [],
       boards: [],
+      crash: undefined,
+      degraded: false,
+      boostUntil: 0,
+      loopZone: undefined,
       foes: [],
       shots: [],
       hostiles: [],
@@ -1144,12 +1158,22 @@ class Mission {
     this.last = now;
     this.step(dt);
     const paint = this.tooSmall ? () => this.drawTooSmall() : () => this.draw();
-    paint();
+    if (this.lagging(dt)) paint();
     this.raf = requestAnimationFrame(this.frame);
   };
 
+  // Degraded, the stage draws a frame now and then: twelve a second, and it shows.
+  private lagging(dt: number) {
+    if (!this.degraded || !this.fighting()) return true;
+    this.stutter += dt;
+    if (this.stutter < 1 / 12) return false;
+    this.stutter = 0;
+    return true;
+  }
+
   // One tick of the clock: a message waits to be read, a heavy blow holds, or the world moves.
   private step(dt: number) {
+    if (this.crash) return this.crashing(dt);
     if (this.whiteboard) {
       this.whiteboard.tick(dt);
       return;
@@ -1323,6 +1347,24 @@ class Mission {
       case "exercise":
         this.boards.push({ x: e.x, id: e.id, used: false });
         return;
+      case "incident":
+        if (e.x !== undefined)
+          return void this.boards.push({ x: e.x, id: e.id, used: false, kiosk: true });
+        this.crash = { id: e.id, t: 0 };
+        this.held.clear();
+        this.sound.music(undefined);
+        this.sound.boom(true);
+        this.shake = 6;
+        return;
+      case "loop":
+        this.loopZone = {
+          from: e.from,
+          to: e.to,
+          loop: { stage: 0, skipped: false },
+          entered: false,
+          done: false,
+        };
+        return;
       case "spawn":
         return this.enqueue(e.spawn, -1);
       case "lock": {
@@ -1422,6 +1464,12 @@ class Mission {
     if (!board) return;
     board.used = true;
     this.held.clear();
+    if (board.kiosk && !this.degraded)
+      return void this.banners.push({ title: this.L.allGreen, t: 0, dur: 1.4 });
+    this.openBoard(board);
+  }
+
+  private openBoard(board: Board) {
     this.whiteboard = new Whiteboard(EXERCISES[board.id], {
       ctx: this.ctx,
       size: () => ({ W: this.W, H: this.H }),
@@ -1455,12 +1503,32 @@ class Mission {
       this.ledger.owe({ reason: exercise.id, amount: result.debt, stage: this.stage });
     if (result.debt < 0) this.ledger.repay({ amount: -result.debt, stage: this.stage });
     if (result.name) this.ledger.name(result.name);
+    if (exercise.kind === "incident") return this.afterIncident(result.solved);
     result.perks.forEach((perk) => this.grant(perk));
     const banner =
       exercise.kind === "quiz"
         ? `${result.solved ? this.L.solved : this.L.reviewQuality} +${result.points}`
         : `${this.L.context}: ${this.ledger.contextName() ?? exercise.title}`;
     this.banners.push({ title: banner, t: 0, dur: 1.8 });
+  }
+
+  // Fixed: green build and double points for a while; not fixed: the rest of the map plays broken.
+  private afterIncident(fixed: boolean) {
+    this.sound.music(this.map.music, Boolean(this.boss));
+    this.degraded = !fixed;
+    if (fixed) this.boostUntil = this.t + 15;
+    this.banners.push({ title: fixed ? this.L.buildGreen : this.L.degradedMode, t: 0, dur: 2.2 });
+    this.say(fixed ? this.L.buildGreen : this.L.degradedMode);
+  }
+
+  // The crash: a second of torn frames, then the terminal.
+  private crashing(dt: number) {
+    const crash = this.crash;
+    if (!crash) return;
+    crash.t += dt;
+    if (crash.t < 1.1) return;
+    this.crash = undefined;
+    this.openBoard({ x: this.hero.x, id: crash.id, used: true });
   }
 
   private grant(perk: Perk) {
@@ -1471,8 +1539,60 @@ class Mission {
         this.hero.ammo = WEAPONS.spread.ammo;
       },
       language: () => this.ledger.learnTheLanguage(),
+      faster: () => this.tuneLoop(faster),
+      skipTests: () => this.tuneLoop(skipTests),
     } as const satisfies { [K in Perk]: () => void };
     perks[perk]();
+  }
+
+  // ── The feedback loop: in its zone the gun is the CI cannon, each shot waits for its build ───
+  private loopStage() {
+    const zone = this.loopZone;
+    return zone
+      ? stageOf({ loop: zone.loop, stages: LOOP_STAGES, skipped: TESTS_SKIPPED })
+      : undefined;
+  }
+  private inLoop() {
+    return this.loopZone?.entered === true && !this.loopZone.done;
+  }
+  private tuneLoop(change: (loop: Loop) => Loop) {
+    const zone = this.loopZone;
+    if (!zone) return;
+    zone.loop = change(zone.loop);
+    const stage = this.loopStage();
+    if (stage) this.banners.push({ title: `${stage.label} · ${stage.eta}`, t: 0, dur: 2 });
+  }
+  // Entering, the gun turns into the cannon; leaving it fast, the hero keeps HOT RELOAD.
+  private walkTheLoop() {
+    const zone = this.loopZone;
+    if (!zone || zone.done) return;
+    if (!zone.entered && this.hero.x >= zone.from) {
+      zone.entered = true;
+      this.hero.weapon = "pistol";
+      this.hero.ammo = Infinity;
+      this.banners.push({ title: this.L.loopIn, t: 0, dur: 2.2 });
+      this.say(this.L.loopIn);
+    }
+    if (!zone.entered || this.hero.x <= zone.to) return;
+    zone.done = true;
+    const fast = !zone.loop.skipped && zone.loop.stage >= LOOP_STAGES.length - 1;
+    if (!fast) return;
+    this.hero.weapon = "reload";
+    this.hero.ammo = WEAPONS.reload.ammo;
+    this.banners.push({ title: `${this.L.reload}!`, t: 0, dur: 2 });
+  }
+  // A shot of the cannon: it builds, flakes, or ships a bug; "cannon" means it fires.
+  private loopShot() {
+    const stage = this.loopStage();
+    if (!stage || !this.inLoop()) return "gun";
+    const shot = shotOf({ stage, roll: Math.random() });
+    this.hero.cooldown = stage.build;
+    if (shot === "fire") return "cannon";
+    const text = shot === "flaky" ? this.L.retry : this.L.bugInProd;
+    this.notes.push({ x: this.hero.x + 8, y: this.hero.feet - 24, text, t: 0, color: INK.rust });
+    this.sound.empty();
+    if (shot === "backfire") this.spawnFoe("bug", "left", -1, true);
+    return "held";
   }
 
   // ── The hero ───────────────────────────────────────────────────────────────────────────────
@@ -1501,6 +1621,18 @@ class Mission {
   }
 
   // Down and jump on a ledge drops through it; otherwise, a jump.
+  // Degraded, one jump in six does not happen, and says so.
+  private flakyLeap() {
+    if (!this.degraded || Math.random() >= 1 / 6) return this.leap();
+    this.notes.push({
+      x: this.hero.x + 8,
+      y: this.hero.feet - 24,
+      text: this.L.flaky,
+      t: 0,
+      color: INK.rust,
+    });
+  }
+
   private leap() {
     const { hero } = this;
     if (hero.ground && this.held.has("down") && this.onLedge(hero.x + 8, hero.feet)) {
@@ -1571,7 +1703,7 @@ class Mission {
     if (this.boss && hero.x > this.boss.x - 12) hero.x = this.boss.x - 12;
     if (hero.ground && hero.feet < gy && !this.onLedge(hero.x + 8, hero.feet)) hero.ground = false;
     this.jumper.ground(hero.ground, this.t);
-    if (hero.roll <= 0 && this.jumper.take(this.t, hero.ground)) this.leap();
+    if (hero.roll <= 0 && this.jumper.take(this.t, hero.ground)) this.flakyLeap();
     if (!hero.ground) {
       const before = hero.feet;
       hero.vy = Math.min(300, hero.vy + GRAVITY * dt);
@@ -1635,11 +1767,14 @@ class Mission {
       this.hurtFoe(near, 3, true);
       return;
     }
+    const cannon = this.loopShot();
+    if (cannon === "held") return;
     const w = WEAPONS[hero.weapon];
     const s = this.shoulder();
     const dx = Math.cos(hero.angle),
       dy = Math.sin(hero.angle);
     hero.cooldown = held && hero.weapon === "pistol" ? 0.3 : w.cooldown;
+    if (cannon === "cannon") hero.cooldown = this.loopStage()?.build ?? hero.cooldown;
     hero.recoil = 0.05;
     hero.flash = 0.05;
     this.here.fired++;
@@ -1949,7 +2084,8 @@ class Mission {
     this.chain = chainAfter(this.chain, this.t - this.lastKill);
     this.here.bestChain = Math.max(this.here.bestChain, this.chain);
     this.lastKill = this.t;
-    const mult = multiplierOf(this.chain) * (melee ? POINTS.melee : 1);
+    const boost = this.t < this.boostUntil ? 2 : 1; // a fixed incident: double points for a while
+    const mult = multiplierOf(this.chain) * (melee ? POINTS.melee : 1) * boost;
     this.score += base * mult;
     this.kills++;
     this.tracker.observe("kill");
@@ -2568,6 +2704,7 @@ class Mission {
   private updateThings(dt: number) {
     const { gy } = this;
     this.walkUpToBoards();
+    this.walkTheLoop();
     for (const c of this.crates) {
       if (c.floor >= 0) continue;
       c.y += (this.H / 12) * dt;
@@ -2820,6 +2957,9 @@ class Mission {
     if (this.phase === "clear") this.debrief();
     if (this.phase === "still") this.loadout();
     if (this.paused) this.drawPaused();
+    if (this.degraded && this.fighting()) this.consoleSpam();
+    if (this.inLoop()) this.buildBar();
+    if (this.crash) this.tornFrames(this.crash.t);
     this.whiteboard?.draw();
     if (this.reading) {
       ctx.globalAlpha = 0.45;
@@ -2916,6 +3056,10 @@ class Mission {
       );
     }
     for (const f of this.foes) {
+      if (this.degraded) {
+        art.missing(ctx, f.x, f.y, f.w, f.h);
+        continue;
+      }
       if (f.kind === "bug") art.bug(ctx, f.x, f.y, f.facing, map.theme, f.t, f.flash > 0);
       else if (f.kind === "robot")
         art.robot(
@@ -3671,7 +3815,9 @@ class Mission {
       hero.weapon === "pistol"
         ? `${L.arms} P --`
         : `${L.arms} ${WEAPONS[hero.weapon].letter} ${String(Math.ceil(hero.ammo)).padStart(3, "0")}`;
-    const top = `${L.score} ${String(this.score).padStart(7, "0")}`;
+    const top = this.degraded
+      ? L.objectObject
+      : `${L.score} ${String(this.score).padStart(7, "0")}`;
     const mid = `${arms}  ${L.bombs} ${String(hero.bombs).padStart(2, "0")}`;
     const debt = this.ledger.total();
     const third = `${this.skillsLine()}${debt > 0 ? ` ${L.debt} ${debt}` : ""}`;
@@ -4066,6 +4212,48 @@ class Mission {
   }
 
   // Under the floor (controls.ts, playable): the hero, and a word to say sorry.
+  // Degraded: the console never stops talking, in the corner, over the ground.
+  private consoleSpam() {
+    const first = Math.floor(this.t / 1.2);
+    [0, 1].forEach((i) => {
+      const line = clipLine({ text: SPAM.at((first + i) % SPAM.length) ?? "", width: this.W - 8 });
+      drawText(this.ctx, line, 4, this.gy + 6 + i * 8, 1, i === 1 ? TERM.ink : TERM.dim, {
+        outline: INK.soot,
+      });
+    });
+  }
+
+  // The cannon's build: what runs, its ETA, and how far along the shot is.
+  private buildBar() {
+    const stage = this.loopStage();
+    if (!stage) return;
+    const y = this.gy + 5; // in the ground strip, under the fight, clear of the banners
+    const words = clipLine({ text: `${stage.eta} · ${stage.label}`, width: this.W - 8 });
+    drawText(this.ctx, words, 4, y, 1, stage.backfire > 0 ? INK.rust : TERM.ink, {
+      outline: INK.soot,
+    });
+    const done = 1 - Math.min(1, this.hero.cooldown / Math.max(0.01, stage.build));
+    const width = Math.min(80, this.W - 8);
+    art.rect(this.ctx, 4, y + 9, width, 4, INK.soot);
+    art.rect(this.ctx, 4, y + 9, Math.round(width * done), 4, done >= 1 ? TERM.ink : TERM.dim);
+  }
+
+  // Production going down: slices of the frame torn sideways, and the fault, flickering.
+  private tornFrames(t: number) {
+    const { ctx, W, H } = this;
+    for (let i = 0; i < 7; i++) {
+      const y = Math.floor(rand(0, H - 8));
+      const h = Math.floor(rand(3, 14));
+      ctx.drawImage(this.canvas, 0, y, W, h, Math.round(rand(-10, 10)), y, W, h);
+    }
+    if (Math.floor(t * 10) % 2) return;
+    art.rect(ctx, 0, H / 2 - 8, W, 16, TERM.bg);
+    const text = this.L.segfault;
+    drawText(ctx, text, W / 2, H / 2 - 4, fitScale(text, W - 8, 2), TERM.alert, {
+      align: "center",
+    });
+  }
+
   private drawTooSmall() {
     const { ctx, W, H, L } = this;
     art.rect(ctx, 0, 0, W, H, this.map.theme.menu);

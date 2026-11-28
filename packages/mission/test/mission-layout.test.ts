@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  clipLine,
   column,
   fitText,
   linesOf,
@@ -139,4 +140,10 @@ test("an absent piece keeps its slot and takes no room", () => {
   });
   assert.equal(placed.at(1), undefined);
   assert.equal(placed.at(2)?.y, 16);
+});
+
+test("a line that must stay one line is cut to the width", () => {
+  assert.equal(clipLine({ text: "SHORT", width: 60 }), "SHORT");
+  const cut = clipLine({ text: "AT NODE_MODULES/SCHEDULER.JS:4", width: 100 });
+  assert.ok(cut.endsWith("..") && widthOf({ text: cut }) <= 100, cut);
 });

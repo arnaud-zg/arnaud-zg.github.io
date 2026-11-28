@@ -187,3 +187,6 @@ export const ARM = [
   PALETTE.G,
   PALETTE.G,
 ];
+
+// A terminal's colours: green on black, the prompt dimmer, errors red.
+export const TERM = { bg: "#050a05", ink: "#7cff6b", dim: "#3c8a35", alert: "#ff5a4a" } as const;

@@ -5,6 +5,9 @@
 
 import type { WeaponId } from "../../combat/domain/weapons.ts";
 import type { ExerciseId } from "./levels/catalog/exercises.ts";
+import type { INCIDENTS } from "./levels/catalog/incidents.ts";
+
+type IncidentId = keyof typeof INCIDENTS;
 
 export type FoeKind = "bug" | "robot" | "drone";
 
@@ -41,6 +44,10 @@ export type MapEvent =
     }
   // A whiteboard at `x`: walking into it opens an exercise or a design decision (catalog/exercises.ts).
   | { readonly at: number; readonly kind: "exercise"; readonly x: number; readonly id: ExerciseId }
+  // Production breaks at `at`; with `x`, a hotfix kiosk instead, open only while still degraded.
+  | { readonly at: number; readonly kind: "incident"; readonly id: IncidentId; readonly x?: number }
+  // From `from` to `to`, the hero's gun is the CI cannon, and every shot waits for its build.
+  | { readonly at: number; readonly kind: "loop"; readonly from: number; readonly to: number }
   // The end: a warning, then the boss, in the last screen of the map. Drops one crate.
   | { readonly at: number; readonly kind: "boss" };
 

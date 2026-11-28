@@ -1,5 +1,5 @@
 // A quiz pays for right answers, faster pays more; a decision has none, only consequences.
-export type Perk = "bombs" | "weapon" | "language";
+export type Perk = "bombs" | "weapon" | "language" | "faster" | "skipTests";
 export type Gag = "overflow";
 
 export type Choice = {
@@ -16,7 +16,8 @@ export type Figure =
   | { readonly kind: "tree"; readonly values: readonly number[]; readonly path: readonly number[] }
   | { readonly kind: "lockers"; readonly lockers: number; readonly items: readonly Locker[] }
   | { readonly kind: "dolls"; readonly labels: readonly string[] }
-  | { readonly kind: "race"; readonly racers: readonly Racer[] };
+  | { readonly kind: "race"; readonly racers: readonly Racer[] }
+  | { readonly kind: "trace"; readonly lines: readonly string[] };
 export type Locker = { readonly key: string; readonly locker?: number };
 export type Growth = "constant" | "log" | "linear" | "nlogn" | "square";
 export type Racer = { readonly label: string; readonly grows: Growth };
@@ -28,9 +29,11 @@ export type Step = {
   readonly arrows?: boolean; // ← and → pick the first and second choice: a left or right turn
 };
 
+// An incident is graded like a quiz: solved, production is fixed; not, the game runs degraded.
 export type Exercise = {
   readonly id: string;
-  readonly kind: "quiz" | "decision";
+  readonly kind: "quiz" | "decision" | "incident";
+  readonly skin?: "whiteboard" | "terminal";
   readonly title: string;
   readonly speaker: string;
   readonly intro: string;
@@ -68,10 +71,10 @@ export const resultOf = ({
     (sum, a) => sum + speedOf({ seconds: a.seconds, time: exercise.time }),
     0,
   );
-  const quiz = exercise.kind === "quiz";
+  const graded = exercise.kind !== "decision";
   return {
-    solved: quiz && rightOnes.length === exercise.steps.length,
-    points: quiz ? Math.round((exercise.points * share) / exercise.steps.length) : 0,
+    solved: graded && rightOnes.length === exercise.steps.length,
+    points: graded ? Math.round((exercise.points * share) / exercise.steps.length) : 0,
     debt: chosen.reduce((sum, c) => sum + (c.debt ?? 0), 0),
     perks: chosen.map((c) => c.perk).filter((p) => p !== undefined),
     name: chosen.find((c) => c.names)?.text,

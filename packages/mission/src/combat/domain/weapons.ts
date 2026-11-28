@@ -1,6 +1,6 @@
 // The weapons: what each fires, how fast and how hard, and which one a crate holds.
 
-export type WeaponId = "pistol" | "rapid" | "spread" | "rocket" | "flame";
+export type WeaponId = "pistol" | "rapid" | "spread" | "rocket" | "flame" | "reload";
 export type Weapon = {
   readonly letter: string; // stencilled on the crate and shown in the HUD
   readonly cooldown: number; // seconds between shots
@@ -52,6 +52,17 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     pellets: 1,
     spread: 0,
     life: 2.2,
+  },
+  // The feedback loop, made instant: what the CI cannon becomes once it is fast.
+  reload: {
+    letter: "H",
+    cooldown: 0.07,
+    ammo: Infinity,
+    damage: 1.2,
+    speed: 380,
+    pellets: 1,
+    spread: 0.03,
+    life: 1.1,
   },
   flame: {
     letter: "F",
