@@ -10,13 +10,13 @@
 // Reduced motion gets the loadout, still.
 import type { Chapter, MissionData, Pickup } from "./code";
 import type { Move } from "./combos";
-import type { Key } from "./controls";
+import type { Deck, Key } from "./controls";
 import type { Attack, FoeKind, MapEvent, MissionMap, Spawn } from "./map";
 import type { WeaponId } from "./rules";
 import type { Played } from "./share";
 import css from "../styles/mission.css?inline";
 import { Combos, ENERGY, inputOf, MOVES } from "./combos";
-import { keyOf, STRIP } from "./controls";
+import { deckOf, keyOf, scaleOf, STRIP } from "./controls";
 import * as art from "./draw";
 import { drawText, fitScale, GLYPH_H, glyphSvg, textWidth, wrap } from "./font";
 import { loreOf } from "./lore";
@@ -236,6 +236,7 @@ class Mission {
 
   // The stage: S screen pixels per stage pixel, W × H stage pixels.
   private S = 3;
+  private deck: Deck = deckOf(1, 1, false); // where the touch controls sit, off the stage
   private W = 320;
   private H = 200;
   private get gy() {
@@ -455,11 +456,14 @@ class Mission {
     on(canvas, "pointerdown", (e) => {
       e.preventDefault();
       if (this.reading || this.paused) return this.press("start");
-      if (!this.fighting()) this.menu({ x: e.clientX / this.S, y: e.clientY / this.S });
+      const box = canvas.getBoundingClientRect();
+      if (!this.fighting())
+        this.menu({ x: (e.clientX - box.left) / this.S, y: (e.clientY - box.top) / this.S });
     });
   }
 
-  // A thumbstick that appears where the left thumb lands, and three buttons in a row.
+  // The touch deck, beside or under the stage, never over it: a thumbstick that follows the
+  // left thumb, resting in the middle of its side until touched, and four buttons for the right.
   private mountPad() {
     const { pad, L } = this;
     pad.className = "op-pad";
@@ -468,12 +472,14 @@ class Mission {
     const stick = document.createElement("div");
     stick.className = "op-stick";
     const ring = document.createElement("div");
-    ring.className = "op-ring";
-    ring.hidden = true;
+    ring.className = "op-ring is-idle";
+    const hint = document.createElement("span");
+    hint.className = "op-hint";
+    hint.innerHTML = glyphSvg(L.keyMove);
     const knob = document.createElement("div");
     knob.className = "op-knob";
     ring.append(knob);
-    stick.append(ring);
+    stick.append(ring, hint);
     let origin: (Pt & { id: number }) | undefined;
     const steer = (e: PointerEvent) => {
       if (!origin || e.pointerId !== origin.id) return;
@@ -495,7 +501,9 @@ class Mission {
     const release = (e: PointerEvent) => {
       if (!origin || e.pointerId !== origin.id) return;
       origin = undefined;
-      ring.hidden = true;
+      ring.classList.add("is-idle");
+      ring.style.left = ring.style.top = "";
+      knob.style.translate = "0 0";
       for (const k of ["left", "right", "up", "down"] as const) this.held.delete(k);
     };
     stick.addEventListener("pointerdown", (e) => {
@@ -504,7 +512,7 @@ class Mission {
       stick.setPointerCapture(e.pointerId);
       const box = stick.getBoundingClientRect();
       origin = { x: e.clientX, y: e.clientY, id: e.pointerId };
-      ring.hidden = false;
+      ring.classList.remove("is-idle");
       ring.style.left = `${e.clientX - box.left}px`;
       ring.style.top = `${e.clientY - box.top}px`;
       knob.style.translate = "0 0";
@@ -596,14 +604,19 @@ class Mission {
     this.done();
   }
 
+  // The stage fills what the touch deck leaves (controls.ts, deckOf), scaled pixel for pixel.
   private resize() {
-    this.S = Math.max(
-      2,
-      Math.min(5, Math.floor(Math.min(window.innerWidth / 300, window.innerHeight / 190))),
-    );
-    this.W = Math.ceil(window.innerWidth / this.S);
-    this.H = Math.ceil(window.innerHeight / this.S);
+    this.deck = deckOf(window.innerWidth, window.innerHeight, touch());
+    const { stage, mode, size } = this.deck;
+    this.S = scaleOf(stage.w, stage.h);
+    this.W = Math.ceil(stage.w / this.S);
+    this.H = Math.ceil(stage.h / this.S);
     const { canvas, S, W, H } = this;
+    canvas.style.left = `${stage.x}px`;
+    this.root.dataset.deck = mode;
+    this.root.style.setProperty("--op-deck", `${size}px`);
+    this.root.style.setProperty("--op-deck-under", `${mode === "bottom" ? size : 0}px`);
+    this.pad.hidden = mode === "none" || this.phase === "still";
     canvas.width = W;
     canvas.height = H;
     canvas.style.width = `${W * S}px`;
@@ -692,10 +705,12 @@ class Mission {
     if (key === "bomb") return this.throwBomb();
   }
 
-  // A key let go. Letting go of jump on the way up makes a short hop.
+  // A key let go. Letting go of jump on the way up makes a short hop; a touch button is always
+  // tapped quickly, so on touch a jump keeps its full height.
   private release(key: Key) {
     this.held.delete(key);
-    if (key === "jump" && this.fighting()) this.hero.vy = this.jumper.release(this.hero.vy);
+    if (key === "jump" && this.fighting() && this.deck.mode === "none")
+      this.hero.vy = this.jumper.release(this.hero.vy);
   }
 
   // Tab stays on the mission's own controls while it is open.
@@ -755,7 +770,7 @@ class Mission {
   private go(phase: Phase) {
     this.phase = phase;
     this.pt = 0;
-    this.pad.hidden = !(this.fighting() || phase === "continue") || !touch();
+    this.pad.hidden = this.deck.mode === "none" || phase === "still"; // the deck stays put: the stage never jumps
     this.pauseBtn.hidden = !this.fighting() || !touch();
     if (phase === "title") this.stamps = [];
     if (phase === "select")
