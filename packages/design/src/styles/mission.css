@@ -40,7 +40,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 1;
+  z-index: 2; /* above the touch deck's column */
   display: flex;
   gap: 12px;
 }
@@ -115,28 +115,66 @@
   stroke-linecap: square;
   stroke-linejoin: miter;
 }
-/* Touch controls: the left half is a thumbstick that appears where the thumb lands; three
-   arcade buttons sit under the right thumb. */
+/* Touch controls get a deck of their own, never over the stage (see deckOf): a strip under it
+   when the phone stands upright, a column either side when it lies down. The stick is on the
+   left, its ring resting in the middle until the thumb lands; four buttons are on the right. */
 .op-pad {
   position: absolute;
-  inset: 0;
   z-index: 1;
-  pointer-events: none;
+  display: flex;
 }
 .op-pad[hidden] {
   display: none;
 }
-.op-stick {
-  position: absolute;
+.op[data-deck="bottom"] .op-pad {
   left: 0;
+  right: 0;
   bottom: 0;
-  width: 50%;
-  height: 65%;
+  height: var(--op-deck);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: var(--op-soot);
+  box-shadow:
+    inset 0 3px 0 var(--op-sand),
+    inset 0 6px 0 var(--op-soot),
+    inset 0 7px 0 var(--op-rust);
+}
+.op[data-deck="side"] .op-pad {
+  inset: 0;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.op[data-deck="side"] .op-stick,
+.op[data-deck="side"] .op-buttons {
+  width: var(--op-deck);
+  background: var(--op-soot);
   pointer-events: auto;
+}
+.op[data-deck="side"] .op-stick {
+  padding-left: env(safe-area-inset-left);
+  box-shadow:
+    inset -3px 0 0 var(--op-sand),
+    inset -6px 0 0 var(--op-soot),
+    inset -7px 0 0 var(--op-rust);
+}
+.op[data-deck="side"] .op-buttons {
+  padding: 64px env(safe-area-inset-right) 0 0;
+  box-shadow:
+    inset 3px 0 0 var(--op-sand),
+    inset 6px 0 0 var(--op-soot),
+    inset 7px 0 0 var(--op-rust);
+}
+.op-stick {
+  position: relative;
+  flex: 1;
   touch-action: none;
+}
+.op[data-deck="side"] .op-stick {
+  flex: none;
 }
 .op-ring {
   position: absolute;
+  left: 50%;
+  top: 50%;
   width: 84px;
   height: 84px;
   margin: -42px 0 0 -42px;
@@ -145,9 +183,19 @@
   box-shadow:
     0 0 0 3px var(--op-soot),
     inset 0 0 0 3px var(--op-sand);
+  pointer-events: none;
 }
-.op-ring[hidden] {
-  display: none;
+.op-ring.is-idle {
+  opacity: 0.55;
+}
+.op-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  translate: -50% 0;
+  color: var(--op-sand);
+  opacity: 0.7;
+  pointer-events: none;
 }
 .op-knob {
   position: absolute;
@@ -163,15 +211,17 @@
     inset 0 3px 0 rgb(255 243 176 / 0.9),
     inset 0 -4px 0 rgb(181 83 44 / 0.6);
 }
+/* BOMB GUARD over FIRE JUMP: the thumb rests on fire and rolls to jump, as on a cabinet. */
 .op-buttons {
-  position: absolute;
-  right: max(14px, env(safe-area-inset-right));
-  bottom: max(16px, env(safe-area-inset-bottom));
-  display: flex;
-  gap: 10px;
-  pointer-events: auto;
+  display: grid;
+  grid-template-areas:
+    "bomb guard"
+    "fire jump";
+  grid-template-columns: repeat(2, 62px);
+  place-content: center;
+  gap: 12px;
+  padding: 0 18px;
 }
-/* FIRE, BOMB, GUARD, JUMP: one row under the right thumb, as on the keyboard. */
 .op-key {
   display: grid;
   place-items: center;
@@ -182,13 +232,24 @@
   touch-action: none;
   --op-px: 2px;
 }
+.op-key[data-key="fire"] {
+  grid-area: fire;
+}
 .op-key[data-key="jump"] {
+  grid-area: jump;
   background: var(--op-sand);
 }
 .op-key[data-key="bomb"] {
+  grid-area: bomb;
   background: var(--op-rust);
 }
-/* On a narrow phone held upright, the four buttons make a square, leaving the stick its room. */
+.op-key[data-key="guard"] {
+  grid-area: guard;
+  background: #a8e4ff;
+}
+.op-key:active {
+  translate: 0 3px;
+}
 @media (max-width: 560px) {
   .op-tools {
     top: 8px;
@@ -199,16 +260,6 @@
     width: 38px;
     height: 38px;
   }
-  .op-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, 62px);
-  }
-}
-.op-key[data-key="guard"] {
-  background: #a8e4ff;
-}
-.op-key:active {
-  translate: 0 3px;
 }
 /* A skill card: the places' marks, then the skill, its years and places, the weapon it unlocks.
    Big and still, under the HUD, while the action slows behind it. */
@@ -286,7 +337,7 @@
 .op-toast {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--op-s, 3px) * 30);
+  bottom: calc(var(--op-deck-under, 0px) + var(--op-s, 3px) * 30);
   z-index: 2;
   margin: 0;
   padding: 10px 16px;
@@ -328,4 +379,14 @@
   .op-btn {
     transition: none;
   }
+}
+/* Beside the stage, the tools sit small at the top of the buttons' column. */
+.op[data-deck="side"] .op-tools {
+  top: 8px;
+  right: max(8px, env(safe-area-inset-right));
+  gap: 6px;
+}
+.op[data-deck="side"] .op-tools .op-icon {
+  width: 38px;
+  height: 38px;
 }
